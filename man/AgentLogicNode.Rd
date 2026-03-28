@@ -63,6 +63,8 @@ Run the Logic Node}
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{state}}{AgentState object.}
+
+\item{\code{...}}{Additional arguments.}
 }
 \if{html}{\out{</div>}}
 }

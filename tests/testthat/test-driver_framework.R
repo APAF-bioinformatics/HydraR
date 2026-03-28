@@ -7,14 +7,7 @@
 #' ──────────────────────────────────────────────────────────────
 
 library(testthat)
-
-# Mock source since the package is not installed via standard devtools in this context
-source("../../R/node.R", chdir = TRUE)
-source("../../R/state.R", chdir = TRUE)
-source("../../R/driver.R", chdir = TRUE)
-source("../../R/drivers_cli.R", chdir = TRUE)
-source("../../R/node_llm.R", chdir = TRUE)
-source("../../R/tools.R", chdir = TRUE)
+library(HydraR)
 
 test_that("AgentTool can be created and formatted", {
   my_tool <- AgentTool$new(

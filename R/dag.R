@@ -14,7 +14,7 @@
 #' Supports both pure DAG execution (parallel) and iterative loops via conditional edges.
 #'
 #' @importFrom R6 R6Class
-#' @importFrom igraph graph_from_data_frame dag is_dag topo_sort adjacent edge memberships V vcount make_empty_graph degree is_connected components bfs
+#' @importFrom igraph graph_from_data_frame is_dag topo_sort edge V vcount make_empty_graph degree is_connected components bfs
 #' @importFrom furrr future_map
 #' @importFrom purrr map set_names
 #' @export
@@ -37,6 +37,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
         #' @field state AgentState. Centralized state object.
         state = NULL,
 
+        #' @description
         #' Initialize AgentDAG
         initialize = function() {
             self$nodes <- list()
@@ -160,6 +161,9 @@ AgentDAG <- R6::R6Class("AgentDAG",
         },
 
         #' Internal: Linear DAG Execution
+        #' @param checkpointer Checkpointer.
+        #' @param thread_id String.
+        #' @param resume_from String.
         .run_linear = function(checkpointer = NULL, thread_id = NULL, resume_from = NULL) {
             topo_order <- igraph::topo_sort(self$graph)
             node_ids <- names(igraph::V(self$graph)[topo_order])
@@ -215,6 +219,10 @@ AgentDAG <- R6::R6Class("AgentDAG",
         },
 
         #' Internal: Iterative State Machine Execution
+        #' @param max_steps Integer.
+        #' @param checkpointer Checkpointer.
+        #' @param thread_id String.
+        #' @param resume_from String.
         .run_iterative = function(max_steps, checkpointer = NULL, thread_id = NULL, resume_from = NULL) {
             if (!is.null(resume_from)) {
                 start_nodes <- resume_from
@@ -367,9 +375,51 @@ AgentDAG <- R6::R6Class("AgentDAG",
             invisible(self)
         },
 
+        #' Save the Execution Trace
+        #' @param file String. Output path for the JSON trace.
         save_trace = function(file = "dag_trace.json") {
             jsonlite::write_json(self$trace_log, path = file, pretty = TRUE, auto_unbox = TRUE)
             cat(sprintf("💾 Saved execution trace to: %s\n", file))
+            invisible(self)
+        },
+
+        #' Create AgentDAG from Mermaid
+        #' @param mermaid_str String. Mermaid syntax.
+        #' @param node_factory Function(id, label) -> AgentNode.
+        #' @return The AgentDAG object.
+        from_mermaid = function(mermaid_str, node_factory) {
+            stopifnot(is.function(node_factory))
+            parsed <- parse_mermaid(mermaid_str)
+            
+            # Add nodes
+            for (i in seq_len(nrow(parsed$nodes))) {
+                id <- parsed$nodes$id[i]
+                label <- parsed$nodes$label[i]
+                node <- node_factory(id, label)
+                if (!is.null(node)) {
+                    self$add_node(node)
+                }
+            }
+            
+            # Add edges
+            for (i in seq_len(nrow(parsed$edges))) {
+                from <- parsed$edges$from[i]
+                to <- parsed$edges$to[i]
+                label <- parsed$edges$label[i]
+                
+                # Check if it's a conditional edge
+                # Convention: if label starts with "test:" or it matches a known conditional pattern
+                if (nzchar(label) && grepl("^test:", label)) {
+                    # This is simplified: we need a way to get the actual function
+                    # Maybe node_factory can also return test functions? 
+                    # For now, let's just add it as a normal edge and warn
+                    warning(sprintf("Conditional edge from '%s' to '%s' with label '%s' detected but logic mapping is not yet implemented.", from, to, label))
+                    self$add_edge(from, to)
+                } else {
+                    self$add_edge(from, to)
+                }
+            }
+            
             invisible(self)
         }
     )

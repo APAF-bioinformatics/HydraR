@@ -30,6 +30,7 @@ AgentLogicNode <- R6::R6Class("AgentLogicNode",
 
         #' Run the Logic Node
         #' @param state AgentState object.
+        #' @param ... Additional arguments.
         #' @return List with status, output, and metadata.
         run = function(state, ...) {
             cat(sprintf("   [%s] Executing R logic...\n", self$id))

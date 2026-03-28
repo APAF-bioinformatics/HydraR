@@ -64,4 +64,46 @@ dag_add_logic_node <- function(dag, id, logic_fn, ...) {
     invisible(dag)
 }
 
+#' Standard Node Factory for Mermaid
+#'
+#' @description
+#' Default mapping of Mermaid labels to AgentNodes.
+#' Convention: "type:name" or "name"
+#' Types supported: "logic", "llm" (requires global driver).
+#'
+#' @param id String. Node ID.
+#' @param label String. Node label.
+#' @param driver AgentDriver. Optional driver for LLM nodes.
+#' @return AgentNode object.
+#' @export
+standard_node_factory <- function(id, label, driver = NULL) {
+    if (grepl("^logic:", label)) {
+        fn_name <- gsub("^logic:", "", label)
+        # Try to find the function in the environment
+        fn <- tryCatch(get(fn_name, mode = "function"), error = function(e) NULL)
+        if (is.null(fn)) {
+             stop(sprintf("Could not find function '%s' for logic node '%s'.", fn_name, id))
+        }
+        return(AgentLogicNode$new(id = id, logic_fn = fn))
+    } else if (grepl("^llm:", label)) {
+        role <- gsub("^llm:", "", label)
+        if (is.null(driver)) {
+             stop(sprintf("No driver provided for LLM node '%s'.", id))
+        }
+        return(AgentLLMNode$new(id = id, role = role, driver = driver))
+    }
+    
+    # Default: Logic node with ID as function name if it exists, else dummy
+    fn <- tryCatch(get(label, mode = "function"), error = function(e) NULL)
+    if (!is.null(fn)) {
+         return(AgentLogicNode$new(id = id, logic_fn = fn))
+    }
+    
+    # Fallback to dummy
+    return(AgentLogicNode$new(id = id, logic_fn = function(state) {
+        message(sprintf("Running dummy node '%s' (label: %s)", id, label))
+        return(list(output = NULL, status = "ok"))
+    }))
+}
+
 # <!-- APAF Bioinformatics | factory.R | Approved | 2026-03-29 -->

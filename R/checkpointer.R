@@ -18,6 +18,7 @@ Checkpointer <- R6::R6Class("Checkpointer",
         #' Save state
         #' @param thread_id String. Identifier for the execution thread.
         #' @param state AgentState object. The state to save.
+        #' @return NULL (called for side effect).
         put = function(thread_id, state) {
             stop("Method 'put' must be implemented by subclass.")
         },

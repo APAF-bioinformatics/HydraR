@@ -57,12 +57,12 @@ This document translates the state-of-the-art gap analysis from `notes/agent_dag
 ## 6. Mermaid-to-DAG Compilation (Experimental)
 
 ### 6.1 Mermaid Parser
-- [ ] **Regex Flowchart Parser**: Implement a parser that extracts nodes and directed edges from `graph TD` and `flowchart TD` strings.
-- [ ] **Metadata Mapping**: Establish a convention (e.g., node labels) to map Mermaid IDs to R functions or CLI tools.
-    - [ ] *Example*: `A[run_blast] --> B[parse_xml]`
+- [x] **Regex Flowchart Parser**: Implement a parser that extracts nodes and directed edges from `graph TD` and `flowchart TD` strings.
+- [x] **Metadata Mapping**: Establish a convention (e.g., node labels) to map Mermaid IDs to R functions or CLI tools.
+    - [x] *Example*: `A[run_blast] --> B[parse_xml]`
 
 ### 6.2 Agentic Compiler
-- [ ] **`from_mermaid()` Method**: Create a high-level constructor that takes a Mermaid string and returns a compiled `AgentDAG` object.
+- [x] **`from_mermaid()` Method**: Create a high-level constructor that takes a Mermaid string and returns a compiled `AgentDAG` object.
 - [ ] **Validation Engine**: Detect circular dependencies or undefined "Actions" within the Mermaid source.
 - [ ] **Round-Trip Visualization**: Ensure any `compile()`d DAG can be exported *back* to Mermaid for verification.
 

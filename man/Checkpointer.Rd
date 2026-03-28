@@ -34,10 +34,13 @@ Abstract base class for AgentDAG checkpointers.
 \describe{
 \item{\code{thread_id}}{String. Identifier for the execution thread.}
 
-\item{\code{state}}{AgentState object. The state to save.
-Load state}
+\item{\code{state}}{AgentState object. The state to save.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+NULL (called for side effect).
+Load state
 }
 }
 \if{html}{\out{<hr>}}

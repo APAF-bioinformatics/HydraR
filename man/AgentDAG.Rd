@@ -173,8 +173,6 @@ Run the Graph}
 \subsection{Returns}{
 List of results for each node, and the final state.
 Internal: Linear DAG Execution
-Internal: Iterative State Machine Execution
-Plot the DAG
 }
 }
 \if{html}{\out{<hr>}}
@@ -185,6 +183,18 @@ Plot the DAG
 \if{html}{\out{<div class="r">}}\preformatted{AgentDAG$.run_linear(checkpointer = NULL, thread_id = NULL, resume_from = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{checkpointer}}{Checkpointer.}
+
+\item{\code{thread_id}}{String.}
+
+\item{\code{resume_from}}{String.
+Internal: Iterative State Machine Execution}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AgentDAG-.run_iterative"></a>}}
@@ -199,6 +209,20 @@ Plot the DAG
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{max_steps}}{Integer.}
+
+\item{\code{checkpointer}}{Checkpointer.}
+
+\item{\code{thread_id}}{String.}
+
+\item{\code{resume_from}}{String.
+Plot the DAG}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AgentDAG-.rebuild_graph"></a>}}
@@ -234,6 +258,7 @@ Compile Graph
 \if{latex}{\out{\hypertarget{method-AgentDAG-compile}{}}}
 \subsection{Method \code{compile()}}{
 Rebuilds the internal igraph representation and performs validation.
+Save the Execution Trace
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentDAG$compile()}\if{html}{\out{</div>}}
 }
@@ -247,6 +272,13 @@ Rebuilds the internal igraph representation and performs validation.
 \if{html}{\out{<div class="r">}}\preformatted{AgentDAG$save_trace(file = "dag_trace.json")}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{file}}{String. Output path for the JSON trace.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AgentDAG-clone"></a>}}
