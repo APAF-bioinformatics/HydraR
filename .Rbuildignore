@@ -1,0 +1,13 @@
+^HydraR\\.Rproj$
+^\\.Rproj\\.user$
+^\\.gitignore$
+^\\.Rbuildignore$
+^notes/
+^\\.gemini/
+^examples/
+^dag_trace\\.json$
+^\\.DS_Store$
+^tests/testthat/\\.DS_Store$
+
+---
+<!-- APAF Bioinformatics | HydraR | Approved | 2026-03-29 -->

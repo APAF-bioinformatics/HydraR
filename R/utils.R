@@ -1,0 +1,35 @@
+#' ──────────────────────────────────────────────────────────────
+#' APAF Bioinformatics | Macquarie University
+#' File:        utils.R
+#' Author:      APAF Agentic Workflow
+#' Purpose:     Shared Utility Functions for HydraR
+#' Licence:     LGPL-3.0 (see LICENCE)
+#' ──────────────────────────────────────────────────────────────
+
+#' Extract R Code from LLM Response
+#'
+#' @param raw String. Raw text response from LLM.
+#' @return String. Extracted R code or same text if no blocks found.
+#' @export
+extract_r_code_advanced <- function(raw) {
+    if (is.null(raw) || length(raw) == 0 || raw == "") return("")
+    
+    # 1. Look for ```r ... ``` blocks (case insensitive)
+    # Using lazy match to capture individual blocks
+    matches <- regmatches(raw, gregexpr("(?s)```[rR]\\s*\\n(.*?)```", raw, perl = TRUE))[[1]]
+    
+    if (length(matches) > 0) {
+        # Strip the fences from the first block
+        code <- gsub("^```[rR]\\s*\\n?|\\n?```$", "", matches[1])
+        return(trimws(code))
+    }
+    
+    # 2. Fallback: Entire text if it looks like R code (heuristic)
+    if (grepl("<-|library\\(|%>%|\\|>|function\\(", raw)) {
+        return(trimws(raw))
+    }
+    
+    return(trimws(raw))
+}
+
+# <!-- APAF Bioinformatics | utils.R | Approved | 2026-03-29 -->
