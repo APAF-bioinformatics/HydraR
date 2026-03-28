@@ -1,11 +1,11 @@
-#' ──────────────────────────────────────────────────────────────
-#' APAF Bioinformatics | Macquarie University
-#' File:        dag.R
-#' Author:      APAF Agentic Workflow
-#' Purpose:     Multi-Agent Graph Orchestrator (DAG + Loops)
-#' Constraint:  Hardness-Oriented Development, Parallel Execution (furrr)
-#' Licence:     LGPL-3.0 (see LICENCE)
-#' ──────────────────────────────────────────────────────────────
+# ==============================================================
+# APAF Bioinformatics | Macquarie University
+# File:        dag.R
+# Author:      APAF Agentic Workflow
+# Purpose:     Multi-Agent Graph Orchestrator (DAG + Loops)
+# Constraint:  Hardness-Oriented Development, Parallel Execution (furrr)
+# License:     LGPL (>= 3) (see LICENSE)
+# ==============================================================
 
 #' Agent Graph R6 Class
 #'
@@ -14,6 +14,7 @@
 #' Supports both pure DAG execution (parallel) and iterative loops via conditional edges.
 #'
 #' @importFrom R6 R6Class
+#' @importFrom jsonlite toJSON fromJSON write_json
 #' @importFrom igraph graph_from_data_frame is_dag topo_sort edge V vcount make_empty_graph degree is_connected components bfs
 #' @importFrom furrr future_map
 #' @importFrom purrr map set_names iwalk walk
@@ -83,12 +84,12 @@ AgentDAG <- R6::R6Class("AgentDAG",
         #' Add a Conditional Edge (Loop Support)
         #' @param from String node ID.
         #' @param test Function(output) -> Logical.
-        #' @param if_true String node ID (next node if test is TRUE).
-        #' @param if_false String node ID (next node if test is FALSE or NULL for end).
+        #' @param if_true String node ID (next node if test is TRUE) or NULL to stop.
+        #' @param if_false String node ID (next node if test is FALSE) or NULL to stop.
         add_conditional_edge = function(from, test, if_true, if_false = NULL) {
             stopifnot(is.character(from) && from %in% names(self$nodes))
             stopifnot(is.function(test))
-            stopifnot(is.character(if_true) && if_true %in% names(self$nodes))
+            if (!is.null(if_true)) stopifnot(is.character(if_true) && if_true %in% names(self$nodes))
             if (!is.null(if_false)) stopifnot(is.character(if_false) && if_false %in% names(self$nodes))
             
             self$conditional_edges[[from]] <- list(
@@ -107,7 +108,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
         #' @param resume_from String. Node ID to resume execution from.
         #' @return List of results for each node, and the final state.
         run = function(initial_state = NULL, max_steps = 25, checkpointer = NULL, thread_id = NULL, resume_from = NULL) {
-            self$.rebuild_graph()
+            self$compile()
             
             # Preallocation of results and trace log
             # For linear execution, we know the exact number of nodes.
@@ -124,7 +125,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
                 # Try to load state from checkpointer
                 loaded_state <- checkpointer$get(thread_id)
                 if (!is.null(loaded_state)) {
-                    cat(sprintf("🔄 Restored state from checkpoint for thread: %s\n", thread_id))
+                    cat(sprintf("[Iteration] Restored state from checkpoint for thread: %s\n", thread_id))
 
                     if (is.null(initial_state)) {
                         self$state <- loaded_state
@@ -167,11 +168,13 @@ AgentDAG <- R6::R6Class("AgentDAG",
         },
 
         #' Internal: Linear DAG Execution
-        #' @param checkpointer Checkpointer.
-        #' @param thread_id String.
-        #' @param resume_from String.
-        #' @param node_ids Character vector. Sequence of nodes to run.
-        #' @param depth Integer. Current recursion depth.
+        #' @param checkpointer Checkpointer object.
+        #' @param thread_id String thread ID.
+        #' @param resume_from Node ID(s) to resume from.
+        #' @param node_ids Character vector of nodes to run.
+        #' @param depth Integer current recursion depth.
+        #' @param step_count Integer current total step count.
+        #' @return Execution result list.
         .run_linear = function(checkpointer = NULL, thread_id = NULL, resume_from = NULL, node_ids = NULL, depth = 0, step_count = 0) {
             if (is.null(node_ids)) {
                 topo_order <- igraph::topo_sort(self$graph)
@@ -181,7 +184,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
                     resume_idx <- match(resume_from[1], node_ids)
                     if (!is.na(resume_idx)) {
                          node_ids <- node_ids[resume_idx:length(node_ids)]
-                         cat(sprintf("⏭️ Resuming Linear DAG Execution from node: %s\n", resume_from[1]))
+                         cat(sprintf("[Resuming] Linear DAG Execution from node: %s\n", resume_from[1]))
                     }
                 }
             }
@@ -209,7 +212,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
             }
 
             node_id <- node_ids[1]
-            cat(sprintf("🚀 [Linear] Running Node: %s\n", node_id))
+            cat(sprintf("[Linear] Running Node: %s\n", node_id))
             start_time <- Sys.time()
             res <- self$nodes[[node_id]]$run(self$state)
             end_time <- Sys.time()
@@ -261,7 +264,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
             if (is.null(current_nodes)) {
                 if (!is.null(resume_from)) {
                     current_nodes <- resume_from
-                    cat(sprintf("⏭️ Resuming Iterative DAG Execution from node(s): %s\n", paste(resume_from, collapse = ", ")))
+                    cat(sprintf("[Resuming] Resuming Iterative DAG Execution from node(s): %s\n", paste(resume_from, collapse = ", ")))
                 } else {
                     current_nodes <- if (!is.null(self$start_node)) {
                         self$start_node
@@ -306,7 +309,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
                 step_idx <- step_count + actual_steps_in_this_recursion + 1
                 if (step_idx > length(self$trace_log)) return() # Safety check
 
-                cat(sprintf("🔄 [Iteration %d] Running Node: %s\n", step_idx, node_id))
+                cat(sprintf("[Iteration %d] Running Node: %s\n", step_idx, node_id))
                 start_time <- Sys.time()
                 res <- self$nodes[[node_id]]$run(self$state)
                 end_time <- Sys.time()
@@ -341,8 +344,10 @@ AgentDAG <- R6::R6Class("AgentDAG",
                         next_queue_list[[match(node_id, current_nodes)]] <<- list(target)
                     }
                 } else {
-                    children <- self$edges$to[self$edges$from == node_id]
-                    next_queue_list[[match(node_id, current_nodes)]] <<- as.list(children)
+                    children <- names(igraph::adjacent_vertices(self$graph, node_id, mode = "out")[[1]])
+                    if (length(children) > 0) {
+                        next_queue_list[[match(node_id, current_nodes)]] <<- as.list(children)
+                    }
                 }
 
                 if (!is.null(res$status) && res$status == "pause") {
@@ -354,6 +359,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
             # Flatten next_queue_list
             next_queue <- unique(unlist(next_queue_list))
+            if (is.null(next_queue)) next_queue <- character(0)
 
             if (!is.null(paused_at)) {
                  self$trace_log <- self$trace_log[seq_len(step_count + actual_steps_in_this_recursion)]
@@ -363,34 +369,6 @@ AgentDAG <- R6::R6Class("AgentDAG",
             }
 
             return(self$.run_iterative(max_steps, checkpointer, thread_id, NULL, next_queue, step_count + actual_steps_in_this_recursion, depth + 1))
-        },
-
-        .rebuild_graph = function() {
-            if (!is.null(self$graph)) return(invisible(self)) # Cache hit
-
-            edges_df <- if (is.list(self$edges) && length(self$edges) > 0) {
-                do.call(rbind, self$edges)
-            } else if (is.data.frame(self$edges)) {
-                self$edges
-            } else {
-                data.frame(from = character(), to = character(), stringsAsFactors = FALSE)
-            }
-
-            # Validation Engine: Detect undefined nodes in edges
-            if (nrow(edges_df) > 0) {
-                all_node_ids <- names(self$nodes)
-                referenced_nodes <- unique(c(edges_df$from, edges_df$to))
-                undefined_nodes <- setdiff(referenced_nodes, all_node_ids)
-                if (length(undefined_nodes) > 0) {
-                    stop(sprintf("Undefined node(s) referenced in edges: %s", paste(undefined_nodes, collapse = ", ")))
-                }
-                
-                self$graph <- igraph::graph_from_data_frame(edges_df, directed = TRUE, vertices = data.frame(name = all_node_ids))
-            } else {
-                self$graph <- igraph::make_empty_graph(n = length(self$nodes), directed = TRUE)
-                igraph::V(self$graph)$name <- names(self$nodes)
-            }
-            invisible(self)
         },
 
         #' Plot the DAG
@@ -420,7 +398,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
                     res <- c(res, sprintf("  %s -- Fail --> %s", from, cond$if_false))
                 }
                 res
-            }) %>% unlist()
+            }) |> unlist()
             
             lines <- c("```mermaid", "graph TD", node_lines, edge_lines, cond_lines, "```")
             res <- paste(lines, collapse = "\n")
@@ -428,8 +406,12 @@ AgentDAG <- R6::R6Class("AgentDAG",
             invisible(res)
         },
 
+        #' Compile the Graph
+        #' @description
+        #' Rebuilds the internal graph representation and performs validation checks.
+        #' @return The AgentDAG object (invisibly).
         compile = function() {
-            self$.rebuild_graph()
+            private$.rebuild_graph()
             if (length(self$nodes) == 0) stop("No nodes in graph.")
 
             # Validation: Cycle Detection for pure DAGs
@@ -455,7 +437,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
                 warning("Potential infinite loop detected: graph contains cycles. Ensure conditional edges have exit conditions.")
             }
 
-            cat("✅ Graph compiled successfully.\n")
+            cat("Graph compiled successfully.\n")
             invisible(self)
         },
 
@@ -463,7 +445,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
         #' @param file String. Output path for the JSON trace.
         save_trace = function(file = "dag_trace.json") {
             jsonlite::write_json(self$trace_log, path = file, pretty = TRUE, auto_unbox = TRUE)
-            cat(sprintf("💾 Saved execution trace to: %s\n", file))
+            cat(sprintf("[Saved] Saved execution trace to: %s\n", file))
             invisible(self)
         },
 
@@ -506,7 +488,36 @@ AgentDAG <- R6::R6Class("AgentDAG",
             
             invisible(self)
         }
+    ),
+    private = list(
+        .rebuild_graph = function() {
+            if (!is.null(self$graph)) return(invisible(self)) # Cache hit
+
+            edges_df <- if (is.list(self$edges) && length(self$edges) > 0) {
+                do.call(rbind, self$edges)
+            } else if (is.data.frame(self$edges)) {
+                self$edges
+            } else {
+                data.frame(from = character(), to = character(), stringsAsFactors = FALSE)
+            }
+
+            # Validation Engine: Detect undefined nodes in edges
+            if (nrow(edges_df) > 0) {
+                all_node_ids <- names(self$nodes)
+                referenced_nodes <- unique(c(edges_df$from, edges_df$to))
+                undefined_nodes <- setdiff(referenced_nodes, all_node_ids)
+                if (length(undefined_nodes) > 0) {
+                    stop(sprintf("Undefined node(s) referenced in edges: %s", paste(undefined_nodes, collapse = ", ")))
+                }
+                
+                self$graph <- igraph::graph_from_data_frame(edges_df, directed = TRUE, vertices = data.frame(name = all_node_ids))
+            } else {
+                self$graph <- igraph::make_empty_graph(n = length(self$nodes), directed = TRUE)
+                igraph::V(self$graph)$name <- names(self$nodes)
+            }
+            invisible(self)
+        }
     )
 )
 
-# <!-- APAF Bioinformatics | dag.R | Approved | 2026-03-28 -->
+#' <!-- APAF Bioinformatics | dag.R | Approved | 2026-03-28 -->

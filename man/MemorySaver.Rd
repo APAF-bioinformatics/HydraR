@@ -14,8 +14,7 @@ Stores checkpoints in an R environment.
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{storage}}{Environment. Stores the states.
-Initialize MemorySaver
-Save state}
+Initialize MemorySaver}
 }
 \if{html}{\out{</div>}}
 }
@@ -32,6 +31,7 @@ Save state}
 \if{html}{\out{<a id="method-MemorySaver-new"></a>}}
 \if{latex}{\out{\hypertarget{method-MemorySaver-new}{}}}
 \subsection{Method \code{new()}}{
+Creates a new environment for in-memory checkpoint storage.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{MemorySaver$new()}\if{html}{\out{</div>}}
 }
@@ -41,6 +41,7 @@ Save state}
 \if{html}{\out{<a id="method-MemorySaver-put"></a>}}
 \if{latex}{\out{\hypertarget{method-MemorySaver-put}{}}}
 \subsection{Method \code{put()}}{
+Persist state to the checkpointer.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{MemorySaver$put(thread_id, state)}\if{html}{\out{</div>}}
 }
@@ -50,8 +51,7 @@ Save state}
 \describe{
 \item{\code{thread_id}}{String.}
 
-\item{\code{state}}{AgentState object.
-Load state}
+\item{\code{state}}{AgentState object.}
 }
 \if{html}{\out{</div>}}
 }
@@ -60,6 +60,7 @@ Load state}
 \if{html}{\out{<a id="method-MemorySaver-get"></a>}}
 \if{latex}{\out{\hypertarget{method-MemorySaver-get}{}}}
 \subsection{Method \code{get()}}{
+Load state from the checkpointer.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{MemorySaver$get(thread_id)}\if{html}{\out{</div>}}
 }

@@ -1,10 +1,10 @@
-#' ──────────────────────────────────────────────────────────────
-#' APAF Bioinformatics | Macquarie University
-#' File:        driver.R
-#' Author:      APAF Agentic Workflow
-#' Purpose:     Abstract Agent Driver Base Class
-#' Licence:     LGPL-3.0 (see LICENCE)
-#' ──────────────────────────────────────────────────────────────
+# ==============================================================
+# APAF Bioinformatics | Macquarie University
+# File:        driver.R
+# Author:      APAF Agentic Workflow
+# Purpose:     Abstract Agent Driver Base Class
+# License:     LGPL (>= 3) (see LICENSE)
+# ==============================================================
 
 #' Agent Driver R6 Class
 #'
@@ -36,4 +36,4 @@ AgentDriver <- R6::R6Class("AgentDriver",
     )
 )
 
-# <!-- APAF Bioinformatics | driver.R | Approved | 2026-03-28 -->
+#' <!-- APAF Bioinformatics | driver.R | Approved | 2026-03-28 -->

@@ -2,14 +2,7 @@
 % Please edit documentation in R/node.R
 \name{AgentNode}
 \alias{AgentNode}
-\title{──────────────────────────────────────────────────────────────
-APAF Bioinformatics | Macquarie University
-File:        node.R
-Author:      APAF Agentic Workflow
-Purpose:     Abstract Base Agent Node Class for HydraR
-Licence:     LGPL-3.0 (see LICENCE)
-──────────────────────────────────────────────────────────────
-Agent Node R6 Class}
+\title{Agent Node R6 Class}
 \description{
 Represents a single execution unit within an orchestration DAG.
 This is an abstract base class.
@@ -18,6 +11,8 @@ This is an abstract base class.
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{id}}{String. Unique identifier for the node.}
+
+\item{\code{label}}{String. Human-readable name/label.}
 
 \item{\code{last_result}}{List. Results from most recent execution.
 Initialize AgentNode}
@@ -37,13 +32,15 @@ Initialize AgentNode}
 \if{latex}{\out{\hypertarget{method-AgentNode-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AgentNode$new(id)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{AgentNode$new(id, label = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{id}}{Unique identifier.
+\item{\code{id}}{Unique identifier.}
+
+\item{\code{label}}{Optional human-readable name.
 Run the Node}
 }
 \if{html}{\out{</div>}}

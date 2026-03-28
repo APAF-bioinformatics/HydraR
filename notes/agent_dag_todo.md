@@ -66,4 +66,8 @@ This document translates the state-of-the-art gap analysis from `notes/agent_dag
 - [x] **Validation Engine**: Detect circular dependencies or undefined "Actions" within the Mermaid source.
 - [x] **Round-Trip Visualization**: Ensure any `compile()`d DAG can be exported *back* to Mermaid for verification.
 
+## 7. Comprehensive Feature Testing
+- [ ] **Tutorial Vignettes**: Create comprehensive, executable tutorials inspired by ADK (e.g., Story Teller, Travel Booking, Software Bug Assistant, Personalized Shopping, Academic Research, Data Science, Blog Writer).
+- [ ] **Integration Testing**: Add `testthat` coverage mirroring the vignette workflows to ensure robust DAG operations.
+
 <!-- APAF Bioinformatics | agent_dag_todo.md | Pending Roadmap -->

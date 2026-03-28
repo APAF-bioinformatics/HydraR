@@ -2,15 +2,7 @@
 % Please edit documentation in R/dag.R
 \name{AgentDAG}
 \alias{AgentDAG}
-\title{──────────────────────────────────────────────────────────────
-APAF Bioinformatics | Macquarie University
-File:        dag.R
-Author:      APAF Agentic Workflow
-Purpose:     Multi-Agent Graph Orchestrator (DAG + Loops)
-Constraint:  Hardness-Oriented Development, Parallel Execution (furrr)
-Licence:     LGPL-3.0 (see LICENCE)
-──────────────────────────────────────────────────────────────
-Agent Graph R6 Class}
+\title{Agent Graph R6 Class}
 \description{
 Defines and executes a Directed Graph of AgentNodes.
 Supports both pure DAG execution (parallel) and iterative loops via conditional edges.
@@ -20,7 +12,7 @@ Supports both pure DAG execution (parallel) and iterative loops via conditional 
 \describe{
 \item{\code{nodes}}{List. Named list of AgentNode objects.}
 
-\item{\code{edges}}{Dataframe. Edge definitions (from, to).}
+\item{\code{edges}}{List. Pending edge definitions to be bound.}
 
 \item{\code{conditional_edges}}{List. Conditional transition logic.}
 
@@ -32,9 +24,7 @@ Supports both pure DAG execution (parallel) and iterative loops via conditional 
 
 \item{\code{start_node}}{String. Explicit entry point for cycles.}
 
-\item{\code{state}}{AgentState. Centralized state object.
-Initialize AgentDAG
-Set Start Node}
+\item{\code{state}}{AgentState. Centralized state object.}
 }
 \if{html}{\out{</div>}}
 }
@@ -49,10 +39,10 @@ Set Start Node}
 \item \href{#method-AgentDAG-run}{\code{AgentDAG$run()}}
 \item \href{#method-AgentDAG-.run_linear}{\code{AgentDAG$.run_linear()}}
 \item \href{#method-AgentDAG-.run_iterative}{\code{AgentDAG$.run_iterative()}}
-\item \href{#method-AgentDAG-.rebuild_graph}{\code{AgentDAG$.rebuild_graph()}}
 \item \href{#method-AgentDAG-plot}{\code{AgentDAG$plot()}}
 \item \href{#method-AgentDAG-compile}{\code{AgentDAG$compile()}}
 \item \href{#method-AgentDAG-save_trace}{\code{AgentDAG$save_trace()}}
+\item \href{#method-AgentDAG-from_mermaid}{\code{AgentDAG$from_mermaid()}}
 \item \href{#method-AgentDAG-clone}{\code{AgentDAG$clone()}}
 }
 }
@@ -60,6 +50,8 @@ Set Start Node}
 \if{html}{\out{<a id="method-AgentDAG-new"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentDAG-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize AgentDAG
+Set Start Node
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentDAG$new()}\if{html}{\out{</div>}}
 }
@@ -133,9 +125,9 @@ Add a Conditional Edge (Loop Support)}
 
 \item{\code{test}}{Function(output) -> Logical.}
 
-\item{\code{if_true}}{String node ID (next node if test is TRUE).}
+\item{\code{if_true}}{String node ID (next node if test is TRUE) or NULL to stop.}
 
-\item{\code{if_false}}{String node ID (next node if test is FALSE or NULL for end).
+\item{\code{if_false}}{String node ID (next node if test is FALSE) or NULL to stop.
 Run the Graph}
 }
 \if{html}{\out{</div>}}
@@ -148,7 +140,7 @@ Run the Graph}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentDAG$run(
   initial_state = NULL,
-  max_steps = 10,
+  max_steps = 25,
   checkpointer = NULL,
   thread_id = NULL,
   resume_from = NULL
@@ -160,7 +152,7 @@ Run the Graph}
 \describe{
 \item{\code{initial_state}}{List, AgentState object, or String. Optional if resuming.}
 
-\item{\code{max_steps}}{Integer. Maximum iterations to prevent infinite loops.}
+\item{\code{max_steps}}{Integer. Maximum iterations to prevent infinite loops. Default is 25.}
 
 \item{\code{checkpointer}}{Checkpointer object. Optional.}
 
@@ -180,20 +172,36 @@ Internal: Linear DAG Execution
 \if{latex}{\out{\hypertarget{method-AgentDAG-.run_linear}{}}}
 \subsection{Method \code{.run_linear()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AgentDAG$.run_linear(checkpointer = NULL, thread_id = NULL, resume_from = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{AgentDAG$.run_linear(
+  checkpointer = NULL,
+  thread_id = NULL,
+  resume_from = NULL,
+  node_ids = NULL,
+  depth = 0,
+  step_count = 0
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{checkpointer}}{Checkpointer.}
+\item{\code{checkpointer}}{Checkpointer object.}
 
-\item{\code{thread_id}}{String.}
+\item{\code{thread_id}}{String thread ID.}
 
-\item{\code{resume_from}}{String.
-Internal: Iterative State Machine Execution}
+\item{\code{resume_from}}{Node ID(s) to resume from.}
+
+\item{\code{node_ids}}{Character vector of nodes to run.}
+
+\item{\code{depth}}{Integer current recursion depth.}
+
+\item{\code{step_count}}{Integer current total step count.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Execution result list.
+Internal: Iterative State Machine Execution
 }
 }
 \if{html}{\out{<hr>}}
@@ -205,7 +213,10 @@ Internal: Iterative State Machine Execution}
   max_steps,
   checkpointer = NULL,
   thread_id = NULL,
-  resume_from = NULL
+  resume_from = NULL,
+  current_nodes = NULL,
+  step_count = 0,
+  depth = 0
 )}\if{html}{\out{</div>}}
 }
 
@@ -218,20 +229,17 @@ Internal: Iterative State Machine Execution}
 
 \item{\code{thread_id}}{String.}
 
-\item{\code{resume_from}}{String.
+\item{\code{resume_from}}{String.}
+
+\item{\code{current_nodes}}{Character vector.}
+
+\item{\code{step_count}}{Integer.}
+
+\item{\code{depth}}{Integer. Current recursion depth.
 Plot the DAG}
 }
 \if{html}{\out{</div>}}
 }
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-AgentDAG-.rebuild_graph"></a>}}
-\if{latex}{\out{\hypertarget{method-AgentDAG-.rebuild_graph}{}}}
-\subsection{Method \code{.rebuild_graph()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AgentDAG$.rebuild_graph()}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AgentDAG-plot"></a>}}
@@ -250,19 +258,22 @@ Plot the DAG}
 }
 \subsection{Returns}{
 The mermaid string (invisibly).
-Compile Graph
+Compile the Graph
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AgentDAG-compile"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentDAG-compile}{}}}
 \subsection{Method \code{compile()}}{
-Rebuilds the internal igraph representation and performs validation.
-Save the Execution Trace
+Rebuilds the internal graph representation and performs validation checks.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentDAG$compile()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+The AgentDAG object (invisibly).
+Save the Execution Trace
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AgentDAG-save_trace"></a>}}
@@ -275,9 +286,31 @@ Save the Execution Trace
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{file}}{String. Output path for the JSON trace.}
+\item{\code{file}}{String. Output path for the JSON trace.
+Create AgentDAG from Mermaid}
 }
 \if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AgentDAG-from_mermaid"></a>}}
+\if{latex}{\out{\hypertarget{method-AgentDAG-from_mermaid}{}}}
+\subsection{Method \code{from_mermaid()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{AgentDAG$from_mermaid(mermaid_str, node_factory)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{mermaid_str}}{String. Mermaid syntax.}
+
+\item{\code{node_factory}}{Function(id, label) -> AgentNode.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The AgentDAG object.
 }
 }
 \if{html}{\out{<hr>}}

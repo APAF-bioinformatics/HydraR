@@ -44,9 +44,7 @@ Here, we simulate an agent trying to guess a specific word.
 
 ```{r}
 # Simulated LLM Node
-executor_node <- AgentNode$new(id = "Guesser")
-# Override the run method for this example
-executor_node$run <- function(state, memory = NULL) {
+executor_node <- AgentLogicNode$new(id = "Guesser", logic_fn = function(state, memory = NULL) {
     attempts <- state$get("attempts")
     if (is.null(attempts)) attempts <- 0
     attempts <- attempts + 1
@@ -58,18 +56,17 @@ executor_node$run <- function(state, memory = NULL) {
         status = "SUCCESS", 
         output = list(guess = guess, attempts = attempts)
     )
-}
+})
 
 # Simulated Validator Node
-validator_node <- AgentNode$new(id = "Validator")
-validator_node$run <- function(state, memory = NULL) {
+validator_node <- AgentLogicNode$new(id = "Validator", logic_fn = function(state, memory = NULL) {
     guess <- state$get("guess")
     is_valid <- (guess == "hello")
     list(
         status = "SUCCESS",
         output = list(valid = is_valid)
     )
-}
+})
 
 dag$add_node(executor_node)
 dag$add_node(validator_node)

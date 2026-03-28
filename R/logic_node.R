@@ -1,10 +1,10 @@
-#' ──────────────────────────────────────────────────────────────
-#' APAF Bioinformatics | Macquarie University
-#' File:        logic_node.R
-#' Author:      APAF Agentic Workflow
-#' Purpose:     Agent Node for pure R logic (non-LLM)
-#' Licence:     LGPL-3.0 (see LICENCE)
-#' ──────────────────────────────────────────────────────────────
+# ==============================================================
+# APAF Bioinformatics | Macquarie University
+# File:        logic_node.R
+# Author:      APAF Agentic Workflow
+# Purpose:     Agent Node for pure R logic (non-LLM)
+# License:     LGPL (>= 3) (see LICENSE)
+# ==============================================================
 
 #' Agent Logic Node R6 Class
 #'
@@ -56,4 +56,4 @@ AgentLogicNode <- R6::R6Class("AgentLogicNode",
     )
 )
 
-# <!-- APAF Bioinformatics | logic_node.R | Approved | 2026-03-28 -->
+#' <!-- APAF Bioinformatics | logic_node.R | Approved | 2026-03-28 -->

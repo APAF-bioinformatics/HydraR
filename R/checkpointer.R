@@ -1,10 +1,10 @@
-#' ──────────────────────────────────────────────────────────────
-#' APAF Bioinformatics | Macquarie University
-#' File:        checkpointer.R
-#' Author:      APAF Agentic Workflow
-#' Purpose:     AgentDAG Checkpointer Interface and Implementations
-#' Licence:     LGPL-3.0 (see LICENCE)
-#' ──────────────────────────────────────────────────────────────
+# ==============================================================
+# APAF Bioinformatics | Macquarie University
+# File:        checkpointer.R
+# Author:      APAF Agentic Workflow
+# Purpose:     AgentDAG Checkpointer Interface and Implementations
+# License:     LGPL (>= 3) (see LICENSE)
+# ==============================================================
 
 #' Checkpointer Interface
 #'
@@ -15,7 +15,7 @@
 #' @export
 Checkpointer <- R6::R6Class("Checkpointer",
     public = list(
-        #' Save state
+        #' @description Persist state to the checkpointer.
         #' @param thread_id String. Identifier for the execution thread.
         #' @param state AgentState object. The state to save.
         #' @return NULL (called for side effect).
@@ -47,11 +47,13 @@ MemorySaver <- R6::R6Class("MemorySaver",
         storage = NULL,
 
         #' Initialize MemorySaver
+        #' @description
+        #' Creates a new environment for in-memory checkpoint storage.
         initialize = function() {
             self$storage <- new.env(parent = emptyenv())
         },
 
-        #' Save state
+        #' @description Persist state to the checkpointer.
         #' @param thread_id String.
         #' @param state AgentState object.
         put = function(thread_id, state) {
@@ -68,7 +70,7 @@ MemorySaver <- R6::R6Class("MemorySaver",
             invisible(self)
         },
 
-        #' Load state
+        #' @description Load state from the checkpointer.
         #' @param thread_id String.
         #' @return AgentState object or NULL.
         get = function(thread_id) {
@@ -183,4 +185,4 @@ DuckDBSaver <- R6::R6Class("DuckDBSaver",
     )
 )
 
-# <!-- APAF Bioinformatics | checkpointer.R | Approved | 2026-03-28 -->
+#' <!-- APAF Bioinformatics | checkpointer.R | Approved | 2026-03-28 -->

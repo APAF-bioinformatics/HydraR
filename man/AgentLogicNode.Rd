@@ -2,14 +2,7 @@
 % Please edit documentation in R/logic_node.R
 \name{AgentLogicNode}
 \alias{AgentLogicNode}
-\title{──────────────────────────────────────────────────────────────
-APAF Bioinformatics | Macquarie University
-File:        logic_node.R
-Author:      APAF Agentic Workflow
-Purpose:     Agent Node for pure R logic (non-LLM)
-Licence:     LGPL-3.0 (see LICENCE)
-──────────────────────────────────────────────────────────────
-Agent Logic Node R6 Class}
+\title{Agent Logic Node R6 Class}
 \description{
 A specialized AgentNode that executes a pure R function instead of an LLM call.
 }
@@ -37,7 +30,7 @@ Initialize AgentLogicNode}
 \if{latex}{\out{\hypertarget{method-AgentLogicNode-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AgentLogicNode$new(id, logic_fn)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{AgentLogicNode$new(id, logic_fn, label = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -45,7 +38,9 @@ Initialize AgentLogicNode}
 \describe{
 \item{\code{id}}{Unique identifier.}
 
-\item{\code{logic_fn}}{Function that takes an AgentState object and returns a list.
+\item{\code{logic_fn}}{Function that takes an AgentState object and returns a list.}
+
+\item{\code{label}}{Optional human-readable name.
 Run the Logic Node}
 }
 \if{html}{\out{</div>}}

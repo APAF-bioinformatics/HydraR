@@ -2,14 +2,7 @@
 % Please edit documentation in R/tools.R
 \name{AgentTool}
 \alias{AgentTool}
-\title{──────────────────────────────────────────────────────────────
-APAF Bioinformatics | Macquarie University
-File:        tools.R
-Author:      APAF Agentic Workflow
-Purpose:     AgentTool Class and Registry for Prompt Injection
-Licence:     LGPL-3.0 (see LICENCE)
-──────────────────────────────────────────────────────────────
-Agent Tool R6 Class}
+\title{Agent Tool R6 Class}
 \description{
 Defines a tool or action that an agent can perform.
 Used for prompt-based tool discovery.

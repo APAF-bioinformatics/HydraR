@@ -1,10 +1,10 @@
-#' ──────────────────────────────────────────────────────────────
-#' APAF Bioinformatics | Macquarie University
-#' File:        mermaid_parser.R
-#' Author:      APAF Agentic Workflow
-#' Purpose:     Regex-based Mermaid to DAG Parser
-#' Licence:     LGPL-3.0 (see LICENCE)
-#' ──────────────────────────────────────────────────────────────
+# ==============================================================
+# APAF Bioinformatics | Macquarie University
+# File:        mermaid_parser.R
+# Author:      APAF Agentic Workflow
+# Purpose:     Regex-based Mermaid to DAG Parser
+# License:     LGPL (>= 3) (see LICENSE)
+# ==============================================================
 
 #' Parse Mermaid Flowchart Syntax
 #' 
@@ -113,4 +113,4 @@ parse_mermaid <- function(mermaid_str) {
     return(list(nodes = nodes_df, edges = edges_df))
 }
 
-# <!-- APAF Bioinformatics | mermaid_parser.R | Approved | 2026-03-29 -->
+#' <!-- APAF Bioinformatics | mermaid_parser.R | Approved | 2026-03-29 -->

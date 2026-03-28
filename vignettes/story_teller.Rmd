@@ -1,0 +1,154 @@
+---
+title: "Agentic Story Teller"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Agentic Story Teller}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+This vignette demonstrates the **Story Teller** pattern using `HydraR`. 
+In this workflow, two LLM agents collaborate to write a story:
+1. **Writer Agent**: Drafts the story based on the prompt or incorporates feedback.
+2. **Reviewer Agent**: Critiques the draft using a rubric. If the story meets the criteria, it approves the draft. Otherwise, it sends feedback back to the Writer.
+
+This forms a fundamental **iterative critique-and-revise** loop.
+
+## Setup
+
+```{r}
+library(HydraR)
+```
+
+## Building the Story Teller DAG
+
+We'll define an `AgentDAG` and inject two custom nodes to mock the LLM behavior. In a real-world scenario, you would use `node_llm()` or `AgentLogicNode` bound to a specific LLM driver (e.g., Gemini).
+
+```{r}
+dag <- AgentDAG$new()
+```
+
+### 1. The Writer Node
+
+The `Writer` node looks at the current `feedback` (if any) and updates the `story_draft`. We'll mock the behavior to show that the story gets slightly better over time.
+
+```{r}
+writer_node <- AgentLogicNode$new(id = "Writer", logic_fn = function(state, memory = NULL) {
+    # Extract current state
+    current_draft <- state$get("story_draft")
+    iteration <- state$get("writer_iterations")
+    if (is.null(iteration)) iteration <- 0
+    feedback <- state$get("reviewer_feedback")
+    
+    # Increment iteration
+    iteration <- iteration + 1
+    
+    # Generate new draft
+    if (is.null(current_draft)) {
+        new_draft <- "Once upon a time, a brave knight went on a quest."
+        action_msg <- "Drafting initial story."
+    } else {
+        new_draft <- paste(current_draft, "He fought a dragon and saved the kingdom.")
+        action_msg <- paste("Improving story based on feedback:", feedback)
+    }
+    
+    list(
+        status = "SUCCESS", 
+        output = list(
+            story_draft = new_draft, 
+            writer_iterations = iteration,
+            latest_action = action_msg
+        )
+    )
+})
+
+dag$add_node(writer_node)
+```
+
+### 2. The Reviewer Node
+
+The `Reviewer` node checks the `story_draft`. In our mock logic, the reviewer demands at least 2 iterations before it considers the story complete.
+
+```{r}
+reviewer_node <- AgentLogicNode$new(id = "Reviewer", logic_fn = function(state, memory = NULL) {
+    iteration <- state$get("writer_iterations")
+    
+    if (iteration >= 2) {
+        # Story is approved!
+        list(
+            status = "SUCCESS",
+            output = list(
+                is_approved = TRUE,
+                reviewer_feedback = "This is a great story! Approved."
+            )
+        )
+    } else {
+        # Needs more work
+        list(
+            status = "SUCCESS",
+            output = list(
+                is_approved = FALSE,
+                reviewer_feedback = "The story lacks action. Add a dragon."
+            )
+        )
+    }
+})
+
+dag$add_node(reviewer_node)
+```
+
+## Defining Transitions
+
+We configure the graph to start with the Writer, unconditionally pass to the Reviewer, and conditionally loop back or finish.
+
+```{r}
+dag$set_start_node("Writer")
+
+# Unconditional transition from Writer -> Reviewer
+dag$add_edge("Writer", "Reviewer")
+
+# Conditional transition from Reviewer -> Writer or END
+dag$add_conditional_edge(
+    from = "Reviewer",
+    test = function(out) {
+        # Return the boolean approval status
+        isTRUE(out$is_approved)
+    },
+    if_true = NULL,       # Stop execution
+    if_false = "Writer"   # Loop back to Writer
+)
+```
+
+## Running the Agent
+
+We compile and run the DAG with an empty initial state. We set a `max_steps` to guarantee the loop terminates securely (a built-in HydraR safeguard).
+
+```{r}
+compiled_dag <- dag$compile()
+
+cat("Starting Collaborative Writing Process...\n")
+result <- compiled_dag$run(initial_state = list(), max_steps = 10)
+
+# Observe the final output
+final_story <- result$state$get("story_draft")
+total_iterations <- result$state$get("writer_iterations")
+feedback <- result$state$get("reviewer_feedback")
+
+cat("--- FINAL RESULT ---\n")
+cat("Total Writer Iterations:", total_iterations, "\n")
+cat("Final Feedback:", feedback, "\n")
+cat("Final Story Draft:\n", final_story, "\n")
+```
+
+As we can see, HydraR flawlessly orchestrated the stateful communication and iteration loop between the two mock agents.
+
+<!-- APAF Bioinformatics | story_teller.Rmd | Approved | 2026-03-29 -->

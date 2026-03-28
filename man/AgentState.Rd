@@ -2,14 +2,7 @@
 % Please edit documentation in R/state.R
 \name{AgentState}
 \alias{AgentState}
-\title{──────────────────────────────────────────────────────────────
-APAF Bioinformatics | Macquarie University
-File:        state.R
-Author:      APAF Agentic Workflow
-Purpose:     Centralized State Management for HydraR
-Licence:     LGPL-3.0 (see LICENCE)
-──────────────────────────────────────────────────────────────
-Agent State R6 Class}
+\title{Agent State R6 Class}
 \description{
 A strongly typed, centrally managed state object for passing data
 between nodes in an AgentDAG.

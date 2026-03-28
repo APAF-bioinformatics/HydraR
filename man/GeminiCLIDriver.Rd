@@ -2,14 +2,7 @@
 % Please edit documentation in R/drivers_cli.R
 \name{GeminiCLIDriver}
 \alias{GeminiCLIDriver}
-\title{──────────────────────────────────────────────────────────────
-APAF Bioinformatics | Macquarie University
-File:        drivers_cli.R
-Author:      APAF Agentic Workflow
-Purpose:     CLI-Based Agent Drivers (Gemini, Ollama)
-Licence:     LGPL-3.0 (see LICENCE)
-──────────────────────────────────────────────────────────────
-Gemini CLI Driver R6 Class}
+\title{Gemini CLI Driver R6 Class}
 \description{
 Driver for the 'gemini' CLI tool.
 }

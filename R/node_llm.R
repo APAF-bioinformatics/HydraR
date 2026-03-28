@@ -1,10 +1,10 @@
-#' ──────────────────────────────────────────────────────────────
-#' APAF Bioinformatics | Macquarie University
-#' File:        node_llm.R
-#' Author:      APAF Agentic Workflow
-#' Purpose:     LLM-Based Agent Node Class for HydraR
-#' Licence:     LGPL-3.0 (see LICENCE)
-#' ──────────────────────────────────────────────────────────────
+# ==============================================================
+# APAF Bioinformatics | Macquarie University
+# File:        node_llm.R
+# Author:      APAF Agentic Workflow
+# Purpose:     LLM-Based Agent Node Class for HydraR
+# License:     LGPL (>= 3) (see LICENSE)
+# ==============================================================
 
 #' Agent LLM Node R6 Class
 #'
@@ -93,4 +93,4 @@ AgentLLMNode <- R6::R6Class("AgentLLMNode",
     )
 )
 
-# <!-- APAF Bioinformatics | node_llm.R | Approved | 2026-03-28 -->
+#' <!-- APAF Bioinformatics | node_llm.R | Approved | 2026-03-28 -->

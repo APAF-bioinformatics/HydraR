@@ -15,5 +15,6 @@ reducer_append(current, new)
 The combined value.
 }
 \description{
-Appends new elements to a vector or list.
+Appends new elements to a vector or list. For large accumulations,
+users should consider using lists and flattening later.
 }

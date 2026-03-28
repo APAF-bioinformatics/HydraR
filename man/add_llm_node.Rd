@@ -2,14 +2,7 @@
 % Please edit documentation in R/factory.R
 \name{add_llm_node}
 \alias{add_llm_node}
-\title{──────────────────────────────────────────────────────────────
-APAF Bioinformatics | Macquarie University
-File:        factory.R
-Author:      APAF Agentic Workflow
-Purpose:     Helper functions for syntactic sugar to create agent nodes in HydraR
-Licence:     LGPL-3.0 (see LICENCE)
-──────────────────────────────────────────────────────────────
-Create an LLM Agent Node easily}
+\title{Create an LLM Agent Node easily}
 \usage{
 add_llm_node(id, role, driver, ...)
 }
@@ -26,12 +19,5 @@ add_llm_node(id, role, driver, ...)
 AgentLLMNode object.
 }
 \description{
-──────────────────────────────────────────────────────────────
-APAF Bioinformatics | Macquarie University
-File:        factory.R
-Author:      APAF Agentic Workflow
-Purpose:     Helper functions for syntactic sugar to create agent nodes in HydraR
-Licence:     LGPL-3.0 (see LICENCE)
-──────────────────────────────────────────────────────────────
 Create an LLM Agent Node easily
 }

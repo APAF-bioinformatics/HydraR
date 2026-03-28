@@ -1,10 +1,10 @@
-#' ──────────────────────────────────────────────────────────────
-#' APAF Bioinformatics | Macquarie University
-#' File:        state.R
-#' Author:      APAF Agentic Workflow
-#' Purpose:     Centralized State Management for HydraR
-#' Licence:     LGPL-3.0 (see LICENCE)
-#' ──────────────────────────────────────────────────────────────
+# ==============================================================
+# APAF Bioinformatics | Macquarie University
+# File:        state.R
+# Author:      APAF Agentic Workflow
+# Purpose:     Centralized State Management for HydraR
+# License:     LGPL (>= 3) (see LICENSE)
+# ==============================================================
 
 #' Agent State R6 Class
 #'
@@ -139,4 +139,4 @@ reducer_merge_list <- function(current, new) {
     utils::modifyList(current, new, keep.null = TRUE)
 }
 
-# <!-- APAF Bioinformatics | state.R | Approved | 2026-03-28 -->
+#' <!-- APAF Bioinformatics | state.R | Approved | 2026-03-28 -->

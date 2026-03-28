@@ -1,10 +1,10 @@
-#' ──────────────────────────────────────────────────────────────
-#' APAF Bioinformatics | Macquarie University
-#' File:        factory.R
-#' Author:      APAF Agentic Workflow
-#' Purpose:     Helper functions for syntactic sugar to create agent nodes in HydraR
-#' Licence:     LGPL-3.0 (see LICENCE)
-#' ──────────────────────────────────────────────────────────────
+# ==============================================================
+# APAF Bioinformatics | Macquarie University
+# File:        factory.R
+# Author:      APAF Agentic Workflow
+# Purpose:     Helper functions for syntactic sugar to create agent nodes in HydraR
+# License:     LGPL (>= 3) (see LICENSE)
+# ==============================================================
 
 #' Create an LLM Agent Node easily
 #'
@@ -106,4 +106,4 @@ standard_node_factory <- function(id, label, driver = NULL) {
     }))
 }
 
-# <!-- APAF Bioinformatics | factory.R | Approved | 2026-03-29 -->
+#' <!-- APAF Bioinformatics | factory.R | Approved | 2026-03-29 -->

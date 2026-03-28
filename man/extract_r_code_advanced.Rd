@@ -2,14 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{extract_r_code_advanced}
 \alias{extract_r_code_advanced}
-\title{──────────────────────────────────────────────────────────────
-APAF Bioinformatics | Macquarie University
-File:        utils.R
-Author:      APAF Agentic Workflow
-Purpose:     Shared Utility Functions for HydraR
-Licence:     LGPL-3.0 (see LICENCE)
-──────────────────────────────────────────────────────────────
-Extract R Code from LLM Response}
+\title{Extract R Code from LLM Response}
 \usage{
 extract_r_code_advanced(raw)
 }
@@ -20,12 +13,5 @@ extract_r_code_advanced(raw)
 String. Extracted R code or same text if no blocks found.
 }
 \description{
-──────────────────────────────────────────────────────────────
-APAF Bioinformatics | Macquarie University
-File:        utils.R
-Author:      APAF Agentic Workflow
-Purpose:     Shared Utility Functions for HydraR
-Licence:     LGPL-3.0 (see LICENCE)
-──────────────────────────────────────────────────────────────
 Extract R Code from LLM Response
 }

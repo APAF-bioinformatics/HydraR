@@ -1,0 +1,144 @@
+---
+title: "Agentic Software Bug Assistant"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Agentic Software Bug Assistant}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+This vignette demonstrates the **Software Bug Assistant** pattern using `HydraR`. 
+In this scenario, two agent nodes work together to resolve a software bug:
+1. **Bug Analyzer Node**: Reviews the error message and current code, then proposes a patch.
+2. **Test Runner Node**: Simulates running a test suite against the proposed patch. If the test fails, it provides error traces back to the Bug Analyzer.
+
+This is a classic "Generate-and-Test" self-healing loop.
+
+## Setup
+
+```{r}
+library(HydraR)
+```
+
+## Building the DAG
+
+Initialize the `AgentDAG`.
+
+```{r}
+dag <- AgentDAG$new()
+```
+
+### 1. The Bug Analyzer Node
+
+This node mocks an LLM digesting a bug report and iterative test failures to eventually produce a working patch.
+
+```{r}
+analyzer_node <- AgentLogicNode$new(id = "Analyzer", logic_fn = function(state, memory = NULL) {
+    # Extract state
+    bug_report <- state$get("bug_report")
+    test_feedback <- state$get("test_feedback")
+    
+    attempts <- state$get("patch_attempts")
+    if (is.null(attempts)) attempts <- 0
+    attempts <- attempts + 1
+    
+    # Mock behavior: It takes 2 tries to fix a Null Pointer Exception
+    proposed_patch <- if (attempts == 1) {
+        "if (x == NULL) return 0;" # Close, but maybe not quite right
+    } else {
+        "if (is.null(x)) return(0)" # Correct R syntax
+    }
+    
+    list(
+        status = "SUCCESS",
+        output = list(
+            proposed_patch = proposed_patch,
+            patch_attempts = attempts
+        )
+    )
+})
+
+dag$add_node(analyzer_node)
+```
+
+### 2. The Test Runner Node
+
+This node evaluates the patch. We'll simply check if the proposed patch is exactly the "correct R syntax" string.
+
+```{r}
+tester_node <- AgentLogicNode$new(id = "Tester", logic_fn = function(state, memory = NULL) {
+    patch <- state$get("proposed_patch")
+    
+    if (patch == "if (is.null(x)) return(0)") {
+        list(
+            status = "SUCCESS",
+            output = list(
+                tests_passed = TRUE,
+                test_feedback = "All 5 tests passed successfully."
+            )
+        )
+    } else {
+        list(
+            status = "SUCCESS",
+            output = list(
+                tests_passed = FALSE,
+                test_feedback = "Error: object 'NULL' not found. Did you mean to use 'is.null()'?"
+            )
+        )
+    }
+})
+
+dag$add_node(tester_node)
+```
+
+## Defining Transitions
+
+We structure the loop. `Tester` conditionally loops back to `Analyzer` upon test failure.
+
+```{r}
+dag$set_start_node("Analyzer")
+
+dag$add_edge("Analyzer", "Tester")
+
+dag$add_conditional_edge(
+    from = "Tester",
+    test = function(out) {
+        isTRUE(out$tests_passed)
+    },
+    if_true = NULL,         # End execution
+    if_false = "Analyzer"   # Retry
+)
+
+compiled_dag <- dag$compile()
+```
+
+## Running the Scenario
+
+Provide the initial bug report and start the DAG.
+
+```{r}
+initial_state <- list(
+    bug_report = "Function crashes when 'x' is missing."
+)
+
+cat("Starting Automatic Bug Remediation...\n")
+result <- compiled_dag$run(initial_state = initial_state, max_steps = 10)
+
+cat("\n--- RESOLUTION RESULT ---\n")
+cat("Patch Attempts:", result$state$get("patch_attempts"), "\n")
+cat("Final Patch:", result$state$get("proposed_patch"), "\n")
+cat("Test Results:", result$state$get("test_feedback"), "\n")
+```
+
+The DAG correctly detected the test failure, routed the detailed feedback back to the analyzer, and produced a successful patch on its second attempt!
+
+<!-- APAF Bioinformatics | software_bug_assistant.Rmd | Approved | 2026-03-29 -->

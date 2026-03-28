@@ -2,14 +2,7 @@
 % Please edit documentation in R/node_llm.R
 \name{AgentLLMNode}
 \alias{AgentLLMNode}
-\title{──────────────────────────────────────────────────────────────
-APAF Bioinformatics | Macquarie University
-File:        node_llm.R
-Author:      APAF Agentic Workflow
-Purpose:     LLM-Based Agent Node Class for HydraR
-Licence:     LGPL-3.0 (see LICENCE)
-──────────────────────────────────────────────────────────────
-Agent LLM Node R6 Class}
+\title{Agent LLM Node R6 Class}
 \description{
 A specialized AgentNode that executes LLM calls via a Driver.
 }
@@ -53,7 +46,8 @@ Initialize AgentLLMNode}
   driver,
   model = NULL,
   prompt_builder = NULL,
-  tools = list()
+  tools = list(),
+  label = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -70,7 +64,9 @@ Initialize AgentLLMNode}
 
 \item{\code{prompt_builder}}{Function(state) -> String.}
 
-\item{\code{tools}}{List of AgentTool objects.
+\item{\code{tools}}{List of AgentTool objects.}
+
+\item{\code{label}}{Optional human-readable name.
 Run the LLM Node}
 }
 \if{html}{\out{</div>}}

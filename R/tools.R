@@ -1,10 +1,10 @@
-#' ──────────────────────────────────────────────────────────────
-#' APAF Bioinformatics | Macquarie University
-#' File:        tools.R
-#' Author:      APAF Agentic Workflow
-#' Purpose:     AgentTool Class and Registry for Prompt Injection
-#' Licence:     LGPL-3.0 (see LICENCE)
-#' ──────────────────────────────────────────────────────────────
+# ==============================================================
+# APAF Bioinformatics | Macquarie University
+# File:        tools.R
+# Author:      APAF Agentic Workflow
+# Purpose:     AgentTool Class and Registry for Prompt Injection
+# License:     LGPL (>= 3) (see LICENSE)
+# ==============================================================
 
 #' Agent Tool R6 Class
 #'
@@ -77,4 +77,4 @@ format_toolset <- function(tools) {
     paste0(header, paste(tool_descriptions, collapse = "\n"), footer)
 }
 
-# <!-- APAF Bioinformatics | tools.R | Approved | 2026-03-28 -->
+#' <!-- APAF Bioinformatics | tools.R | Approved | 2026-03-28 -->

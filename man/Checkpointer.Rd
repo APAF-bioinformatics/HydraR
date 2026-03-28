@@ -2,14 +2,7 @@
 % Please edit documentation in R/checkpointer.R
 \name{Checkpointer}
 \alias{Checkpointer}
-\title{──────────────────────────────────────────────────────────────
-APAF Bioinformatics | Macquarie University
-File:        checkpointer.R
-Author:      APAF Agentic Workflow
-Purpose:     AgentDAG Checkpointer Interface and Implementations
-Licence:     LGPL-3.0 (see LICENCE)
-──────────────────────────────────────────────────────────────
-Checkpointer Interface}
+\title{Checkpointer Interface}
 \description{
 Abstract base class for AgentDAG checkpointers.
 }
@@ -25,6 +18,7 @@ Abstract base class for AgentDAG checkpointers.
 \if{html}{\out{<a id="method-Checkpointer-put"></a>}}
 \if{latex}{\out{\hypertarget{method-Checkpointer-put}{}}}
 \subsection{Method \code{put()}}{
+Persist state to the checkpointer.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Checkpointer$put(thread_id, state)}\if{html}{\out{</div>}}
 }

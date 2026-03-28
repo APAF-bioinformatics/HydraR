@@ -2,14 +2,7 @@
 % Please edit documentation in R/mermaid_parser.R
 \name{parse_mermaid}
 \alias{parse_mermaid}
-\title{──────────────────────────────────────────────────────────────
-APAF Bioinformatics | Macquarie University
-File:        mermaid_parser.R
-Author:      APAF Agentic Workflow
-Purpose:     Regex-based Mermaid to DAG Parser
-Licence:     LGPL-3.0 (see LICENCE)
-──────────────────────────────────────────────────────────────
-Parse Mermaid Flowchart Syntax}
+\title{Parse Mermaid Flowchart Syntax}
 \usage{
 parse_mermaid(mermaid_str)
 }

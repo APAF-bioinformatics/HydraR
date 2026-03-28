@@ -1,10 +1,10 @@
-#' ──────────────────────────────────────────────────────────────
-#' APAF Bioinformatics | Macquarie University
-#' File:        node.R
-#' Author:      APAF Agentic Workflow
-#' Purpose:     Abstract Base Agent Node Class for HydraR
-#' Licence:     LGPL-3.0 (see LICENCE)
-#' ──────────────────────────────────────────────────────────────
+# ==============================================================
+# APAF Bioinformatics | Macquarie University
+# File:        node.R
+# Author:      APAF Agentic Workflow
+# Purpose:     Abstract Base Agent Node Class for HydraR
+# License:     LGPL (>= 3) (see LICENSE)
+# ==============================================================
 
 #' Agent Node R6 Class
 #'
@@ -42,4 +42,4 @@ AgentNode <- R6::R6Class("AgentNode",
     )
 )
 
-# <!-- APAF Bioinformatics | node.R | Approved | 2026-03-28 -->
+#' <!-- APAF Bioinformatics | node.R | Approved | 2026-03-28 -->

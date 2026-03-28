@@ -1,10 +1,10 @@
-#' ──────────────────────────────────────────────────────────────
-#' APAF Bioinformatics | Macquarie University
-#' File:        utils.R
-#' Author:      APAF Agentic Workflow
-#' Purpose:     Shared Utility Functions for HydraR
-#' Licence:     LGPL-3.0 (see LICENCE)
-#' ──────────────────────────────────────────────────────────────
+# ==============================================================
+# APAF Bioinformatics | Macquarie University
+# File:        utils.R
+# Author:      APAF Agentic Workflow
+# Purpose:     Shared Utility Functions for HydraR
+# License:     LGPL (>= 3) (see LICENSE)
+# ==============================================================
 
 #' Extract R Code from LLM Response
 #'
@@ -41,4 +41,4 @@ extract_r_code_advanced <- function(raw) {
     if (!is.null(a)) a else b
 }
 
-# <!-- APAF Bioinformatics | utils.R | Approved | 2026-03-29 -->
+#' <!-- APAF Bioinformatics | utils.R | Approved | 2026-03-29 -->

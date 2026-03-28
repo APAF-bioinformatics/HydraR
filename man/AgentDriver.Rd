@@ -2,14 +2,7 @@
 % Please edit documentation in R/driver.R
 \name{AgentDriver}
 \alias{AgentDriver}
-\title{──────────────────────────────────────────────────────────────
-APAF Bioinformatics | Macquarie University
-File:        driver.R
-Author:      APAF Agentic Workflow
-Purpose:     Abstract Agent Driver Base Class
-Licence:     LGPL-3.0 (see LICENCE)
-──────────────────────────────────────────────────────────────
-Agent Driver R6 Class}
+\title{Agent Driver R6 Class}
 \description{
 Abstract base class for CLI-based LLM drivers.
 }

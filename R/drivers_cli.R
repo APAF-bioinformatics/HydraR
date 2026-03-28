@@ -1,10 +1,10 @@
-#' ──────────────────────────────────────────────────────────────
-#' APAF Bioinformatics | Macquarie University
-#' File:        drivers_cli.R
-#' Author:      APAF Agentic Workflow
-#' Purpose:     CLI-Based Agent Drivers (Gemini, Ollama)
-#' Licence:     LGPL-3.0 (see LICENCE)
-#' ──────────────────────────────────────────────────────────────
+# ==============================================================
+# APAF Bioinformatics | Macquarie University
+# File:        drivers_cli.R
+# Author:      APAF Agentic Workflow
+# Purpose:     CLI-Based Agent Drivers (Gemini, Ollama)
+# License:     LGPL (>= 3) (see LICENSE)
+# ==============================================================
 
 #' Gemini CLI Driver R6 Class
 #'
@@ -197,4 +197,4 @@ CopilotCLIDriver <- R6::R6Class("CopilotCLIDriver",
     )
 )
 
-# <!-- APAF Bioinformatics | drivers_cli.R | Approved | 2026-03-28 -->
+#' <!-- APAF Bioinformatics | drivers_cli.R | Approved | 2026-03-28 -->
