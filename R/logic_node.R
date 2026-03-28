@@ -14,46 +14,46 @@
 #' @importFrom R6 R6Class
 #' @export
 AgentLogicNode <- R6::R6Class("AgentLogicNode",
-    inherit = AgentNode,
-    public = list(
-        #' @field logic_fn Function(state) -> List(status, output).
-        logic_fn = NULL,
+  inherit = AgentNode,
+  public = list(
+    #' @field logic_fn Function(state) -> List(status, output).
+    logic_fn = NULL,
 
-        #' Initialize AgentLogicNode
-        #' @param id Unique identifier.
-        #' @param logic_fn Function that takes an AgentState object and returns a list.
-        #' @param label Optional human-readable name.
-        initialize = function(id, logic_fn, label = NULL) {
-            super$initialize(id, label = label)
-            stopifnot(is.function(logic_fn))
-            self$logic_fn <- logic_fn
+    #' Initialize AgentLogicNode
+    #' @param id Unique identifier.
+    #' @param logic_fn Function that takes an AgentState object and returns a list.
+    #' @param label Optional human-readable name.
+    initialize = function(id, logic_fn, label = NULL) {
+      super$initialize(id, label = label)
+      stopifnot(is.function(logic_fn))
+      self$logic_fn <- logic_fn
+    },
+
+    #' Run the Logic Node
+    #' @param state AgentState object.
+    #' @param ... Additional arguments.
+    #' @return List with status, output, and metadata.
+    run = function(state, ...) {
+      cat(sprintf("   [%s] Executing R logic...\n", self$id))
+
+      res <- tryCatch(
+        {
+          self$logic_fn(state)
         },
-
-        #' Run the Logic Node
-        #' @param state AgentState object.
-        #' @param ... Additional arguments.
-        #' @return List with status, output, and metadata.
-        run = function(state, ...) {
-            cat(sprintf("   [%s] Executing R logic...\n", self$id))
-            
-            res <- tryCatch(
-                {
-                    self$logic_fn(state)
-                },
-                error = function(e) {
-                    list(status = "FAILED", output = NULL, error = e$message)
-                }
-            )
-            
-            self$last_result <- list(
-                status = res$status %||% "SUCCESS",
-                output = res$output,
-                error = res$error,
-                attempts = 1
-            )
-            return(self$last_result)
+        error = function(e) {
+          list(status = "FAILED", output = NULL, error = e$message)
         }
-    )
+      )
+
+      self$last_result <- list(
+        status = res$status %||% "SUCCESS",
+        output = res$output,
+        error = res$error,
+        attempts = 1
+      )
+      return(self$last_result)
+    }
+  )
 )
 
 #' <!-- APAF Bioinformatics | logic_node.R | Approved | 2026-03-28 -->

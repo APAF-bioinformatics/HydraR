@@ -43,28 +43,28 @@ This node mocks an LLM digesting a bug report and iterative test failures to eve
 
 ```{r}
 analyzer_node <- AgentLogicNode$new(id = "Analyzer", logic_fn = function(state, memory = NULL) {
-    # Extract state
-    bug_report <- state$get("bug_report")
-    test_feedback <- state$get("test_feedback")
-    
-    attempts <- state$get("patch_attempts")
-    if (is.null(attempts)) attempts <- 0
-    attempts <- attempts + 1
-    
-    # Mock behavior: It takes 2 tries to fix a Null Pointer Exception
-    proposed_patch <- if (attempts == 1) {
-        "if (x == NULL) return 0;" # Close, but maybe not quite right
-    } else {
-        "if (is.null(x)) return(0)" # Correct R syntax
-    }
-    
-    list(
-        status = "SUCCESS",
-        output = list(
-            proposed_patch = proposed_patch,
-            patch_attempts = attempts
-        )
+  # Extract state
+  bug_report <- state$get("bug_report")
+  test_feedback <- state$get("test_feedback")
+
+  attempts <- state$get("patch_attempts")
+  if (is.null(attempts)) attempts <- 0
+  attempts <- attempts + 1
+
+  # Mock behavior: It takes 2 tries to fix a Null Pointer Exception
+  proposed_patch <- if (attempts == 1) {
+    "if (x == NULL) return 0;" # Close, but maybe not quite right
+  } else {
+    "if (is.null(x)) return(0)" # Correct R syntax
+  }
+
+  list(
+    status = "SUCCESS",
+    output = list(
+      proposed_patch = proposed_patch,
+      patch_attempts = attempts
     )
+  )
 })
 
 dag$add_node(analyzer_node)
@@ -76,25 +76,25 @@ This node evaluates the patch. We'll simply check if the proposed patch is exact
 
 ```{r}
 tester_node <- AgentLogicNode$new(id = "Tester", logic_fn = function(state, memory = NULL) {
-    patch <- state$get("proposed_patch")
-    
-    if (patch == "if (is.null(x)) return(0)") {
-        list(
-            status = "SUCCESS",
-            output = list(
-                tests_passed = TRUE,
-                test_feedback = "All 5 tests passed successfully."
-            )
-        )
-    } else {
-        list(
-            status = "SUCCESS",
-            output = list(
-                tests_passed = FALSE,
-                test_feedback = "Error: object 'NULL' not found. Did you mean to use 'is.null()'?"
-            )
-        )
-    }
+  patch <- state$get("proposed_patch")
+
+  if (patch == "if (is.null(x)) return(0)") {
+    list(
+      status = "SUCCESS",
+      output = list(
+        tests_passed = TRUE,
+        test_feedback = "All 5 tests passed successfully."
+      )
+    )
+  } else {
+    list(
+      status = "SUCCESS",
+      output = list(
+        tests_passed = FALSE,
+        test_feedback = "Error: object 'NULL' not found. Did you mean to use 'is.null()'?"
+      )
+    )
+  }
 })
 
 dag$add_node(tester_node)
@@ -110,12 +110,12 @@ dag$set_start_node("Analyzer")
 dag$add_edge("Analyzer", "Tester")
 
 dag$add_conditional_edge(
-    from = "Tester",
-    test = function(out) {
-        isTRUE(out$tests_passed)
-    },
-    if_true = NULL,         # End execution
-    if_false = "Analyzer"   # Retry
+  from = "Tester",
+  test = function(out) {
+    isTRUE(out$tests_passed)
+  },
+  if_true = NULL, # End execution
+  if_false = "Analyzer" # Retry
 )
 
 compiled_dag <- dag$compile()
@@ -127,7 +127,7 @@ Provide the initial bug report and start the DAG.
 
 ```{r}
 initial_state <- list(
-    bug_report = "Function crashes when 'x' is missing."
+  bug_report = "Function crashes when 'x' is missing."
 )
 
 cat("Starting Automatic Bug Remediation...\n")

@@ -15,6 +15,6 @@ reducer_merge_list(current, new)
 The merged list.
 }
 \description{
-Merges two named lists using functional patterns. 
+Merges two named lists using functional patterns.
 Overwrites current for matching keys.
 }

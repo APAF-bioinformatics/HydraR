@@ -4,19 +4,24 @@ Title: Stateful Agentic Orchestration for R (CLI-First)
 Version: 0.1.0
 Authors@R: c(person(given = "Ignatius",
                     family = "Pang",
-                    role = "aut"),
+                    role = "aut",
+                    comment = c(ORCID = "0000-0001-9703-5741")),
              person(given = "Aidan",
                     family = "Tay",
-                    role = "aut"),
+                    role = "aut",
+                    comment = c(ORCID = "0000-0003-1315-4896")),
              person(given = c("APAF", "Agentic"),
                     family = "Workflow",
                     role = "cre",
                     email = "ignatius.pang@mq.edu.au"))
-Description: A framework for orchestrating complex agentic workflows in R. 
-    It provides a robust, state-managed engine for Directed Acyclic Graphs (DAGs) 
-    and iterative loops, prioritizing CLI-native LLM interactions (e.g., Gemini, 
-    Claude, Copilot) and hardened state persistence for reproducible research and 
-    automated coding tasks.
+Description: A professional framework for orchestrating complex agentic
+    workflows in R. HydraR provides a robust, state-managed engine for
+    Directed Acyclic Graphs (DAGs) and iterative loops, prioritizing 
+    CLI-native LLM interactions (e.g., Gemini, Claude, Copilot) and 
+    hardened state persistence for reproducible scientific research and 
+    automated bioinformatics pipelines.
+URL: https://github.com/APAF-bioinformatics/HydraR
+BugReports: https://github.com/APAF-bioinformatics/HydraR/issues
 License: LGPL (>= 3) + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.3

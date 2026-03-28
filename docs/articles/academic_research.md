@@ -1,0 +1,164 @@
+# Agentic Academic Researcher
+
+## Introduction
+
+This vignette demonstrates the **Academic Research** pattern using
+`HydraR`. We define a linear, multi-stage agentic workflow designed to
+synthesize academic literature into a final report.
+
+The pipeline comprises three agents: 1. **Searcher Node**: Given a
+research topic, finds relevant academic papers. 2. **Summarizer Node**:
+Ingests the raw papers and extracts key findings. 3. **Compiler Node**:
+Takes the extracted findings and formats them into a comprehensive
+literature review.
+
+This pattern is a perfect example of a **sequential processing
+pipeline** without cyclic loops, where each node enriches the state.
+
+## Setup
+
+``` r
+
+library(HydraR)
+```
+
+## Building the DAG
+
+Initialize the `AgentDAG`.
+
+``` r
+
+dag <- AgentDAG$new()
+```
+
+### 1. The Searcher Node
+
+Mocking an LLM utilizing a tool to search PubMed or ArXiv.
+
+``` r
+
+searcher_node <- AgentLogicNode$new(id = "Searcher", logic_fn = function(state, memory = NULL) {
+  topic <- state$get("research_topic")
+
+  # Mock search results
+  papers <- list(
+    list(title = paste(topic, "Basics"), content = "Introduction to the topic."),
+    list(title = paste("Advanced", topic), content = "Complex analysis of the topic.")
+  )
+
+  list(
+    status = "SUCCESS",
+    output = list(
+      raw_papers = papers,
+      search_status = "Found 2 papers."
+    )
+  )
+})
+
+dag$add_node(searcher_node)
+```
+
+### 2. The Summarizer Node
+
+Extracts value from the search results.
+
+``` r
+
+summarizer_node <- AgentLogicNode$new(id = "Summarizer", logic_fn = function(state, memory = NULL) {
+  papers <- state$get("raw_papers")
+
+  # Mocking summarization
+  summaries <- lapply(papers, function(p) {
+    sprintf("- **%s**: Highlights - %s", p$title, p$content)
+  })
+
+  list(
+    status = "SUCCESS",
+    output = list(
+      paper_summaries = unlist(summaries)
+    )
+  )
+})
+
+dag$add_node(summarizer_node)
+```
+
+### 3. The Compiler Node
+
+Drafts the final markdown report.
+
+``` r
+
+compiler_node <- AgentLogicNode$new(id = "Compiler", logic_fn = function(state, memory = NULL) {
+  topic <- state$get("research_topic")
+  summaries <- state$get("paper_summaries")
+
+  report <- paste0(
+    "# Literature Review: ", topic, "\n\n",
+    "## Key Findings\n",
+    paste(summaries, collapse = "\n")
+  )
+
+  list(
+    status = "SUCCESS",
+    output = list(
+      final_report = report
+    )
+  )
+})
+
+dag$add_node(compiler_node)
+```
+
+## Defining Transitions
+
+Configure a straight-through pipeline:
+`Searcher -> Summarizer -> Compiler`
+
+``` r
+
+dag$set_start_node("Searcher")
+
+dag$add_edge("Searcher", "Summarizer")
+dag$add_edge("Summarizer", "Compiler")
+
+compiled_dag <- dag$compile()
+#> Graph compiled successfully.
+```
+
+## Running the Scenario
+
+Provide the topic and run the pipeline.
+
+``` r
+
+initial_state <- list(
+  research_topic = "CRISPR Gene Editing"
+)
+
+cat("Starting Literature Pipeline...\n")
+#> Starting Literature Pipeline...
+result <- compiled_dag$run(initial_state = initial_state, max_steps = 5)
+#> Graph compiled successfully.
+#> [Linear] Running Node: Searcher
+#>    [Searcher] Executing R logic...
+#> [Linear] Running Node: Summarizer
+#>    [Summarizer] Executing R logic...
+#> [Linear] Running Node: Compiler
+#>    [Compiler] Executing R logic...
+
+cat("\n--- PIPELINE EXECUTION COMPLETE ---\n")
+#> 
+#> --- PIPELINE EXECUTION COMPLETE ---
+cat("Search Status:", result$state$get("search_status"), "\n\n")
+#> Search Status: Found 2 papers.
+cat(result$state$get("final_report"), "\n")
+#> # Literature Review: CRISPR Gene Editing
+#> 
+#> ## Key Findings
+#> - **CRISPR Gene Editing Basics**: Highlights - Introduction to the topic.
+#> - **Advanced CRISPR Gene Editing**: Highlights - Complex analysis of the topic.
+```
+
+The system successfully routed the data through all three agents to
+build a consolidated report!

@@ -43,32 +43,32 @@ The `Writer` node looks at the current `feedback` (if any) and updates the `stor
 
 ```{r}
 writer_node <- AgentLogicNode$new(id = "Writer", logic_fn = function(state, memory = NULL) {
-    # Extract current state
-    current_draft <- state$get("story_draft")
-    iteration <- state$get("writer_iterations")
-    if (is.null(iteration)) iteration <- 0
-    feedback <- state$get("reviewer_feedback")
-    
-    # Increment iteration
-    iteration <- iteration + 1
-    
-    # Generate new draft
-    if (is.null(current_draft)) {
-        new_draft <- "Once upon a time, a brave knight went on a quest."
-        action_msg <- "Drafting initial story."
-    } else {
-        new_draft <- paste(current_draft, "He fought a dragon and saved the kingdom.")
-        action_msg <- paste("Improving story based on feedback:", feedback)
-    }
-    
-    list(
-        status = "SUCCESS", 
-        output = list(
-            story_draft = new_draft, 
-            writer_iterations = iteration,
-            latest_action = action_msg
-        )
+  # Extract current state
+  current_draft <- state$get("story_draft")
+  iteration <- state$get("writer_iterations")
+  if (is.null(iteration)) iteration <- 0
+  feedback <- state$get("reviewer_feedback")
+
+  # Increment iteration
+  iteration <- iteration + 1
+
+  # Generate new draft
+  if (is.null(current_draft)) {
+    new_draft <- "Once upon a time, a brave knight went on a quest."
+    action_msg <- "Drafting initial story."
+  } else {
+    new_draft <- paste(current_draft, "He fought a dragon and saved the kingdom.")
+    action_msg <- paste("Improving story based on feedback:", feedback)
+  }
+
+  list(
+    status = "SUCCESS",
+    output = list(
+      story_draft = new_draft,
+      writer_iterations = iteration,
+      latest_action = action_msg
     )
+  )
 })
 
 dag$add_node(writer_node)
@@ -80,27 +80,27 @@ The `Reviewer` node checks the `story_draft`. In our mock logic, the reviewer de
 
 ```{r}
 reviewer_node <- AgentLogicNode$new(id = "Reviewer", logic_fn = function(state, memory = NULL) {
-    iteration <- state$get("writer_iterations")
-    
-    if (iteration >= 2) {
-        # Story is approved!
-        list(
-            status = "SUCCESS",
-            output = list(
-                is_approved = TRUE,
-                reviewer_feedback = "This is a great story! Approved."
-            )
-        )
-    } else {
-        # Needs more work
-        list(
-            status = "SUCCESS",
-            output = list(
-                is_approved = FALSE,
-                reviewer_feedback = "The story lacks action. Add a dragon."
-            )
-        )
-    }
+  iteration <- state$get("writer_iterations")
+
+  if (iteration >= 2) {
+    # Story is approved!
+    list(
+      status = "SUCCESS",
+      output = list(
+        is_approved = TRUE,
+        reviewer_feedback = "This is a great story! Approved."
+      )
+    )
+  } else {
+    # Needs more work
+    list(
+      status = "SUCCESS",
+      output = list(
+        is_approved = FALSE,
+        reviewer_feedback = "The story lacks action. Add a dragon."
+      )
+    )
+  }
 })
 
 dag$add_node(reviewer_node)
@@ -118,13 +118,13 @@ dag$add_edge("Writer", "Reviewer")
 
 # Conditional transition from Reviewer -> Writer or END
 dag$add_conditional_edge(
-    from = "Reviewer",
-    test = function(out) {
-        # Return the boolean approval status
-        isTRUE(out$is_approved)
-    },
-    if_true = NULL,       # Stop execution
-    if_false = "Writer"   # Loop back to Writer
+  from = "Reviewer",
+  test = function(out) {
+    # Return the boolean approval status
+    isTRUE(out$is_approved)
+  },
+  if_true = NULL, # Stop execution
+  if_false = "Writer" # Loop back to Writer
 )
 ```
 

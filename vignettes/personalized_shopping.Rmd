@@ -45,30 +45,30 @@ This node uses user feedback to update its recommendations.
 
 ```{r}
 shopper_node <- AgentLogicNode$new(id = "Shopper", logic_fn = function(state, memory = NULL) {
-    # Extract state
-    request <- state$get("shopping_request")
-    feedback <- state$get("user_feedback")
-    
-    attempts <- state$get("shopping_attempts")
-    if (is.null(attempts)) attempts <- 0
-    attempts <- attempts + 1
-    
-    # Mocking catalogue search logic
-    recommended_item <- if (attempts == 1) {
-        "Generic Blue T-Shirt" 
-    } else if (attempts == 2) {
-        "Premium V-Neck T-Shirt"
-    } else {
-        "Vintage Graphic T-Shirt"
-    }
-    
-    list(
-        status = "SUCCESS",
-        output = list(
-            recommended_item = recommended_item,
-            shopping_attempts = attempts
-        )
+  # Extract state
+  request <- state$get("shopping_request")
+  feedback <- state$get("user_feedback")
+
+  attempts <- state$get("shopping_attempts")
+  if (is.null(attempts)) attempts <- 0
+  attempts <- attempts + 1
+
+  # Mocking catalogue search logic
+  recommended_item <- if (attempts == 1) {
+    "Generic Blue T-Shirt"
+  } else if (attempts == 2) {
+    "Premium V-Neck T-Shirt"
+  } else {
+    "Vintage Graphic T-Shirt"
+  }
+
+  list(
+    status = "SUCCESS",
+    output = list(
+      recommended_item = recommended_item,
+      shopping_attempts = attempts
     )
+  )
 })
 
 dag$add_node(shopper_node)
@@ -80,25 +80,25 @@ This node simulates a picky user.
 
 ```{r}
 user_proxy_node <- AgentLogicNode$new(id = "UserProxy", logic_fn = function(state, memory = NULL) {
-    item <- state$get("recommended_item")
-    
-    if (item == "Vintage Graphic T-Shirt") {
-        list(
-            status = "SUCCESS",
-            output = list(
-                user_is_satisfied = TRUE,
-                user_feedback = "I love this graphic tee! I'll buy it."
-            )
-        )
-    } else {
-        list(
-            status = "SUCCESS",
-            output = list(
-                user_is_satisfied = FALSE,
-                user_feedback = sprintf("I don't like %s. Show me something with a graphic design.", item)
-            )
-        )
-    }
+  item <- state$get("recommended_item")
+
+  if (item == "Vintage Graphic T-Shirt") {
+    list(
+      status = "SUCCESS",
+      output = list(
+        user_is_satisfied = TRUE,
+        user_feedback = "I love this graphic tee! I'll buy it."
+      )
+    )
+  } else {
+    list(
+      status = "SUCCESS",
+      output = list(
+        user_is_satisfied = FALSE,
+        user_feedback = sprintf("I don't like %s. Show me something with a graphic design.", item)
+      )
+    )
+  }
 })
 
 dag$add_node(user_proxy_node)
@@ -114,12 +114,12 @@ dag$set_start_node("Shopper")
 dag$add_edge("Shopper", "UserProxy")
 
 dag$add_conditional_edge(
-    from = "UserProxy",
-    test = function(out) {
-        isTRUE(out$user_is_satisfied)
-    },
-    if_true = NULL,        # Done
-    if_false = "Shopper"   # Try again
+  from = "UserProxy",
+  test = function(out) {
+    isTRUE(out$user_is_satisfied)
+  },
+  if_true = NULL, # Done
+  if_false = "Shopper" # Try again
 )
 
 compiled_dag <- dag$compile()
@@ -131,7 +131,7 @@ Provide the initial request and observe the iterations.
 
 ```{r}
 initial_state <- list(
-    shopping_request = "I need a cool t-shirt for the weekend."
+  shopping_request = "I need a cool t-shirt for the weekend."
 )
 
 cat("Starting Personalized Shopper...\n")

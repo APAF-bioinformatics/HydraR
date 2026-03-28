@@ -1,16 +1,15 @@
 test_that("Travel Booking DAG enforces budget loop", {
-  
   dag <- AgentDAG$new()
-  
+
   planner_node <- AgentLogicNode$new(id = "Planner", logic_fn = function(state, memory = NULL) {
     destination <- state$get("destination")
     attempts <- state$get("planner_attempts")
     if (is.null(attempts)) attempts <- 0
     attempts <- attempts + 1
-    
+
     proposed_cost <- 3200 - (attempts * 700)
     itinerary <- sprintf("Trip to %s. Estimated Cost: $%d.", destination, proposed_cost)
-    
+
     list(
       status = "SUCCESS",
       output = list(
@@ -21,11 +20,11 @@ test_that("Travel Booking DAG enforces budget loop", {
     )
   })
   dag$add_node(planner_node)
-  
+
   validator_node <- AgentLogicNode$new(id = "Validator", logic_fn = function(state, memory = NULL) {
     proposed_cost <- state$get("proposed_cost")
     budget <- state$get("budget")
-    
+
     if (proposed_cost <= budget) {
       list(status = "SUCCESS", output = list(is_valid = TRUE))
     } else {
@@ -33,7 +32,7 @@ test_that("Travel Booking DAG enforces budget loop", {
     }
   })
   dag$add_node(validator_node)
-  
+
   dag$set_start_node("Planner")
   dag$add_edge("Planner", "Validator")
   dag$add_conditional_edge(
@@ -42,9 +41,9 @@ test_that("Travel Booking DAG enforces budget loop", {
     if_true = NULL,
     if_false = "Planner"
   )
-  
+
   compiled_dag <- dag$compile()
-  
+
   # Run with budget = 1500
   # Attempt 1 -> cost = 2500 (Fail)
   # Attempt 2 -> cost = 1800 (Fail)
@@ -53,7 +52,7 @@ test_that("Travel Booking DAG enforces budget loop", {
     initial_state = list(destination = "Tokyo", budget = 1500),
     max_steps = 10
   )
-  
+
   # Assertions
   expect_equal(result$state$get("planner_attempts"), 3)
   expect_true(result$state$get("is_valid"))

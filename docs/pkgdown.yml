@@ -1,0 +1,17 @@
+pandoc: '3.9'
+pkgdown: 2.2.0
+pkgdown_sha: ~
+articles:
+  academic_research: academic_research.html
+  blog_writer: blog_writer.html
+  data_science: data_science.html
+  hello_world_agent: hello_world_agent.html
+  hong_kong_travel: hong_kong_travel.html
+  personalized_shopping: personalized_shopping.html
+  software_bug_assistant: software_bug_assistant.html
+  story_teller: story_teller.html
+  travel_booking: travel_booking.html
+last_built: 2026-03-28T17:23Z
+urls:
+  reference: https://github.com/APAF-bioinformatics/HydraR/reference
+  article: https://github.com/APAF-bioinformatics/HydraR/articles

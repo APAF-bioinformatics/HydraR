@@ -12,7 +12,7 @@ Driver for the 'gemini' CLI tool.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{model}}{String. Default model.
+\item{\code{model}}{String. Default model. Omit to use CLI default.
 Initialize GeminiCLIDriver}
 }
 \if{html}{\out{</div>}}
@@ -30,7 +30,7 @@ Initialize GeminiCLIDriver}
 \if{latex}{\out{\hypertarget{method-GeminiCLIDriver-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GeminiCLIDriver$new(id = "gemini_cli", model = "gemini-1.5-flash")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GeminiCLIDriver$new(id = "gemini_cli", model = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -38,7 +38,7 @@ Initialize GeminiCLIDriver}
 \describe{
 \item{\code{id}}{Unique identifier.}
 
-\item{\code{model}}{String. Default model.
+\item{\code{model}}{String. Optional model.
 Call the LLM}
 }
 \if{html}{\out{</div>}}

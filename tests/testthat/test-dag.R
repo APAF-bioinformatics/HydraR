@@ -2,8 +2,8 @@ library(testthat)
 
 test_that("AgentDAG Mermaid plotting works", {
   dag <- AgentDAG$new()
-  dag_add_logic_node(dag, "node1", function(state) list(status="SUCCESS"))
-  dag_add_logic_node(dag, "node2", function(state) list(status="SUCCESS"))
+  dag_add_logic_node(dag, "node1", function(state) list(status = "SUCCESS"))
+  dag_add_logic_node(dag, "node2", function(state) list(status = "SUCCESS"))
   dag$add_edge("node1", "node2")
 
   # Capture Mermaid output
@@ -22,9 +22,9 @@ test_that("AgentDAG Mermaid plotting works", {
 
 test_that("AgentDAG compile detects unreachable nodes and cycles", {
   dag <- AgentDAG$new()
-  dag_add_logic_node(dag, "node1", function(state) list(status="SUCCESS"))
-  dag_add_logic_node(dag, "node2", function(state) list(status="SUCCESS"))
-  dag_add_logic_node(dag, "node3", function(state) list(status="SUCCESS"))
+  dag_add_logic_node(dag, "node1", function(state) list(status = "SUCCESS"))
+  dag_add_logic_node(dag, "node2", function(state) list(status = "SUCCESS"))
+  dag_add_logic_node(dag, "node3", function(state) list(status = "SUCCESS"))
 
   # node2 -> node3 -> node2 (cycle)
   dag$add_edge("node2", "node3")
@@ -42,7 +42,7 @@ test_that("AgentDAG compile detects unreachable nodes and cycles", {
 
 test_that("AgentDAG logic node captures error context", {
   dag <- AgentDAG$new()
-  # In HydraR, AgentLogicNode doesn't yet have the stack trace capture 
+  # In HydraR, AgentLogicNode doesn't yet have the stack trace capture
   # of the RforRobot version, but we can test basic error handling.
   dag_add_logic_node(dag, "fail_node", function(state) {
     stop("Deep logic failure")
@@ -77,10 +77,10 @@ test_that("AgentDAG Mermaid plotting uses labels", {
 test_that("AgentDAG compile detects undefined nodes", {
   dag <- AgentDAG$new()
   dag_add_logic_node(dag, "node1", function(state) list())
-  
+
   # Reference an undefined node 'node2' in an edge
   dag$add_edge("node1", "node2")
-  
+
   expect_error(dag$compile(), "Undefined node\\(s\\) referenced in edges: node2")
 })
 

@@ -1,0 +1,111 @@
+# Hello World: Building an Agentic Loop with HydraR
+
+## Introduction
+
+This vignette demonstrates how to construct a simple “Hello World”
+agentic loop using the `HydraR` framework. In this example, we will
+create a Directed Acyclic Graph (DAG) with two nodes: 1. An **Executor**
+node (simulating an LLM or an external tool). 2. A **Validator** node
+ensuring the Executor achieved its goal.
+
+## 1. Setup
+
+First, load the library:
+
+``` r
+
+library(HydraR)
+```
+
+## 2. Initialize the DAG
+
+We initialize an `AgentDAG` which will orchestrate our nodes.
+
+``` r
+
+dag <- AgentDAG$new()
+```
+
+## 3. Define Nodes
+
+We can use `AgentNode` or subclass it (such as `AgentLogicNode` from
+downstream implementations) to perform custom behaviors. Here, we
+simulate an agent trying to guess a specific word.
+
+``` r
+
+# Simulated LLM Node
+executor_node <- AgentLogicNode$new(id = "Guesser", logic_fn = function(state, memory = NULL) {
+  attempts <- state$get("attempts")
+  if (is.null(attempts)) attempts <- 0
+  attempts <- attempts + 1
+
+  # Simulate the agent guessing the right word on the 3rd attempt
+  guess <- if (attempts >= 3) "hello" else "hi"
+
+  list(
+    status = "SUCCESS",
+    output = list(guess = guess, attempts = attempts)
+  )
+})
+
+# Simulated Validator Node
+validator_node <- AgentLogicNode$new(id = "Validator", logic_fn = function(state, memory = NULL) {
+  guess <- state$get("guess")
+  is_valid <- (guess == "hello")
+  list(
+    status = "SUCCESS",
+    output = list(valid = is_valid)
+  )
+})
+
+dag$add_node(executor_node)
+dag$add_node(validator_node)
+dag$set_start_node("Guesser")
+```
+
+## 4. Define Transitions
+
+We create a conditional transition to loop back if the guess is
+incorrect.
+
+``` r
+
+# Unconditional edge from Guesser to Validator
+dag$add_edge("Guesser", "Validator")
+
+# Conditional edge: if not valid, loop back to Guesser
+dag$add_conditional_edge("Validator",
+  test = function(out) isTRUE(out$valid),
+  if_true = NULL, # Stop execution on success
+  if_false = "Guesser" # Loop back if not valid
+)
+```
+
+## 5. Execution
+
+Run the DAG!
+
+``` r
+
+final_state <- dag$run(initial_state = list(attempts = 0), max_steps = 10)
+#> Graph compiled successfully.
+#> [Iteration 1] Running Node: Guesser
+#>    [Guesser] Executing R logic...
+#> [Iteration 2] Running Node: Validator
+#>    [Validator] Executing R logic...
+#> [Iteration 3] Running Node: Guesser
+#>    [Guesser] Executing R logic...
+#> [Iteration 4] Running Node: Validator
+#>    [Validator] Executing R logic...
+#> [Iteration 5] Running Node: Guesser
+#>    [Guesser] Executing R logic...
+#> [Iteration 6] Running Node: Validator
+#>    [Validator] Executing R logic...
+
+# View final state
+cat("Total Attempts:", final_state$state$get("attempts"), "\n")
+#> Total Attempts: 3
+cat("Final Guess:", final_state$state$get("guess"), "\n")
+#> Final Guess: hello
+```

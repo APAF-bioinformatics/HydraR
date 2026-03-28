@@ -45,27 +45,27 @@ Here, we simulate an agent trying to guess a specific word.
 ```{r}
 # Simulated LLM Node
 executor_node <- AgentLogicNode$new(id = "Guesser", logic_fn = function(state, memory = NULL) {
-    attempts <- state$get("attempts")
-    if (is.null(attempts)) attempts <- 0
-    attempts <- attempts + 1
-    
-    # Simulate the agent guessing the right word on the 3rd attempt
-    guess <- if (attempts >= 3) "hello" else "hi"
-    
-    list(
-        status = "SUCCESS", 
-        output = list(guess = guess, attempts = attempts)
-    )
+  attempts <- state$get("attempts")
+  if (is.null(attempts)) attempts <- 0
+  attempts <- attempts + 1
+
+  # Simulate the agent guessing the right word on the 3rd attempt
+  guess <- if (attempts >= 3) "hello" else "hi"
+
+  list(
+    status = "SUCCESS",
+    output = list(guess = guess, attempts = attempts)
+  )
 })
 
 # Simulated Validator Node
 validator_node <- AgentLogicNode$new(id = "Validator", logic_fn = function(state, memory = NULL) {
-    guess <- state$get("guess")
-    is_valid <- (guess == "hello")
-    list(
-        status = "SUCCESS",
-        output = list(valid = is_valid)
-    )
+  guess <- state$get("guess")
+  is_valid <- (guess == "hello")
+  list(
+    status = "SUCCESS",
+    output = list(valid = is_valid)
+  )
 })
 
 dag$add_node(executor_node)
@@ -82,10 +82,10 @@ We create a conditional transition to loop back if the guess is incorrect.
 dag$add_edge("Guesser", "Validator")
 
 # Conditional edge: if not valid, loop back to Guesser
-dag$add_conditional_edge("Validator", 
-    test = function(out) isTRUE(out$valid),
-    if_true = NULL,       # Stop execution on success
-    if_false = "Guesser"  # Loop back if not valid
+dag$add_conditional_edge("Validator",
+  test = function(out) isTRUE(out$valid),
+  if_true = NULL, # Stop execution on success
+  if_false = "Guesser" # Loop back if not valid
 )
 ```
 

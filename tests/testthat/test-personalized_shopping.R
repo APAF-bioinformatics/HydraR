@@ -1,20 +1,19 @@
 test_that("Personalized Shopping DAG loops until user is satisfied", {
-  
   dag <- AgentDAG$new()
-  
+
   shopper_node <- AgentLogicNode$new(id = "Shopper", logic_fn = function(state, memory = NULL) {
     attempts <- state$get("shopping_attempts")
     if (is.null(attempts)) attempts <- 0
     attempts <- attempts + 1
-    
+
     recommended_item <- if (attempts == 1) {
-      "Generic Blue T-Shirt" 
+      "Generic Blue T-Shirt"
     } else if (attempts == 2) {
       "Premium V-Neck T-Shirt"
     } else {
       "Vintage Graphic T-Shirt"
     }
-    
+
     list(
       status = "SUCCESS",
       output = list(
@@ -24,7 +23,7 @@ test_that("Personalized Shopping DAG loops until user is satisfied", {
     )
   })
   dag$add_node(shopper_node)
-  
+
   user_node <- AgentLogicNode$new(id = "UserProxy", logic_fn = function(state, memory = NULL) {
     if (state$get("recommended_item") == "Vintage Graphic T-Shirt") {
       list(status = "SUCCESS", output = list(user_is_satisfied = TRUE))
@@ -33,7 +32,7 @@ test_that("Personalized Shopping DAG loops until user is satisfied", {
     }
   })
   dag$add_node(user_node)
-  
+
   dag$set_start_node("Shopper")
   dag$add_edge("Shopper", "UserProxy")
   dag$add_conditional_edge(
@@ -42,14 +41,14 @@ test_that("Personalized Shopping DAG loops until user is satisfied", {
     if_true = NULL,
     if_false = "Shopper"
   )
-  
+
   compiled_dag <- dag$compile()
-  
+
   result <- compiled_dag$run(
     initial_state = list(shopping_request = "T-shirt"),
     max_steps = 10
   )
-  
+
   # Assertions
   expect_equal(result$state$get("shopping_attempts"), 3)
   expect_true(result$state$get("user_is_satisfied"))

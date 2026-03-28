@@ -44,14 +44,14 @@ This node only runs once at the beginning of the pipeline.
 
 ```{r}
 outliner_node <- AgentLogicNode$new(id = "Outliner", logic_fn = function(state, memory = NULL) {
-    topic <- state$get("blog_topic")
-    
-    list(
-        status = "SUCCESS",
-        output = list(
-            outline = sprintf("1. Introduction matching '%s'\n2. Detailed Body\n3. Conclusion", topic)
-        )
+  topic <- state$get("blog_topic")
+
+  list(
+    status = "SUCCESS",
+    output = list(
+      outline = sprintf("1. Introduction matching '%s'\n2. Detailed Body\n3. Conclusion", topic)
     )
+  )
 })
 
 dag$add_node(outliner_node)
@@ -63,27 +63,27 @@ This node merges the outline with any editor feedback.
 
 ```{r}
 drafter_node <- AgentLogicNode$new(id = "Drafter", logic_fn = function(state, memory = NULL) {
-    outline <- state$get("outline")
-    feedback <- state$get("editor_feedback")
-    
-    attempts <- state$get("draft_attempts")
-    if (is.null(attempts)) attempts <- 0
-    attempts <- attempts + 1
-    
-    # Mocking drafting: on the second attempt, we "fix" the SEO issue
-    if (attempts == 1) {
-        draft <- "Here is a blog post based on the outline. It is very generic."
-    } else {
-        draft <- "Here is an SEO-optimized blog post with correct keywords and structure."
-    }
-    
-    list(
-        status = "SUCCESS",
-        output = list(
-            blog_draft = draft,
-            draft_attempts = attempts
-        )
+  outline <- state$get("outline")
+  feedback <- state$get("editor_feedback")
+
+  attempts <- state$get("draft_attempts")
+  if (is.null(attempts)) attempts <- 0
+  attempts <- attempts + 1
+
+  # Mocking drafting: on the second attempt, we "fix" the SEO issue
+  if (attempts == 1) {
+    draft <- "Here is a blog post based on the outline. It is very generic."
+  } else {
+    draft <- "Here is an SEO-optimized blog post with correct keywords and structure."
+  }
+
+  list(
+    status = "SUCCESS",
+    output = list(
+      blog_draft = draft,
+      draft_attempts = attempts
     )
+  )
 })
 
 dag$add_node(drafter_node)
@@ -95,25 +95,25 @@ Checks the draft for specific keywords.
 
 ```{r}
 editor_node <- AgentLogicNode$new(id = "Editor", logic_fn = function(state, memory = NULL) {
-    draft <- state$get("blog_draft")
-    
-    if (grepl("SEO-optimized", draft)) {
-        list(
-            status = "SUCCESS",
-            output = list(
-                is_published = TRUE,
-                editor_feedback = "Approved for publishing."
-            )
-        )
-    } else {
-        list(
-            status = "SUCCESS",
-            output = list(
-                is_published = FALSE,
-                editor_feedback = "The draft lacks SEO optimization. Please revise."
-            )
-        )
-    }
+  draft <- state$get("blog_draft")
+
+  if (grepl("SEO-optimized", draft)) {
+    list(
+      status = "SUCCESS",
+      output = list(
+        is_published = TRUE,
+        editor_feedback = "Approved for publishing."
+      )
+    )
+  } else {
+    list(
+      status = "SUCCESS",
+      output = list(
+        is_published = FALSE,
+        editor_feedback = "The draft lacks SEO optimization. Please revise."
+      )
+    )
+  }
 })
 
 dag$add_node(editor_node)
@@ -130,12 +130,12 @@ dag$add_edge("Outliner", "Drafter")
 dag$add_edge("Drafter", "Editor")
 
 dag$add_conditional_edge(
-    from = "Editor",
-    test = function(out) {
-        isTRUE(out$is_published)
-    },
-    if_true = NULL,        # Stop!
-    if_false = "Drafter"   # Back to drafter
+  from = "Editor",
+  test = function(out) {
+    isTRUE(out$is_published)
+  },
+  if_true = NULL, # Stop!
+  if_false = "Drafter" # Back to drafter
 )
 
 compiled_dag <- dag$compile()
@@ -145,7 +145,7 @@ compiled_dag <- dag$compile()
 
 ```{r}
 initial_state <- list(
-    blog_topic = "Agentic Workflows in R"
+  blog_topic = "Agentic Workflows in R"
 )
 
 cat("Starting Blog Creation Engine...\n")

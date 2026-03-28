@@ -1,11 +1,10 @@
-# HydraR 0.1.0
+# HydraR 0.1.0 (Initial Release)
 
-- **Initial Release** of the HydraR framework for stateful agentic orchestration in R.
-- **AgentDAG**: Core graph execution machine with support for parallel nodes (`furrr`) and conditional loops.
-- **AgentState**: Centralized R6-based state store with reducer support and immutable-style updates.
-- **Checkpointer**: Persistent execution threads using SQLite/DuckDB/In-Memory backends.
-- **CLI Drivers**: Integrated drivers for `Gemini`, `Claude`, `Copilot`, and `Ollama` via system CLIs.
-- **Standardization**: Migrated from `RforRobot` (v0.x) to a standalone library with APAF Bioinformatics standards.
+- **Agentic Orchestration**: Implementation of the `AgentDAG` R6 class for managing complex directed workflows and iterative loops (state machines).
+- **State Management**: Robust `AgentState` system for tracking data through multi-step agent transitions.
+- **Provider-Agnostic Drivers**: Initial support for `GeminiCLIDriver`, `ClaudeCodeDriver`, and `CopilotCLIDriver`, enabling "hot-swappable" LLM backends.
+- **High-Fidelity Validation**: Integrated `Auditor` pattern for autonomous quality control of agent outputs.
+- **Persistence**: DuckDB-backed `AgentCheckpointer` for stateful execution and recovery.
 
 ---
 <!-- APAF Bioinformatics | HydraR | Approved | 2026-03-29 -->

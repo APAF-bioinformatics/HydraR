@@ -1,0 +1,6 @@
+# License
+
+    This project is licensed under the LGPL v3.0.
+
+    See COPYING for the GNU General Public License (GPL) base terms.
+    See COPYING.LESSER for the GNU Lesser General Public License (LGPL) additional permissions.

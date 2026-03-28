@@ -1,0 +1,72 @@
+url: https://github.com/APAF-bioinformatics/HydraR
+template:
+  bootstrap: 5
+  params:
+    bootswatch: flatly
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, news]
+    right: [github]
+  components:
+    intro:
+      text: Get Started
+      href: articles/hong_kong_travel.html
+
+reference:
+  - title: Core Orchestration
+    desc: The heart of the HydraR framework.
+    contents:
+      - AgentDAG
+      - AgentNode
+      - AgentState
+      - Checkpointer
+      - MemorySaver
+      - DuckDBSaver
+  - title: Agent Nodes
+    desc: Specialized nodes for LLM interaction and logical routing.
+    contents:
+      - AgentLLMNode
+      - AgentLogicNode
+      - add_llm_node
+      - add_logic_node
+      - dag_add_llm_node
+      - dag_add_logic_node
+      - standard_node_factory
+  - title: LLM Drivers
+    desc: Provider-agnostic interfaces for CLI-based and API-based LLMs.
+    contents:
+      - AgentDriver
+      - GeminiCLIDriver
+      - OllamaDriver
+      - ClaudeCodeDriver
+      - CopilotCLIDriver
+  - title: Utilities & Parsing
+    desc: Helper functions for mermaid visualization and code extraction.
+    contents:
+      - AgentTool
+      - parse_mermaid
+      - extract_r_code_advanced
+      - format_toolset
+      - reducer_merge_list
+      - reducer_append
+
+articles:
+  - title: Case Studies
+    navbar: Case Studies
+    contents:
+      - hong_kong_travel
+  - title: Examples Gallery
+    navbar: Examples
+    contents:
+      - academic_research
+      - blog_writer
+      - data_science
+      - hello_world_agent
+      - personalized_shopping
+      - software_bug_assistant
+      - story_teller
+      - travel_booking
+
+---
+<!-- APAF Bioinformatics | HydraR | Approved | 2026-03-29 -->

@@ -46,21 +46,21 @@ Mocking an LLM utilizing a tool to search PubMed or ArXiv.
 
 ```{r}
 searcher_node <- AgentLogicNode$new(id = "Searcher", logic_fn = function(state, memory = NULL) {
-    topic <- state$get("research_topic")
-    
-    # Mock search results
-    papers <- list(
-        list(title = paste(topic, "Basics"), content = "Introduction to the topic."),
-        list(title = paste("Advanced", topic), content = "Complex analysis of the topic.")
+  topic <- state$get("research_topic")
+
+  # Mock search results
+  papers <- list(
+    list(title = paste(topic, "Basics"), content = "Introduction to the topic."),
+    list(title = paste("Advanced", topic), content = "Complex analysis of the topic.")
+  )
+
+  list(
+    status = "SUCCESS",
+    output = list(
+      raw_papers = papers,
+      search_status = "Found 2 papers."
     )
-    
-    list(
-        status = "SUCCESS",
-        output = list(
-            raw_papers = papers,
-            search_status = "Found 2 papers."
-        )
-    )
+  )
 })
 
 dag$add_node(searcher_node)
@@ -72,19 +72,19 @@ Extracts value from the search results.
 
 ```{r}
 summarizer_node <- AgentLogicNode$new(id = "Summarizer", logic_fn = function(state, memory = NULL) {
-    papers <- state$get("raw_papers")
-    
-    # Mocking summarization
-    summaries <- lapply(papers, function(p) {
-        sprintf("- **%s**: Highlights - %s", p$title, p$content)
-    })
-    
-    list(
-        status = "SUCCESS",
-        output = list(
-            paper_summaries = unlist(summaries)
-        )
+  papers <- state$get("raw_papers")
+
+  # Mocking summarization
+  summaries <- lapply(papers, function(p) {
+    sprintf("- **%s**: Highlights - %s", p$title, p$content)
+  })
+
+  list(
+    status = "SUCCESS",
+    output = list(
+      paper_summaries = unlist(summaries)
     )
+  )
 })
 
 dag$add_node(summarizer_node)
@@ -96,21 +96,21 @@ Drafts the final markdown report.
 
 ```{r}
 compiler_node <- AgentLogicNode$new(id = "Compiler", logic_fn = function(state, memory = NULL) {
-    topic <- state$get("research_topic")
-    summaries <- state$get("paper_summaries")
-    
-    report <- paste0(
-        "# Literature Review: ", topic, "\n\n",
-        "## Key Findings\n",
-        paste(summaries, collapse = "\n")
+  topic <- state$get("research_topic")
+  summaries <- state$get("paper_summaries")
+
+  report <- paste0(
+    "# Literature Review: ", topic, "\n\n",
+    "## Key Findings\n",
+    paste(summaries, collapse = "\n")
+  )
+
+  list(
+    status = "SUCCESS",
+    output = list(
+      final_report = report
     )
-    
-    list(
-        status = "SUCCESS",
-        output = list(
-            final_report = report
-        )
-    )
+  )
 })
 
 dag$add_node(compiler_node)
@@ -135,7 +135,7 @@ Provide the topic and run the pipeline.
 
 ```{r}
 initial_state <- list(
-    research_topic = "CRISPR Gene Editing"
+  research_topic = "CRISPR Gene Editing"
 )
 
 cat("Starting Literature Pipeline...\n")

@@ -15,7 +15,7 @@
 #' @return AgentLLMNode object.
 #' @export
 add_llm_node <- function(id, role, driver, ...) {
-    AgentLLMNode$new(id = id, role = role, driver = driver, ...)
+  AgentLLMNode$new(id = id, role = role, driver = driver, ...)
 }
 
 #' Create an R Logic Node easily
@@ -26,7 +26,7 @@ add_llm_node <- function(id, role, driver, ...) {
 #' @return AgentLogicNode object.
 #' @export
 add_logic_node <- function(id, logic_fn, ...) {
-    AgentLogicNode$new(id = id, logic_fn = logic_fn, ...)
+  AgentLogicNode$new(id = id, logic_fn = logic_fn, ...)
 }
 
 #' Add an LLM Agent Node directly to a DAG
@@ -39,12 +39,12 @@ add_logic_node <- function(id, logic_fn, ...) {
 #' @return The modified AgentDAG object (invisibly).
 #' @export
 dag_add_llm_node <- function(dag, id, role, driver, ...) {
-    if (!inherits(dag, "AgentDAG")) {
-        stop("dag must be an AgentDAG object.")
-    }
-    node <- add_llm_node(id = id, role = role, driver = driver, ...)
-    dag$add_node(node)
-    invisible(dag)
+  if (!inherits(dag, "AgentDAG")) {
+    stop("dag must be an AgentDAG object.")
+  }
+  node <- add_llm_node(id = id, role = role, driver = driver, ...)
+  dag$add_node(node)
+  invisible(dag)
 }
 
 #' Add an R Logic Node directly to a DAG
@@ -56,12 +56,12 @@ dag_add_llm_node <- function(dag, id, role, driver, ...) {
 #' @return The modified AgentDAG object (invisibly).
 #' @export
 dag_add_logic_node <- function(dag, id, logic_fn, ...) {
-    if (!inherits(dag, "AgentDAG")) {
-        stop("dag must be an AgentDAG object.")
-    }
-    node <- add_logic_node(id = id, logic_fn = logic_fn, ...)
-    dag$add_node(node)
-    invisible(dag)
+  if (!inherits(dag, "AgentDAG")) {
+    stop("dag must be an AgentDAG object.")
+  }
+  node <- add_logic_node(id = id, logic_fn = logic_fn, ...)
+  dag$add_node(node)
+  invisible(dag)
 }
 
 #' Standard Node Factory for Mermaid
@@ -77,33 +77,33 @@ dag_add_logic_node <- function(dag, id, logic_fn, ...) {
 #' @return AgentNode object.
 #' @export
 standard_node_factory <- function(id, label, driver = NULL) {
-    if (grepl("^logic:", label)) {
-        fn_name <- gsub("^logic:", "", label)
-        # Try to find the function in the environment
-        fn <- tryCatch(get(fn_name, mode = "function"), error = function(e) NULL)
-        if (is.null(fn)) {
-             stop(sprintf("Could not find function '%s' for logic node '%s'.", fn_name, id))
-        }
-        return(AgentLogicNode$new(id = id, logic_fn = fn))
-    } else if (grepl("^llm:", label)) {
-        role <- gsub("^llm:", "", label)
-        if (is.null(driver)) {
-             stop(sprintf("No driver provided for LLM node '%s'.", id))
-        }
-        return(AgentLLMNode$new(id = id, role = role, driver = driver))
+  if (grepl("^logic:", label)) {
+    fn_name <- gsub("^logic:", "", label)
+    # Try to find the function in the environment
+    fn <- tryCatch(get(fn_name, mode = "function"), error = function(e) NULL)
+    if (is.null(fn)) {
+      stop(sprintf("Could not find function '%s' for logic node '%s'.", fn_name, id))
     }
-    
-    # Default: Logic node with ID as function name if it exists, else dummy
-    fn <- tryCatch(get(label, mode = "function"), error = function(e) NULL)
-    if (!is.null(fn)) {
-         return(AgentLogicNode$new(id = id, logic_fn = fn))
+    return(AgentLogicNode$new(id = id, logic_fn = fn))
+  } else if (grepl("^llm:", label)) {
+    role <- gsub("^llm:", "", label)
+    if (is.null(driver)) {
+      stop(sprintf("No driver provided for LLM node '%s'.", id))
     }
-    
-    # Fallback to dummy
-    return(AgentLogicNode$new(id = id, logic_fn = function(state) {
-        message(sprintf("Running dummy node '%s' (label: %s)", id, label))
-        return(list(output = NULL, status = "ok"))
-    }))
+    return(AgentLLMNode$new(id = id, role = role, driver = driver))
+  }
+
+  # Default: Logic node with ID as function name if it exists, else dummy
+  fn <- tryCatch(get(label, mode = "function"), error = function(e) NULL)
+  if (!is.null(fn)) {
+    return(AgentLogicNode$new(id = id, logic_fn = fn))
+  }
+
+  # Fallback to dummy
+  return(AgentLogicNode$new(id = id, logic_fn = function(state) {
+    message(sprintf("Running dummy node '%s' (label: %s)", id, label))
+    return(list(output = NULL, status = "ok"))
+  }))
 }
 
 #' <!-- APAF Bioinformatics | factory.R | Approved | 2026-03-29 -->

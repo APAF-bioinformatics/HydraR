@@ -44,17 +44,17 @@ Prepares the data exactly once.
 
 ```{r}
 cleaner_node <- AgentLogicNode$new(id = "DataCleaner", logic_fn = function(state, memory = NULL) {
-    dataset <- state$get("raw_data")
-    
-    # Mock cleaning
-    clean_data <- paste("Cleaned", dataset)
-    
-    list(
-        status = "SUCCESS",
-        output = list(
-            clean_data = clean_data
-        )
+  dataset <- state$get("raw_data")
+
+  # Mock cleaning
+  clean_data <- paste("Cleaned", dataset)
+
+  list(
+    status = "SUCCESS",
+    output = list(
+      clean_data = clean_data
     )
+  )
 })
 
 dag$add_node(cleaner_node)
@@ -66,25 +66,25 @@ Trains the model iteratively. It increases the "epoch" or "complexity" every tim
 
 ```{r}
 trainer_node <- AgentLogicNode$new(id = "ModelTrainer", logic_fn = function(state, memory = NULL) {
-    clean_data <- state$get("clean_data")
-    
-    complexity <- state$get("model_complexity")
-    if (is.null(complexity)) complexity <- 1
-    
-    # Increase complexity on each training loop
-    new_complexity <- complexity + 1
-    
-    # Mocking training: accuracy improves with complexity, capping at 0.95
-    model_accuracy <- min(0.60 + (new_complexity * 0.10), 0.95)
-    
-    list(
-        status = "SUCCESS",
-        output = list(
-            model_complexity = new_complexity,
-            model_accuracy = model_accuracy,
-            model_artifact = sprintf("Model_v%d", new_complexity)
-        )
+  clean_data <- state$get("clean_data")
+
+  complexity <- state$get("model_complexity")
+  if (is.null(complexity)) complexity <- 1
+
+  # Increase complexity on each training loop
+  new_complexity <- complexity + 1
+
+  # Mocking training: accuracy improves with complexity, capping at 0.95
+  model_accuracy <- min(0.60 + (new_complexity * 0.10), 0.95)
+
+  list(
+    status = "SUCCESS",
+    output = list(
+      model_complexity = new_complexity,
+      model_accuracy = model_accuracy,
+      model_artifact = sprintf("Model_v%d", new_complexity)
     )
+  )
 })
 
 dag$add_node(trainer_node)
@@ -96,26 +96,26 @@ Compares the accuracy to the user's requirement.
 
 ```{r}
 evaluator_node <- AgentLogicNode$new(id = "Evaluator", logic_fn = function(state, memory = NULL) {
-    accuracy <- state$get("model_accuracy")
-    target <- state$get("target_accuracy")
-    
-    if (accuracy >= target) {
-        list(
-            status = "SUCCESS",
-            output = list(
-                optimization_complete = TRUE,
-                eval_message = sprintf("Target reached: %.2f >= %.2f", accuracy, target)
-            )
-        )
-    } else {
-        list(
-            status = "SUCCESS",
-            output = list(
-                optimization_complete = FALSE,
-                eval_message = sprintf("Accuracy %.2f is below %.2f. Retraining.", accuracy, target)
-            )
-        )
-    }
+  accuracy <- state$get("model_accuracy")
+  target <- state$get("target_accuracy")
+
+  if (accuracy >= target) {
+    list(
+      status = "SUCCESS",
+      output = list(
+        optimization_complete = TRUE,
+        eval_message = sprintf("Target reached: %.2f >= %.2f", accuracy, target)
+      )
+    )
+  } else {
+    list(
+      status = "SUCCESS",
+      output = list(
+        optimization_complete = FALSE,
+        eval_message = sprintf("Accuracy %.2f is below %.2f. Retraining.", accuracy, target)
+      )
+    )
+  }
 })
 
 dag$add_node(evaluator_node)
@@ -132,12 +132,12 @@ dag$add_edge("DataCleaner", "ModelTrainer")
 dag$add_edge("ModelTrainer", "Evaluator")
 
 dag$add_conditional_edge(
-    from = "Evaluator",
-    test = function(out) {
-        isTRUE(out$optimization_complete)
-    },
-    if_true = NULL,            # Done!
-    if_false = "ModelTrainer"  # Needs more complexity
+  from = "Evaluator",
+  test = function(out) {
+    isTRUE(out$optimization_complete)
+  },
+  if_true = NULL, # Done!
+  if_false = "ModelTrainer" # Needs more complexity
 )
 
 compiled_dag <- dag$compile()
@@ -149,8 +149,8 @@ Let's test it with a target accuracy constraint.
 
 ```{r}
 initial_state <- list(
-    raw_data = "Titanic_Dataset.csv",
-    target_accuracy = 0.85
+  raw_data = "Titanic_Dataset.csv",
+  target_accuracy = 0.85
 )
 
 cat("Starting AutoML Pipeline...\n")

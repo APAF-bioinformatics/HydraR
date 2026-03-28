@@ -45,30 +45,30 @@ This node mocks an LLM calling flight and hotel APIs, receiving feedback if its 
 
 ```{r}
 planner_node <- AgentLogicNode$new(id = "Planner", logic_fn = function(state, memory = NULL) {
-    # Read user constraints
-    destination <- state$get("destination")
-    budget <- state$get("budget")
-    
-    # Check if we are iterating due to failure
-    attempts <- state$get("planner_attempts")
-    if (is.null(attempts)) attempts <- 0
-    attempts <- attempts + 1
-    
-    # Mocking cost reduction on each attempt
-    # Attempt 1: $2500, Attempt 2: $1800, Attempt 3: $1200
-    base_cost <- 3200
-    proposed_cost <- base_cost - (attempts * 700)
-    
-    itinerary <- sprintf("Trip to %s. Estimated Cost: $%d.", destination, proposed_cost)
-    
-    list(
-        status = "SUCCESS",
-        output = list(
-            proposed_itinerary = itinerary,
-            proposed_cost = proposed_cost,
-            planner_attempts = attempts
-        )
+  # Read user constraints
+  destination <- state$get("destination")
+  budget <- state$get("budget")
+
+  # Check if we are iterating due to failure
+  attempts <- state$get("planner_attempts")
+  if (is.null(attempts)) attempts <- 0
+  attempts <- attempts + 1
+
+  # Mocking cost reduction on each attempt
+  # Attempt 1: $2500, Attempt 2: $1800, Attempt 3: $1200
+  base_cost <- 3200
+  proposed_cost <- base_cost - (attempts * 700)
+
+  itinerary <- sprintf("Trip to %s. Estimated Cost: $%d.", destination, proposed_cost)
+
+  list(
+    status = "SUCCESS",
+    output = list(
+      proposed_itinerary = itinerary,
+      proposed_cost = proposed_cost,
+      planner_attempts = attempts
     )
+  )
 })
 
 dag$add_node(planner_node)
@@ -80,26 +80,26 @@ This node ensures the LLM's proposal strictly adheres to the numerical budget li
 
 ```{r}
 validator_node <- AgentLogicNode$new(id = "Validator", logic_fn = function(state, memory = NULL) {
-    proposed_cost <- state$get("proposed_cost")
-    budget <- state$get("budget")
-    
-    if (proposed_cost <= budget) {
-        list(
-            status = "SUCCESS",
-            output = list(
-                is_valid = TRUE,
-                validation_message = "Itinerary meets budget requirements. Booking confirmed."
-            )
-        )
-    } else {
-        list(
-            status = "SUCCESS",
-            output = list(
-                is_valid = FALSE,
-                validation_message = sprintf("Proposed cost ($%d) exceeds budget ($%d). Find cheaper options.", proposed_cost, budget)
-            )
-        )
-    }
+  proposed_cost <- state$get("proposed_cost")
+  budget <- state$get("budget")
+
+  if (proposed_cost <= budget) {
+    list(
+      status = "SUCCESS",
+      output = list(
+        is_valid = TRUE,
+        validation_message = "Itinerary meets budget requirements. Booking confirmed."
+      )
+    )
+  } else {
+    list(
+      status = "SUCCESS",
+      output = list(
+        is_valid = FALSE,
+        validation_message = sprintf("Proposed cost ($%d) exceeds budget ($%d). Find cheaper options.", proposed_cost, budget)
+      )
+    )
+  }
 })
 
 dag$add_node(validator_node)
@@ -115,12 +115,12 @@ dag$set_start_node("Planner")
 dag$add_edge("Planner", "Validator")
 
 dag$add_conditional_edge(
-    from = "Validator",
-    test = function(out) {
-        isTRUE(out$is_valid)
-    },
-    if_true = NULL,      # Ends execution successfully
-    if_false = "Planner" # Loop back for a cheaper proposal
+  from = "Validator",
+  test = function(out) {
+    isTRUE(out$is_valid)
+  },
+  if_true = NULL, # Ends execution successfully
+  if_false = "Planner" # Loop back for a cheaper proposal
 )
 
 compiled_dag <- dag$compile()
@@ -132,8 +132,8 @@ Let's execute the DAG with a strict budget of `$1500` for a trip to `Tokyo`.
 
 ```{r}
 initial_state <- list(
-    destination = "Tokyo",
-    budget = 1500
+  destination = "Tokyo",
+  budget = 1500
 )
 
 cat("Starting Travel Booking Engine...\n")
