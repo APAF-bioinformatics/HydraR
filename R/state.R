@@ -13,6 +13,7 @@
 #' between nodes in an AgentDAG.
 #'
 #' @importFrom R6 R6Class
+#' @importFrom purrr iwalk walk
 #' @export
 AgentState <- R6::R6Class("AgentState",
     public = list(
@@ -33,9 +34,9 @@ AgentState <- R6::R6Class("AgentState",
             self$schema <- schema
 
             if (is.list(initial_data)) {
-                for (key in names(initial_data)) {
-                    self$set(key, initial_data[[key]])
-                }
+                purrr::iwalk(initial_data, function(val, key) {
+                    self$set(key, val)
+                })
             } else if (is.character(initial_data)) {
                 # Fallback for simple string input
                 self$set("input", initial_data)
@@ -90,9 +91,7 @@ AgentState <- R6::R6Class("AgentState",
         update = function(updates) {
             if (!is.list(updates)) return(invisible(self))
 
-            for (key in names(updates)) {
-                val <- updates[[key]]
-
+            purrr::iwalk(updates, function(val, key) {
                 # If a reducer exists for this key, apply it
                 if (!is.null(self$reducers[[key]])) {
                     current_val <- self$get(key)
@@ -102,7 +101,7 @@ AgentState <- R6::R6Class("AgentState",
                     # Default: simple replacement
                     self$set(key, val)
                 }
-            }
+            })
             invisible(self)
         }
     )
@@ -110,19 +109,22 @@ AgentState <- R6::R6Class("AgentState",
 
 #' Built-in Reducer: Append
 #'
-#' Appends new elements to a vector or list.
+#' Appends new elements to a vector or list. For large accumulations,
+#' users should consider using lists and flattening later.
 #' @param current The current state value.
 #' @param new The new value to append.
 #' @return The combined value.
 #' @export
 reducer_append <- function(current, new) {
     if (is.null(current)) return(new)
+    # R's c() is efficient for small-to-medium objects
     c(current, new)
 }
 
 #' Built-in Reducer: Merge List
 #'
-#' Merges two named lists, with new overwriting current for matching keys.
+#' Merges two named lists using functional patterns. 
+#' Overwrites current for matching keys.
 #' @param current The current state list.
 #' @param new The new list to merge.
 #' @return The merged list.
@@ -133,20 +135,8 @@ reducer_merge_list <- function(current, new) {
         stop("reducer_merge_list requires both arguments to be lists")
     }
 
-    res <- current
-    for (key in names(new)) {
-        if (!is.null(key) && key != "") {
-            res[[key]] <- new[[key]]
-        }
-    }
-
-    # Handle unnamed elements
-    unnamed_idx <- which(names(new) == "" | is.null(names(new)))
-    if (length(unnamed_idx) > 0) {
-        res <- c(res, new[unnamed_idx])
-    }
-
-    res
+    # Use utils::modifyList for robust, side-effect-free list merging
+    utils::modifyList(current, new, keep.null = TRUE)
 }
 
 # <!-- APAF Bioinformatics | state.R | Approved | 2026-03-28 -->

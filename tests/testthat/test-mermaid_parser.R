@@ -10,14 +10,16 @@ test_that("Regex Flowchart Parser extracts nodes and edges", {
       B --> C[\"Node C\"]
       C --> D
     "
-    # Expected behavior:
-    # nodes: A, B, C, D
-    # edges: (A, B), (B, C), (C, D)
+    parsed <- parse_mermaid(mermaid)
     
-    # This will be implemented in R/mermaid_parser.R
-    # parsed <- parse_mermaid(mermaid)
-    # expect_equal(length(parsed$nodes), 4)
-    # expect_equal(nrow(parsed$edges), 3)
+    expect_equal(nrow(parsed$nodes), 4)
+    expect_equal(nrow(parsed$edges), 3)
+    
+    # Check labels
+    expect_equal(subset(parsed$nodes, id == "A")$label, "Node A")
+    expect_equal(subset(parsed$nodes, id == "B")$label, "Node B")
+    expect_equal(subset(parsed$nodes, id == "C")$label, "Node C")
+    expect_equal(subset(parsed$nodes, id == "D")$label, "D")
 })
 
 test_that("Conditional edges are parsed", {
@@ -27,8 +29,12 @@ test_that("Conditional edges are parsed", {
       B -- test_ok --> C
       B -- test_fail --> D
     "
-    # This might be tricky as conditional edges in AgentDAG require a function.
-    # Maybe we map 'test_ok' to a provided function in a registry.
+    parsed <- parse_mermaid(mermaid)
+    expect_equal(nrow(parsed$edges), 3)
+    
+    # Check edge labels
+    expect_equal(subset(parsed$edges, from == "B" & to == "C")$label, "test_ok")
+    expect_equal(subset(parsed$edges, from == "B" & to == "D")$label, "test_fail")
 })
 
 # <!-- APAF Bioinformatics | test-mermaid_parser.R | Approved | 2026-03-29 -->

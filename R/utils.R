@@ -32,4 +32,13 @@ extract_r_code_advanced <- function(raw) {
     return(trimws(raw))
 }
 
+#' Null-coalescing operator
+#' @param a Any value.
+#' @param b Fallback value.
+#' @return a if not null, else b.
+#' @noRd
+`%||%` <- function(a, b) {
+    if (!is.null(a)) a else b
+}
+
 # <!-- APAF Bioinformatics | utils.R | Approved | 2026-03-29 -->

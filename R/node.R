@@ -18,14 +18,18 @@ AgentNode <- R6::R6Class("AgentNode",
     public = list(
         #' @field id String. Unique identifier for the node.
         id = NULL,
+        #' @field label String. Human-readable name/label.
+        label = NULL,
         #' @field last_result List. Results from most recent execution.
         last_result = NULL,
 
         #' Initialize AgentNode
         #' @param id Unique identifier.
-        initialize = function(id) {
+        #' @param label Optional human-readable name.
+        initialize = function(id, label = NULL) {
             stopifnot(is.character(id) && length(id) == 1)
             self$id <- id
+            self$label <- label %||% id
         },
 
         #' Run the Node

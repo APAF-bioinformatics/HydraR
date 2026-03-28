@@ -11,6 +11,8 @@ Unlike API-heavy frameworks, `HydraR` is designed to orchestrate complex tasks b
 - **🕒 Persistent Checkpointing**: Resumable execution threads via `Checkpointer` (supporting SQLite/DuckDB).
 - **🖥️ CLI-First Drivers**: High-fidelity drivers for local and provider-based CLIs, ensuring tool calls and environment discovery are robust.
 - **📊 Mermaid Visualization**: Export your agent's logic directly to Mermaid.js syntax for interactive documentation.
+- **🛡️ Validation Engine**: Integrated compile-time checks for undefined nodes, circular dependencies, and unreachable states.
+- **🏷️ Node Labeling**: Support for human-readable labels in DAG nodes, independent of their unique IDs.
 
 ## Installation
 
@@ -44,6 +46,10 @@ dag$compile()
 results <- dag$run(initial_state = list(input = "Hydra"))
 print(results$results$hello_world$output$message)
 # [1] "Hello Hydra"
+
+# 4. Round-Trip Visualization
+dag$plot(type = "mermaid")
+# Outputs Mermaid syntax using node labels if provided
 ```
 
 ## APAF Standards

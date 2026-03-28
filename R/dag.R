@@ -16,14 +16,14 @@
 #' @importFrom R6 R6Class
 #' @importFrom igraph graph_from_data_frame is_dag topo_sort edge V vcount make_empty_graph degree is_connected components bfs
 #' @importFrom furrr future_map
-#' @importFrom purrr map set_names
+#' @importFrom purrr map set_names iwalk walk
 #' @export
 AgentDAG <- R6::R6Class("AgentDAG",
     public = list(
         #' @field nodes List. Named list of AgentNode objects.
         nodes = list(),
-        #' @field edges Dataframe. Edge definitions (from, to).
-        edges = NULL,
+        #' @field edges List. Pending edge definitions to be bound.
+        edges = list(),
         #' @field conditional_edges List. Conditional transition logic.
         conditional_edges = list(),
         #' @field results List. Execution results for each node.
@@ -41,7 +41,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
         #' Initialize AgentDAG
         initialize = function() {
             self$nodes <- list()
-            self$edges <- data.frame(from = character(), to = character(), stringsAsFactors = FALSE)
+            self$edges <- list()
             self$conditional_edges <- list()
             self$results <- list()
             self$trace_log <- list()
@@ -75,8 +75,8 @@ AgentDAG <- R6::R6Class("AgentDAG",
         add_edge = function(from, to) {
             stopifnot(is.character(from) && is.character(to))
             new_edges <- data.frame(from = from, to = to, stringsAsFactors = FALSE)
-            self$edges <- rbind(self$edges, new_edges)
-            self$.rebuild_graph()
+            self$edges[[length(self$edges) + 1]] <- new_edges
+            self$graph <- NULL # Invalidate cache
             invisible(self)
         },
 
@@ -101,15 +101,21 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
         #' Run the Graph
         #' @param initial_state List, AgentState object, or String. Optional if resuming.
-        #' @param max_steps Integer. Maximum iterations to prevent infinite loops.
+        #' @param max_steps Integer. Maximum iterations to prevent infinite loops. Default is 25.
         #' @param checkpointer Checkpointer object. Optional.
         #' @param thread_id String. Identifier for the execution thread. Required if using checkpointer.
         #' @param resume_from String. Node ID to resume execution from.
         #' @return List of results for each node, and the final state.
-        run = function(initial_state = NULL, max_steps = 10, checkpointer = NULL, thread_id = NULL, resume_from = NULL) {
+        run = function(initial_state = NULL, max_steps = 25, checkpointer = NULL, thread_id = NULL, resume_from = NULL) {
             self$.rebuild_graph()
-            self$results <- list()
-            self$trace_log <- list()
+            
+            # Preallocation of results and trace log
+            # For linear execution, we know the exact number of nodes.
+            # For iterative, we use max_steps as the upper bound.
+            self$results <- vector("list", length(self$nodes))
+            names(self$results) <- names(self$nodes)
+            
+            self$trace_log <- vector("list", max_steps)
 
             if (!is.null(checkpointer)) {
                 stopifnot(inherits(checkpointer, "Checkpointer"))
@@ -127,15 +133,15 @@ AgentDAG <- R6::R6Class("AgentDAG",
                         if (inherits(initial_state, "AgentState")) {
                             self$state <- initial_state
                             restored_data <- loaded_state$get_all()
-                            for (k in names(restored_data)) {
-                                self$state$set(k, restored_data[[k]])
-                            }
+                            purrr::iwalk(restored_data, function(val, k) {
+                                self$state$set(k, val)
+                            })
                         } else {
                              self$state <- AgentState$new(initial_state)
                              restored_data <- loaded_state$get_all()
-                             for (k in names(restored_data)) {
-                                 self$state$set(k, restored_data[[k]])
-                             }
+                             purrr::iwalk(restored_data, function(val, k) {
+                                 self$state$set(k, val)
+                             })
                         }
                     }
                 } else {
@@ -164,26 +170,149 @@ AgentDAG <- R6::R6Class("AgentDAG",
         #' @param checkpointer Checkpointer.
         #' @param thread_id String.
         #' @param resume_from String.
-        .run_linear = function(checkpointer = NULL, thread_id = NULL, resume_from = NULL) {
-            topo_order <- igraph::topo_sort(self$graph)
-            node_ids <- names(igraph::V(self$graph)[topo_order])
+        #' @param node_ids Character vector. Sequence of nodes to run.
+        #' @param depth Integer. Current recursion depth.
+        .run_linear = function(checkpointer = NULL, thread_id = NULL, resume_from = NULL, node_ids = NULL, depth = 0, step_count = 0) {
+            if (is.null(node_ids)) {
+                topo_order <- igraph::topo_sort(self$graph)
+                node_ids <- names(igraph::V(self$graph)[topo_order])
 
-            if (!is.null(resume_from)) {
-                resume_idx <- match(resume_from[1], node_ids)
-                if (!is.na(resume_idx)) {
-                     node_ids <- node_ids[resume_idx:length(node_ids)]
-                     cat(sprintf("⏭️ Resuming Linear DAG Execution from node: %s\n", resume_from[1]))
+                if (!is.null(resume_from)) {
+                    resume_idx <- match(resume_from[1], node_ids)
+                    if (!is.na(resume_idx)) {
+                         node_ids <- node_ids[resume_idx:length(node_ids)]
+                         cat(sprintf("⏭️ Resuming Linear DAG Execution from node: %s\n", resume_from[1]))
+                    }
                 }
             }
 
-            for (node_id in node_ids) {
-                cat(sprintf("🚀 [Linear] Running Node: %s\n", node_id))
+            if (length(node_ids) == 0) {
+                # Trim unused preallocated trace log slots
+                if (step_count < length(self$trace_log)) {
+                    self$trace_log <- self$trace_log[seq_len(step_count)]
+                }
+                self$state$set("__next_nodes__", NULL)
+                if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
+                return(list(results = self$results, state = self$state, status = "completed"))
+            }
+
+            if (depth >= 100 || (step_count + 1) > length(self$trace_log)) {
+                reason <- if (depth >= 100) "recursion_limit" else "max_steps_limit"
+                warning(sprintf("Execution limit reached in .run_linear for thread: %s. Saving state for restart.", thread_id %||% "unknown"))
+                
+                # Trim trace log
+                self$trace_log <- self$trace_log[seq_len(step_count)]
+                
+                self$state$set("__next_nodes__", node_ids)
+                if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
+                return(list(results = self$results, state = self$state, status = "paused", paused_at = node_ids[1], reason = reason))
+            }
+
+            node_id <- node_ids[1]
+            cat(sprintf("🚀 [Linear] Running Node: %s\n", node_id))
+            start_time <- Sys.time()
+            res <- self$nodes[[node_id]]$run(self$state)
+            end_time <- Sys.time()
+
+            self$results[[node_id]] <- res
+
+            if (!is.null(res$output)) {
+                if (is.list(res$output)) {
+                    self$state$update(res$output)
+                } else {
+                    self$state$update(setNames(list(res$output), node_id))
+                }
+            }
+
+            step_idx <- step_count + 1
+            self$trace_log[[step_idx]] <- list(
+                step = step_idx,
+                node = node_id,
+                mode = "linear",
+                start_time = as.character(start_time),
+                end_time = as.character(end_time),
+                duration_secs = as.numeric(difftime(end_time, start_time, units = "secs")),
+                status = res$status,
+                error = res$error
+            )
+
+            if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
+
+            if (!is.null(res$status) && res$status == "pause") {
+                 # Trim trace log
+                 self$trace_log <- self$trace_log[seq_len(step_idx)]
+                 self$state$set("__next_nodes__", node_ids[-1])
+                 if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
+                 return(list(results = self$results, state = self$state, status = "paused", paused_at = node_id))
+            }
+
+            return(self$.run_linear(checkpointer, thread_id, NULL, node_ids[-1], depth + 1, step_idx))
+        },
+
+        #' Internal: Iterative State Machine Execution
+        #' @param max_steps Integer.
+        #' @param checkpointer Checkpointer.
+        #' @param thread_id String.
+        #' @param resume_from String.
+        #' @param current_nodes Character vector.
+        #' @param step_count Integer.
+        #' @param depth Integer. Current recursion depth.
+        .run_iterative = function(max_steps, checkpointer = NULL, thread_id = NULL, resume_from = NULL, current_nodes = NULL, step_count = 0, depth = 0) {
+            if (is.null(current_nodes)) {
+                if (!is.null(resume_from)) {
+                    current_nodes <- resume_from
+                    cat(sprintf("⏭️ Resuming Iterative DAG Execution from node(s): %s\n", paste(resume_from, collapse = ", ")))
+                } else {
+                    current_nodes <- if (!is.null(self$start_node)) {
+                        self$start_node
+                    } else {
+                        names(igraph::V(self$graph)[igraph::degree(self$graph, mode = "in") == 0])
+                    }
+                    if (length(current_nodes) == 0) stop("No start nodes found.")
+                }
+            }
+            
+            if (length(current_nodes) == 0 || step_count >= max_steps) {
+                if (step_count >= max_steps) warning("Reached max_steps.")
+                # Trim trace log
+                if (step_count < length(self$trace_log)) {
+                    self$trace_log <- self$trace_log[seq_len(step_count)]
+                }
+                self$state$set("__next_nodes__", NULL)
+                if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
+                return(list(results = self$results, state = self$state, status = "completed"))
+            }
+
+            if (depth >= 100) {
+                warning(sprintf("Recursion limit (100) reached in .run_iterative for thread: %s. Saving state for restart.", thread_id %||% "unknown"))
+                # Trim trace log
+                self$trace_log <- self$trace_log[seq_len(step_count)]
+                self$state$set("__next_nodes__", current_nodes)
+                if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
+                return(list(results = self$results, state = self$state, status = "paused", paused_at = current_nodes[1], reason = "recursion_limit"))
+            }
+
+            # Preallocate space for potential children (max out-degree approximation or dynamic growth)
+            # Since iterative step nodes can be multiple, we collect them.
+            next_queue_list <- vector("list", length(current_nodes))
+            paused_at <- NULL
+            actual_steps_in_this_recursion <- 0
+            
+            # Using imap to track index for preallocation assignment if needed, 
+            # but trace_log is sequential across recursive calls.
+            purrr::walk(current_nodes, function(node_id) {
+                if (!is.null(paused_at)) return()
+                
+                step_idx <- step_count + actual_steps_in_this_recursion + 1
+                if (step_idx > length(self$trace_log)) return() # Safety check
+
+                cat(sprintf("🔄 [Iteration %d] Running Node: %s\n", step_idx, node_id))
                 start_time <- Sys.time()
                 res <- self$nodes[[node_id]]$run(self$state)
                 end_time <- Sys.time()
 
                 self$results[[node_id]] <- res
-
+                
                 if (!is.null(res$output)) {
                     if (is.list(res$output)) {
                         self$state$update(res$output)
@@ -192,114 +321,71 @@ AgentDAG <- R6::R6Class("AgentDAG",
                     }
                 }
 
-                self$trace_log[[length(self$trace_log) + 1]] <- list(
-                    step = length(self$trace_log) + 1,
+                self$trace_log[[step_idx]] <- list(
+                    step = step_idx,
                     node = node_id,
-                    mode = "linear",
+                    mode = "iterative",
                     start_time = as.character(start_time),
                     end_time = as.character(end_time),
                     duration_secs = as.numeric(difftime(end_time, start_time, units = "secs")),
                     status = res$status,
                     error = res$error
                 )
+                actual_steps_in_this_recursion <<- actual_steps_in_this_recursion + 1
 
-                if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
+                if (node_id %in% names(self$conditional_edges)) {
+                    cond <- self$conditional_edges[[node_id]]
+                    test_passed <- tryCatch(cond$test(res$output), error = function(e) FALSE)
+                    target <- if (test_passed) cond$if_true else cond$if_false
+                    if (!is.null(target)) {
+                        next_queue_list[[match(node_id, current_nodes)]] <<- list(target)
+                    }
+                } else {
+                    children <- self$edges$to[self$edges$from == node_id]
+                    next_queue_list[[match(node_id, current_nodes)]] <<- as.list(children)
+                }
 
                 if (!is.null(res$status) && res$status == "pause") {
-                     idx <- match(node_id, node_ids)
-                     next_nodes <- if (idx < length(node_ids)) node_ids[idx+1] else NULL
-                     self$state$set("__next_nodes__", next_nodes)
-                     if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
-                     return(list(results = self$results, state = self$state, status = "paused", paused_at = node_id))
+                     paused_at <<- node_id
                 }
+
+                if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
+            })
+
+            # Flatten next_queue_list
+            next_queue <- unique(unlist(next_queue_list))
+
+            if (!is.null(paused_at)) {
+                 self$trace_log <- self$trace_log[seq_len(step_count + actual_steps_in_this_recursion)]
+                 self$state$set("__next_nodes__", next_queue)
+                 if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
+                 return(list(results = self$results, state = self$state, status = "paused", paused_at = paused_at))
             }
-            self$state$set("__next_nodes__", NULL)
-            if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
-            return(list(results = self$results, state = self$state, status = "completed"))
-        },
 
-        #' Internal: Iterative State Machine Execution
-        #' @param max_steps Integer.
-        #' @param checkpointer Checkpointer.
-        #' @param thread_id String.
-        #' @param resume_from String.
-        .run_iterative = function(max_steps, checkpointer = NULL, thread_id = NULL, resume_from = NULL) {
-            if (!is.null(resume_from)) {
-                start_nodes <- resume_from
-                cat(sprintf("⏭️ Resuming Iterative DAG Execution from node(s): %s\n", paste(resume_from, collapse = ", ")))
-            } else {
-                start_nodes <- if (!is.null(self$start_node)) {
-                    self$start_node
-                } else {
-                    names(igraph::V(self$graph)[igraph::degree(self$graph, mode = "in") == 0])
-                }
-                if (length(start_nodes) == 0) stop("No start nodes found.")
-            }
-            
-            current_nodes <- start_nodes
-            step_count <- 0
-            
-            while (length(current_nodes) > 0 && step_count < max_steps) {
-                step_count <- step_count + 1
-                next_queue <- character()
-                
-                for (node_id in current_nodes) {
-                    cat(sprintf("🔄 [Iteration %d] Running Node: %s\n", step_count, node_id))
-                    start_time <- Sys.time()
-                    res <- self$nodes[[node_id]]$run(self$state)
-                    end_time <- Sys.time()
-
-                    self$results[[node_id]] <- res
-                    
-                    if (!is.null(res$output)) {
-                        if (is.list(res$output)) {
-                            self$state$update(res$output)
-                        } else {
-                            self$state$update(setNames(list(res$output), node_id))
-                        }
-                    }
-
-                    self$trace_log[[length(self$trace_log) + 1]] <- list(
-                        step = step_count,
-                        node = node_id,
-                        mode = "iterative",
-                        start_time = as.character(start_time),
-                        end_time = as.character(end_time),
-                        duration_secs = as.numeric(difftime(end_time, start_time, units = "secs")),
-                        status = res$status,
-                        error = res$error
-                    )
-
-                    if (node_id %in% names(self$conditional_edges)) {
-                        cond <- self$conditional_edges[[node_id]]
-                        test_passed <- tryCatch(cond$test(res$output), error = function(e) FALSE)
-                        target <- if (test_passed) cond$if_true else cond$if_false
-                        if (!is.null(target)) next_queue <- c(next_queue, target)
-                    } else {
-                        children <- self$edges$to[self$edges$from == node_id]
-                        next_queue <- c(next_queue, children)
-                    }
-
-                    if (!is.null(res$status) && res$status == "pause") {
-                         self$state$set("__next_nodes__", unique(next_queue))
-                         if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
-                         return(list(results = self$results, state = self$state, status = "paused", paused_at = node_id))
-                    }
-
-                    if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
-                }
-                current_nodes <- unique(next_queue)
-            }
-            
-            if (step_count >= max_steps) warning("Reached max_steps.")
-            self$state$set("__next_nodes__", NULL)
-            if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
-            return(list(results = self$results, state = self$state, status = "completed"))
+            return(self$.run_iterative(max_steps, checkpointer, thread_id, NULL, next_queue, step_count + actual_steps_in_this_recursion, depth + 1))
         },
 
         .rebuild_graph = function() {
-            if (nrow(self$edges) > 0) {
-                self$graph <- igraph::graph_from_data_frame(self$edges, directed = TRUE, vertices = data.frame(name = names(self$nodes)))
+            if (!is.null(self$graph)) return(invisible(self)) # Cache hit
+
+            edges_df <- if (is.list(self$edges) && length(self$edges) > 0) {
+                do.call(rbind, self$edges)
+            } else if (is.data.frame(self$edges)) {
+                self$edges
+            } else {
+                data.frame(from = character(), to = character(), stringsAsFactors = FALSE)
+            }
+
+            # Validation Engine: Detect undefined nodes in edges
+            if (nrow(edges_df) > 0) {
+                all_node_ids <- names(self$nodes)
+                referenced_nodes <- unique(c(edges_df$from, edges_df$to))
+                undefined_nodes <- setdiff(referenced_nodes, all_node_ids)
+                if (length(undefined_nodes) > 0) {
+                    stop(sprintf("Undefined node(s) referenced in edges: %s", paste(undefined_nodes, collapse = ", ")))
+                }
+                
+                self$graph <- igraph::graph_from_data_frame(edges_df, directed = TRUE, vertices = data.frame(name = all_node_ids))
             } else {
                 self$graph <- igraph::make_empty_graph(n = length(self$nodes), directed = TRUE)
                 igraph::V(self$graph)$name <- names(self$nodes)
@@ -313,37 +399,35 @@ AgentDAG <- R6::R6Class("AgentDAG",
         plot = function(type = "mermaid") {
             if (type != "mermaid") stop("Only 'mermaid' type is currently supported.")
             
-            lines <- c("```mermaid", "graph TD")
+            # Use preallocated character vector for lines
+            node_lines <- purrr::map_chr(names(self$nodes), function(node_id) {
+                node <- self$nodes[[node_id]]
+                sprintf("  %s[\"%s\"]", node_id, node$label)
+            })
             
-            # Add nodes
-            for (node_id in names(self$nodes)) {
-                lines <- c(lines, sprintf("  %s[\"%s\"]", node_id, node_id))
-            }
+            # Efficient edge gathering
+            edges_df <- if (is.list(self$edges) && length(self$edges) > 0) do.call(rbind, self$edges) else self$edges
+            edge_lines <- if (!is.null(edges_df) && nrow(edges_df) > 0) {
+                purrr::map_chr(seq_len(nrow(edges_df)), function(i) {
+                    sprintf("  %s --> %s", edges_df$from[i], edges_df$to[i])
+                })
+            } else character()
             
-            # Add edges
-            if (nrow(self$edges) > 0) {
-                for (i in seq_len(nrow(self$edges))) {
-                    lines <- c(lines, sprintf("  %s --> %s", self$edges$from[i], self$edges$to[i]))
-                }
-            }
-            
-            # Add conditional edges
-            for (from in names(self$conditional_edges)) {
-                cond <- self$conditional_edges[[from]]
-                lines <- c(lines, sprintf("  %s -- Test --> %s", from, cond$if_true))
+            # Conditional edges
+            cond_lines <- purrr::imap(self$conditional_edges, function(cond, from) {
+                res <- sprintf("  %s -- Test --> %s", from, cond$if_true)
                 if (!is.null(cond$if_false)) {
-                    lines <- c(lines, sprintf("  %s -- Fail --> %s", from, cond$if_false))
+                    res <- c(res, sprintf("  %s -- Fail --> %s", from, cond$if_false))
                 }
-            }
+                res
+            }) %>% unlist()
             
-            lines <- c(lines, "```")
+            lines <- c("```mermaid", "graph TD", node_lines, edge_lines, cond_lines, "```")
             res <- paste(lines, collapse = "\n")
             cat(res, "\n")
             invisible(res)
         },
 
-        #' Compile Graph
-        #' @description Rebuilds the internal igraph representation and performs validation.
         compile = function() {
             self$.rebuild_graph()
             if (length(self$nodes) == 0) stop("No nodes in graph.")
@@ -392,17 +476,17 @@ AgentDAG <- R6::R6Class("AgentDAG",
             parsed <- parse_mermaid(mermaid_str)
             
             # Add nodes
-            for (i in seq_len(nrow(parsed$nodes))) {
+            purrr::walk(seq_len(nrow(parsed$nodes)), function(i) {
                 id <- parsed$nodes$id[i]
                 label <- parsed$nodes$label[i]
                 node <- node_factory(id, label)
                 if (!is.null(node)) {
                     self$add_node(node)
                 }
-            }
+            })
             
             # Add edges
-            for (i in seq_len(nrow(parsed$edges))) {
+            purrr::walk(seq_len(nrow(parsed$edges)), function(i) {
                 from <- parsed$edges$from[i]
                 to <- parsed$edges$to[i]
                 label <- parsed$edges$label[i]
@@ -418,7 +502,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
                 } else {
                     self$add_edge(from, to)
                 }
-            }
+            })
             
             invisible(self)
         }

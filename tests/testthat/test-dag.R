@@ -56,4 +56,32 @@ test_that("AgentDAG logic node captures error context", {
   expect_match(log_entry$error, "Deep logic failure")
 })
 
+test_that("AgentDAG Mermaid plotting uses labels", {
+  dag <- AgentDAG$new()
+  # Using custom labels
+  node1 <- AgentLogicNode$new("node1", function(state) list(), label = "Start Process")
+  node2 <- AgentLogicNode$new("node2", function(state) list(), label = "End Process")
+  dag$add_node(node1)
+  dag$add_node(node2)
+  dag$add_edge("node1", "node2")
+
+  output <- capture.output({
+    invisible(dag$plot(type = "mermaid"))
+  })
+  mermaid_str <- paste(output, collapse = "\n")
+
+  expect_match(mermaid_str, "node1\\[\"Start Process\"\\]")
+  expect_match(mermaid_str, "node2\\[\"End Process\"\\]")
+})
+
+test_that("AgentDAG compile detects undefined nodes", {
+  dag <- AgentDAG$new()
+  dag_add_logic_node(dag, "node1", function(state) list())
+  
+  # Reference an undefined node 'node2' in an edge
+  dag$add_edge("node1", "node2")
+  
+  expect_error(dag$compile(), "Undefined node\\(s\\) referenced in edges: node2")
+})
+
 # <!-- APAF Bioinformatics | test-dag.R | Approved | 2026-03-29 -->

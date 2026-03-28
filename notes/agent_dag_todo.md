@@ -63,7 +63,7 @@ This document translates the state-of-the-art gap analysis from `notes/agent_dag
 
 ### 6.2 Agentic Compiler
 - [x] **`from_mermaid()` Method**: Create a high-level constructor that takes a Mermaid string and returns a compiled `AgentDAG` object.
-- [ ] **Validation Engine**: Detect circular dependencies or undefined "Actions" within the Mermaid source.
-- [ ] **Round-Trip Visualization**: Ensure any `compile()`d DAG can be exported *back* to Mermaid for verification.
+- [x] **Validation Engine**: Detect circular dependencies or undefined "Actions" within the Mermaid source.
+- [x] **Round-Trip Visualization**: Ensure any `compile()`d DAG can be exported *back* to Mermaid for verification.
 
 <!-- APAF Bioinformatics | agent_dag_todo.md | Pending Roadmap -->
