@@ -2,12 +2,26 @@ Package: HydraR
 Type: Package
 Title: Stateful Agentic Orchestration for R (CLI-First)
 Version: 0.1.0
-Author: Ignatius Pang, Aidan Tay
-Maintainer: APAF Agentic Workflow <ignatius.pang@mq.edu.au>
-Description: A library for managing Directed Acyclic Graphs (DAGs) and state machine loops for agentic workflows. Prioritizes CLI-native LLM interactions and hardened state management.
+Authors@R: c(person(given = "Ignatius",
+                    family = "Pang",
+                    role = "aut"),
+             person(given = "Aidan",
+                    family = "Tay",
+                    role = "aut"),
+             person(given = c("APAF", "Agentic"),
+                    family = "Workflow",
+                    role = "cre",
+                    email = "ignatius.pang@mq.edu.au"))
+Description: A framework for orchestrating complex agentic workflows in R. 
+    It provides a robust, state-managed engine for Directed Acyclic Graphs (DAGs) 
+    and iterative loops, prioritizing CLI-native LLM interactions (e.g., Gemini, 
+    Claude, Copilot) and hardened state persistence for reproducible research and 
+    automated coding tasks.
 License: LGPL (>= 3) + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.3
+Depends: 
+    R (>= 4.1.0)
 Imports: 
     DBI,
     furrr,

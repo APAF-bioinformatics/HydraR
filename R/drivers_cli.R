@@ -16,13 +16,13 @@
 GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
     inherit = AgentDriver,
     public = list(
-        #' @field model String. Default model.
-        model = "gemini-1.5-flash",
+        #' @field model String. Default model. Omit to use CLI default.
+        model = NULL,
 
         #' Initialize GeminiCLIDriver
         #' @param id Unique identifier.
-        #' @param model String. Default model.
-        initialize = function(id = "gemini_cli", model = "gemini-1.5-flash") {
+        #' @param model String. Optional model.
+        initialize = function(id = "gemini_cli", model = NULL) {
             super$initialize(id)
             self$model <- model
         },
@@ -36,24 +36,19 @@ GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
             target_model <- if (!is.null(model)) model else self$model
             
             # Implementation: using gemini CLI
-            # gemini --model <model> "<prompt>"
+            # CLI often misinterprets multi-line prompts as separate commands.
+            # We flatten the prompt to a single line for robust delivery.
+            prompt_flat <- gsub("\n", " ", prompt)
             
-            # To handle large prompts, we'll write to a temp file
-            tmp_prompt <- tempfile(pattern = "prompt_", fileext = ".txt")
-            writeLines(prompt, tmp_prompt)
-            on.exit(unlink(tmp_prompt))
+            # Construct CLI arguments
+            model_arg <- if (!is.null(target_model)) c("--model", target_model) else NULL
             
-            # Command execution
-            # --prompt-file is assuming the 'gemini' CLI supports it, or we pipe it
-            res <- system2("gemini", args = c("--model", target_model, "--file", tmp_prompt), stdout = TRUE, stderr = TRUE)
+            # Execute CLI call
+            res <- system2("gemini", args = c(model_arg, "--prompt", shQuote(prompt_flat)), stdout = TRUE, stderr = TRUE)
             
-            # Basic Cleaning
             if (length(res) == 0) return("")
             
-            # Simple cleaning: remove common CLI headers or footer artifacts if present
-            # For gemini CLI, usually it just returns the text
             cleaned <- paste(res, collapse = "\n")
-            
             return(cleaned)
         }
     )

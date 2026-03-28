@@ -1,8 +1,13 @@
 # HydraR: Stateful Agentic Orchestration for R
 
-`HydraR` is a lightweight, state-of-the-art orchestrator for building agentic workflows in R. It prioritizes **CLI-native LLM interactions**, **hardened state management**, and **graph-based execution** (supporting both Directed Acyclic Graphs and iterative loops).
+`HydraR` is a lightweight, state-of-the-art orchestrator for building general-purpose agentic workflows in R. It prioritizes **CLI-native LLM interactions**, **hardened state management**, and **graph-based execution** (supporting both Directed Acyclic Graphs and iterative loops).
 
-Unlike API-heavy frameworks, `HydraR` is designed to orchestrate complex tasks by driving external CLI tools (like `gemini-cli`, `claude-code`, or `gh copilot`) as first-class citizens.
+## Why HydraR?
+
+Standard agentic frameworks often rely heavily on brittle API wrappers and volatile state. `HydraR` is built for durability and reproducibility:
+- **CLI-First**: Directly drive high-performance CLI tools like `gemini-cli`, `claude-code`, or `gh copilot`.
+- **Hardened State**: Implements a robust state machine with persistent checkpointing (DuckDB/SQLite).
+- **Graph-Native**: Design complex logic transitions and loops with built-in validation.
 
 ## Key Features
 
@@ -22,6 +27,14 @@ You can install the development version from GitHub:
 # install.packages("devtools")
 devtools::install_github("apaf-bioinformatics/HydraR")
 ```
+
+## 📖 Vignettes & Examples
+
+Learn how to use `HydraR` with these premium examples:
+
+- **📍 [Sydney to Hong Kong Travel Planner](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/hong_kong_travel.Rmd)**: High-fidelity orchestration using the `GeminiCLIDriver` to book a complex itinerary.
+- **💾 [Academic Research Assistant](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/academic_research.Rmd)**: Demonstrates literature search and stateful summarization.
+- **🛡️ [Software Bug Assistant](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/software_bug_assistant.Rmd)**: Shows how to orchestrate code analysis and fix suggestions.
 
 ## "Hello World" Example
 
