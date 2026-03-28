@@ -36,23 +36,25 @@ GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
       target_model <- if (!is.null(model)) model else self$model
 
       # Execution using a temporary file for the prompt
-      # This is more robust for multi-line strings and avoids shell length limits.
+      # Headless mode: gemini --prompt "..." or piping to stdin.
+      # Using system2 with stdin is most robust for this CLI version.
+      
       tmp_prompt <- tempfile(pattern = "gemini_prompt_", fileext = ".txt")
       writeLines(prompt, tmp_prompt)
       on.exit(unlink(tmp_prompt))
 
-      # Construct CLI arguments
-      model_arg <- if (!is.null(target_model)) c("--model", target_model) else NULL
-
-      # Execute CLI call: gemini --model <model> --file <temp_file>
-      res <- system2("gemini", args = c(model_arg, "--file", shQuote(tmp_prompt)), stdout = TRUE, stderr = TRUE)
+      # Use 'stdin' argument in system2 to provide the prompt
+      # and the -p flag with an empty string or just the flag if supported.
+      # Based on help: 'query' is positional, -p is for prompt.
+      
+      res <- system2("gemini", args = c("-p", "-"), stdin = tmp_prompt, stdout = TRUE, stderr = TRUE)
 
       if (length(res) == 0) {
         return("")
       }
 
       cleaned <- paste(res, collapse = "\n")
-      return(cleaned)
+      return(trimws(cleaned))
     }
   )
 )
