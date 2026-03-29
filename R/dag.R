@@ -464,17 +464,29 @@ AgentDAG <- R6::R6Class("AgentDAG",
       return(list(results = self$results, state = self$state, status = if (!is.null(paused_at) || length(current_nodes) > 0) "paused" else "completed", paused_at = paused_at))
     },
 
-    #' Plot the DAG
-    #' @param type String. Currently only "mermaid" is supported.
     #' @param status Logical. If TRUE, styling is applied to nodes/edges based on results.
+    #' @param details Logical. If TRUE, node parameters are serialized into labels.
+    #' @param include_params Character vector. Optional whitelist of parameters to show.
+    #' @param show_edge_labels Logical. Whether to show labels on edges.
     #' @return The mermaid string (invisibly).
-    plot = function(type = "mermaid", status = FALSE) {
+    plot = function(type = "mermaid", status = FALSE, details = FALSE, include_params = NULL, show_edge_labels = TRUE) {
       if (type != "mermaid") stop("Only 'mermaid' type is currently supported.")
 
       # 1. Define Nodes
       node_lines <- purrr::map_chr(names(self$nodes), function(node_id) {
         node <- self$nodes[[node_id]]
-        sprintf("  %s[\"%s\"]", node_id, node$label)
+        lbl <- node$label
+        
+        if (details && length(node$params) > 0) {
+          # Filter params if needed
+          p_list <- if (is.null(include_params)) node$params else node$params[names(node$params) %in% include_params]
+          if (length(p_list) > 0) {
+            p_str <- purrr::imap_chr(p_list, ~ sprintf("%s=%s", .y, as.character(.x))) |> paste(collapse = " | ")
+            lbl <- paste(lbl, p_str, sep = " | ")
+          }
+        }
+        
+        sprintf("  %s[\"%s\"]", node_id, lbl)
       })
 
       # 2. Collect All Possible Edges (for consistent indexing)
@@ -503,7 +515,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
       # Generate edge lines
       edge_lines <- purrr::map_chr(all_edges_list, function(e) {
-        if (!is.null(e$label)) {
+        if (show_edge_labels && !is.null(e$label)) {
           sprintf("  %s -- %s --> %s", e$from, e$label, e$to)
         } else {
           sprintf("  %s --> %s", e$from, e$to)
@@ -594,20 +606,32 @@ AgentDAG <- R6::R6Class("AgentDAG",
       invisible(self)
     },
 
-    #' Create AgentDAG from Mermaid
-    #' @param mermaid_str String. Mermaid syntax.
-    #' @param node_factory Function(id, label) -> AgentNode.
+    #' @param node_factory Function(id, label, params) -> AgentNode.
     #' @return The AgentDAG object.
     from_mermaid = function(mermaid_str, node_factory) {
       stopifnot(is.function(node_factory))
       parsed <- parse_mermaid(mermaid_str)
 
       # Add nodes
-      purrr::walk(seq_len(nrow(parsed$nodes)), function(i) {
-        id <- parsed$nodes$id[i]
-        label <- parsed$nodes$label[i]
-        node <- node_factory(id, label)
+      purrr::walk(parsed$nodes, function(node_data) {
+        id <- node_data$id
+        label <- node_data$label
+        params <- node_data$params
+        
+        # Support both 2-arg and 3-arg factories for robustness
+        # Logic: if factory has >=3 args, pass params. Otherwise just id/label.
+        n_args <- length(formals(node_factory))
+        node <- if (n_args >= 3) {
+          node_factory(id, label, params)
+        } else {
+          node_factory(id, label)
+        }
+
         if (!is.null(node)) {
+          # Ensure node has params if factory didn't set them
+          if (length(node$params) == 0 && length(params) > 0) {
+            node$params <- params
+          }
           self$add_node(node)
         }
       })

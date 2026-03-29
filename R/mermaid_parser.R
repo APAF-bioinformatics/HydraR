@@ -65,7 +65,35 @@ parse_mermaid <- function(mermaid_str) {
       label <- label_matches[nzchar(label_matches)][1]
       if (is.na(label) || is.null(label)) label <- id
 
-      list(id = id, label = label)
+      # Parameter Extraction (Pipe Delimiter: "Label | key=value")
+      params <- list()
+      if (grepl("\\|", label)) {
+        parts <- strsplit(label, "\\|")[[1]]
+        label <- trimws(parts[1])
+        param_strings <- trimws(parts[-1])
+        
+        purrr::walk(param_strings, function(ps) {
+          if (grepl("=", ps)) {
+            kv <- strsplit(ps, "=")[[1]]
+            key <- trimws(kv[1])
+            val <- trimws(paste(kv[-1], collapse = "="))
+            
+            # Type Coercion
+            coerced_val <- if (grepl("^-?\\d+(\\.\\d+)?$", val)) {
+              as.numeric(val)
+            } else if (tolower(val) == "true") {
+              TRUE
+            } else if (tolower(val) == "false") {
+              FALSE
+            } else {
+              val
+            }
+            params[[key]] <<- coerced_val
+          }
+        })
+      }
+
+      list(id = id, label = label, params = params)
     })
     line_nodes <- purrr::compact(line_nodes_raw)
 
@@ -88,26 +116,28 @@ parse_mermaid <- function(mermaid_str) {
   })
 
   # Flatten results
-  all_nodes_list <- purrr::flatten(purrr::map(raw_results, ~ .x$nodes))
+  all_nodes_raw <- purrr::flatten(purrr::map(raw_results, ~ .x$nodes))
   all_edges_list <- purrr::flatten(purrr::map(raw_results, ~ .x$edges))
 
-  # Process Nodes: Deduplicate and prioritize explicit labels
+  # Process Nodes: Deduplicate and prioritize explicit labels/params
   node_map <- list()
-  purrr::walk(all_nodes_list, function(node) {
+  purrr::walk(all_nodes_raw, function(node) {
     id <- node$id
-    if (is.null(node_map[[id]]) || (node_map[[id]] == id && node$label != id)) {
-      node_map[[id]] <<- node$label
+    if (is.null(node_map[[id]]) || (node_map[[id]]$label == id && node$label != id) || length(node$params) > 0) {
+      node_map[[id]] <<- list(label = node$label, params = node$params)
     }
   })
 
   nodes_df <- if (length(node_map) > 0) {
-    data.frame(
-      id = names(node_map),
-      label = as.character(node_map),
-      stringsAsFactors = FALSE
-    )
+    # We store params as a list column for the transition but return it as a list in the final structure
+    # Actually, data.frame doesn't like list columns easily without I() or tibble
+    # Let's keep node_map as a structure and convert to a list of lists at the end
+    node_data_list <- purrr::map(names(node_map), function(id) {
+       list(id = id, label = node_map[[id]]$label, params = node_map[[id]]$params)
+    })
+    node_data_list
   } else {
-    data.frame(id = character(), label = character(), stringsAsFactors = FALSE)
+    list()
   }
 
   # Process Edges: Convert to dataframe
@@ -116,10 +146,6 @@ parse_mermaid <- function(mermaid_str) {
   } else {
     data.frame(from = character(), to = character(), label = character(), stringsAsFactors = FALSE)
   }
-
-  # Final cleanup
-  if (nrow(nodes_df) > 0) rownames(nodes_df) <- NULL
-  if (nrow(edges_df) > 0) rownames(edges_df) <- NULL
 
   return(list(nodes = nodes_df, edges = edges_df))
 }

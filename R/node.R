@@ -22,14 +22,18 @@ AgentNode <- R6::R6Class("AgentNode",
     label = NULL,
     #' @field last_result List. Results from most recent execution.
     last_result = NULL,
+    #' @field params List. Arbitrary metadata/config parameters.
+    params = list(),
 
     #' Initialize AgentNode
     #' @param id Unique identifier.
     #' @param label Optional human-readable name.
-    initialize = function(id, label = NULL) {
+    #' @param params Optional named list of parameters.
+    initialize = function(id, label = NULL, params = list()) {
       stopifnot(is.character(id) && length(id) == 1)
       self$id <- id
       self$label <- label %||% id
+      self$params <- params %||% list()
     },
 
     #' Run the Node
