@@ -24,13 +24,12 @@ library(HydraR)
 
 # 1. Define a Specialized Node Factory
 node_factory <- function(id, label, params = list()) {
-  
   # Create a custom node class for this example
-  CustomNode <- R6::R6Class("CustomNode", 
+  CustomNode <- R6::R6Class("CustomNode",
     inherit = AgentNode,
     public = list(
       run = function(state) {
-        param_str <- if(length(self$params) > 0) {
+        param_str <- if (length(self$params) > 0) {
           paste(names(self$params), self$params, sep = "=", collapse = ", ")
         } else {
           "none"
@@ -40,7 +39,7 @@ node_factory <- function(id, label, params = list()) {
       }
     )
   )
-  
+
   CustomNode$new(id, label, params)
 }
 ```
