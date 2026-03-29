@@ -12,14 +12,14 @@ test_that("Regex Flowchart Parser extracts nodes and edges", {
     "
   parsed <- parse_mermaid(mermaid)
 
-  expect_equal(nrow(parsed$nodes), 4)
+  expect_equal(length(parsed$nodes), 4)
   expect_equal(nrow(parsed$edges), 3)
 
   # Check labels
-  expect_equal(subset(parsed$nodes, id == "A")$label, "Node A")
-  expect_equal(subset(parsed$nodes, id == "B")$label, "Node B")
-  expect_equal(subset(parsed$nodes, id == "C")$label, "Node C")
-  expect_equal(subset(parsed$nodes, id == "D")$label, "D")
+  expect_equal(purrr::keep(parsed$nodes, ~ .x$id == "A")[[1]]$label, "Node A")
+  expect_equal(purrr::keep(parsed$nodes, ~ .x$id == "B")[[1]]$label, "Node B")
+  expect_equal(purrr::keep(parsed$nodes, ~ .x$id == "C")[[1]]$label, "Node C")
+  expect_equal(purrr::keep(parsed$nodes, ~ .x$id == "D")[[1]]$label, "D")
 })
 
 test_that("Conditional edges are parsed", {

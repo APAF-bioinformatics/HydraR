@@ -687,10 +687,10 @@ AgentDAG <- R6::R6Class("AgentDAG",
         cond_edges <- purrr::imap(self$conditional_edges, function(cond, from) {
           df_list <- list()
           if (!is.null(cond$if_true)) {
-            df_list[[length(df_list) + 1]] <- data.frame(from = from, to = cond$if_true, stringsAsFactors = FALSE)
+            df_list[[length(df_list) + 1]] <- data.frame(from = from, to = cond$if_true, label = NA_character_, stringsAsFactors = FALSE)
           }
           if (!is.null(cond$if_false)) {
-            df_list[[length(df_list) + 1]] <- data.frame(from = from, to = cond$if_false, stringsAsFactors = FALSE)
+            df_list[[length(df_list) + 1]] <- data.frame(from = from, to = cond$if_false, label = NA_character_, stringsAsFactors = FALSE)
           }
           if (length(df_list) == 0) return(NULL)
           do.call(rbind, df_list)
