@@ -375,129 +375,120 @@ respects these constraints.</li>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># Note: This assumes the &#39;gemini&#39; CLI is installed and configured on your system.</span></span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>driver <span class="ot">&lt;-</span> GeminiCLIDriver<span class="sc">$</span><span class="fu">new</span>()</span></code></pre></div>
 </div>
-<div id="defining-the-agent-state" class="section level2">
-<h2>Defining the Agent State</h2>
-<p>We define the initial state, which includes our hard constraints and
-preferences.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>initial_state <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="at">origin =</span> <span class="st">&quot;Sydney&quot;</span>,</span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">destination =</span> <span class="st">&quot;Hong Kong&quot;</span>,</span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">departure_date =</span> <span class="st">&quot;2026-05-26&quot;</span>,</span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">return_date =</span> <span class="st">&quot;2026-06-01&quot;</span>,</span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="at">airline =</span> <span class="st">&quot;Qantas&quot;</span>,</span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="at">must_include =</span> <span class="fu">c</span>(<span class="st">&quot;Cheung Chau Island&quot;</span>, <span class="st">&quot;Spaghetti House&quot;</span>, <span class="st">&quot;Local Cuisine&quot;</span>),</span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="at">itinerary_draft =</span> <span class="cn">NULL</span>,</span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  <span class="at">validation_passed =</span> <span class="cn">FALSE</span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>)</span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>state <span class="ot">&lt;-</span> AgentState<span class="sc">$</span><span class="fu">new</span>(initial_state)</span></code></pre></div>
-</div>
-<div id="defining-the-logic-registry" class="section level2">
-<h2>Defining the Logic Registry</h2>
-<p>To keep our architecture clean, we store complex R functions (like
-prompts and validation logic) in a central registry. This allows the
-Mermaid graph to focus on the structure and metadata.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>travel_logic_registry <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="co"># 1. The itinerary generation prompt</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="at">plan_itinerary =</span> <span class="cf">function</span>(state) {</span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>    <span class="fu">sprintf</span>(</span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>      <span class="st">&quot;Plan a 3-day trip from %s to %s. Dates: %s to %s. Airline: %s. Must include: %s.&quot;</span>,</span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>      state<span class="sc">$</span><span class="fu">get</span>(<span class="st">&quot;origin&quot;</span>), state<span class="sc">$</span><span class="fu">get</span>(<span class="st">&quot;destination&quot;</span>),</span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>      state<span class="sc">$</span><span class="fu">get</span>(<span class="st">&quot;departure_date&quot;</span>), state<span class="sc">$</span><span class="fu">get</span>(<span class="st">&quot;return_date&quot;</span>),</span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>      state<span class="sc">$</span><span class="fu">get</span>(<span class="st">&quot;airline&quot;</span>), <span class="fu">paste</span>(state<span class="sc">$</span><span class="fu">get</span>(<span class="st">&quot;must_include&quot;</span>), <span class="at">collapse =</span> <span class="st">&quot;, &quot;</span>)</span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>    )</span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  },</span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>  </span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>  <span class="co"># 2. The constraint validation logic</span></span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>  <span class="at">validate_constraints =</span> <span class="cf">function</span>(state) {</span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>    itinerary <span class="ot">&lt;-</span> state<span class="sc">$</span><span class="fu">get</span>(<span class="st">&quot;Planner&quot;</span>) <span class="sc">%||%</span> <span class="st">&quot;&quot;</span></span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>    must_include <span class="ot">&lt;-</span> state<span class="sc">$</span><span class="fu">get</span>(<span class="st">&quot;must_include&quot;</span>)</span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>    found <span class="ot">&lt;-</span> <span class="fu">sapply</span>(must_include, <span class="cf">function</span>(x) <span class="fu">grepl</span>(x, itinerary, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>    </span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">all</span>(found)) {</span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>      <span class="fu">list</span>(<span class="at">status =</span> <span class="st">&quot;SUCCESS&quot;</span>, <span class="at">output =</span> <span class="fu">list</span>(<span class="at">validation_passed =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
-<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a>      missing <span class="ot">&lt;-</span> must_include[<span class="sc">!</span>found]</span>
-<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a>      <span class="fu">list</span>(<span class="at">status =</span> <span class="st">&quot;SUCCESS&quot;</span>, <span class="at">output =</span> <span class="fu">list</span>(</span>
-<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a>        <span class="at">validation_passed =</span> <span class="cn">FALSE</span>, </span>
-<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a>        <span class="at">message =</span> <span class="fu">paste</span>(<span class="st">&quot;Missing:&quot;</span>, <span class="fu">paste</span>(missing, <span class="at">collapse =</span> <span class="st">&quot;, &quot;</span>))</span>
-<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a>      ))</span>
-<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a>    }</span>
-<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a>  }</span>
-<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a>)</span></code></pre></div>
+<div id="defining-the-workflow-components" class="section level2">
+<h2>Defining the Workflow Components</h2>
+<p>To keep our architecture clean, we store all workflow
+components—initial configuration, LLM prompts, and deterministic
+logic—in a central registry.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>travel_logic_registry <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="co"># 0. Initial State Configuration</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">initial_state =</span> <span class="fu">list</span>(</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>    <span class="at">origin =</span> <span class="st">&quot;Sydney&quot;</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>    <span class="at">destination =</span> <span class="st">&quot;Hong Kong&quot;</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>    <span class="at">departure_date =</span> <span class="st">&quot;2026-05-26&quot;</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>    <span class="at">return_date =</span> <span class="st">&quot;2026-06-01&quot;</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>    <span class="at">airline =</span> <span class="st">&quot;Qantas&quot;</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>    <span class="at">must_include =</span> <span class="fu">c</span>(<span class="st">&quot;Cheung Chau Island&quot;</span>, <span class="st">&quot;Spaghetti House&quot;</span>, <span class="st">&quot;Local Cuisine&quot;</span>),</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>    <span class="at">itinerary_draft =</span> <span class="cn">NULL</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>    <span class="at">validation_passed =</span> <span class="cn">FALSE</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  ),</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="co"># 1. The itinerary generation prompt</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  <span class="at">plan_itinerary =</span> <span class="cf">function</span>(state) {</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>    <span class="fu">sprintf</span>(</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>      <span class="st">&quot;Plan a 3-day trip from %s to %s. Dates: %s to %s. Airline: %s. Must include: %s.&quot;</span>,</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>      state<span class="sc">$</span><span class="fu">get</span>(<span class="st">&quot;origin&quot;</span>), state<span class="sc">$</span><span class="fu">get</span>(<span class="st">&quot;destination&quot;</span>),</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>      state<span class="sc">$</span><span class="fu">get</span>(<span class="st">&quot;departure_date&quot;</span>), state<span class="sc">$</span><span class="fu">get</span>(<span class="st">&quot;return_date&quot;</span>),</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>      state<span class="sc">$</span><span class="fu">get</span>(<span class="st">&quot;airline&quot;</span>), <span class="fu">paste</span>(state<span class="sc">$</span><span class="fu">get</span>(<span class="st">&quot;must_include&quot;</span>), <span class="at">collapse =</span> <span class="st">&quot;, &quot;</span>)</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>    )</span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>  },</span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>  <span class="co"># 2. The constraint validation logic</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>  <span class="at">validate_constraints =</span> <span class="cf">function</span>(state) {</span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a>    itinerary <span class="ot">&lt;-</span> state<span class="sc">$</span><span class="fu">get</span>(<span class="st">&quot;Planner&quot;</span>) <span class="sc">%||%</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>    must_include <span class="ot">&lt;-</span> state<span class="sc">$</span><span class="fu">get</span>(<span class="st">&quot;must_include&quot;</span>)</span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a>    found <span class="ot">&lt;-</span> <span class="fu">sapply</span>(must_include, <span class="cf">function</span>(x) <span class="fu">grepl</span>(x, itinerary, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">all</span>(found)) {</span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a>      <span class="fu">list</span>(<span class="at">status =</span> <span class="st">&quot;SUCCESS&quot;</span>, <span class="at">output =</span> <span class="fu">list</span>(<span class="at">validation_passed =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a>      missing <span class="ot">&lt;-</span> must_include[<span class="sc">!</span>found]</span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a>      <span class="fu">list</span>(<span class="at">status =</span> <span class="st">&quot;SUCCESS&quot;</span>, <span class="at">output =</span> <span class="fu">list</span>(</span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a>        <span class="at">validation_passed =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a>        <span class="at">message =</span> <span class="fu">paste</span>(<span class="st">&quot;Missing:&quot;</span>, <span class="fu">paste</span>(missing, <span class="at">collapse =</span> <span class="st">&quot;, &quot;</span>))</span>
+<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a>      ))</span>
+<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a>    }</span>
+<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a>  }</span>
+<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a>)</span></code></pre></div>
 </div>
 <div id="defining-the-workflow-mermaid-as-source" class="section level2">
 <h2>Defining the Workflow (Mermaid-as-Source)</h2>
 <p>We define the entire orchestration using Mermaid syntax. Parameters
 like <code>role</code> and <code>driver</code> are baked directly into
 the graph.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>mermaid_src <span class="ot">&lt;-</span> <span class="st">&#39;</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="st">graph TD</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="st">  Planner[&quot;Travel Planner | role=Travel Concierge | driver=gemini | prompt_id=plan_itinerary | workdir=./hkg_trip&quot;]</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="st">  Auditor[&quot;Constraint Validator | logic_id=validate_constraints | retries=3&quot;]</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="st">  Planner --&gt; Auditor</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="st">  Auditor -- &quot;fail&quot; --&gt; Planner</span></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="st">&#39;</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>mermaid_src <span class="ot">&lt;-</span> <span class="st">&#39;</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="st">graph TD</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="st">  Planner[&quot;Travel Planner | role=Travel Concierge | driver=gemini | prompt_id=plan_itinerary | workdir=./hkg_trip&quot;]</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="st">  Auditor[&quot;Constraint Validator | logic_id=validate_constraints | retries=3&quot;]</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="st">  Planner --&gt; Auditor</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="st">  Auditor -- &quot;fail&quot; --&gt; Planner</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="st">&#39;</span></span></code></pre></div>
 </div>
 <div id="instantiating-the-dag" class="section level2">
 <h2>Instantiating the DAG</h2>
 <p>We use a <strong>Node Factory</strong> to resolve the IDs in the
 Mermaid string against our logic registry.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># The factory maps Mermaid params to HydraR Node objects</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>travel_node_factory <span class="ot">&lt;-</span> <span class="cf">function</span>(id, label, params) {</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="cf">if</span> (id <span class="sc">==</span> <span class="st">&quot;Planner&quot;</span>) {</span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    <span class="co"># Resolve driver from Mermaid params</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    driver_obj <span class="ot">&lt;-</span> <span class="cf">if</span> (params<span class="sc">$</span>driver <span class="sc">==</span> <span class="st">&quot;gemini&quot;</span>) {</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>      GeminiCLIDriver<span class="sc">$</span><span class="fu">new</span>()</span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>      <span class="co"># Fallback or other drivers (Claude, OpenAI)</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>      <span class="cn">NULL</span> </span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>    }</span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>    </span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>    <span class="fu">return</span>(AgentLLMNode<span class="sc">$</span><span class="fu">new</span>(</span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>      <span class="at">id =</span> id, <span class="at">label =</span> label,</span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>      <span class="at">role =</span> params<span class="sc">$</span>role,</span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>      <span class="at">driver =</span> driver_obj,</span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>      <span class="at">prompt_builder =</span> travel_logic_registry[[params<span class="sc">$</span>prompt_id]],</span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>      <span class="at">params =</span> params</span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>    ))</span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (id <span class="sc">==</span> <span class="st">&quot;Auditor&quot;</span>) {</span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>    <span class="fu">return</span>(AgentLogicNode<span class="sc">$</span><span class="fu">new</span>(</span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a>      <span class="at">id =</span> id, <span class="at">label =</span> label,</span>
-<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a>      <span class="at">logic_fn =</span> travel_logic_registry[[params<span class="sc">$</span>logic_id]],</span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a>      <span class="at">params =</span> params</span>
-<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a>    ))</span>
-<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a>  }</span>
-<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a>}</span>
-<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a></span>
-<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co"># Create the DAG directly from the visual source</span></span>
-<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a>dag <span class="ot">&lt;-</span> <span class="fu">mermaid_to_dag</span>(mermaid_src, travel_node_factory)</span>
-<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a>dag<span class="sc">$</span><span class="fu">compile</span>()</span>
-<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt; Warning in dag$compile(): The graph contains cycles and no conditional edges</span></span>
-<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a><span class="co">#&gt; are defined. Linear execution may fail.</span></span>
-<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a><span class="co">#&gt; Warning in dag$compile(): Potential infinite loop detected: graph contains</span></span>
-<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a><span class="co">#&gt; cycles. Ensure conditional edges have exit conditions.</span></span>
-<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a><span class="co">#&gt; Graph compiled successfully.</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># The factory maps Mermaid params to HydraR Node objects</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>travel_node_factory <span class="ot">&lt;-</span> <span class="cf">function</span>(id, label, params) {</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="cf">if</span> (id <span class="sc">==</span> <span class="st">&quot;Planner&quot;</span>) {</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>    <span class="co"># Resolve driver from Mermaid params</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>    driver_obj <span class="ot">&lt;-</span> <span class="cf">if</span> (params<span class="sc">$</span>driver <span class="sc">==</span> <span class="st">&quot;gemini&quot;</span>) {</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>      GeminiCLIDriver<span class="sc">$</span><span class="fu">new</span>()</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>      <span class="co"># Fallback or other drivers (Claude, OpenAI)</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>      <span class="cn">NULL</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>    }</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>    <span class="fu">return</span>(AgentLLMNode<span class="sc">$</span><span class="fu">new</span>(</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>      <span class="at">id =</span> id, <span class="at">label =</span> label,</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>      <span class="at">role =</span> params<span class="sc">$</span>role,</span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>      <span class="at">driver =</span> driver_obj,</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>      <span class="at">prompt_builder =</span> travel_logic_registry[[params<span class="sc">$</span>prompt_id]],</span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a>      <span class="at">params =</span> params</span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>    ))</span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (id <span class="sc">==</span> <span class="st">&quot;Auditor&quot;</span>) {</span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a>    <span class="fu">return</span>(AgentLogicNode<span class="sc">$</span><span class="fu">new</span>(</span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a>      <span class="at">id =</span> id, <span class="at">label =</span> label,</span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>      <span class="at">logic_fn =</span> travel_logic_registry[[params<span class="sc">$</span>logic_id]],</span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a>      <span class="at">params =</span> params</span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a>    ))</span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a>  }</span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a>}</span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a></span>
+<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a><span class="co"># Create the DAG directly from the visual source</span></span>
+<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a>dag <span class="ot">&lt;-</span> <span class="fu">mermaid_to_dag</span>(mermaid_src, travel_node_factory)</span>
+<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a>dag<span class="sc">$</span><span class="fu">compile</span>()</span>
+<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a><span class="co">#&gt; Warning in dag$compile(): The graph contains cycles and no conditional edges</span></span>
+<span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a><span class="co">#&gt; are defined. Linear execution may fail.</span></span>
+<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a><span class="co">#&gt; Warning in dag$compile(): Potential infinite loop detected: graph contains</span></span>
+<span id="cb4-34"><a href="#cb4-34" tabindex="-1"></a><span class="co">#&gt; cycles. Ensure conditional edges have exit conditions.</span></span>
+<span id="cb4-35"><a href="#cb4-35" tabindex="-1"></a><span class="co">#&gt; Graph compiled successfully.</span></span></code></pre></div>
 </div>
 <div id="visualizing-the-workflow" class="section level2">
 <h2>Visualizing the Workflow</h2>
 <p>We can view the agent’s logic directly using Mermaid.js syntax. By
 setting <code>details = TRUE</code>, we see the embedded configuration
 parameters.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;```mermaid</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;```mermaid</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
 <pre class="mermaid"><code>
 ``` r
 cat(dag$plot(type = &quot;mermaid&quot;, details = TRUE))</code></pre>
 <p>graph TD Planner[“Travel Planner | role=Travel Concierge |
 driver=gemini | prompt_id=plan_itinerary | workdir=./hkg_trip”]
 Auditor[“Constraint Validator | logic_id=validate_constraints |
-retries=3”] Planner –&gt; Auditor Auditor – “fail” –&gt; Planner graph
-TD Planner[“Travel Planner | role=Travel Concierge | driver=gemini |
-prompt_id=plan_itinerary | workdir=./hkg_trip”] Auditor[“Constraint
-Validator | logic_id=validate_constraints | retries=3”] Planner –&gt;
-Auditor Auditor – “fail” –&gt; Planner</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">```</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+retries=3”] Planner –&gt; Auditor Auditor – “fail” –&gt; Planner</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">```</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
 <pre><code>
 ## Execution
 
@@ -509,8 +500,8 @@ When we run the DAG, `HydraR` manages the state transitions and LLM calls. The `
 checkpointer &lt;- DuckDBSaver$new(path = &quot;travel_booking.duckdb&quot;)
 dag$set_checkpointer(checkpointer)
 
-# Run the orchestration
-results &lt;- dag$run(initial_state = initial_state, max_steps = 5)
+# Run the orchestration pulling initial config from our registry
+results &lt;- dag$run(initial_state = travel_logic_registry$initial_state, max_steps = 5)
 
 # Display final itinerary
 cat(results$state$get(&quot;Planner&quot;))</code></pre>
