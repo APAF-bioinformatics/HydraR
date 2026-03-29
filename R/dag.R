@@ -567,18 +567,14 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
         # Edge highlighting (linkStyle)
         # Identify traversed pairs from trace_log
-        if (length(self$trace_log) > 1) {
-          traversed_nodes <- purrr::map_chr(purrr::compact(self$trace_log), ~ .x$node)
-          traversed_pairs <- purrr::map(seq_len(length(traversed_nodes) - 1), function(i) {
-            paste(traversed_nodes[i], traversed_nodes[i + 1], sep = "->")
-          }) |>
-            unlist() |>
-            unique()
-
+        if (length(self$trace_log) > 0) {
+          # A node is 'traversed' if it appears in the trace log
+          executed_nodes <- purrr::map_chr(purrr::compact(self$trace_log), ~ .x$node)
+          
           # Find indices in all_edges_list
           purrr::iwalk(all_edges_list, function(e, idx) {
-            pair_key <- paste(e$from, e$to, sep = "->")
-            if (pair_key %in% traversed_pairs) {
+            # Highlight if the 'to' node was executed AND the 'from' node was executed
+            if (e$from %in% executed_nodes && e$to %in% executed_nodes) {
               # linkStyle is 0-indexed
               extra_lines <<- c(extra_lines, sprintf("  linkStyle %d stroke:#388e3c,stroke-width:4px;", idx - 1))
             }
