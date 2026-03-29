@@ -97,7 +97,7 @@ We use a factory function to dynamically resolve nodes. In this case, we use a g
 consensus_node_factory <- function(id, label, params) {
   # Map V1, V2, V3 to the generic Voter logic
   logic_key <- if (grepl("^V", id)) "Voter" else id
-  
+
   AgentLogicNode$new(
     id = id,
     label = label,

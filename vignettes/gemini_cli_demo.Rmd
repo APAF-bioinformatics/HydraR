@@ -56,7 +56,7 @@ gemini_node_factory <- function(id, label, params) {
   } else {
     NULL
   }
-  
+
   AgentLLMNode$new(
     id = id,
     label = label,

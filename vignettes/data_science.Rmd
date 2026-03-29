@@ -55,9 +55,9 @@ ds_logic_registry <- list(
       config <- state$get("ModelTrainer")
       target <- state$get("target_accuracy")
       iteration <- state$get("total_evaluations") + 1
-      
+
       accuracy <- min(0.60 + (iteration * 0.10), 0.95)
-      
+
       if (accuracy >= target) {
         list(status = "SUCCESS", output = list(
           optimization_complete = TRUE,
@@ -97,7 +97,7 @@ We use a factory function to dynamically create nodes based on their type and pa
 ds_node_factory <- function(id, label, params) {
   # Driver resolution from Mermaid params
   driver_obj <- if (!is.null(params$driver) && params$driver == "gemini") GeminiCLIDriver$new() else NULL
-  
+
   if (id %in% names(ds_logic_registry$logic)) {
     # Create a deterministic Logic Node
     AgentLogicNode$new(

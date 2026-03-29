@@ -18,13 +18,11 @@ MockMarkdownDriver <- R6::R6Class("MockMarkdownDriver",
   public = list(
     response = "Mocked Response",
     wrap_in_markdown = FALSE,
-
     initialize = function(id = "mock_markdown", response = "Mocked Response", wrap_in_markdown = FALSE) {
       super$initialize(id)
       self$response <- response
       self$wrap_in_markdown <- wrap_in_markdown
     },
-
     call = function(prompt, ...) {
       res <- self$response
       if (self$wrap_in_markdown) {
@@ -59,22 +57,26 @@ test_that("Parallel Sorting Benchmark workflow executes successfully", {
 
   # Node Factory
   sorting_node_factory <- function(id, label, params) {
-    if (id == "merger") return(create_merge_harmonizer(id = id))
+    if (id == "merger") {
+      return(create_merge_harmonizer(id = id))
+    }
 
     if (id == "benchmark") {
       return(AgentLogicNode$new(id, function(state) {
         # Ensure worktree is synced with the merged main branch
         system("git checkout main", ignore.stdout = TRUE, ignore.stderr = TRUE)
-        
+
         # Source all generated files
         files <- list.files(pattern = "_sort.R")
         purrr::walk(files, source)
-        
+
         n_elements <- 10
         methods <- c("bubble", "quick", "merge")
         results_df <- purrr::map_df(methods, function(m) {
           func_name <- paste0(m, "_sort")
-          if (!exists(func_name)) return(NULL)
+          if (!exists(func_name)) {
+            return(NULL)
+          }
           func <- get(func_name)
           times <- replicate(2, {
             test_data <- rnorm(n_elements)
@@ -91,13 +93,16 @@ test_that("Parallel Sorting Benchmark workflow executes successfully", {
     if (id == "plot") {
       return(AgentLogicNode$new(id, function(state) {
         df <- state$get("benchmark")
-        if (is.null(df) || nrow(df) == 0) return(list(status = "failed", error = "No data"))
-        
+        if (is.null(df) || nrow(df) == 0) {
+          return(list(status = "failed", error = "No data"))
+        }
+
         # TEST FIX: Graphics device suppression
         pdf(NULL)
         on.exit(if (dev.cur() > 1) dev.off())
-        
-        p <- ggplot(df, aes(x = method, y = time, fill = method)) + geom_boxplot()
+
+        p <- ggplot(df, aes(x = method, y = time, fill = method)) +
+          geom_boxplot()
         # Verify print doesn't crash in parallel worker
         print(p)
         list(status = "success", output = "Plot rendered.")
@@ -115,8 +120,8 @@ test_that("Parallel Sorting Benchmark workflow executes successfully", {
     driver <- MockMarkdownDriver$new(response = algo_code, wrap_in_markdown = (id == "bubble"))
 
     # USE THE HARDENED AgentLLMNode
-    AgentLLMNode$new(id, 
-      role = "Expert", 
+    AgentLLMNode$new(id,
+      role = "Expert",
       driver = driver,
       label = label,
       params = list(
@@ -153,7 +158,7 @@ test_that("Parallel Sorting Benchmark workflow executes successfully", {
   expect_equal(results$status, "completed")
   expect_true("plot" %in% names(results$results))
   expect_equal(compiled_dag$trace_log[[length(compiled_dag$trace_log)]]$status, "success")
-  
+
   # Check if files were merged
   withr::with_dir(repo_root, {
     merged_files <- list.files(pattern = "_sort.R")

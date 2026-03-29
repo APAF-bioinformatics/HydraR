@@ -80,7 +80,7 @@ git_node_factory <- function(id, label, params) {
   } else {
     # Resolve standard LLM nodes
     driver_obj <- if (!is.null(params$driver) && params$driver == "gemini") GeminiCLIDriver$new() else NULL
-    
+
     AgentLLMNode$new(
       id = id,
       label = label,

@@ -45,7 +45,7 @@ bug_logic_registry <- list(
   logic = list(
     Tester = function(state, params) {
       patch <- state$get("Analyzer")
-      
+
       # Mock evaluation logic: In our scenario, the fix must use is.null().
       if (grepl("is.null", patch, fixed = TRUE)) {
         list(status = "SUCCESS", output = list(
@@ -84,7 +84,7 @@ We use a factory function to dynamically create nodes based on their type and pa
 bug_node_factory <- function(id, label, params) {
   # Driver resolution from Mermaid params
   driver_obj <- if (!is.null(params$driver) && params$driver == "gemini") GeminiCLIDriver$new() else NULL
-  
+
   if (id %in% names(bug_logic_registry$logic)) {
     # Create a deterministic Logic Node
     AgentLogicNode$new(

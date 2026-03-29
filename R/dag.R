@@ -327,7 +327,6 @@ AgentDAG <- R6::R6Class("AgentDAG",
     #' @param fail_if_dirty Logical.
     #' @param packages Character vector. Packages to load in parallel workers.
     .run_iterative = function(max_steps, checkpointer = NULL, thread_id = NULL, resume_from = NULL, step_count = 0, fail_if_dirty = TRUE, packages = c("withr", "HydraR")) {
-
       current_nodes <- if (!is.null(resume_from)) {
         cat(sprintf("[Resuming] Resuming Iterative DAG Execution from node(s): %s\n", paste(resume_from, collapse = ", ")))
         resume_from
@@ -394,7 +393,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
               step = step_count, node = node_id, mode = "parallel",
               start_time = as.character(p_res$start), end_time = as.character(p_res$end),
               duration_secs = as.numeric(difftime(p_res$end, p_res$start, units = "secs")),
-              status = res$status, 
+              status = res$status,
               error = if (!is.null(res$error)) as.character(res$error) else if (res$status == "failed" && !is.null(p_res$error)) as.character(p_res$error) else NULL
             )
             # if (!is.null(self$worktree_manager)) self$worktree_manager$remove_worktree(node_id)
@@ -758,4 +757,3 @@ AgentDAG$from_mermaid <- function(mermaid_str, node_factory) {
 }
 
 #' <!-- APAF Bioinformatics | dag.R | Approved | 2026-03-30 -->
-

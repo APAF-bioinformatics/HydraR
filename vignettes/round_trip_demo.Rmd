@@ -67,7 +67,7 @@ We use a factory function to dynamically resolve nodes. If a specialized logic f
 ```{r factory}
 round_trip_node_factory <- function(id, label, params) {
   logic_fn <- round_trip_logic_registry$logic[[id]] %||% round_trip_logic_registry$logic$Default
-  
+
   AgentLogicNode$new(
     id = id,
     label = label,

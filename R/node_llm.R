@@ -111,15 +111,18 @@ AgentLLMNode <- R6::R6Class("AgentLLMNode",
 
       # 2. File Persistence (if output_path is provided in params)
       if (!is.null(self$params$output_path)) {
-        tryCatch({
-          writeLines(output_res, self$params$output_path)
-          # Optional: Automatic git tracking if in a worktree
-          # We check system status or state for worktree indicator
-          system2("git", c("add", shQuote(self$params$output_path)), stdout = FALSE, stderr = FALSE)
-          system2("git", c("commit", "-m", shQuote(sprintf("HydraR: Updated %s", self$id))), stdout = FALSE, stderr = FALSE)
-        }, error = function(e) {
-          warning(sprintf("[%s] Failed to write/commit LLM output to '%s': %s", self$id, self$params$output_path, e$message))
-        })
+        tryCatch(
+          {
+            writeLines(output_res, self$params$output_path)
+            # Optional: Automatic git tracking if in a worktree
+            # We check system status or state for worktree indicator
+            system2("git", c("add", shQuote(self$params$output_path)), stdout = FALSE, stderr = FALSE)
+            system2("git", c("commit", "-m", shQuote(sprintf("HydraR: Updated %s", self$id))), stdout = FALSE, stderr = FALSE)
+          },
+          error = function(e) {
+            warning(sprintf("[%s] Failed to write/commit LLM output to '%s': %s", self$id, self$params$output_path, e$message))
+          }
+        )
       }
 
       self$last_result <- list(
