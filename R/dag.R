@@ -98,8 +98,8 @@ AgentDAG <- R6::R6Class("AgentDAG",
       if (!is.character(to) || length(to) != 1) stop("to must be a single string node ID.")
 
       new_edges <- data.frame(
-        from = from, 
-        to = to, 
+        from = from,
+        to = to,
         label = label %||% NA_character_,
         stringsAsFactors = FALSE
       )
@@ -407,7 +407,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
               next_queue <<- unique(c(next_queue, children))
             }
           })
-          
+
           # UPDATE QUEUE FOR NEXT STEP
           queue <- unique(next_queue)
         } else {
@@ -483,15 +483,15 @@ AgentDAG <- R6::R6Class("AgentDAG",
       node_lines <- purrr::map_chr(names(self$nodes), function(node_id) {
         node <- self$nodes[[node_id]]
         lbl <- node$label
-        
+
         if (details && length(node$params) > 0) {
           # Filter params if needed
           p_list <- if (is.null(include_params)) {
-             node$params 
+            node$params
           } else {
-             node$params[names(node$params) %in% include_params]
+            node$params[names(node$params) %in% include_params]
           }
-          
+
           if (length(p_list) > 0) {
             p_str <- purrr::imap_chr(p_list, function(v, k) {
               val_str <- if (is.null(v)) "null" else as.character(v)
@@ -500,13 +500,13 @@ AgentDAG <- R6::R6Class("AgentDAG",
             lbl <- paste(lbl, p_str, sep = " | ")
           }
         }
-        
+
         sprintf("  %s[\"%s\"]", node_id, lbl)
       })
 
       # 2. Collect All Possible Edges (for consistent indexing)
       all_edges_list <- list()
-      
+
       # Standard edges
       edges_df <- if (is.list(self$edges) && length(self$edges) > 0) do.call(rbind, self$edges) else self$edges
       if (!is.null(edges_df) && nrow(edges_df) > 0) {
@@ -515,7 +515,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
           all_edges_list[[length(all_edges_list) + 1]] <<- list(from = edges_df$from[i], to = edges_df$to[i], label = lbl)
         })
       }
-      
+
       # Conditional edges
       # We sort keys to ensure deterministic ordering of indices
       sorted_cond_from <- sort(names(self$conditional_edges))
@@ -560,7 +560,9 @@ AgentDAG <- R6::R6Class("AgentDAG",
           traversed_nodes <- purrr::map_chr(purrr::compact(self$trace_log), ~ .x$node)
           traversed_pairs <- purrr::map(seq_len(length(traversed_nodes) - 1), function(i) {
             paste(traversed_nodes[i], traversed_nodes[i + 1], sep = "->")
-          }) |> unlist() |> unique()
+          }) |>
+            unlist() |>
+            unique()
 
           # Find indices in all_edges_list
           purrr::iwalk(all_edges_list, function(e, idx) {
@@ -632,7 +634,6 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
       # Add nodes
       purrr::pwalk(parsed$nodes, function(id, label, params) {
-        
         # Support both 2-arg and 3-arg factories for robustness
         # Logic: if factory has >=3 args, pass params. Otherwise just id/label.
         n_args <- length(formals(node_factory))
@@ -656,7 +657,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
         from <- parsed$edges$from[i]
         to <- parsed$edges$to[i]
         label <- parsed$edges$label[i]
-        
+
         # Pass the label if it's non-empty
         lbl <- if (nzchar(label)) label else NULL
         self$add_edge(from, to, label = lbl)
@@ -691,10 +692,14 @@ AgentDAG <- R6::R6Class("AgentDAG",
           if (!is.null(cond$if_false)) {
             df_list[[length(df_list) + 1]] <- data.frame(from = from, to = cond$if_false, label = NA_character_, stringsAsFactors = FALSE)
           }
-          if (length(df_list) == 0) return(NULL)
+          if (length(df_list) == 0) {
+            return(NULL)
+          }
           do.call(rbind, df_list)
-        }) |> purrr::compact() |> purrr::list_rbind()
-        
+        }) |>
+          purrr::compact() |>
+          purrr::list_rbind()
+
         if (!is.null(cond_edges) && nrow(cond_edges) > 0) {
           edges_df <- rbind(edges_df, cond_edges)
         }

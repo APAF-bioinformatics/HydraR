@@ -18,7 +18,7 @@ test_that("AgentBashNode isolates to working_dir", {
   dir <- tempdir()
   node <- AgentBashNode$new("pwd_node", script = "pwd")
   res <- node$run(state = AgentState$new(), working_dir = dir)
-  
+
   # Ensure the output contains the tempdir path
   expect_true(grepl("var/folders", trimws(res$output), ignore.case = TRUE) || grepl(basename(dir), trimws(res$output)))
 })
@@ -32,12 +32,12 @@ with open(sys.argv[1], 'r') as f:
     state = json.load(f)
 print('Input: ' + str(state['val']))
 "
-  
+
   node <- AgentPythonNode$new("py_sys_node", script = py_script, engine = "system2")
   state <- AgentState$new()
   state$set("val", 42)
   res <- node$run(state = state)
-  
+
   expect_true(res$success)
   expect_true(grepl("Python System2 OK", res$output))
   expect_true(grepl("Input: 42", res$output))
@@ -45,7 +45,7 @@ print('Input: ' + str(state['val']))
 
 test_that("AgentPythonNode (reticulate) computes correctly", {
   skip_if_not_installed("reticulate")
-  
+
   py_script <- "
 result = state_r['val'] * 2
 print('Python Reticulate OK')
@@ -53,7 +53,7 @@ print('Python Reticulate OK')
   node <- AgentPythonNode$new("py_ret_node", script = py_script, engine = "reticulate")
   state <- AgentState$new()
   state$set("val", 50)
-  
+
   res <- node$run(state = state)
   expect_true(res$success)
   expect_equal(res$result, 100)

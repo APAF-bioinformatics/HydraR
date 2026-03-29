@@ -1,5 +1,8 @@
 # HydraR: Stateful Agentic Orchestration for R
 
+[![R-CMD-check](https://github.com/APAF-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/APAF-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml)
+[![Test Coverage](https://github.com/APAF-bioinformatics/HydraR/actions/workflows/test-coverage.yaml/badge.svg)](https://app.codecov.io/gh/APAF-bioinformatics/HydraR)
+
 `HydraR` is a lightweight, state-of-the-art orchestrator for building general-purpose agentic workflows in R. It prioritizes **CLI-native LLM interactions**, **hardened state management**, and **graph-based execution** (supporting both Directed Acyclic Graphs and iterative loops).
 
 ## Why HydraR?

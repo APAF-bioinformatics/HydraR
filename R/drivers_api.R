@@ -47,7 +47,7 @@ OpenAIDriver <- R6::R6Class("OpenAIDriver",
 
       # Execute within worktree context if assigned
       handler <- if (!is.null(self$working_dir)) withr::with_dir else function(d, expr) expr
-      
+
       handler(self$working_dir, {
         target_model <- if (!is.null(model)) model else self$model_name
         api_key <- Sys.getenv("OPENAI_API_KEY")

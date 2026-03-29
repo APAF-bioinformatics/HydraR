@@ -71,11 +71,11 @@ test_that("Story Teller collaboration works", {
 
   capture_warnings(dag$compile())
   compiled_dag <- dag
-# Run the DAG
-result <- compiled_dag$run(
-  initial_state = list(story_prompt = "A robot learning to cook."),
-  max_steps = 10
-)
+  # Run the DAG
+  result <- compiled_dag$run(
+    initial_state = list(story_prompt = "A robot learning to cook."),
+    max_steps = 10
+  )
   # Assertions
   expect_equal(loop_count, 2)
   expect_equal(result$state$get("Reviewer"), "Approved")

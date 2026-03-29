@@ -210,7 +210,7 @@ WorktreeManager <- R6::R6Class("WorktreeManager",
         })
       }
 
-      # DO NOT remove the .hydra_worktrees folder here as it may contain 
+      # DO NOT remove the .hydra_worktrees folder here as it may contain
       # metadata or still-needed branches for the main repo process.
       invisible(TRUE)
     },

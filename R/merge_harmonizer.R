@@ -33,7 +33,7 @@ create_merge_harmonizer <- function(id = "merge_harmonizer",
 
     repo_root <- wt_manager$repo_root
     base_branch <- wt_manager$base_branch
-    
+
     # 2. Identify branches to merge
     # We look at all worktrees registered in the manager, excluding ourselves
     node_ids <- setdiff(names(wt_manager$worktrees), id)
@@ -52,7 +52,9 @@ create_merge_harmonizer <- function(id = "merge_harmonizer",
 
     purrr::walk(node_ids, function(node_id) {
       branch <- wt_manager$get_branch(node_id)
-      if (is.null(branch)) return()
+      if (is.null(branch)) {
+        return()
+      }
 
       cat(sprintf("   [%s] Merging branch: %s\n", id, branch))
 
@@ -70,12 +72,12 @@ create_merge_harmonizer <- function(id = "merge_harmonizer",
         if (!is.null(conflict_resolver)) {
           # Get list of conflicting files
           conf_files <- system2("git", c("-C", shQuote(repo_root), "diff", "--name-only", "--diff-filter=U"), stdout = TRUE)
-          
+
           res_logic <- conflict_resolver$resolve(repo_root, branch, base_branch, conf_files)
           if (res_logic$status == "RESOLVED") {
-             resolved <- TRUE
+            resolved <- TRUE
           } else {
-             conflicts[[node_id]] <<- list(branch = branch, detail = res_logic)
+            conflicts[[node_id]] <<- list(branch = branch, detail = res_logic)
           }
         } else {
           conflicts[[node_id]] <<- list(branch = branch, detail = "Manual merge required")

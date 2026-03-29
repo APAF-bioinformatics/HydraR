@@ -48,12 +48,12 @@ AgentBashNode <- R6::R6Class("AgentBashNode",
       }
 
       exec_dir <- working_dir %||% getwd()
-      
+
       tmp_script <- tempfile(fileext = ".sh", tmpdir = exec_dir)
       writeLines(script_content, tmp_script)
       Sys.chmod(tmp_script, mode = "0755")
       on.exit(if (file.exists(tmp_script)) unlink(tmp_script), add = TRUE)
-      
+
       env_vec <- if (length(self$env_vars) > 0) {
         paste(names(self$env_vars), unlist(self$env_vars), sep = "=")
       } else {
@@ -101,7 +101,7 @@ AgentPythonNode <- R6::R6Class("AgentPythonNode",
       stopifnot(engine %in% c("system2", "reticulate"))
       self$script <- script
       self$engine <- engine
-      
+
       if (engine == "reticulate") {
         if (!requireNamespace("reticulate", quietly = TRUE)) {
           stop("The 'reticulate' package must be installed to use engine='reticulate'.")
@@ -119,24 +119,30 @@ AgentPythonNode <- R6::R6Class("AgentPythonNode",
       } else {
         self$script
       }
-      
+
       exec_dir <- working_dir %||% getwd()
 
       if (self$engine == "system2" || self$engine == "reticulate") {
         # Both engines write temporary JSON to marshal state safely
         tmp_json <- tempfile(fileext = ".json", tmpdir = exec_dir)
         jsonlite::write_json(state$get_all(), tmp_json, auto_unbox = TRUE)
-        on.exit({
-          if (file.exists(tmp_json)) unlink(tmp_json)
-        }, add = TRUE)
+        on.exit(
+          {
+            if (file.exists(tmp_json)) unlink(tmp_json)
+          },
+          add = TRUE
+        )
       }
 
       if (self$engine == "system2") {
         tmp_script <- tempfile(fileext = ".py", tmpdir = exec_dir)
         writeLines(script_content, tmp_script)
-        on.exit({
-          if (file.exists(tmp_script)) unlink(tmp_script)
-        }, add = TRUE)
+        on.exit(
+          {
+            if (file.exists(tmp_script)) unlink(tmp_script)
+          },
+          add = TRUE
+        )
 
         # Execute using system2
         withr::with_dir(exec_dir, {
@@ -151,34 +157,38 @@ AgentPythonNode <- R6::R6Class("AgentPythonNode",
           status_code = status_code,
           success = status_code == 0
         )
-
       } else {
         withr::with_dir(exec_dir, {
-          
           # Inject state loading preamble to user script
           # Normalizes path separators for python
           safe_json_path <- gsub("\\\\", "/", tmp_json)
           preamble <- sprintf("import json\nwith open('%s', 'r') as f:\n    state_r = json.load(f)\n\n", safe_json_path)
           full_script <- paste0(preamble, script_content)
-          
-          # Initialize err 
+
+          # Initialize err
           err <- NULL
           output <- capture.output({
-            tryCatch({
-              reticulate::py_run_string(full_script)
-            }, error = function(e) {
-              err <<- e$message
-            })
+            tryCatch(
+              {
+                reticulate::py_run_string(full_script)
+              },
+              error = function(e) {
+                err <<- e$message
+              }
+            )
           })
-          
+
           result_val <- NULL
           py_obj <- reticulate::py
           if ("result" %in% names(py_obj) && is.null(err)) {
-             tryCatch({
-                 result_val <- py_obj$result
-             }, error = function(e) {})
+            tryCatch(
+              {
+                result_val <- py_obj$result
+              },
+              error = function(e) {}
+            )
           }
-          
+
           list(
             output = paste(output, collapse = "\n"),
             result = result_val,

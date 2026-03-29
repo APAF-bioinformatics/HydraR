@@ -4,7 +4,7 @@ library(withr)
 
 test_that("OpenAIDriver respects working_dir during call", {
   tmp_dir <- normalizePath(withr::local_tempdir())
-  
+
   # Mock driver to check environment
   MockDriver <- R6::R6Class("MockDriver",
     inherit = OpenAIDriver,
@@ -17,14 +17,14 @@ test_that("OpenAIDriver respects working_dir during call", {
       }
     )
   )
-  
+
   driver <- MockDriver$new(id = "test_mock", working_dir = tmp_dir)
   expect_equal(normalizePath(driver$call("test")), tmp_dir)
 })
 
 test_that("AnthropicDriver respects working_dir during call", {
   tmp_dir <- normalizePath(withr::local_tempdir())
-  
+
   MockDriver <- R6::R6Class("MockDriver",
     inherit = AnthropicDriver,
     public = list(
@@ -36,14 +36,14 @@ test_that("AnthropicDriver respects working_dir during call", {
       }
     )
   )
-  
+
   driver <- MockDriver$new(id = "test_mock", working_dir = tmp_dir)
   expect_equal(normalizePath(driver$call("test")), tmp_dir)
 })
 
 test_that("GeminiAPIDriver respects working_dir during call", {
   tmp_dir <- normalizePath(withr::local_tempdir())
-  
+
   MockDriver <- R6::R6Class("MockDriver",
     inherit = GeminiAPIDriver,
     public = list(
@@ -55,7 +55,7 @@ test_that("GeminiAPIDriver respects working_dir during call", {
       }
     )
   )
-  
+
   driver <- MockDriver$new(id = "test_mock", working_dir = tmp_dir)
   expect_equal(normalizePath(driver$call("test")), tmp_dir)
 })

@@ -71,13 +71,13 @@ parse_mermaid <- function(mermaid_str) {
         parts <- strsplit(label, "\\|")[[1]]
         label <- trimws(parts[1])
         param_strings <- trimws(parts[-1])
-        
+
         purrr::walk(param_strings, function(ps) {
           if (grepl("=", ps)) {
             kv <- strsplit(ps, "=")[[1]]
             key <- trimws(kv[1])
             val <- trimws(paste(kv[-1], collapse = "="))
-            
+
             # Type Coercion
             val_lower <- tolower(val)
             coerced_val <- if (val_lower == "null") {
