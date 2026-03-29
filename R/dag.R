@@ -570,7 +570,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
         if (length(self$trace_log) > 0) {
           # A node is 'traversed' if it appears in the trace log
           executed_nodes <- purrr::map_chr(purrr::compact(self$trace_log), ~ .x$node)
-          
+
           # Find indices in all_edges_list
           purrr::iwalk(all_edges_list, function(e, idx) {
             # Highlight if the 'to' node was executed AND the 'from' node was executed
