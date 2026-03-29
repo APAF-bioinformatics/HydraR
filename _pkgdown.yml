@@ -67,6 +67,11 @@ articles:
       - software_bug_assistant
       - story_teller
       - travel_booking
+  - title: Developer Guides
+    navbar: Guides
+    contents:
+      - creating_drivers
+      - git_worktree_toy
 
 ---
 <!-- APAF Bioinformatics | HydraR | Approved | 2026-03-29 -->

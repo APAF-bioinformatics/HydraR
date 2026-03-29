@@ -35,6 +35,17 @@ Learn how to use `HydraR` with these premium examples:
 - **📍 [Sydney to Hong Kong Travel Planner](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/hong_kong_travel.Rmd)**: High-fidelity orchestration using the `GeminiCLIDriver` to book a complex itinerary.
 - **💾 [Academic Research Assistant](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/academic_research.Rmd)**: Demonstrates literature search and stateful summarization.
 - **🛡️ [Software Bug Assistant](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/software_bug_assistant.Rmd)**: Shows how to orchestrate code analysis and fix suggestions.
+- **🛠️ [Creating Custom Drivers](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/creating_drivers.Rmd)**: Developer guide on subclassing `AgentDriver` with Mocking and API support.
+- **🛡️ [Isolated Execution with Git Worktrees](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/git_worktree_toy.Rmd)**: A toy program demonstrating safe, parallel file modifications using the Gemini CLI.
+
+## Custom Drivers
+
+`HydraR` is provider-agnostic. You can extend the framework by creating custom R6 classes that inherit from `AgentDriver`. This allows you to drive:
+- **Local LLMs**: Integration with specialized local CLI wrappers.
+- **Enterprise APIs**: Secure connection to internal LLM endpoints via `httr2`.
+- **Mock Backends**: Deterministic drivers for unit testing complex DAG logic.
+
+Refer to the [Creating Custom Drivers](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/creating_drivers.Rmd) guide for implementation details.
 
 ## "Hello World" Example
 
