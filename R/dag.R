@@ -484,6 +484,17 @@ AgentDAG <- R6::R6Class("AgentDAG",
         node <- self$nodes[[node_id]]
         lbl <- node$label
 
+        if (status && !is.null(self$results[[node_id]])) {
+          res <- self$results[[node_id]]
+          out_val <- res$output
+          if (is.character(out_val) || is.numeric(out_val)) {
+            lbl <- paste(lbl, sprintf("(%s)", as.character(out_val)), sep = " ")
+          } else if (is.list(out_val) && !is.null(out_val$final_consensus)) {
+            # Special case for consensus results
+            lbl <- paste(lbl, sprintf("[%s]", out_val$final_consensus), sep = " ")
+          }
+        }
+
         if (details && length(node$params) > 0) {
           # Filter params if needed
           p_list <- if (is.null(include_params)) {
