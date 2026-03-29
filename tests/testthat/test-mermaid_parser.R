@@ -133,10 +133,16 @@ test_that("Regex Flowchart Parser extracts nodes and edges", {
   expect_equal(nrow(parsed$edges), 3)
 
   # Check labels
-  expect_equal(purrr::keep(parsed$nodes, ~ .x$id == "A")[[1]]$label, "Node A")
-  expect_equal(purrr::keep(parsed$nodes, ~ .x$id == "B")[[1]]$label, "Node B")
-  expect_equal(purrr::keep(parsed$nodes, ~ .x$id == "C")[[1]]$label, "Node C")
-  expect_equal(purrr::keep(parsed$nodes, ~ .x$id == "D")[[1]]$label, "D")
+  get_label <- function(nodes, target_id) {
+    for (n in nodes) {
+      if (identical(n$id, target_id)) return(n$label)
+    }
+    return(NULL)
+  }
+  expect_equal(get_label(parsed$nodes, "A"), "Node A")
+  expect_equal(get_label(parsed$nodes, "B"), "Node B")
+  expect_equal(get_label(parsed$nodes, "C"), "Node C")
+  expect_equal(get_label(parsed$nodes, "D"), "D")
 })
 
 test_that("Conditional edges are parsed", {

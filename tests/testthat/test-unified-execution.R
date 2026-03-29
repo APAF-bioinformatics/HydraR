@@ -9,6 +9,7 @@ test_that("Unified Execution: run() defaults to .run_iterative when use_worktree
   tmp_repo <- withr::local_tempdir()
   withr::with_dir(tmp_repo, {
     system2("git", c("init", "--initial-branch=main"))
+    system2("git", c("branch", "-m", "main")) # ensure the branch is main on older git
     writeLines("Initial content", "README.md")
     system2("git", c("add", "README.md"))
     system2("git", c("commit", "-m", "'Initial commit'"))
