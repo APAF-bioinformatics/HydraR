@@ -129,32 +129,25 @@ respects these constraints.</li>
 <span><span class="va">driver</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GeminiCLIDriver.html">GeminiCLIDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="defining-the-agent-state">Defining the Agent State<a class="anchor" aria-label="anchor" href="#defining-the-agent-state"></a>
+<h2 id="defining-the-workflow-components">Defining the Workflow Components<a class="anchor" aria-label="anchor" href="#defining-the-workflow-components"></a>
 </h2>
-<p>We define the initial state, which includes our hard constraints and
-preferences.</p>
+<p>To keep our architecture clean, we store all workflow
+components—initial configuration, LLM prompts, and deterministic
+logic—in a central registry.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">initial_state</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  origin <span class="op">=</span> <span class="st">"Sydney"</span>,</span>
-<span>  destination <span class="op">=</span> <span class="st">"Hong Kong"</span>,</span>
-<span>  departure_date <span class="op">=</span> <span class="st">"2026-05-26"</span>,</span>
-<span>  return_date <span class="op">=</span> <span class="st">"2026-06-01"</span>,</span>
-<span>  airline <span class="op">=</span> <span class="st">"Qantas"</span>,</span>
-<span>  must_include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cheung Chau Island"</span>, <span class="st">"Spaghetti House"</span>, <span class="st">"Local Cuisine"</span><span class="op">)</span>,</span>
-<span>  itinerary_draft <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  validation_passed <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">state</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentState.html">AgentState</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">initial_state</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="defining-the-logic-registry">Defining the Logic Registry<a class="anchor" aria-label="anchor" href="#defining-the-logic-registry"></a>
-</h2>
-<p>To keep our architecture clean, we store complex R functions (like
-prompts and validation logic) in a central registry. This allows the
-Mermaid graph to focus on the structure and metadata.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">travel_logic_registry</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="co"># 0. Initial State Configuration</span></span>
+<span>  initial_state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    origin <span class="op">=</span> <span class="st">"Sydney"</span>,</span>
+<span>    destination <span class="op">=</span> <span class="st">"Hong Kong"</span>,</span>
+<span>    departure_date <span class="op">=</span> <span class="st">"2026-05-26"</span>,</span>
+<span>    return_date <span class="op">=</span> <span class="st">"2026-06-01"</span>,</span>
+<span>    airline <span class="op">=</span> <span class="st">"Qantas"</span>,</span>
+<span>    must_include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cheung Chau Island"</span>, <span class="st">"Spaghetti House"</span>, <span class="st">"Local Cuisine"</span><span class="op">)</span>,</span>
+<span>    itinerary_draft <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>    validation_passed <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  <span class="op">)</span>,</span>
+<span></span>
 <span>  <span class="co"># 1. The itinerary generation prompt</span></span>
 <span>  plan_itinerary <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span></span>
@@ -189,7 +182,7 @@ Mermaid graph to focus on the structure and metadata.</p>
 <p>We define the entire orchestration using Mermaid syntax. Parameters
 like <code>role</code> and <code>driver</code> are baked directly into
 the graph.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mermaid_src</span> <span class="op">&lt;-</span> <span class="st">'</span></span>
 <span><span class="st">graph TD</span></span>
 <span><span class="st">  Planner["Travel Planner | role=Travel Concierge | driver=gemini | prompt_id=plan_itinerary | workdir=./hkg_trip"]</span></span>
@@ -204,7 +197,7 @@ the graph.</p>
 </h2>
 <p>We use a <strong>Node Factory</strong> to resolve the IDs in the
 Mermaid string against our logic registry.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># The factory maps Mermaid params to HydraR Node objects</span></span>
 <span><span class="va">travel_node_factory</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">id</span>, <span class="va">label</span>, <span class="va">params</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="va">id</span> <span class="op">==</span> <span class="st">"Planner"</span><span class="op">)</span> <span class="op">{</span></span>
@@ -247,7 +240,7 @@ Mermaid string against our logic registry.</p>
 <p>We can view the agent’s logic directly using Mermaid.js syntax. By
 setting <code>details = TRUE</code>, we see the embedded configuration
 parameters.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"```mermaid\n"</span><span class="op">)</span></span></code></pre></div>
 <pre class="mermaid"><code>
 ``` r
@@ -256,7 +249,7 @@ cat(dag$plot(type = "mermaid", details = TRUE))</code></pre>
 driver=gemini | prompt_id=plan_itinerary | workdir=./hkg_trip”]
 Auditor[“Constraint Validator | logic_id=validate_constraints |
 retries=3”] Planner –&gt; Auditor Auditor – “fail” –&gt; Planner</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n```\n"</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
 ## Execution
@@ -269,8 +262,8 @@ When we run the DAG, `HydraR` manages the state transitions and LLM calls. The `
 checkpointer &lt;- DuckDBSaver$new(path = "travel_booking.duckdb")
 dag$set_checkpointer(checkpointer)
 
-# Run the orchestration
-results &lt;- dag$run(initial_state = initial_state, max_steps = 5)
+# Run the orchestration pulling initial config from our registry
+results &lt;- dag$run(initial_state = travel_logic_registry$initial_state, max_steps = 5)
 
 # Display final itinerary
 cat(results$state$get("Planner"))</code></pre>
