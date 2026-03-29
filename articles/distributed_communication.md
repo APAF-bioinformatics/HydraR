@@ -146,21 +146,21 @@ transfers that occurred during the simulation.
 # Retrieve all recorded messages from the audit log
 all_msgs <- message_log$get_all()
 
-# Format as a table
-msg_history <- lapply(all_msgs, function(m) {
+# Format as a table using purrr for robustness
+msg_history <- purrr::map(all_msgs, function(m) {
   data.frame(
     From = m$from,
     To = m$to,
     Time = format(m$timestamp, "%H:%M:%S"),
     Vote = m$content$vote
   )
-}) |> do.call(rbind, args = _)
+}) |> purrr::list_rbind()
 
 print(msg_history)
 #>   From     To     Time    Vote
-#> 1   V1 Leader 13:06:56 SUCCESS
-#> 2   V2 Leader 13:06:56 SUCCESS
-#> 3   V3 Leader 13:06:56 FAILURE
+#> 1   V1 Leader 13:09:38 SUCCESS
+#> 2   V2 Leader 13:09:38 SUCCESS
+#> 3   V3 Leader 13:09:38 FAILURE
 ```
 
 ## Visualization
@@ -192,7 +192,6 @@ cat(dag$plot(status = TRUE))
 ```
 
 ``` r
-# install.packages("DiagrammeR")
 library(DiagrammeR)
 # Get the mermaid syntax from the DAG
 mermaid_string <- dag$plot(status = TRUE)

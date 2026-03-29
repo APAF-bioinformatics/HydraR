@@ -228,21 +228,21 @@ raw message transfers that occurred during the simulation.</p>
 <code class="sourceCode R"><span><span class="co"># Retrieve all recorded messages from the audit log</span></span>
 <span><span class="va">all_msgs</span> <span class="op">&lt;-</span> <span class="va">message_log</span><span class="op">$</span><span class="fu">get_all</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Format as a table</span></span>
-<span><span class="va">msg_history</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">all_msgs</span>, <span class="kw">function</span><span class="op">(</span><span class="va">m</span><span class="op">)</span> <span class="op">{</span></span>
+<span><span class="co"># Format as a table using purrr for robustness</span></span>
+<span><span class="va">msg_history</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">all_msgs</span>, <span class="kw">function</span><span class="op">(</span><span class="va">m</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>    From <span class="op">=</span> <span class="va">m</span><span class="op">$</span><span class="va">from</span>,</span>
 <span>    To <span class="op">=</span> <span class="va">m</span><span class="op">$</span><span class="va">to</span>,</span>
 <span>    Time <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="va">m</span><span class="op">$</span><span class="va">timestamp</span>, <span class="st">"%H:%M:%S"</span><span class="op">)</span>,</span>
 <span>    Vote <span class="op">=</span> <span class="va">m</span><span class="op">$</span><span class="va">content</span><span class="op">$</span><span class="va">vote</span></span>
 <span>  <span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, args <span class="op">=</span> <span class="va">_</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/list_c.html" class="external-link">list_rbind</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">msg_history</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   From     To     Time    Vote</span></span>
-<span><span class="co">#&gt; 1   V1 Leader 13:06:56 SUCCESS</span></span>
-<span><span class="co">#&gt; 2   V2 Leader 13:06:56 SUCCESS</span></span>
-<span><span class="co">#&gt; 3   V3 Leader 13:06:56 FAILURE</span></span></code></pre></div>
+<span><span class="co">#&gt; 1   V1 Leader 13:09:38 SUCCESS</span></span>
+<span><span class="co">#&gt; 2   V2 Leader 13:09:38 SUCCESS</span></span>
+<span><span class="co">#&gt; 3   V3 Leader 13:09:38 FAILURE</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="visualization">Visualization<a class="anchor" aria-label="anchor" href="#visualization"></a>
@@ -271,8 +271,7 @@ consensus engine.</p>
 <span><span class="co">#&gt;   linkStyle 1 stroke:#388e3c,stroke-width:4px;</span></span>
 <span><span class="co">#&gt;   linkStyle 2 stroke:#388e3c,stroke-width:4px;</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("DiagrammeR")</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rich-iannone.github.io/DiagrammeR/" class="external-link">DiagrammeR</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rich-iannone.github.io/DiagrammeR/" class="external-link">DiagrammeR</a></span><span class="op">)</span></span>
 <span><span class="co"># Get the mermaid syntax from the DAG</span></span>
 <span><span class="va">mermaid_string</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>status <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co"># Render the interactive plot</span></span>
