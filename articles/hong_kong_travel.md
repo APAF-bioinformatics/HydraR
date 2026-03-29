@@ -165,11 +165,7 @@ cat(dag$plot(type = "mermaid", details = TRUE))
 graph TD Planner\[“Travel Planner \| role=Travel Concierge \|
 driver=gemini \| prompt_id=plan_itinerary \| workdir=./hkg_trip”\]
 Auditor\[“Constraint Validator \| logic_id=validate_constraints \|
-retries=3”\] Planner –\> Auditor Auditor – “fail” –\> Planner graph TD
-Planner\[“Travel Planner \| role=Travel Concierge \| driver=gemini \|
-prompt_id=plan_itinerary \| workdir=./hkg_trip”\] Auditor\[“Constraint
-Validator \| logic_id=validate_constraints \| retries=3”\] Planner –\>
-Auditor Auditor – “fail” –\> Planner
+retries=3”\] Planner –\> Auditor Auditor – “fail” –\> Planner
 
 ``` r
 cat("\n```\n")

@@ -158,9 +158,9 @@ msg_history <- lapply(all_msgs, function(m) {
 
 print(msg_history)
 #>   From     To     Time    Vote
-#> 1   V1 Leader 13:03:40 SUCCESS
-#> 2   V2 Leader 13:03:40 SUCCESS
-#> 3   V3 Leader 13:03:40 FAILURE
+#> 1   V1 Leader 13:06:56 SUCCESS
+#> 2   V2 Leader 13:06:56 SUCCESS
+#> 3   V3 Leader 13:06:56 FAILURE
 ```
 
 ## Visualization
@@ -188,25 +188,6 @@ cat(dag$plot(status = TRUE))
 #>   class Leader success
 #>   linkStyle 0 stroke:#388e3c,stroke-width:4px;
 #>   linkStyle 1 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 2 stroke:#388e3c,stroke-width:4px; 
-#> graph TD
-#>   V1["Voter Alpha (SUCCESS)"]
-#>   V2["Voter Beta (SUCCESS)"]
-#>   V3["Voter Gamma (FAILURE)"]
-#>   Leader["Consensus Leader [SUCCESS]"]
-#>   V1 --> Leader
-#>   V2 --> Leader
-#>   V3 --> Leader
-#>   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
-#>   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;
-#>   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;
-#>   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
-#>   class V1 success
-#>   class V2 success
-#>   class V3 success
-#>   class Leader success
-#>   linkStyle 0 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 1 stroke:#388e3c,stroke-width:4px;
 #>   linkStyle 2 stroke:#388e3c,stroke-width:4px;
 ```
 
@@ -215,25 +196,6 @@ cat(dag$plot(status = TRUE))
 library(DiagrammeR)
 # Get the mermaid syntax from the DAG
 mermaid_string <- dag$plot(status = TRUE)
-#> graph TD
-#>   V1["Voter Alpha (SUCCESS)"]
-#>   V2["Voter Beta (SUCCESS)"]
-#>   V3["Voter Gamma (FAILURE)"]
-#>   Leader["Consensus Leader [SUCCESS]"]
-#>   V1 --> Leader
-#>   V2 --> Leader
-#>   V3 --> Leader
-#>   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
-#>   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;
-#>   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;
-#>   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
-#>   class V1 success
-#>   class V2 success
-#>   class V3 success
-#>   class Leader success
-#>   linkStyle 0 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 1 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 2 stroke:#388e3c,stroke-width:4px;
 # Render the interactive plot
 DiagrammeR::mermaid(mermaid_string)
 ```

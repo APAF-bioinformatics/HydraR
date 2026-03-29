@@ -93,8 +93,7 @@ cat(dag$compile()$plot(type = "mermaid"))
 
 Graph compiled successfully. graph TD Guesser\[“LLM Guesser”\]
 Validator\[“Greeting Validator”\] Guesser –\> Validator Validator – Fail
-–\> Guesser graph TD Guesser\[“LLM Guesser”\] Validator\[“Greeting
-Validator”\] Guesser –\> Validator Validator – Fail –\> Guesser
+–\> Guesser
 
 ``` r
 cat("\n```\n")

@@ -255,11 +255,7 @@ cat(dag$plot(type = "mermaid", details = TRUE))</code></pre>
 <p>graph TD Planner[“Travel Planner | role=Travel Concierge |
 driver=gemini | prompt_id=plan_itinerary | workdir=./hkg_trip”]
 Auditor[“Constraint Validator | logic_id=validate_constraints |
-retries=3”] Planner –&gt; Auditor Auditor – “fail” –&gt; Planner graph
-TD Planner[“Travel Planner | role=Travel Concierge | driver=gemini |
-prompt_id=plan_itinerary | workdir=./hkg_trip”] Auditor[“Constraint
-Validator | logic_id=validate_constraints | retries=3”] Planner –&gt;
-Auditor Auditor – “fail” –&gt; Planner</p>
+retries=3”] Planner –&gt; Auditor Auditor – “fail” –&gt; Planner</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n```\n"</span><span class="op">)</span></span></code></pre></div>
 <pre><code>

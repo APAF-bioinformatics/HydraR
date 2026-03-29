@@ -106,9 +106,7 @@ cat(compiled_dag$plot(type = "mermaid"))
 ```
 
 graph TD Shopper\[“Store Concierge”\] UserProxy\[“Customer Proxy”\]
-Shopper –\> UserProxy UserProxy – Fail –\> Shopper graph TD
-Shopper\[“Store Concierge”\] UserProxy\[“Customer Proxy”\] Shopper –\>
-UserProxy UserProxy – Fail –\> Shopper
+Shopper –\> UserProxy UserProxy – Fail –\> Shopper
 
 ``` r
 cat("\n```\n")

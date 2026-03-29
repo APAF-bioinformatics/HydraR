@@ -184,35 +184,6 @@ Mermaid string using the <code>plot(status = TRUE)</code> method.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Export status-colored Mermaid</span></span>
 <span><span class="va">mermaid_colored</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>status <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; graph TD</span></span>
-<span><span class="co">#&gt;   Start["Initial Search (Result from Initial Search)"]</span></span>
-<span><span class="co">#&gt;   Summarize["Summarize Findings (Result from Summarize Findings)"]</span></span>
-<span><span class="co">#&gt;   Check["Check Quality"]</span></span>
-<span><span class="co">#&gt;   Publish["Final Report (Result from Final Report)"]</span></span>
-<span><span class="co">#&gt;   ReSearch["Deep Search (Result from Deep Search)"]</span></span>
-<span><span class="co">#&gt;   Start --&gt; Summarize</span></span>
-<span><span class="co">#&gt;   Summarize --&gt; Check</span></span>
-<span><span class="co">#&gt;   Check --&gt; Publish</span></span>
-<span><span class="co">#&gt;   Check --&gt; ReSearch</span></span>
-<span><span class="co">#&gt;   ReSearch --&gt; Summarize</span></span>
-<span><span class="co">#&gt;   Check -- Test --&gt; Publish</span></span>
-<span><span class="co">#&gt;   Check -- Fail --&gt; ReSearch</span></span>
-<span><span class="co">#&gt;   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   class Start success</span></span>
-<span><span class="co">#&gt;   class Summarize success</span></span>
-<span><span class="co">#&gt;   class Check success</span></span>
-<span><span class="co">#&gt;   class Publish success</span></span>
-<span><span class="co">#&gt;   class ReSearch success</span></span>
-<span><span class="co">#&gt;   linkStyle 0 stroke:#388e3c,stroke-width:4px;</span></span>
-<span><span class="co">#&gt;   linkStyle 1 stroke:#388e3c,stroke-width:4px;</span></span>
-<span><span class="co">#&gt;   linkStyle 2 stroke:#388e3c,stroke-width:4px;</span></span>
-<span><span class="co">#&gt;   linkStyle 3 stroke:#388e3c,stroke-width:4px;</span></span>
-<span><span class="co">#&gt;   linkStyle 4 stroke:#388e3c,stroke-width:4px;</span></span>
-<span><span class="co">#&gt;   linkStyle 5 stroke:#388e3c,stroke-width:4px;</span></span>
-<span><span class="co">#&gt;   linkStyle 6 stroke:#388e3c,stroke-width:4px;</span></span>
 <span></span>
 <span><span class="co"># Show the colored Mermaid syntax</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">mermaid_colored</span><span class="op">)</span></span>

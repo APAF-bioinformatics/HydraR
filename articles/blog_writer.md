@@ -124,9 +124,7 @@ cat(compiled_dag$plot(type = "mermaid"))
 
 graph TD Outliner\[“Content Strategist”\] Drafter\[“Creative Writer”\]
 Editor\[“SEO Editor”\] Outliner –\> Drafter Drafter –\> Editor Editor –
-Fail –\> Drafter graph TD Outliner\[“Content Strategist”\]
-Drafter\[“Creative Writer”\] Editor\[“SEO Editor”\] Outliner –\> Drafter
-Drafter –\> Editor Editor – Fail –\> Drafter
+Fail –\> Drafter
 
 ``` r
 cat("\n```\n")

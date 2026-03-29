@@ -240,9 +240,9 @@ raw message transfers that occurred during the simulation.</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">msg_history</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   From     To     Time    Vote</span></span>
-<span><span class="co">#&gt; 1   V1 Leader 13:03:40 SUCCESS</span></span>
-<span><span class="co">#&gt; 2   V2 Leader 13:03:40 SUCCESS</span></span>
-<span><span class="co">#&gt; 3   V3 Leader 13:03:40 FAILURE</span></span></code></pre></div>
+<span><span class="co">#&gt; 1   V1 Leader 13:06:56 SUCCESS</span></span>
+<span><span class="co">#&gt; 2   V2 Leader 13:06:56 SUCCESS</span></span>
+<span><span class="co">#&gt; 3   V3 Leader 13:06:56 FAILURE</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="visualization">Visualization<a class="anchor" aria-label="anchor" href="#visualization"></a>
@@ -269,50 +269,12 @@ consensus engine.</p>
 <span><span class="co">#&gt;   class Leader success</span></span>
 <span><span class="co">#&gt;   linkStyle 0 stroke:#388e3c,stroke-width:4px;</span></span>
 <span><span class="co">#&gt;   linkStyle 1 stroke:#388e3c,stroke-width:4px;</span></span>
-<span><span class="co">#&gt;   linkStyle 2 stroke:#388e3c,stroke-width:4px; </span></span>
-<span><span class="co">#&gt; graph TD</span></span>
-<span><span class="co">#&gt;   V1["Voter Alpha (SUCCESS)"]</span></span>
-<span><span class="co">#&gt;   V2["Voter Beta (SUCCESS)"]</span></span>
-<span><span class="co">#&gt;   V3["Voter Gamma (FAILURE)"]</span></span>
-<span><span class="co">#&gt;   Leader["Consensus Leader [SUCCESS]"]</span></span>
-<span><span class="co">#&gt;   V1 --&gt; Leader</span></span>
-<span><span class="co">#&gt;   V2 --&gt; Leader</span></span>
-<span><span class="co">#&gt;   V3 --&gt; Leader</span></span>
-<span><span class="co">#&gt;   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   class V1 success</span></span>
-<span><span class="co">#&gt;   class V2 success</span></span>
-<span><span class="co">#&gt;   class V3 success</span></span>
-<span><span class="co">#&gt;   class Leader success</span></span>
-<span><span class="co">#&gt;   linkStyle 0 stroke:#388e3c,stroke-width:4px;</span></span>
-<span><span class="co">#&gt;   linkStyle 1 stroke:#388e3c,stroke-width:4px;</span></span>
 <span><span class="co">#&gt;   linkStyle 2 stroke:#388e3c,stroke-width:4px;</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("DiagrammeR")</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rich-iannone.github.io/DiagrammeR/" class="external-link">DiagrammeR</a></span><span class="op">)</span></span>
 <span><span class="co"># Get the mermaid syntax from the DAG</span></span>
 <span><span class="va">mermaid_string</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>status <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; graph TD</span></span>
-<span><span class="co">#&gt;   V1["Voter Alpha (SUCCESS)"]</span></span>
-<span><span class="co">#&gt;   V2["Voter Beta (SUCCESS)"]</span></span>
-<span><span class="co">#&gt;   V3["Voter Gamma (FAILURE)"]</span></span>
-<span><span class="co">#&gt;   Leader["Consensus Leader [SUCCESS]"]</span></span>
-<span><span class="co">#&gt;   V1 --&gt; Leader</span></span>
-<span><span class="co">#&gt;   V2 --&gt; Leader</span></span>
-<span><span class="co">#&gt;   V3 --&gt; Leader</span></span>
-<span><span class="co">#&gt;   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   class V1 success</span></span>
-<span><span class="co">#&gt;   class V2 success</span></span>
-<span><span class="co">#&gt;   class V3 success</span></span>
-<span><span class="co">#&gt;   class Leader success</span></span>
-<span><span class="co">#&gt;   linkStyle 0 stroke:#388e3c,stroke-width:4px;</span></span>
-<span><span class="co">#&gt;   linkStyle 1 stroke:#388e3c,stroke-width:4px;</span></span>
-<span><span class="co">#&gt;   linkStyle 2 stroke:#388e3c,stroke-width:4px;</span></span>
 <span><span class="co"># Render the interactive plot</span></span>
 <span><span class="fu">DiagrammeR</span><span class="fu">::</span><span class="fu"><a href="https://rich-iannone.github.io/DiagrammeR/reference/mermaid.html" class="external-link">mermaid</a></span><span class="op">(</span><span class="va">mermaid_string</span><span class="op">)</span></span></code></pre></div>
 <div class="DiagrammeR html-widget html-fill-item" id="htmlwidget-ac96cb3ee4656e2e9ec3" style="width:700px;height:432.632880098888px;"></div>

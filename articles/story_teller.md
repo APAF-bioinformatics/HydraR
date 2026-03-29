@@ -107,8 +107,7 @@ cat(dag$compile()$plot(type = "mermaid"))
 
 Graph compiled successfully. graph TD Writer\[“Story Author”\]
 Reviewer\[“Literary Editor”\] Writer –\> Reviewer Reviewer – Fail –\>
-Writer graph TD Writer\[“Story Author”\] Reviewer\[“Literary Editor”\]
-Writer –\> Reviewer Reviewer – Fail –\> Writer
+Writer
 
 ``` r
 cat("\n```\n")

@@ -101,35 +101,6 @@ the `plot(status = TRUE)` method.
 ``` r
 # Export status-colored Mermaid
 mermaid_colored <- dag$plot(status = TRUE)
-#> graph TD
-#>   Start["Initial Search (Result from Initial Search)"]
-#>   Summarize["Summarize Findings (Result from Summarize Findings)"]
-#>   Check["Check Quality"]
-#>   Publish["Final Report (Result from Final Report)"]
-#>   ReSearch["Deep Search (Result from Deep Search)"]
-#>   Start --> Summarize
-#>   Summarize --> Check
-#>   Check --> Publish
-#>   Check --> ReSearch
-#>   ReSearch --> Summarize
-#>   Check -- Test --> Publish
-#>   Check -- Fail --> ReSearch
-#>   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
-#>   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;
-#>   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;
-#>   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
-#>   class Start success
-#>   class Summarize success
-#>   class Check success
-#>   class Publish success
-#>   class ReSearch success
-#>   linkStyle 0 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 1 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 2 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 3 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 4 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 5 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 6 stroke:#388e3c,stroke-width:4px;
 
 # Show the colored Mermaid syntax
 cat(mermaid_colored)

@@ -135,22 +135,10 @@ cat(dag$plot(details = TRUE))
 #>   B["Analysis | verbose=TRUE"]
 #>   C["Report | workdir=./output"]
 #>   A --> B
-#>   B --> C 
-#> graph TD
-#>   A["Initial Research | retries=3 | workdir=./w1"]
-#>   B["Analysis | verbose=TRUE"]
-#>   C["Report | workdir=./output"]
-#>   A --> B
 #>   B --> C
 
 # Filter to specific parameters
 cat(dag$plot(details = TRUE, include_params = "retries"))
-#> graph TD
-#>   A["Initial Research | retries=3"]
-#>   B["Analysis"]
-#>   C["Report"]
-#>   A --> B
-#>   B --> C 
 #> graph TD
 #>   A["Initial Research | retries=3"]
 #>   B["Analysis"]

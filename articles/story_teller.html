@@ -187,8 +187,7 @@ cat(dag$compile()$plot(type = "mermaid"))
 #&gt; cycles. Ensure conditional edges have exit conditions.</code></pre>
 <p>Graph compiled successfully. graph TD Writer[“Story Author”]
 Reviewer[“Literary Editor”] Writer –&gt; Reviewer Reviewer – Fail –&gt;
-Writer graph TD Writer[“Story Author”] Reviewer[“Literary Editor”]
-Writer –&gt; Reviewer Reviewer – Fail –&gt; Writer</p>
+Writer</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n```\n"</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
