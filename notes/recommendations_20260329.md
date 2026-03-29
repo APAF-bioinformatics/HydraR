@@ -31,7 +31,7 @@ This document outlines critical bugs, defensive programming enhancements, and ar
 ### 1. Replace Recursion with Iterative Queuing
 *   **Issue**: `.run_linear` and `.run_iterative` use deep recursion (capped at 100).
 *   **Risk**: While 100 is usually sufficient, R is not optimized for tail-call recursion. Large-scale scientific pipelines or high-frequency loops could hit the `expressions` limit or cause stack overflows.
-*   **Recommendation**: Re-implement the execution engine using a `while(length(queue) > 0)` loop and a dynamic `step_count` tracker.
+*   **Recommendation**: Re-implement the execution engine using a `while(length(queue) > 0)` loop and a dynamic `step_count` tracker. (note: actually is there a purrr equivalent here as we want to avoid while loop as much as possible.)
 
 ### 2. Hardened CLI Driver Status Checks
 *   **Issue**: CLI drivers (Gemini, Ollama) call `system2` but do not consistently inspect the exit status.

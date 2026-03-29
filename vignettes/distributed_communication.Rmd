@@ -29,6 +29,15 @@ graph TD
 ```
 
 ## Setup
+```{r}
+# install.packages("devtools") # Run if devtools is not installed
+devtools::install_github("APAF-bioinformatics/HydraR")
+
+# install.packages("pak")
+pak::pak("APAF-bioinformatics/HydraR")
+
+devtools::load_all() # Quickly loads all local changes into your session
+```
 
 First, we load the `HydraR` package and initialize a `MemoryMessageLog` to audit our simulation.
 
