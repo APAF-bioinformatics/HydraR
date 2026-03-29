@@ -151,8 +151,7 @@ cat(dag$plot(status = TRUE))
 ```
 
 
-```{r}
-# install.packages("DiagrammeR")
+```{r plot_interactive, eval = requireNamespace("DiagrammeR", quietly = TRUE)}
 library(DiagrammeR)
 # Get the mermaid syntax from the DAG
 mermaid_string <- dag$plot(status = TRUE)
