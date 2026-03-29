@@ -61,6 +61,13 @@ test_that("Bidirectional parameter round-trip works", {
   mermaid_filtered <- dag$plot(details = TRUE, include_params = "retries")
   expect_match(mermaid_filtered, "Start \\| retries=5")
   expect_false(grepl("status=final", mermaid_filtered))
+
+  # 3. Edge label round-trip
+  m_edge <- "graph TD\n  A -- Success --> B"
+  dag2 <- AgentDAG$new()
+  dag2$from_mermaid(m_edge, factory)
+  p_edge <- dag2$plot()
+  expect_match(p_edge, "A -- Success --> B")
 })
 
 test_that("Edge label control works in plot", {

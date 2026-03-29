@@ -92,11 +92,17 @@ AgentDAG <- R6::R6Class("AgentDAG",
     #' Add an Edge
     #' @param from String or character vector of node IDs.
     #' @param to String node ID.
-    add_edge = function(from, to) {
+    #' @param label Optional string label for the edge.
+    add_edge = function(from, to, label = NULL) {
       if (!is.character(from)) stop("from must be a character vector of node IDs.")
       if (!is.character(to) || length(to) != 1) stop("to must be a single string node ID.")
 
-      new_edges <- data.frame(from = from, to = to, stringsAsFactors = FALSE)
+      new_edges <- data.frame(
+        from = from, 
+        to = to, 
+        label = label %||% NA_character_,
+        stringsAsFactors = FALSE
+      )
       self$edges[[length(self$edges) + 1]] <- new_edges
       self$graph <- NULL # Invalidate cache
       invisible(self)
@@ -464,6 +470,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
       return(list(results = self$results, state = self$state, status = if (!is.null(paused_at) || length(current_nodes) > 0) "paused" else "completed", paused_at = paused_at))
     },
 
+    #' @param type String. Type of plot (currently only "mermaid").
     #' @param status Logical. If TRUE, styling is applied to nodes/edges based on results.
     #' @param details Logical. If TRUE, node parameters are serialized into labels.
     #' @param include_params Character vector. Optional whitelist of parameters to show.
@@ -479,9 +486,17 @@ AgentDAG <- R6::R6Class("AgentDAG",
         
         if (details && length(node$params) > 0) {
           # Filter params if needed
-          p_list <- if (is.null(include_params)) node$params else node$params[names(node$params) %in% include_params]
+          p_list <- if (is.null(include_params)) {
+             node$params 
+          } else {
+             node$params[names(node$params) %in% include_params]
+          }
+          
           if (length(p_list) > 0) {
-            p_str <- purrr::imap_chr(p_list, ~ sprintf("%s=%s", .y, as.character(.x))) |> paste(collapse = " | ")
+            p_str <- purrr::imap_chr(p_list, function(v, k) {
+              val_str <- if (is.null(v)) "null" else as.character(v)
+              sprintf("%s=%s", k, val_str)
+            }) |> paste(collapse = " | ")
             lbl <- paste(lbl, p_str, sep = " | ")
           }
         }
@@ -496,7 +511,8 @@ AgentDAG <- R6::R6Class("AgentDAG",
       edges_df <- if (is.list(self$edges) && length(self$edges) > 0) do.call(rbind, self$edges) else self$edges
       if (!is.null(edges_df) && nrow(edges_df) > 0) {
         purrr::walk(seq_len(nrow(edges_df)), function(i) {
-          all_edges_list[[length(all_edges_list) + 1]] <<- list(from = edges_df$from[i], to = edges_df$to[i], label = NULL)
+          lbl <- if (is.na(edges_df$label[i])) NULL else edges_df$label[i]
+          all_edges_list[[length(all_edges_list) + 1]] <<- list(from = edges_df$from[i], to = edges_df$to[i], label = lbl)
         })
       }
       
@@ -641,18 +657,10 @@ AgentDAG <- R6::R6Class("AgentDAG",
         from <- parsed$edges$from[i]
         to <- parsed$edges$to[i]
         label <- parsed$edges$label[i]
-
-        # Check if it's a conditional edge
-        # Convention: if label starts with "test:" or it matches a known conditional pattern
-        if (nzchar(label) && grepl("^test:", label)) {
-          # This is simplified: we need a way to get the actual function
-          # Maybe node_factory can also return test functions?
-          # For now, let's just add it as a normal edge and warn
-          warning(sprintf("Conditional edge from '%s' to '%s' with label '%s' detected but logic mapping is not yet implemented.", from, to, label))
-          self$add_edge(from, to)
-        } else {
-          self$add_edge(from, to)
-        }
+        
+        # Pass the label if it's non-empty
+        lbl <- if (nzchar(label)) label else NULL
+        self$add_edge(from, to, label = lbl)
       })
 
       invisible(self)

@@ -53,7 +53,7 @@ message(sprintf("Node C Workdir: %s", dag$nodes$C$params$workdir))
 # 5. Run the DAG
 message("\n--- Running DAG Workflow ---")
 # Use a simple mock state
-dag$run()
+dag$run(initial_state = list(input = "test data"))
 
 # 6. Plot the DAG back to Mermaid with Parameters (Details)
 message("\n--- Round-Trip: Mermaid with Parameters (details = TRUE) ---")

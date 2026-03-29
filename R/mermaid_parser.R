@@ -79,11 +79,16 @@ parse_mermaid <- function(mermaid_str) {
             val <- trimws(paste(kv[-1], collapse = "="))
             
             # Type Coercion
-            coerced_val <- if (grepl("^-?\\d+(\\.\\d+)?$", val)) {
+            val_lower <- tolower(val)
+            coerced_val <- if (val_lower == "null") {
+              NULL
+            } else if (val_lower %in% c("na", "nan")) {
+              NA
+            } else if (grepl("^-?\\d+(\\.\\d+)?$", val)) {
               as.numeric(val)
-            } else if (tolower(val) == "true") {
+            } else if (val_lower == "true") {
               TRUE
-            } else if (tolower(val) == "false") {
+            } else if (val_lower == "false") {
               FALSE
             } else {
               val
