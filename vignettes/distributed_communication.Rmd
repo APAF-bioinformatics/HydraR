@@ -48,10 +48,10 @@ Voters are `AgentLogicNode` instances that randomly decide between "SUCCESS" and
 voter_logic <- function(state) {
   # 1. Decide randomly
   vote <- sample(c("SUCCESS", "FAILURE"), 1)
-  
+
   # 2. Send private message to the Leader
   state$send_message(to = "Leader", content = list(vote = vote))
-  
+
   message(sprintf("   [%s] Voted: %s", state$node_id, vote))
   list(status = "success", output = vote)
 }
@@ -70,14 +70,14 @@ The Leader is a `AgentLogicNode` that waits for all messages, counts the votes, 
 leader_logic <- function(state) {
   # 1. Retrieve messages from private inbox
   msgs <- state$receive_messages()
-  
+
   # 2. Extract and count votes
   votes <- sapply(msgs, function(m) m$content$vote)
   counts <- table(votes)
-  
+
   # 3. Determine majority
   majority <- names(counts)[which.max(counts)]
-  
+
   message(sprintf("   [Leader] Received %d votes. Consensus: %s", length(votes), majority))
   list(status = "success", output = list(final_consensus = majority, vote_table = as.list(counts)))
 }
