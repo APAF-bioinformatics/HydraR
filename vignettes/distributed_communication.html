@@ -3027,21 +3027,21 @@ raw message transfers that occurred during the simulation.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Retrieve all recorded messages from the audit log</span></span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>all_msgs <span class="ot">&lt;-</span> message_log<span class="sc">$</span><span class="fu">get_all</span>()</span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co"># Format as a table</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>msg_history <span class="ot">&lt;-</span> <span class="fu">lapply</span>(all_msgs, <span class="cf">function</span>(m) {</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co"># Format as a table using purrr for robustness</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>msg_history <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map</span>(all_msgs, <span class="cf">function</span>(m) {</span>
 <span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
 <span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>    <span class="at">From =</span> m<span class="sc">$</span>from,</span>
 <span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>    <span class="at">To =</span> m<span class="sc">$</span>to,</span>
 <span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>    <span class="at">Time =</span> <span class="fu">format</span>(m<span class="sc">$</span>timestamp, <span class="st">&quot;%H:%M:%S&quot;</span>),</span>
 <span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>    <span class="at">Vote =</span> m<span class="sc">$</span>content<span class="sc">$</span>vote</span>
 <span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>  )</span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>}) <span class="sc">|&gt;</span> <span class="fu">do.call</span>(rbind, <span class="at">args =</span> _)</span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>}) <span class="sc">|&gt;</span> purrr<span class="sc">::</span><span class="fu">list_rbind</span>()</span>
 <span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a></span>
 <span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="fu">print</span>(msg_history)</span>
 <span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt;   From     To     Time    Vote</span></span>
-<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; 1   V1 Leader 00:00:46 SUCCESS</span></span>
-<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; 2   V2 Leader 00:00:46 SUCCESS</span></span>
-<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; 3   V3 Leader 00:00:46 SUCCESS</span></span></code></pre></div>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; 1   V1 Leader 00:04:26 SUCCESS</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; 2   V2 Leader 00:04:26 SUCCESS</span></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; 3   V3 Leader 00:04:26 SUCCESS</span></span></code></pre></div>
 </div>
 <div id="visualization" class="section level2">
 <h2>Visualization</h2>
@@ -3066,53 +3066,15 @@ consensus engine.</p>
 <span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="co">#&gt;   class Leader success</span></span>
 <span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="co">#&gt;   linkStyle 0 stroke:#388e3c,stroke-width:4px;</span></span>
 <span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a><span class="co">#&gt;   linkStyle 1 stroke:#388e3c,stroke-width:4px;</span></span>
-<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a><span class="co">#&gt;   linkStyle 2 stroke:#388e3c,stroke-width:4px; </span></span>
-<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a><span class="co">#&gt; graph TD</span></span>
-<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a><span class="co">#&gt;   V1[&quot;Voter Alpha (SUCCESS)&quot;]</span></span>
-<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a><span class="co">#&gt;   V2[&quot;Voter Beta (SUCCESS)&quot;]</span></span>
-<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a><span class="co">#&gt;   V3[&quot;Voter Gamma (SUCCESS)&quot;]</span></span>
-<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a><span class="co">#&gt;   Leader[&quot;Consensus Leader [SUCCESS]&quot;]</span></span>
-<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a><span class="co">#&gt;   V1 --&gt; Leader</span></span>
-<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a><span class="co">#&gt;   V2 --&gt; Leader</span></span>
-<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a><span class="co">#&gt;   V3 --&gt; Leader</span></span>
-<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a><span class="co">#&gt;   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;</span></span>
-<span id="cb8-30"><a href="#cb8-30" tabindex="-1"></a><span class="co">#&gt;   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;</span></span>
-<span id="cb8-31"><a href="#cb8-31" tabindex="-1"></a><span class="co">#&gt;   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;</span></span>
-<span id="cb8-32"><a href="#cb8-32" tabindex="-1"></a><span class="co">#&gt;   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;</span></span>
-<span id="cb8-33"><a href="#cb8-33" tabindex="-1"></a><span class="co">#&gt;   class V1 success</span></span>
-<span id="cb8-34"><a href="#cb8-34" tabindex="-1"></a><span class="co">#&gt;   class V2 success</span></span>
-<span id="cb8-35"><a href="#cb8-35" tabindex="-1"></a><span class="co">#&gt;   class V3 success</span></span>
-<span id="cb8-36"><a href="#cb8-36" tabindex="-1"></a><span class="co">#&gt;   class Leader success</span></span>
-<span id="cb8-37"><a href="#cb8-37" tabindex="-1"></a><span class="co">#&gt;   linkStyle 0 stroke:#388e3c,stroke-width:4px;</span></span>
-<span id="cb8-38"><a href="#cb8-38" tabindex="-1"></a><span class="co">#&gt;   linkStyle 1 stroke:#388e3c,stroke-width:4px;</span></span>
-<span id="cb8-39"><a href="#cb8-39" tabindex="-1"></a><span class="co">#&gt;   linkStyle 2 stroke:#388e3c,stroke-width:4px;</span></span></code></pre></div>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a><span class="co">#&gt;   linkStyle 2 stroke:#388e3c,stroke-width:4px;</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># install.packages(&quot;DiagrammeR&quot;)</span></span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">library</span>(DiagrammeR)</span>
 <span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co"># Get the mermaid syntax from the DAG</span></span>
 <span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>mermaid_string <span class="ot">&lt;-</span> dag<span class="sc">$</span><span class="fu">plot</span>(<span class="at">status =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; graph TD</span></span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt;   V1[&quot;Voter Alpha (SUCCESS)&quot;]</span></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt;   V2[&quot;Voter Beta (SUCCESS)&quot;]</span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt;   V3[&quot;Voter Gamma (SUCCESS)&quot;]</span></span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt;   Leader[&quot;Consensus Leader [SUCCESS]&quot;]</span></span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt;   V1 --&gt; Leader</span></span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt;   V2 --&gt; Leader</span></span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt;   V3 --&gt; Leader</span></span>
-<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt;   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;</span></span>
-<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt;   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;</span></span>
-<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt;   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;</span></span>
-<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt;   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;</span></span>
-<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt;   class V1 success</span></span>
-<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt;   class V2 success</span></span>
-<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt;   class V3 success</span></span>
-<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt;   class Leader success</span></span>
-<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt;   linkStyle 0 stroke:#388e3c,stroke-width:4px;</span></span>
-<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt;   linkStyle 1 stroke:#388e3c,stroke-width:4px;</span></span>
-<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt;   linkStyle 2 stroke:#388e3c,stroke-width:4px;</span></span>
-<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co"># Render the interactive plot</span></span>
-<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a>DiagrammeR<span class="sc">::</span><span class="fu">mermaid</span>(mermaid_string)</span></code></pre></div>
-<div class="DiagrammeR html-widget html-fill-item" id="htmlwidget-cc3484ecc2cc13c425b0" style="width:288px;height:288px;"></div>
-<script type="application/json" data-for="htmlwidget-cc3484ecc2cc13c425b0">{"x":{"diagram":"graph TD\n  V1[\"Voter Alpha (SUCCESS)\"]\n  V2[\"Voter Beta (SUCCESS)\"]\n  V3[\"Voter Gamma (SUCCESS)\"]\n  Leader[\"Consensus Leader [SUCCESS]\"]\n  V1 --> Leader\n  V2 --> Leader\n  V3 --> Leader\n  classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;\n  classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;\n  classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;\n  classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;\n  class V1 success\n  class V2 success\n  class V3 success\n  class Leader success\n  linkStyle 0 stroke:#388e3c,stroke-width:4px;\n  linkStyle 1 stroke:#388e3c,stroke-width:4px;\n  linkStyle 2 stroke:#388e3c,stroke-width:4px;"},"evals":[],"jsHooks":[]}</script>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co"># Render the interactive plot</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>DiagrammeR<span class="sc">::</span><span class="fu">mermaid</span>(mermaid_string)</span></code></pre></div>
+<div class="DiagrammeR html-widget html-fill-item" id="htmlwidget-4162d509425589774760" style="width:288px;height:288px;"></div>
+<script type="application/json" data-for="htmlwidget-4162d509425589774760">{"x":{"diagram":"graph TD\n  V1[\"Voter Alpha (SUCCESS)\"]\n  V2[\"Voter Beta (SUCCESS)\"]\n  V3[\"Voter Gamma (SUCCESS)\"]\n  Leader[\"Consensus Leader [SUCCESS]\"]\n  V1 --> Leader\n  V2 --> Leader\n  V3 --> Leader\n  classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;\n  classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;\n  classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;\n  classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;\n  class V1 success\n  class V2 success\n  class V3 success\n  class Leader success\n  linkStyle 0 stroke:#388e3c,stroke-width:4px;\n  linkStyle 1 stroke:#388e3c,stroke-width:4px;\n  linkStyle 2 stroke:#388e3c,stroke-width:4px;"},"evals":[],"jsHooks":[]}</script>
 <!-- APAF Bioinformatics | distributed_communication.Rmd | Approved | 2026-03-29 -->
 </div>
 
