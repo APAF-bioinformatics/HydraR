@@ -144,23 +144,11 @@ cat("```mermaid\n")
 cat(compiled_dag$plot(type = "mermaid"))
 ```
 
-``` mermaid
-graph TD
-  Searcher["Literature Searcher"]
-  Summarizer["Content Summarizer"]
-  Compiler["Report Compiler"]
-  Searcher --> Summarizer
-  Summarizer --> Compiler
-```
-
-``` mermaid
-graph TD
-  Searcher["Literature Searcher"]
-  Summarizer["Content Summarizer"]
-  Compiler["Report Compiler"]
-  Searcher --> Summarizer
-  Summarizer --> Compiler
-```
+graph TD Searcher\[“Literature Searcher”\] Summarizer\[“Content
+Summarizer”\] Compiler\[“Report Compiler”\] Searcher –\> Summarizer
+Summarizer –\> Compiler graph TD Searcher\[“Literature Searcher”\]
+Summarizer\[“Content Summarizer”\] Compiler\[“Report Compiler”\]
+Searcher –\> Summarizer Summarizer –\> Compiler
 
 ``` r
 cat("\n```\n")

@@ -105,23 +105,10 @@ cat(dag$compile()$plot(type = "mermaid"))
 #> cycles. Ensure conditional edges have exit conditions.
 ```
 
-Graph compiled successfully.
-
-``` mermaid
-graph TD
-  Writer["Story Author"]
-  Reviewer["Literary Editor"]
-  Writer --> Reviewer
-  Reviewer -- Fail --> Writer
-```
-
-``` mermaid
-graph TD
-  Writer["Story Author"]
-  Reviewer["Literary Editor"]
-  Writer --> Reviewer
-  Reviewer -- Fail --> Writer
-```
+Graph compiled successfully. graph TD Writer\[“Story Author”\]
+Reviewer\[“Literary Editor”\] Writer –\> Reviewer Reviewer – Fail –\>
+Writer graph TD Writer\[“Story Author”\] Reviewer\[“Literary Editor”\]
+Writer –\> Reviewer Reviewer – Fail –\> Writer
 
 ``` r
 cat("\n```\n")

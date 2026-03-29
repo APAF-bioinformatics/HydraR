@@ -174,18 +174,11 @@ incorrect.</p>
 cat(dag$compile()$plot(type = "mermaid"))
 #&gt; Warning in dag$compile(): Potential infinite loop detected: graph contains
 #&gt; cycles. Ensure conditional edges have exit conditions.</code></pre>
-<p>Graph compiled successfully.</p>
-<pre class="mermaid"><code>graph TD
-  Guesser["LLM Guesser"]
-  Validator["Greeting Validator"]
-  Guesser --&gt; Validator
-  Validator -- Fail --&gt; Guesser</code></pre>
-<pre class="mermaid"><code>graph TD
-  Guesser["LLM Guesser"]
-  Validator["Greeting Validator"]
-  Guesser --&gt; Validator
-  Validator -- Fail --&gt; Guesser</code></pre>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<p>Graph compiled successfully. graph TD Guesser[“LLM Guesser”]
+Validator[“Greeting Validator”] Guesser –&gt; Validator Validator – Fail
+–&gt; Guesser graph TD Guesser[“LLM Guesser”] Validator[“Greeting
+Validator”] Guesser –&gt; Validator Validator – Fail –&gt; Guesser</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n```\n"</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
 ## 6. Execution

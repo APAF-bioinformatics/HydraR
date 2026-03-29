@@ -21,6 +21,16 @@ graph TD
 
 ## Setup
 
+``` r
+# install.packages("devtools") # Run if devtools is not installed
+devtools::install_github("APAF-bioinformatics/HydraR")
+
+# install.packages("pak")
+pak::pak("APAF-bioinformatics/HydraR")
+
+devtools::load_all() # Quickly loads all local changes into your session
+```
+
 First, we load the `HydraR` package and initialize a `MemoryMessageLog`
 to audit our simulation.
 
@@ -41,10 +51,10 @@ Voters are `AgentLogicNode` instances that randomly decide between
 voter_logic <- function(state) {
   # 1. Decide randomly
   vote <- sample(c("SUCCESS", "FAILURE"), 1)
-  
+
   # 2. Send private message to the Leader
   state$send_message(to = "Leader", content = list(vote = vote))
-  
+
   message(sprintf("   [%s] Voted: %s", state$node_id, vote))
   list(status = "success", output = vote)
 }
@@ -64,14 +74,14 @@ votes, and declares a final consensus.
 leader_logic <- function(state) {
   # 1. Retrieve messages from private inbox
   msgs <- state$receive_messages()
-  
+
   # 2. Extract and count votes
   votes <- sapply(msgs, function(m) m$content$vote)
   counts <- table(votes)
-  
+
   # 3. Determine majority
   majority <- names(counts)[which.max(counts)]
-  
+
   message(sprintf("   [Leader] Received %d votes. Consensus: %s", length(votes), majority))
   list(status = "success", output = list(final_consensus = majority, vote_table = as.list(counts)))
 }
@@ -148,9 +158,9 @@ msg_history <- lapply(all_msgs, function(m) {
 
 print(msg_history)
 #>   From     To     Time    Vote
-#> 1   V1 Leader 08:56:11 SUCCESS
-#> 2   V2 Leader 08:56:11 SUCCESS
-#> 3   V3 Leader 08:56:11 FAILURE
+#> 1   V1 Leader 13:03:40 SUCCESS
+#> 2   V2 Leader 13:03:40 SUCCESS
+#> 3   V3 Leader 13:03:40 FAILURE
 ```
 
 ## Visualization
@@ -160,43 +170,70 @@ shows the final status of our consensus engine.
 
 ``` r
 cat(dag$plot(status = TRUE))
+#> graph TD
+#>   V1["Voter Alpha (SUCCESS)"]
+#>   V2["Voter Beta (SUCCESS)"]
+#>   V3["Voter Gamma (FAILURE)"]
+#>   Leader["Consensus Leader [SUCCESS]"]
+#>   V1 --> Leader
+#>   V2 --> Leader
+#>   V3 --> Leader
+#>   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
+#>   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;
+#>   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;
+#>   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+#>   class V1 success
+#>   class V2 success
+#>   class V3 success
+#>   class Leader success
+#>   linkStyle 0 stroke:#388e3c,stroke-width:4px;
+#>   linkStyle 1 stroke:#388e3c,stroke-width:4px;
+#>   linkStyle 2 stroke:#388e3c,stroke-width:4px; 
+#> graph TD
+#>   V1["Voter Alpha (SUCCESS)"]
+#>   V2["Voter Beta (SUCCESS)"]
+#>   V3["Voter Gamma (FAILURE)"]
+#>   Leader["Consensus Leader [SUCCESS]"]
+#>   V1 --> Leader
+#>   V2 --> Leader
+#>   V3 --> Leader
+#>   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
+#>   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;
+#>   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;
+#>   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+#>   class V1 success
+#>   class V2 success
+#>   class V3 success
+#>   class Leader success
+#>   linkStyle 0 stroke:#388e3c,stroke-width:4px;
+#>   linkStyle 1 stroke:#388e3c,stroke-width:4px;
+#>   linkStyle 2 stroke:#388e3c,stroke-width:4px;
 ```
 
-    #> ```mermaid
-    #> graph TD
-    #>   V1["Voter Alpha"]
-    #>   V2["Voter Beta"]
-    #>   V3["Voter Gamma"]
-    #>   Leader["Consensus Leader"]
-    #>   V1 --> Leader
-    #>   V2 --> Leader
-    #>   V3 --> Leader
-    #>   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
-    #>   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;
-    #>   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;
-    #>   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
-    #>   class V1 success
-    #>   class V2 success
-    #>   class V3 success
-    #>   class Leader success
-    #>   linkStyle 2 stroke:#388e3c,stroke-width:4px;
-    #> ``` 
-    #> ```mermaid
-    #> graph TD
-    #>   V1["Voter Alpha"]
-    #>   V2["Voter Beta"]
-    #>   V3["Voter Gamma"]
-    #>   Leader["Consensus Leader"]
-    #>   V1 --> Leader
-    #>   V2 --> Leader
-    #>   V3 --> Leader
-    #>   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
-    #>   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;
-    #>   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;
-    #>   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
-    #>   class V1 success
-    #>   class V2 success
-    #>   class V3 success
-    #>   class Leader success
-    #>   linkStyle 2 stroke:#388e3c,stroke-width:4px;
-    #> ```
+``` r
+# install.packages("DiagrammeR")
+library(DiagrammeR)
+# Get the mermaid syntax from the DAG
+mermaid_string <- dag$plot(status = TRUE)
+#> graph TD
+#>   V1["Voter Alpha (SUCCESS)"]
+#>   V2["Voter Beta (SUCCESS)"]
+#>   V3["Voter Gamma (FAILURE)"]
+#>   Leader["Consensus Leader [SUCCESS]"]
+#>   V1 --> Leader
+#>   V2 --> Leader
+#>   V3 --> Leader
+#>   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
+#>   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;
+#>   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;
+#>   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+#>   class V1 success
+#>   class V2 success
+#>   class V3 success
+#>   class Leader success
+#>   linkStyle 0 stroke:#388e3c,stroke-width:4px;
+#>   linkStyle 1 stroke:#388e3c,stroke-width:4px;
+#>   linkStyle 2 stroke:#388e3c,stroke-width:4px;
+# Render the interactive plot
+DiagrammeR::mermaid(mermaid_string)
+```

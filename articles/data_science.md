@@ -148,25 +148,12 @@ cat("```mermaid\n")
 cat(compiled_dag$plot(type = "mermaid"))
 ```
 
-``` mermaid
-graph TD
-  DataCleaner["Data Preprocessor"]
-  ModelTrainer["AutoML Optimizer"]
-  Evaluator["Threshold Guard"]
-  DataCleaner --> ModelTrainer
-  ModelTrainer --> Evaluator
-  Evaluator -- Fail --> ModelTrainer
-```
-
-``` mermaid
-graph TD
-  DataCleaner["Data Preprocessor"]
-  ModelTrainer["AutoML Optimizer"]
-  Evaluator["Threshold Guard"]
-  DataCleaner --> ModelTrainer
-  ModelTrainer --> Evaluator
-  Evaluator -- Fail --> ModelTrainer
-```
+graph TD DataCleaner\[“Data Preprocessor”\] ModelTrainer\[“AutoML
+Optimizer”\] Evaluator\[“Threshold Guard”\] DataCleaner –\> ModelTrainer
+ModelTrainer –\> Evaluator Evaluator – Fail –\> ModelTrainer graph TD
+DataCleaner\[“Data Preprocessor”\] ModelTrainer\[“AutoML Optimizer”\]
+Evaluator\[“Threshold Guard”\] DataCleaner –\> ModelTrainer ModelTrainer
+–\> Evaluator Evaluator – Fail –\> ModelTrainer
 
 ``` r
 cat("\n```\n")

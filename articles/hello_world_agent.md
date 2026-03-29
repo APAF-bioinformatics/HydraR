@@ -91,23 +91,10 @@ cat(dag$compile()$plot(type = "mermaid"))
 #> cycles. Ensure conditional edges have exit conditions.
 ```
 
-Graph compiled successfully.
-
-``` mermaid
-graph TD
-  Guesser["LLM Guesser"]
-  Validator["Greeting Validator"]
-  Guesser --> Validator
-  Validator -- Fail --> Guesser
-```
-
-``` mermaid
-graph TD
-  Guesser["LLM Guesser"]
-  Validator["Greeting Validator"]
-  Guesser --> Validator
-  Validator -- Fail --> Guesser
-```
+Graph compiled successfully. graph TD Guesser\[“LLM Guesser”\]
+Validator\[“Greeting Validator”\] Guesser –\> Validator Validator – Fail
+–\> Guesser graph TD Guesser\[“LLM Guesser”\] Validator\[“Greeting
+Validator”\] Guesser –\> Validator Validator – Fail –\> Guesser
 
 ``` r
 cat("\n```\n")

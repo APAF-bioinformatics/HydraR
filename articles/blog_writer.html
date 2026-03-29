@@ -208,21 +208,12 @@ readability. If it fails the checks, it loops back to the Drafter.</li>
 <pre class="mermaid"><code>
 ``` r
 cat(compiled_dag$plot(type = "mermaid"))</code></pre>
-<pre class="mermaid"><code>graph TD
-  Outliner["Content Strategist"]
-  Drafter["Creative Writer"]
-  Editor["SEO Editor"]
-  Outliner --&gt; Drafter
-  Drafter --&gt; Editor
-  Editor -- Fail --&gt; Drafter</code></pre>
-<pre class="mermaid"><code>graph TD
-  Outliner["Content Strategist"]
-  Drafter["Creative Writer"]
-  Editor["SEO Editor"]
-  Outliner --&gt; Drafter
-  Drafter --&gt; Editor
-  Editor -- Fail --&gt; Drafter</code></pre>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<p>graph TD Outliner[“Content Strategist”] Drafter[“Creative Writer”]
+Editor[“SEO Editor”] Outliner –&gt; Drafter Drafter –&gt; Editor Editor
+– Fail –&gt; Drafter graph TD Outliner[“Content Strategist”]
+Drafter[“Creative Writer”] Editor[“SEO Editor”] Outliner –&gt; Drafter
+Drafter –&gt; Editor Editor – Fail –&gt; Drafter</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n```\n"</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
 ## Running the Scenario

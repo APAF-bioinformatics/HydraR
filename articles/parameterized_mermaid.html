@@ -214,43 +214,34 @@ export your DAG back to Mermaid with the parameters preserved or
 filtered.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Show all parameters</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>details <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt; ```mermaid</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>details <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; graph TD</span></span>
+<span><span class="co">#&gt;   A["Initial Research | retries=3 | workdir=./w1"]</span></span>
+<span><span class="co">#&gt;   B["Analysis | verbose=TRUE"]</span></span>
+<span><span class="co">#&gt;   C["Report | workdir=./output"]</span></span>
+<span><span class="co">#&gt;   A --&gt; B</span></span>
+<span><span class="co">#&gt;   B --&gt; C </span></span>
 <span><span class="co">#&gt; graph TD</span></span>
 <span><span class="co">#&gt;   A["Initial Research | retries=3 | workdir=./w1"]</span></span>
 <span><span class="co">#&gt;   B["Analysis | verbose=TRUE"]</span></span>
 <span><span class="co">#&gt;   C["Report | workdir=./output"]</span></span>
 <span><span class="co">#&gt;   A --&gt; B</span></span>
 <span><span class="co">#&gt;   B --&gt; C</span></span>
-<span><span class="co">#&gt; ``` </span></span>
-<span><span class="co">#&gt; ```mermaid</span></span>
-<span><span class="co">#&gt; graph TD</span></span>
-<span><span class="co">#&gt;   A["Initial Research | retries=3 | workdir=./w1"]</span></span>
-<span><span class="co">#&gt;   B["Analysis | verbose=TRUE"]</span></span>
-<span><span class="co">#&gt;   C["Report | workdir=./output"]</span></span>
-<span><span class="co">#&gt;   A --&gt; B</span></span>
-<span><span class="co">#&gt;   B --&gt; C</span></span>
-<span><span class="co">#&gt; ```</span></span></code></pre>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
+<span></span>
 <span><span class="co"># Filter to specific parameters</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>details <span class="op">=</span> <span class="cn">TRUE</span>, include_params <span class="op">=</span> <span class="st">"retries"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt; ```mermaid</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>details <span class="op">=</span> <span class="cn">TRUE</span>, include_params <span class="op">=</span> <span class="st">"retries"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; graph TD</span></span>
 <span><span class="co">#&gt;   A["Initial Research | retries=3"]</span></span>
 <span><span class="co">#&gt;   B["Analysis"]</span></span>
 <span><span class="co">#&gt;   C["Report"]</span></span>
 <span><span class="co">#&gt;   A --&gt; B</span></span>
-<span><span class="co">#&gt;   B --&gt; C</span></span>
-<span><span class="co">#&gt; ``` </span></span>
-<span><span class="co">#&gt; ```mermaid</span></span>
+<span><span class="co">#&gt;   B --&gt; C </span></span>
 <span><span class="co">#&gt; graph TD</span></span>
 <span><span class="co">#&gt;   A["Initial Research | retries=3"]</span></span>
 <span><span class="co">#&gt;   B["Analysis"]</span></span>
 <span><span class="co">#&gt;   C["Report"]</span></span>
 <span><span class="co">#&gt;   A --&gt; B</span></span>
-<span><span class="co">#&gt;   B --&gt; C</span></span>
-<span><span class="co">#&gt; ```</span></span></code></pre>
+<span><span class="co">#&gt;   B --&gt; C</span></span></code></pre></div>
 <!-- APAF Bioinformatics | parameterized_mermaid.Rmd | Approved | 2026-03-29 -->
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -74,8 +74,10 @@
 
 
 
-
-<div class="row">
+<link href="distributed_communication_files/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="distributed_communication_files/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="distributed_communication_files/d3-3.3.8/d3.min.js"></script><script src="distributed_communication_files/dagre-0.4.0/dagre-d3.min.js"></script><link href="distributed_communication_files/mermaid-0.3.0/dist/mermaid.css" rel="stylesheet">
+<script src="distributed_communication_files/mermaid-0.3.0/dist/mermaid.slim.min.js"></script><link href="distributed_communication_files/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="distributed_communication_files/chromatography-0.1/chromatography.js"></script><script src="distributed_communication_files/DiagrammeR-binding-1.0.11/DiagrammeR.js"></script><div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Distributed Consensus Simulation</h1>
@@ -107,9 +109,17 @@ sent to them.</p>
 <div class="section level2">
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("devtools") # Run if devtools is not installed</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/install-deprecated.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"APAF-bioinformatics/HydraR"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># install.packages("pak")</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"APAF-bioinformatics/HydraR"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/load_all.html" class="external-link">load_all</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Quickly loads all local changes into your session</span></span></code></pre></div>
 <p>First, we load the <code>HydraR</code> package and initialize a
 <code>MemoryMessageLog</code> to audit our simulation.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Initialize an audit log for our messages</span></span>
@@ -121,15 +131,15 @@ sent to them.</p>
 <p>Voters are <code>AgentLogicNode</code> instances that randomly decide
 between “SUCCESS” and “FAILURE”, then send their choice to the
 <code>Leader</code>.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># A reusable logic function for voters</span></span>
 <span><span class="va">voter_logic</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># 1. Decide randomly</span></span>
 <span>  <span class="va">vote</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SUCCESS"</span>, <span class="st">"FAILURE"</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span></span>
-<span>  </span>
+<span></span>
 <span>  <span class="co"># 2. Send private message to the Leader</span></span>
 <span>  <span class="va">state</span><span class="op">$</span><span class="fu">send_message</span><span class="op">(</span>to <span class="op">=</span> <span class="st">"Leader"</span>, content <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>vote <span class="op">=</span> <span class="va">vote</span><span class="op">)</span><span class="op">)</span></span>
-<span>  </span>
+<span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"   [%s] Voted: %s"</span>, <span class="va">state</span><span class="op">$</span><span class="va">node_id</span>, <span class="va">vote</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"success"</span>, output <span class="op">=</span> <span class="va">vote</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
@@ -144,18 +154,18 @@ between “SUCCESS” and “FAILURE”, then send their choice to the
 </h2>
 <p>The Leader is a <code>AgentLogicNode</code> that waits for all
 messages, counts the votes, and declares a final consensus.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">leader_logic</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># 1. Retrieve messages from private inbox</span></span>
 <span>  <span class="va">msgs</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">receive_messages</span><span class="op">(</span><span class="op">)</span></span>
-<span>  </span>
+<span></span>
 <span>  <span class="co"># 2. Extract and count votes</span></span>
 <span>  <span class="va">votes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">msgs</span>, <span class="kw">function</span><span class="op">(</span><span class="va">m</span><span class="op">)</span> <span class="va">m</span><span class="op">$</span><span class="va">content</span><span class="op">$</span><span class="va">vote</span><span class="op">)</span></span>
 <span>  <span class="va">counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">votes</span><span class="op">)</span></span>
-<span>  </span>
+<span></span>
 <span>  <span class="co"># 3. Determine majority</span></span>
 <span>  <span class="va">majority</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.max</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span><span class="op">]</span></span>
-<span>  </span>
+<span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"   [Leader] Received %d votes. Consensus: %s"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">votes</span><span class="op">)</span>, <span class="va">majority</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"success"</span>, output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>final_consensus <span class="op">=</span> <span class="va">majority</span>, vote_table <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">as.list</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
@@ -167,7 +177,7 @@ messages, counts the votes, and declares a final consensus.</p>
 </h2>
 <p>We assemble the nodes into an <code>AgentDAG</code>. The
 <code>Leader</code> depends on all three <code>Voters</code>.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create the DAG</span></span>
 <span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentDAG.html">AgentDAG</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">dag</span><span class="op">$</span><span class="va">message_log</span> <span class="op">&lt;-</span> <span class="va">message_log</span> <span class="co"># Attach the audit log</span></span>
@@ -214,7 +224,7 @@ messages, counts the votes, and declares a final consensus.</p>
 </h2>
 <p>Since we attached a <code>MemoryMessageLog</code>, we can inspect the
 raw message transfers that occurred during the simulation.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Retrieve all recorded messages from the audit log</span></span>
 <span><span class="va">all_msgs</span> <span class="op">&lt;-</span> <span class="va">message_log</span><span class="op">$</span><span class="fu">get_all</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
@@ -230,23 +240,22 @@ raw message transfers that occurred during the simulation.</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">msg_history</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   From     To     Time    Vote</span></span>
-<span><span class="co">#&gt; 1   V1 Leader 08:56:11 SUCCESS</span></span>
-<span><span class="co">#&gt; 2   V2 Leader 08:56:11 SUCCESS</span></span>
-<span><span class="co">#&gt; 3   V3 Leader 08:56:11 FAILURE</span></span></code></pre></div>
+<span><span class="co">#&gt; 1   V1 Leader 13:03:40 SUCCESS</span></span>
+<span><span class="co">#&gt; 2   V2 Leader 13:03:40 SUCCESS</span></span>
+<span><span class="co">#&gt; 3   V3 Leader 13:03:40 FAILURE</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="visualization">Visualization<a class="anchor" aria-label="anchor" href="#visualization"></a>
 </h2>
 <p>The <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method shows the final status of our
 consensus engine.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>status <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt; ```mermaid</span></span>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>status <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; graph TD</span></span>
-<span><span class="co">#&gt;   V1["Voter Alpha"]</span></span>
-<span><span class="co">#&gt;   V2["Voter Beta"]</span></span>
-<span><span class="co">#&gt;   V3["Voter Gamma"]</span></span>
-<span><span class="co">#&gt;   Leader["Consensus Leader"]</span></span>
+<span><span class="co">#&gt;   V1["Voter Alpha (SUCCESS)"]</span></span>
+<span><span class="co">#&gt;   V2["Voter Beta (SUCCESS)"]</span></span>
+<span><span class="co">#&gt;   V3["Voter Gamma (FAILURE)"]</span></span>
+<span><span class="co">#&gt;   Leader["Consensus Leader [SUCCESS]"]</span></span>
 <span><span class="co">#&gt;   V1 --&gt; Leader</span></span>
 <span><span class="co">#&gt;   V2 --&gt; Leader</span></span>
 <span><span class="co">#&gt;   V3 --&gt; Leader</span></span>
@@ -258,14 +267,14 @@ consensus engine.</p>
 <span><span class="co">#&gt;   class V2 success</span></span>
 <span><span class="co">#&gt;   class V3 success</span></span>
 <span><span class="co">#&gt;   class Leader success</span></span>
-<span><span class="co">#&gt;   linkStyle 2 stroke:#388e3c,stroke-width:4px;</span></span>
-<span><span class="co">#&gt; ``` </span></span>
-<span><span class="co">#&gt; ```mermaid</span></span>
+<span><span class="co">#&gt;   linkStyle 0 stroke:#388e3c,stroke-width:4px;</span></span>
+<span><span class="co">#&gt;   linkStyle 1 stroke:#388e3c,stroke-width:4px;</span></span>
+<span><span class="co">#&gt;   linkStyle 2 stroke:#388e3c,stroke-width:4px; </span></span>
 <span><span class="co">#&gt; graph TD</span></span>
-<span><span class="co">#&gt;   V1["Voter Alpha"]</span></span>
-<span><span class="co">#&gt;   V2["Voter Beta"]</span></span>
-<span><span class="co">#&gt;   V3["Voter Gamma"]</span></span>
-<span><span class="co">#&gt;   Leader["Consensus Leader"]</span></span>
+<span><span class="co">#&gt;   V1["Voter Alpha (SUCCESS)"]</span></span>
+<span><span class="co">#&gt;   V2["Voter Beta (SUCCESS)"]</span></span>
+<span><span class="co">#&gt;   V3["Voter Gamma (FAILURE)"]</span></span>
+<span><span class="co">#&gt;   Leader["Consensus Leader [SUCCESS]"]</span></span>
 <span><span class="co">#&gt;   V1 --&gt; Leader</span></span>
 <span><span class="co">#&gt;   V2 --&gt; Leader</span></span>
 <span><span class="co">#&gt;   V3 --&gt; Leader</span></span>
@@ -277,9 +286,37 @@ consensus engine.</p>
 <span><span class="co">#&gt;   class V2 success</span></span>
 <span><span class="co">#&gt;   class V3 success</span></span>
 <span><span class="co">#&gt;   class Leader success</span></span>
+<span><span class="co">#&gt;   linkStyle 0 stroke:#388e3c,stroke-width:4px;</span></span>
+<span><span class="co">#&gt;   linkStyle 1 stroke:#388e3c,stroke-width:4px;</span></span>
+<span><span class="co">#&gt;   linkStyle 2 stroke:#388e3c,stroke-width:4px;</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("DiagrammeR")</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rich-iannone.github.io/DiagrammeR/" class="external-link">DiagrammeR</a></span><span class="op">)</span></span>
+<span><span class="co"># Get the mermaid syntax from the DAG</span></span>
+<span><span class="va">mermaid_string</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>status <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; graph TD</span></span>
+<span><span class="co">#&gt;   V1["Voter Alpha (SUCCESS)"]</span></span>
+<span><span class="co">#&gt;   V2["Voter Beta (SUCCESS)"]</span></span>
+<span><span class="co">#&gt;   V3["Voter Gamma (FAILURE)"]</span></span>
+<span><span class="co">#&gt;   Leader["Consensus Leader [SUCCESS]"]</span></span>
+<span><span class="co">#&gt;   V1 --&gt; Leader</span></span>
+<span><span class="co">#&gt;   V2 --&gt; Leader</span></span>
+<span><span class="co">#&gt;   V3 --&gt; Leader</span></span>
+<span><span class="co">#&gt;   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;</span></span>
+<span><span class="co">#&gt;   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;</span></span>
+<span><span class="co">#&gt;   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;</span></span>
+<span><span class="co">#&gt;   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;</span></span>
+<span><span class="co">#&gt;   class V1 success</span></span>
+<span><span class="co">#&gt;   class V2 success</span></span>
+<span><span class="co">#&gt;   class V3 success</span></span>
+<span><span class="co">#&gt;   class Leader success</span></span>
+<span><span class="co">#&gt;   linkStyle 0 stroke:#388e3c,stroke-width:4px;</span></span>
+<span><span class="co">#&gt;   linkStyle 1 stroke:#388e3c,stroke-width:4px;</span></span>
 <span><span class="co">#&gt;   linkStyle 2 stroke:#388e3c,stroke-width:4px;</span></span>
-<span><span class="co">#&gt; ```</span></span></code></pre>
-<!-- APAF Bioinformatics | distributed_communication.Rmd | Approved | 2026-03-29 -->
+<span><span class="co"># Render the interactive plot</span></span>
+<span><span class="fu">DiagrammeR</span><span class="fu">::</span><span class="fu"><a href="https://rich-iannone.github.io/DiagrammeR/reference/mermaid.html" class="external-link">mermaid</a></span><span class="op">(</span><span class="va">mermaid_string</span><span class="op">)</span></span></code></pre></div>
+<div class="DiagrammeR html-widget html-fill-item" id="htmlwidget-ac96cb3ee4656e2e9ec3" style="width:700px;height:432.632880098888px;"></div>
+<script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"diagram":"graph TD\n  V1[\"Voter Alpha (SUCCESS)\"]\n  V2[\"Voter Beta (SUCCESS)\"]\n  V3[\"Voter Gamma (FAILURE)\"]\n  Leader[\"Consensus Leader [SUCCESS]\"]\n  V1 --> Leader\n  V2 --> Leader\n  V3 --> Leader\n  classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;\n  classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;\n  classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;\n  classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;\n  class V1 success\n  class V2 success\n  class V3 success\n  class Leader success\n  linkStyle 0 stroke:#388e3c,stroke-width:4px;\n  linkStyle 1 stroke:#388e3c,stroke-width:4px;\n  linkStyle 2 stroke:#388e3c,stroke-width:4px;"},"evals":[],"jsHooks":[]}</script><!-- APAF Bioinformatics | distributed_communication.Rmd | Approved | 2026-03-29 -->
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

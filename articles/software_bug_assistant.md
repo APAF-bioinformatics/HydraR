@@ -115,21 +115,10 @@ cat("```mermaid\n")
 cat(compiled_dag$plot(type = "mermaid"))
 ```
 
-``` mermaid
-graph TD
-  Analyzer["Debugger Agent"]
-  Tester["Test Suite"]
-  Analyzer --> Tester
-  Tester -- Fail --> Analyzer
-```
-
-``` mermaid
-graph TD
-  Analyzer["Debugger Agent"]
-  Tester["Test Suite"]
-  Analyzer --> Tester
-  Tester -- Fail --> Analyzer
-```
+graph TD Analyzer\[“Debugger Agent”\] Tester\[“Test Suite”\] Analyzer
+–\> Tester Tester – Fail –\> Analyzer graph TD Analyzer\[“Debugger
+Agent”\] Tester\[“Test Suite”\] Analyzer –\> Tester Tester – Fail –\>
+Analyzer
 
 ``` r
 cat("\n```\n")

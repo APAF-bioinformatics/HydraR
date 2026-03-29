@@ -30,12 +30,15 @@ and useful for agentic research.
 - Ensure
   [`devtools::check()`](https://devtools.r-lib.org/reference/check.html)
   passes without errors or warnings.
-- Run `styler::style_pkg()` before submitting.
+- Run
+  [`styler::style_pkg()`](https://styler.r-lib.org/reference/style_pkg.html)
+  before submitting.
 
 ## Style Guidelines
 
-We follow the Tidyverse style guide. Please run `styler::style_pkg()` on
-your changes to ensure consistency with the rest of the package.
+We follow the Tidyverse style guide. Please run
+[`styler::style_pkg()`](https://styler.r-lib.org/reference/style_pkg.html)
+on your changes to ensure consistency with the rest of the package.
 
 ## Code of Conduct
 

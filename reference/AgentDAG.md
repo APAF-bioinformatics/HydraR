@@ -105,7 +105,7 @@ Initialize AgentDAG Set Start Node
 
 ------------------------------------------------------------------------
 
-### Method `add_node()`
+### Method [`add_node()`](https://rich-iannone.github.io/DiagrammeR/reference/add_node.html)
 
 #### Usage
 
@@ -119,7 +119,7 @@ Initialize AgentDAG Set Start Node
 
 ------------------------------------------------------------------------
 
-### Method `add_edge()`
+### Method [`add_edge()`](https://rich-iannone.github.io/DiagrammeR/reference/add_edge.html)
 
 #### Usage
 
