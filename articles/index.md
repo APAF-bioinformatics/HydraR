@@ -26,6 +26,14 @@
   Assistant](https://github.com/APAF-bioinformatics/HydraR/articles/software_bug_assistant.md):
 - [Agentic Story
   Teller](https://github.com/APAF-bioinformatics/HydraR/articles/story_teller.md):
+- [Gemini CLI Driver
+  Demo](https://github.com/APAF-bioinformatics/HydraR/articles/gemini_cli_demo.md):
+- [Hello World Logic
+  Nodes](https://github.com/APAF-bioinformatics/HydraR/articles/hello_world_logic.md):
+- [Advanced Mermaid
+  Parameters](https://github.com/APAF-bioinformatics/HydraR/articles/parameterized_mermaid.md):
+- [Mermaid Round-Trip
+  Visualization](https://github.com/APAF-bioinformatics/HydraR/articles/round_trip_demo.md):
 
 ### Developer Guides
 
