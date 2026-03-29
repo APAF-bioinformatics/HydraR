@@ -53,6 +53,7 @@
     <li><a class="dropdown-item" href="../articles/hello_world_logic.html">Hello World Logic Nodes</a></li>
     <li><a class="dropdown-item" href="../articles/parameterized_mermaid.html">Advanced Mermaid Parameters</a></li>
     <li><a class="dropdown-item" href="../articles/round_trip_demo.html">Mermaid Round-Trip Visualization</a></li>
+    <li><a class="dropdown-item" href="../articles/distributed_communication.html">Distributed Consensus Simulation</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
     <li><a class="dropdown-item" href="../articles/targets_integration.html">Reproducible Agentic Pipelines with targets</a></li>
@@ -108,13 +109,12 @@ handle these parameters and inject them into a custom node class.</p>
 <span></span>
 <span><span class="co"># 1. Define a Specialized Node Factory</span></span>
 <span><span class="va">node_factory</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">id</span>, <span class="va">label</span>, <span class="va">params</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  </span>
 <span>  <span class="co"># Create a custom node class for this example</span></span>
-<span>  <span class="va">CustomNode</span> <span class="op">&lt;-</span> <span class="fu">R6</span><span class="fu">::</span><span class="kw"><a href="https://r6.r-lib.org/reference/R6Class.html" class="external-link">R6Class</a></span><span class="op">(</span><span class="st">"CustomNode"</span>, </span>
+<span>  <span class="va">CustomNode</span> <span class="op">&lt;-</span> <span class="fu">R6</span><span class="fu">::</span><span class="kw"><a href="https://r6.r-lib.org/reference/R6Class.html" class="external-link">R6Class</a></span><span class="op">(</span><span class="st">"CustomNode"</span>,</span>
 <span>    inherit <span class="op">=</span> <span class="va">AgentNode</span>,</span>
 <span>    public <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>      run <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
-<span>        <span class="va">param_str</span> <span class="op">&lt;-</span> <span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">self</span><span class="op">$</span><span class="va">params</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span>        <span class="va">param_str</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">self</span><span class="op">$</span><span class="va">params</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
 <span>          <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">self</span><span class="op">$</span><span class="va">params</span><span class="op">)</span>, <span class="va">self</span><span class="op">$</span><span class="va">params</span>, sep <span class="op">=</span> <span class="st">"="</span>, collapse <span class="op">=</span> <span class="st">", "</span><span class="op">)</span></span>
 <span>        <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
 <span>          <span class="st">"none"</span></span>
@@ -124,7 +124,7 @@ handle these parameters and inject them into a custom node class.</p>
 <span>      <span class="op">}</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
-<span>  </span>
+<span></span>
 <span>  <span class="va">CustomNode</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">id</span>, <span class="va">label</span>, <span class="va">params</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 </div>
@@ -214,43 +214,34 @@ export your DAG back to Mermaid with the parameters preserved or
 filtered.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Show all parameters</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>details <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt; ```mermaid</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>details <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; graph TD</span></span>
+<span><span class="co">#&gt;   A["Initial Research | retries=3 | workdir=./w1"]</span></span>
+<span><span class="co">#&gt;   B["Analysis | verbose=TRUE"]</span></span>
+<span><span class="co">#&gt;   C["Report | workdir=./output"]</span></span>
+<span><span class="co">#&gt;   A --&gt; B</span></span>
+<span><span class="co">#&gt;   B --&gt; C </span></span>
 <span><span class="co">#&gt; graph TD</span></span>
 <span><span class="co">#&gt;   A["Initial Research | retries=3 | workdir=./w1"]</span></span>
 <span><span class="co">#&gt;   B["Analysis | verbose=TRUE"]</span></span>
 <span><span class="co">#&gt;   C["Report | workdir=./output"]</span></span>
 <span><span class="co">#&gt;   A --&gt; B</span></span>
 <span><span class="co">#&gt;   B --&gt; C</span></span>
-<span><span class="co">#&gt; ``` </span></span>
-<span><span class="co">#&gt; ```mermaid</span></span>
-<span><span class="co">#&gt; graph TD</span></span>
-<span><span class="co">#&gt;   A["Initial Research | retries=3 | workdir=./w1"]</span></span>
-<span><span class="co">#&gt;   B["Analysis | verbose=TRUE"]</span></span>
-<span><span class="co">#&gt;   C["Report | workdir=./output"]</span></span>
-<span><span class="co">#&gt;   A --&gt; B</span></span>
-<span><span class="co">#&gt;   B --&gt; C</span></span>
-<span><span class="co">#&gt; ```</span></span></code></pre>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
+<span></span>
 <span><span class="co"># Filter to specific parameters</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>details <span class="op">=</span> <span class="cn">TRUE</span>, include_params <span class="op">=</span> <span class="st">"retries"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt; ```mermaid</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>details <span class="op">=</span> <span class="cn">TRUE</span>, include_params <span class="op">=</span> <span class="st">"retries"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; graph TD</span></span>
 <span><span class="co">#&gt;   A["Initial Research | retries=3"]</span></span>
 <span><span class="co">#&gt;   B["Analysis"]</span></span>
 <span><span class="co">#&gt;   C["Report"]</span></span>
 <span><span class="co">#&gt;   A --&gt; B</span></span>
-<span><span class="co">#&gt;   B --&gt; C</span></span>
-<span><span class="co">#&gt; ``` </span></span>
-<span><span class="co">#&gt; ```mermaid</span></span>
+<span><span class="co">#&gt;   B --&gt; C </span></span>
 <span><span class="co">#&gt; graph TD</span></span>
 <span><span class="co">#&gt;   A["Initial Research | retries=3"]</span></span>
 <span><span class="co">#&gt;   B["Analysis"]</span></span>
 <span><span class="co">#&gt;   C["Report"]</span></span>
 <span><span class="co">#&gt;   A --&gt; B</span></span>
-<span><span class="co">#&gt;   B --&gt; C</span></span>
-<span><span class="co">#&gt; ```</span></span></code></pre>
+<span><span class="co">#&gt;   B --&gt; C</span></span></code></pre></div>
 <!-- APAF Bioinformatics | parameterized_mermaid.Rmd | Approved | 2026-03-29 -->
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

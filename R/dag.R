@@ -575,7 +575,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
         }
       }
 
-      lines <- c("```mermaid", "graph TD", node_lines, edge_lines, extra_lines, "```")
+      lines <- c("graph TD", node_lines, edge_lines, extra_lines)
       res <- paste(lines, collapse = "\n")
       cat(res, "\n")
       invisible(res)

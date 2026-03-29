@@ -25,13 +25,12 @@ library(HydraR)
 
 # 1. Define a Specialized Node Factory
 node_factory <- function(id, label, params = list()) {
-  
   # Create a custom node class for this example
-  CustomNode <- R6::R6Class("CustomNode", 
+  CustomNode <- R6::R6Class("CustomNode",
     inherit = AgentNode,
     public = list(
       run = function(state) {
-        param_str <- if(length(self$params) > 0) {
+        param_str <- if (length(self$params) > 0) {
           paste(names(self$params), self$params, sep = "=", collapse = ", ")
         } else {
           "none"
@@ -41,7 +40,7 @@ node_factory <- function(id, label, params = list()) {
       }
     )
   )
-  
+
   CustomNode$new(id, label, params)
 }
 ```
@@ -134,45 +133,31 @@ back to Mermaid with the parameters preserved or filtered.
 
 # Show all parameters
 cat(dag$plot(details = TRUE))
-```
-
-    #> ```mermaid
-    #> graph TD
-    #>   A["Initial Research | retries=3 | workdir=./w1"]
-    #>   B["Analysis | verbose=TRUE"]
-    #>   C["Report | workdir=./output"]
-    #>   A --> B
-    #>   B --> C
-    #> ``` 
-    #> ```mermaid
-    #> graph TD
-    #>   A["Initial Research | retries=3 | workdir=./w1"]
-    #>   B["Analysis | verbose=TRUE"]
-    #>   C["Report | workdir=./output"]
-    #>   A --> B
-    #>   B --> C
-    #> ```
-
-``` r
-
+#> graph TD
+#>   A["Initial Research | retries=3 | workdir=./w1"]
+#>   B["Analysis | verbose=TRUE"]
+#>   C["Report | workdir=./output"]
+#>   A --> B
+#>   B --> C 
+#> graph TD
+#>   A["Initial Research | retries=3 | workdir=./w1"]
+#>   B["Analysis | verbose=TRUE"]
+#>   C["Report | workdir=./output"]
+#>   A --> B
+#>   B --> C
 
 # Filter to specific parameters
 cat(dag$plot(details = TRUE, include_params = "retries"))
+#> graph TD
+#>   A["Initial Research | retries=3"]
+#>   B["Analysis"]
+#>   C["Report"]
+#>   A --> B
+#>   B --> C 
+#> graph TD
+#>   A["Initial Research | retries=3"]
+#>   B["Analysis"]
+#>   C["Report"]
+#>   A --> B
+#>   B --> C
 ```
-
-    #> ```mermaid
-    #> graph TD
-    #>   A["Initial Research | retries=3"]
-    #>   B["Analysis"]
-    #>   C["Report"]
-    #>   A --> B
-    #>   B --> C
-    #> ``` 
-    #> ```mermaid
-    #> graph TD
-    #>   A["Initial Research | retries=3"]
-    #>   B["Analysis"]
-    #>   C["Report"]
-    #>   A --> B
-    #>   B --> C
-    #> ```

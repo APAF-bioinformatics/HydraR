@@ -32,7 +32,7 @@ node_factory <- function(id, label) {
     return(AgentLogicNode$new(id, function(state) {
       run_count <- state$get("check_runs") %||% 0
       state$set("check_runs", run_count + 1)
-      
+
       if (run_count == 0) {
         cat("Quality check failed. Routing to ReSearch...\n")
         return(list(status = "success", output = FALSE))
@@ -42,7 +42,7 @@ node_factory <- function(id, label) {
       }
     }, label = label))
   }
-  
+
   # Default node type
   return(AgentLogicNode$new(id, function(state) {
     list(status = "success", output = paste("Result from", label))
@@ -104,78 +104,68 @@ the `plot(status = TRUE)` method.
 
 # Export status-colored Mermaid
 mermaid_colored <- dag$plot(status = TRUE)
-```
-
-    #> ```mermaid
-    #> graph TD
-    #>   Start["Initial Search"]
-    #>   Summarize["Summarize Findings"]
-    #>   Check["Check Quality"]
-    #>   Publish["Final Report"]
-    #>   ReSearch["Deep Search"]
-    #>   Start --> Summarize
-    #>   Summarize --> Check
-    #>   Check --> Publish
-    #>   Check --> ReSearch
-    #>   ReSearch --> Summarize
-    #>   Check -- Test --> Publish
-    #>   Check -- Fail --> ReSearch
-    #>   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
-    #>   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;
-    #>   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;
-    #>   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
-    #>   class Start success
-    #>   class Summarize success
-    #>   class Check success
-    #>   class Publish success
-    #>   class ReSearch success
-    #>   linkStyle 0 stroke:#388e3c,stroke-width:4px;
-    #>   linkStyle 1 stroke:#388e3c,stroke-width:4px;
-    #>   linkStyle 2 stroke:#388e3c,stroke-width:4px;
-    #>   linkStyle 3 stroke:#388e3c,stroke-width:4px;
-    #>   linkStyle 4 stroke:#388e3c,stroke-width:4px;
-    #>   linkStyle 5 stroke:#388e3c,stroke-width:4px;
-    #>   linkStyle 6 stroke:#388e3c,stroke-width:4px;
-    #> ```
-
-``` r
-
+#> graph TD
+#>   Start["Initial Search"]
+#>   Summarize["Summarize Findings"]
+#>   Check["Check Quality"]
+#>   Publish["Final Report"]
+#>   ReSearch["Deep Search"]
+#>   Start --> Summarize
+#>   Summarize --> Check
+#>   Check --> Publish
+#>   Check --> ReSearch
+#>   ReSearch --> Summarize
+#>   Check -- Test --> Publish
+#>   Check -- Fail --> ReSearch
+#>   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
+#>   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;
+#>   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;
+#>   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+#>   class Start success
+#>   class Summarize success
+#>   class Check success
+#>   class Publish success
+#>   class ReSearch success
+#>   linkStyle 0 stroke:#388e3c,stroke-width:4px;
+#>   linkStyle 1 stroke:#388e3c,stroke-width:4px;
+#>   linkStyle 2 stroke:#388e3c,stroke-width:4px;
+#>   linkStyle 3 stroke:#388e3c,stroke-width:4px;
+#>   linkStyle 4 stroke:#388e3c,stroke-width:4px;
+#>   linkStyle 5 stroke:#388e3c,stroke-width:4px;
+#>   linkStyle 6 stroke:#388e3c,stroke-width:4px;
 
 # Show the colored Mermaid syntax
 cat(mermaid_colored)
+#> graph TD
+#>   Start["Initial Search"]
+#>   Summarize["Summarize Findings"]
+#>   Check["Check Quality"]
+#>   Publish["Final Report"]
+#>   ReSearch["Deep Search"]
+#>   Start --> Summarize
+#>   Summarize --> Check
+#>   Check --> Publish
+#>   Check --> ReSearch
+#>   ReSearch --> Summarize
+#>   Check -- Test --> Publish
+#>   Check -- Fail --> ReSearch
+#>   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
+#>   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;
+#>   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;
+#>   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+#>   class Start success
+#>   class Summarize success
+#>   class Check success
+#>   class Publish success
+#>   class ReSearch success
+#>   linkStyle 0 stroke:#388e3c,stroke-width:4px;
+#>   linkStyle 1 stroke:#388e3c,stroke-width:4px;
+#>   linkStyle 2 stroke:#388e3c,stroke-width:4px;
+#>   linkStyle 3 stroke:#388e3c,stroke-width:4px;
+#>   linkStyle 4 stroke:#388e3c,stroke-width:4px;
+#>   linkStyle 5 stroke:#388e3c,stroke-width:4px;
+#>   linkStyle 6 stroke:#388e3c,stroke-width:4px;
 ```
-
-    #> ```mermaid
-    #> graph TD
-    #>   Start["Initial Search"]
-    #>   Summarize["Summarize Findings"]
-    #>   Check["Check Quality"]
-    #>   Publish["Final Report"]
-    #>   ReSearch["Deep Search"]
-    #>   Start --> Summarize
-    #>   Summarize --> Check
-    #>   Check --> Publish
-    #>   Check --> ReSearch
-    #>   ReSearch --> Summarize
-    #>   Check -- Test --> Publish
-    #>   Check -- Fail --> ReSearch
-    #>   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
-    #>   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;
-    #>   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;
-    #>   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
-    #>   class Start success
-    #>   class Summarize success
-    #>   class Check success
-    #>   class Publish success
-    #>   class ReSearch success
-    #>   linkStyle 0 stroke:#388e3c,stroke-width:4px;
-    #>   linkStyle 1 stroke:#388e3c,stroke-width:4px;
-    #>   linkStyle 2 stroke:#388e3c,stroke-width:4px;
-    #>   linkStyle 3 stroke:#388e3c,stroke-width:4px;
-    #>   linkStyle 4 stroke:#388e3c,stroke-width:4px;
-    #>   linkStyle 5 stroke:#388e3c,stroke-width:4px;
-    #>   linkStyle 6 stroke:#388e3c,stroke-width:4px;
-    #> ```
 
 > \[!NOTE\] The `plot(status = TRUE)` method uses the internal trace log
 > to color nodes by their outcome: **Green** for success, **Red** for
