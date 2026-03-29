@@ -35,6 +35,9 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Manual</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Instruction Manual</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -46,7 +49,11 @@
     <li><a class="dropdown-item" href="../articles/personalized_shopping.html">Agentic Personalized Shopping Assistant</a></li>
     <li><a class="dropdown-item" href="../articles/software_bug_assistant.html">Agentic Software Bug Assistant</a></li>
     <li><a class="dropdown-item" href="../articles/story_teller.html">Agentic Story Teller</a></li>
-    <li><a class="dropdown-item" href="../articles/travel_booking.html">Agentic Travel Booking Concierge</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/targets_integration.html">Reproducible Agentic Pipelines with targets</a></li>
+    <li><a class="dropdown-item" href="../articles/creating_drivers.html">Creating Custom Agent Drivers</a></li>
+    <li><a class="dropdown-item" href="../articles/git_worktree_toy.html">Isolated Execution with Git Worktrees</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -79,19 +86,24 @@
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
 <p>This vignette demonstrates the <strong>Software Bug
-Assistant</strong> pattern using <code>HydraR</code>. In this scenario,
-two agent nodes work together to resolve a software bug: 1. <strong>Bug
-Analyzer Node</strong>: Reviews the error message and current code, then
-proposes a patch. 2. <strong>Test Runner Node</strong>: Simulates
-running a test suite against the proposed patch. If the test fails, it
-provides error traces back to the Bug Analyzer.</p>
+Assistant</strong> pattern using <code>HydraR</code> and the
+<strong>Gemini CLI</strong>.</p>
+<p>In this scenario, two agent nodes work together to resolve a software
+bug: 1. <strong>Bug Analyzer Node</strong>: Reviews the error message
+and current code, then proposes a patch. 2. <strong>Test Runner
+Node</strong>: Simulates running a test suite against the proposed
+patch. If the test fails, it provides error traces back to the Bug
+Analyzer.</p>
 <p>This is a classic “Generate-and-Test” self-healing loop.</p>
 </div>
 <div class="section level2">
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Initialize the Gemini CLI driver</span></span>
+<span><span class="va">driver</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GeminiCLIDriver.html">GeminiCLIDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="building-the-dag">Building the DAG<a class="anchor" aria-label="anchor" href="#building-the-dag"></a>
@@ -102,63 +114,48 @@ provides error traces back to the Bug Analyzer.</p>
 <div class="section level3">
 <h3 id="the-bug-analyzer-node">1. The Bug Analyzer Node<a class="anchor" aria-label="anchor" href="#the-bug-analyzer-node"></a>
 </h3>
-<p>This node mocks an LLM digesting a bug report and iterative test
+<p>This node uses an LLM to digest a bug report and iterative test
 failures to eventually produce a working patch.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">analyzer_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"Analyzer"</span>, logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">memory</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="co"># Extract state</span></span>
-<span>  <span class="va">bug_report</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"bug_report"</span><span class="op">)</span></span>
-<span>  <span class="va">test_feedback</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"test_feedback"</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="va">attempts</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"patch_attempts"</span><span class="op">)</span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">attempts</span><span class="op">)</span><span class="op">)</span> <span class="va">attempts</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
-<span>  <span class="va">attempts</span> <span class="op">&lt;-</span> <span class="va">attempts</span> <span class="op">+</span> <span class="fl">1</span></span>
-<span></span>
-<span>  <span class="co"># Mock behavior: It takes 2 tries to fix a Null Pointer Exception</span></span>
-<span>  <span class="va">proposed_patch</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="va">attempts</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="st">"if (x == NULL) return 0;"</span> <span class="co"># Close, but maybe not quite right</span></span>
-<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>    <span class="st">"if (is.null(x)) return(0)"</span> <span class="co"># Correct R syntax</span></span>
+<code class="sourceCode R"><span><span class="va">analyzer_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLLMNode.html">AgentLLMNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">"Analyzer"</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">"Debugger Agent"</span>,</span>
+<span>  role <span class="op">=</span> <span class="st">"You are a software engineer specializing in fixing R bugs. Review the bug report and any previous test failures, then provide a corrected R code snippet."</span>,</span>
+<span>  driver <span class="op">=</span> <span class="va">driver</span>,</span>
+<span>  prompt_builder <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">feedback_text</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"Tester"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"\nTest Feedback: %s"</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"Tester"</span><span class="op">)</span><span class="op">)</span> <span class="kw">else</span> <span class="st">""</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Bug Report: %s%s\nOutput exactly a snippet of R code."</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"bug_report"</span><span class="op">)</span>, <span class="va">feedback_text</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
-<span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>    output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      proposed_patch <span class="op">=</span> <span class="va">proposed_patch</span>,</span>
-<span>      patch_attempts <span class="op">=</span> <span class="va">attempts</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">analyzer_node</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="the-test-runner-node">2. The Test Runner Node<a class="anchor" aria-label="anchor" href="#the-test-runner-node"></a>
 </h3>
-<p>This node evaluates the patch. We’ll simply check if the proposed
-patch is exactly the “correct R syntax” string.</p>
+<p>This node evaluates the patch using deterministic logic (mocked
+here).</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tester_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"Tester"</span>, logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">memory</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">patch</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"proposed_patch"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">tester_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">"Tester"</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">"Test Suite"</span>,</span>
+<span>  logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">memory</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">patch</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"Analyzer"</span><span class="op">)</span></span>
 <span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">patch</span> <span class="op">==</span> <span class="st">"if (is.null(x)) return(0)"</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>      output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    <span class="co"># Mock evaluation logic: In our scenario, the fix must use is.null().</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"is.null"</span>, <span class="va">patch</span>, fixed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"SUCCESS"</span>, output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>        tests_passed <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>        test_feedback <span class="op">=</span> <span class="st">"All 5 tests passed successfully."</span></span>
-<span>      <span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>      output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>      <span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"SUCCESS"</span>, output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>        tests_passed <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        test_feedback <span class="op">=</span> <span class="st">"Error: object 'NULL' not found. Did you mean to use 'is.null()'?"</span></span>
-<span>      <span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
+<span>      <span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="op">}</span></span>
 <span>  <span class="op">}</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">tester_node</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -183,42 +180,49 @@ to <code>Analyzer</code> upon test failure.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">compiled_dag</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">compile</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in dag$compile(): Potential infinite loop detected: graph contains</span></span>
+<span><span class="co">#&gt; cycles. Ensure conditional edges have exit conditions.</span></span>
 <span><span class="co">#&gt; Graph compiled successfully.</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="running-the-scenario">Running the Scenario<a class="anchor" aria-label="anchor" href="#running-the-scenario"></a>
+<h2 id="visualizing-the-workflow">Visualizing the Workflow<a class="anchor" aria-label="anchor" href="#visualizing-the-workflow"></a>
 </h2>
-<p>Provide the initial bug report and start the DAG.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">initial_state</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  bug_report <span class="op">=</span> <span class="st">"Function crashes when 'x' is missing."</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Starting Automatic Bug Remediation...\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Starting Automatic Bug Remediation...</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">compiled_dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>initial_state <span class="op">=</span> <span class="va">initial_state</span>, max_steps <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Graph compiled successfully.</span></span>
-<span><span class="co">#&gt; [Iteration 1] Running Node: Analyzer</span></span>
-<span><span class="co">#&gt;    [Analyzer] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 2] Running Node: Tester</span></span>
-<span><span class="co">#&gt;    [Tester] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 3] Running Node: Analyzer</span></span>
-<span><span class="co">#&gt;    [Analyzer] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 4] Running Node: Tester</span></span>
-<span><span class="co">#&gt;    [Tester] Executing R logic...</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n--- RESOLUTION RESULT ---\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; --- RESOLUTION RESULT ---</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Patch Attempts:"</span>, <span class="va">result</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"patch_attempts"</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Patch Attempts: 2</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Final Patch:"</span>, <span class="va">result</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"proposed_patch"</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Final Patch: if (is.null(x)) return(0)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Test Results:"</span>, <span class="va">result</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"test_feedback"</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Test Results: All 5 tests passed successfully.</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"```mermaid\n"</span><span class="op">)</span></span></code></pre></div>
+<pre class="mermaid"><code>
+``` r
+cat(compiled_dag$plot(type = "mermaid"))</code></pre>
+<pre class="mermaid"><code>graph TD
+  Analyzer["Debugger Agent"]
+  Tester["Test Suite"]
+  Analyzer --&gt; Tester
+  Tester -- Fail --&gt; Analyzer</code></pre>
+<pre class="mermaid"><code>graph TD
+  Analyzer["Debugger Agent"]
+  Tester["Test Suite"]
+  Analyzer --&gt; Tester
+  Tester -- Fail --&gt; Analyzer</code></pre>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n```\n"</span><span class="op">)</span></span></code></pre></div>
+<pre><code>
+## Running the Scenario
+
+Provide the initial bug report and start the DAG.
+
+
+``` r
+initial_state &lt;- list(
+  bug_report = "Function crashes when 'x' is missing."
+)
+
+cat("Starting Automatic Bug Remediation...\n")
+result &lt;- compiled_dag$run(initial_state = initial_state, max_steps = 10)
+
+cat("\n--- RESOLUTION RESULT ---\n")
+cat("Final Patch Proposed:", result$state$get("Analyzer"), "\n")
+cat("Test Results:", result$state$get("test_feedback"), "\n")</code></pre>
 <p>The DAG correctly detected the test failure, routed the detailed
-feedback back to the analyzer, and produced a successful patch on its
-second attempt!</p>
+feedback back to the analyzer, and produced a successful patch!</p>
 <!-- APAF Bioinformatics | software_bug_assistant.Rmd | Approved | 2026-03-29 -->
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -228,7 +232,7 @@ second attempt!</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Ignatius Pang, Aidan Tay, APAF Agentic Workflow.</p>
+  <p>Developed by Ignatius Pang, Aidan Tay.</p>
 </div>
 
 <div class="pkgdown-footer-right">

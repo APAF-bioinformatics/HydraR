@@ -2,6 +2,10 @@
 
 A specialized AgentNode that executes LLM calls via a Driver.
 
+## Value
+
+An \`AgentLLMNode\` R6 object.
+
 ## Super class
 
 [`HydraR::AgentNode`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentNode.md)
@@ -25,6 +29,10 @@ A specialized AgentNode that executes LLM calls via a Driver.
 
   String. Output expectation.
 
+- `cli_opts`:
+
+  List. Default CLI options for the driver.
+
 - `prompt_builder`:
 
   Function(state) -\> String.
@@ -41,6 +49,8 @@ A specialized AgentNode that executes LLM calls via a Driver.
 
 - [`AgentLLMNode$run()`](#method-AgentLLMNode-run)
 
+- [`AgentLLMNode$swap_driver()`](#method-AgentLLMNode-swap_driver)
+
 - [`AgentLLMNode$clone()`](#method-AgentLLMNode-clone)
 
 ------------------------------------------------------------------------
@@ -54,6 +64,7 @@ A specialized AgentNode that executes LLM calls via a Driver.
       role,
       driver,
       model = NULL,
+      cli_opts = list(),
       prompt_builder = NULL,
       tools = list(),
       label = NULL
@@ -76,6 +87,10 @@ A specialized AgentNode that executes LLM calls via a Driver.
 - `model`:
 
   String. Optional model override.
+
+- `cli_opts`:
+
+  List. Optional default CLI options.
 
 - `prompt_builder`:
 
@@ -109,7 +124,25 @@ A specialized AgentNode that executes LLM calls via a Driver.
 
 #### Returns
 
-List with status, output, and metadata.
+List with status, output, and metadata. Swap Driver at Runtime
+
+------------------------------------------------------------------------
+
+### Method `swap_driver()`
+
+#### Usage
+
+    AgentLLMNode$swap_driver(driver)
+
+#### Arguments
+
+- `driver`:
+
+  AgentDriver object or String ID.
+
+#### Returns
+
+The Node (invisibly).
 
 ------------------------------------------------------------------------
 
@@ -126,3 +159,12 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+driver <- GeminiCLIDriver$new()
+node <- AgentLLMNode$new("research", role = "Researcher", driver = driver)
+} # }
+```

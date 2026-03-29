@@ -3,6 +3,10 @@
 A specialized AgentNode that executes a pure R function instead of an
 LLM call.
 
+## Value
+
+An \`AgentLogicNode\` R6 object.
+
 ## Super class
 
 [`HydraR::AgentNode`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentNode.md)
@@ -83,3 +87,11 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+node <- AgentLogicNode$new("calculate", function(state) {
+  list(status = "success", output = list(result = 42))
+})
+```

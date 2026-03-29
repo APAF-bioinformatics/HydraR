@@ -19,9 +19,17 @@ Driver for the 'ollama' CLI tool (local).
 
 - [`OllamaDriver$new()`](#method-OllamaDriver-new)
 
+- [`OllamaDriver$format_cli_opts()`](#method-OllamaDriver-format_cli_opts)
+
 - [`OllamaDriver$call()`](#method-OllamaDriver-call)
 
 - [`OllamaDriver$clone()`](#method-OllamaDriver-clone)
+
+Inherited methods
+
+- [`HydraR::AgentDriver$exec_in_dir()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-exec_in_dir)
+- [`HydraR::AgentDriver$get_capabilities()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-get_capabilities)
+- [`HydraR::AgentDriver$validate_cli_opts()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-validate_cli_opts)
 
 ------------------------------------------------------------------------
 
@@ -29,7 +37,12 @@ Driver for the 'ollama' CLI tool (local).
 
 #### Usage
 
-    OllamaDriver$new(id = "ollama", model = "llama3.2")
+    OllamaDriver$new(
+      id = "ollama",
+      model = "llama3.2",
+      validation_mode = "warning",
+      working_dir = NULL
+    )
 
 #### Arguments
 
@@ -39,7 +52,34 @@ Driver for the 'ollama' CLI tool (local).
 
 - `model`:
 
-  String. Default model. Call the LLM
+  String. Default model.
+
+- `validation_mode`:
+
+  String. "warning" or "strict".
+
+- `working_dir`:
+
+  String. Optional. Path to isolated Git worktree. Format CLI Options
+  for Ollama
+
+------------------------------------------------------------------------
+
+### Method `format_cli_opts()`
+
+#### Usage
+
+    OllamaDriver$format_cli_opts(cli_opts = list())
+
+#### Arguments
+
+- `cli_opts`:
+
+  List.
+
+#### Returns
+
+Character vector. Call the LLM
 
 ------------------------------------------------------------------------
 
@@ -47,7 +87,7 @@ Driver for the 'ollama' CLI tool (local).
 
 #### Usage
 
-    OllamaDriver$call(prompt, model = NULL, ...)
+    OllamaDriver$call(prompt, model = NULL, cli_opts = list(), ...)
 
 #### Arguments
 
@@ -58,6 +98,10 @@ Driver for the 'ollama' CLI tool (local).
 - `model`:
 
   String override.
+
+- `cli_opts`:
+
+  List.
 
 - `...`:
 

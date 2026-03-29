@@ -20,6 +20,9 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Manual</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Instruction Manual</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -31,7 +34,11 @@
     <li><a class="dropdown-item" href="../articles/personalized_shopping.html">Agentic Personalized Shopping Assistant</a></li>
     <li><a class="dropdown-item" href="../articles/software_bug_assistant.html">Agentic Software Bug Assistant</a></li>
     <li><a class="dropdown-item" href="../articles/story_teller.html">Agentic Story Teller</a></li>
-    <li><a class="dropdown-item" href="../articles/travel_booking.html">Agentic Travel Booking Concierge</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/targets_integration.html">Reproducible Agentic Pipelines with targets</a></li>
+    <li><a class="dropdown-item" href="../articles/creating_drivers.html">Creating Custom Agent Drivers</a></li>
+    <li><a class="dropdown-item" href="../articles/git_worktree_toy.html">Isolated Execution with Git Worktrees</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="nav-link" href="https://github.com/APAF-bioinformatics/HydraR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -75,12 +82,21 @@ Initialize CopilotCLIDriver</p></dd>
 <ul><li><p><a href="#method-CopilotCLIDriver-new"><code>CopilotCLIDriver$new()</code></a></p></li>
 <li><p><a href="#method-CopilotCLIDriver-call"><code>CopilotCLIDriver$call()</code></a></p></li>
 <li><p><a href="#method-CopilotCLIDriver-clone"><code>CopilotCLIDriver$clone()</code></a></p></li>
-</ul></div><p></p><hr><a id="method-CopilotCLIDriver-new"></a><div class="section">
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="HydraR" data-topic="AgentDriver" data-id="exec_in_dir"><a href="AgentDriver.html#method-exec_in_dir"><code>HydraR::AgentDriver$exec_in_dir()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="HydraR" data-topic="AgentDriver" data-id="format_cli_opts"><a href="AgentDriver.html#method-format_cli_opts"><code>HydraR::AgentDriver$format_cli_opts()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="HydraR" data-topic="AgentDriver" data-id="get_capabilities"><a href="AgentDriver.html#method-get_capabilities"><code>HydraR::AgentDriver$get_capabilities()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="HydraR" data-topic="AgentDriver" data-id="validate_cli_opts"><a href="AgentDriver.html#method-validate_cli_opts"><code>HydraR::AgentDriver$validate_cli_opts()</code></a></span></li>
+</ul></details></p><hr><a id="method-CopilotCLIDriver-new"></a><div class="section">
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 
 <div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/CopilotCLIDriver.html">CopilotCLIDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"copilot_cli"</span>, type <span class="op">=</span> <span class="st">"shell"</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/CopilotCLIDriver.html">CopilotCLIDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">"copilot_cli"</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"shell"</span>,</span>
+<span>  validation_mode <span class="op">=</span> <span class="st">"warning"</span>,</span>
+<span>  working_dir <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -90,7 +106,15 @@ Initialize CopilotCLIDriver</p></dd>
 
 
 <dt><code>type</code></dt>
-<dd><p>String. Default type ('shell').
+<dd><p>String. Default type ('shell').</p></dd>
+
+
+<dt><code>validation_mode</code></dt>
+<dd><p>String. "warning" or "strict".</p></dd>
+
+
+<dt><code>working_dir</code></dt>
+<dd><p>String. Optional. Path to isolated Git worktree.
 Call the LLM</p></dd>
 
 
@@ -102,7 +126,7 @@ Call the LLM</p></dd>
 
 <div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CopilotCLIDriver</span><span class="op">$</span><span class="fu">call</span><span class="op">(</span><span class="va">prompt</span>, type <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CopilotCLIDriver</span><span class="op">$</span><span class="fu">call</span><span class="op">(</span><span class="va">prompt</span>, type <span class="op">=</span> <span class="cn">NULL</span>, cli_opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -113,6 +137,10 @@ Call the LLM</p></dd>
 
 <dt><code>type</code></dt>
 <dd><p>String override.</p></dd>
+
+
+<dt><code>cli_opts</code></dt>
+<dd><p>List.</p></dd>
 
 
 <dt><code>...</code></dt>
@@ -151,7 +179,7 @@ Call the LLM</p></dd>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Ignatius Pang, Aidan Tay, APAF Agentic Workflow.</p>
+  <p>Developed by Ignatius Pang, Aidan Tay.</p>
 </div>
 
 <div class="pkgdown-footer-right">

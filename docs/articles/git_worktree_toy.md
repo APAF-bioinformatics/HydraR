@@ -1,0 +1,113 @@
+# Isolated Execution with Git Worktrees
+
+## Overview
+
+A major challenge in building autonomous agents is **isolation**. When
+an agent modifies a file (e.g., writing a report or fixing a bug), it
+can easily cause conflicts with other parallel agents or the user’s main
+working directory.
+
+`HydraR` solves this by natively integrating with **Git Worktrees**.
+This guide demonstrates a “Toy Program” where an agent creates a new
+file in an isolated worktree.
+
+------------------------------------------------------------------------
+
+## 🏗️ Step 1: Initialize a Temporary Git Repository
+
+To avoid modifying your actual project, we’ll create a temporary Git
+repository in your [`tempdir()`](https://rdrr.io/r/base/tempfile.html).
+
+``` r
+
+library(HydraR)
+library(withr)
+
+# 1. Create a temporary folder
+repo_root <- file.path(tempdir(), "hydra-toy-repo")
+dir.create(repo_root)
+
+# 2. Initialize Git and a README
+withr::with_dir(repo_root, {
+  system("git init -b main")
+  system("git config user.email 'apaf@example.com'")
+  system("git config user.name 'APAF Agent'")
+  writeLines("# Toy Project", "README.md")
+  system("git add README.md")
+  system("git commit -m 'Initial commit'")
+})
+```
+
+------------------------------------------------------------------------
+
+## 🤖 Step 2: Define a Writing Agent
+
+We’ll use the `GeminiCLIDriver` to request code generation. The agent
+will attempt to write a simple R function into a file called
+`math_fun.R`.
+
+``` r
+
+# 1. Set up the Driver
+# Requires 'gemini' CLI to be installed
+driver <- GeminiCLIDriver$new(id = "gemini_bot")
+register_driver(driver)
+
+# 2. Define the Writer node
+node_writer <- AgentLLMNode$new(
+  id = "code_creator",
+  driver_id = "gemini_bot",
+  prompt_template = "Generate a simple R function to calculate the square of a number. SAVE IT to a file named 'math_fun.R'. Output ONLY the code."
+)
+
+# 3. Define the Merger node (Harmonizer)
+# This node will reconcile the worktree changes back to 'main'
+node_merger <- create_merge_harmonizer(id = "merger")
+
+# 4. Build the DAG
+dag <- AgentDAG$new()
+dag$add_node(node_writer)
+dag$add_node(node_merger)
+dag$add_edge("code_creator", "merger")
+dag$compile()
+```
+
+------------------------------------------------------------------------
+
+## 🛡️ Step 3: Run with Worktree Isolation
+
+By setting `use_worktrees = TRUE`, `HydraR` will: 1. **Spawn a
+Worktree**: Create a new git branch and directory for the `code_creator`
+node. 2. **Execute Isolated**: The Gemini CLI sees the worktree
+directory but **cannot** see your main repo files. 3. **Harmonize**: The
+`merger` node will merge the `math_fun.R` file back to the `main`
+branch.
+
+``` r
+
+# Run the DAG from the temporary repo root
+results <- dag$run(
+  initial_state = list(input = "Start execution"),
+  use_worktrees = TRUE,
+  repo_root = repo_root,
+  fail_if_dirty = FALSE # Allow running in the new repo
+)
+
+# Verify the file was merged into the main repo branch
+list.files(repo_root)
+# [1] "README.md" "math_fun.R"
+```
+
+------------------------------------------------------------------------
+
+## 🧘 Why Use Worktrees?
+
+1.  **No Conflicts**: Two parallel agents can modify `DESCRIPTION` at
+    the same time without corrupted git states.
+2.  **Explicit Merging**: Changes only appear in your main directory
+    when a `MergeHarmonizer` node explicitly merges them or the DAG
+    succeeds.
+3.  **Hardened Context**: If an agent runs `system("rm -rf *")`, it only
+    destroys its temporary worktree, leaving your primary codebase safe.
+
+------------------------------------------------------------------------

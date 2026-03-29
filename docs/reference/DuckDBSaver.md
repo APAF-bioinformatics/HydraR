@@ -3,6 +3,10 @@
 Persistent implementation of the Checkpointer interface using DuckDB.
 Supports both direct DBI connections and file paths.
 
+## Value
+
+A \`DuckDBSaver\` R6 object.
+
 ## Super class
 
 [`HydraR::Checkpointer`](https://github.com/APAF-bioinformatics/HydraR/reference/Checkpointer.md)
@@ -103,3 +107,11 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+saver <- DuckDBSaver$new(db_path = "checkpoints.duckdb")
+} # }
+```

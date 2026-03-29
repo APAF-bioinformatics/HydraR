@@ -20,38 +20,71 @@ reference:
       - AgentDAG
       - AgentNode
       - AgentState
-      - Checkpointer
-      - MemorySaver
-      - DuckDBSaver
   - title: Agent Nodes
     desc: Specialized nodes for LLM interaction and logical routing.
     contents:
       - AgentLLMNode
       - AgentLogicNode
+      - AgentBashNode
+      - AgentPythonNode
       - add_llm_node
       - add_logic_node
       - dag_add_llm_node
       - dag_add_logic_node
       - standard_node_factory
+  - title: Parallelism & Merge Harmonization
+    desc: Infrastructure for isolated execution and conflict resolution.
+    contents:
+      - WorktreeManager
+      - ConflictResolver
+      - create_merge_harmonizer
+      - RestrictedState
   - title: LLM Drivers
     desc: Provider-agnostic interfaces for CLI-based and API-based LLMs.
     contents:
       - AgentDriver
       - GeminiCLIDriver
+      - GeminiAPIDriver
+      - OpenAIDriver
+      - AnthropicDriver
       - OllamaDriver
       - ClaudeCodeDriver
       - CopilotCLIDriver
+  - title: Dynamic Driver & Logic Registry
+    desc: Tools for hot-swapping drivers and registering domain-specific logic.
+    contents:
+      - DriverRegistry
+      - get_driver_registry
+      - list_logic
+      - get_logic
+      - register_logic
+  - title: Messaging & Persistence
+    desc: State persistence and inter-node messaging infrastructure.
+    contents:
+      - MessageLog
+      - MemoryMessageLog
+      - DuckDBMessageLog
+      - Checkpointer
+      - MemorySaver
+      - DuckDBSaver
+      - RDSSaver
   - title: Utilities & Parsing
     desc: Helper functions for mermaid visualization and code extraction.
     contents:
       - AgentTool
+      - dag_create
       - parse_mermaid
+      - mermaid_to_dag
       - extract_r_code_advanced
       - format_toolset
       - reducer_merge_list
       - reducer_append
 
 articles:
+  - title: Instruction Manual
+    navbar: Manual
+    contents:
+      - manual
   - title: Case Studies
     navbar: Case Studies
     contents:
@@ -66,10 +99,10 @@ articles:
       - personalized_shopping
       - software_bug_assistant
       - story_teller
-      - travel_booking
   - title: Developer Guides
     navbar: Guides
     contents:
+      - targets_integration
       - creating_drivers
       - git_worktree_toy
 

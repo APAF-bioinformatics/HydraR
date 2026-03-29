@@ -2,11 +2,12 @@
 
 ## Authors
 
-- **Ignatius Pang**. Author. [](https://orcid.org/0000-0001-9703-5741)
+- **Ignatius Pang**. Author, maintainer.
+  [](https://orcid.org/0000-0001-9703-5741)
 
 - **Aidan Tay**. Author. [](https://orcid.org/0000-0003-1315-4896)
 
-- **APAF Agentic Workflow**. Maintainer.
+- **APAF Agentic Workflow**. Contributor.
 
 ## Citation
 

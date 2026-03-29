@@ -46,9 +46,13 @@ You can install the development version from GitHub:
 devtools::install_github("apaf-bioinformatics/HydraR")
 ```
 
-## 📖 Vignettes & Examples
+## 📖 Documentation & Manual
 
-Learn how to use `HydraR` with these premium examples:
+The primary resource for learning `HydraR` is the **[Complete
+Instruction
+Manual](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/manual.Rmd)**.
+
+### Case Studies & Examples
 
 - **📍 [Sydney to Hong Kong Travel
   Planner](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/hong_kong_travel.Rmd)**:
@@ -60,6 +64,66 @@ Learn how to use `HydraR` with these premium examples:
 - **🛡️ [Software Bug
   Assistant](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/software_bug_assistant.Rmd)**:
   Shows how to orchestrate code analysis and fix suggestions.
+- **🛠️ [Creating Custom
+  Drivers](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/creating_drivers.Rmd)**:
+  Developer guide on subclassing `AgentDriver` with Mocking and API
+  support.
+- **🛡️ [Isolated Execution with Git
+  Worktrees](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/git_worktree_toy.Rmd)**:
+  A toy program demonstrating safe, parallel file modifications using
+  the Gemini CLI.
+
+## Custom Drivers
+
+`HydraR` is provider-agnostic. You can extend the framework by creating
+custom R6 classes that inherit from `AgentDriver`. This allows you to
+drive: - **Local LLMs**: Integration with specialized local CLI
+wrappers. - **Enterprise APIs**: Secure connection to internal LLM
+endpoints via `httr2`. - **Mock Backends**: Deterministic drivers for
+unit testing complex DAG logic.
+
+Refer to the [Creating Custom
+Drivers](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/creating_drivers.Rmd)
+guide for implementation details.
+
+## 📊 Visualizing Execution
+
+`HydraR` includes a powerful visualization engine that goes beyond
+static DAGs. You can generate status-colored plots after a run to
+identify bottlenecks and failures.
+
+### Interactive Rendering in R
+
+We recommend using the
+[`DiagrammeR`](https://dgritree.github.io/DiagrammeR/) package to render
+your DAGs directly in the RStudio Viewer:
+
+``` r
+
+library(HydraR)
+library(DiagrammeR)
+
+# Generate a status-colored plot after a run
+# Green = Success, Red = Failure, Blue = Active path
+DiagrammeR::mermaid(dag$plot(status = TRUE))
+```
+
+### Path Highlighting
+
+The `plot(status = TRUE)` method automatically correlates your execution
+`trace_log` with the graph structure to highlight the **exact path**
+taken by the agents, including loops and branches.
+
+### Mermaid Round-Trip
+
+You can also define your agentic workflows using pure Mermaid syntax and
+convert them directly into R objects:
+
+``` r
+
+mermaid <- "graph TD\n  Start --> End"
+dag <- mermaid_to_dag(mermaid, my_node_factory)
+```
 
 ## “Hello World” Example
 

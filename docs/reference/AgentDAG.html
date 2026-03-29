@@ -22,6 +22,9 @@ Supports both pure DAG execution (parallel) and iterative loops via conditional 
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Manual</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Instruction Manual</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -33,7 +36,11 @@ Supports both pure DAG execution (parallel) and iterative loops via conditional 
     <li><a class="dropdown-item" href="../articles/personalized_shopping.html">Agentic Personalized Shopping Assistant</a></li>
     <li><a class="dropdown-item" href="../articles/software_bug_assistant.html">Agentic Software Bug Assistant</a></li>
     <li><a class="dropdown-item" href="../articles/story_teller.html">Agentic Story Teller</a></li>
-    <li><a class="dropdown-item" href="../articles/travel_booking.html">Agentic Travel Booking Concierge</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/targets_integration.html">Reproducible Agentic Pipelines with targets</a></li>
+    <li><a class="dropdown-item" href="../articles/creating_drivers.html">Creating Custom Agent Drivers</a></li>
+    <li><a class="dropdown-item" href="../articles/git_worktree_toy.html">Isolated Execution with Git Worktrees</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="nav-link" href="https://github.com/APAF-bioinformatics/HydraR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -56,6 +63,10 @@ Supports both pure DAG execution (parallel) and iterative loops via conditional 
     </div>
 
 
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>An `AgentDAG` R6 object.</p>
+    </div>
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
     <p></p><div class="r6-fields"><dl><dt><code>nodes</code></dt>
@@ -88,6 +99,14 @@ Supports both pure DAG execution (parallel) and iterative loops via conditional 
 
 <dt><code>state</code></dt>
 <dd><p>AgentState. Centralized state object.</p></dd>
+
+
+<dt><code>message_log</code></dt>
+<dd><p>MessageLog. Optional audit log.</p></dd>
+
+
+<dt><code>worktree_manager</code></dt>
+<dd><p>WorktreeManager. Optional isolation manager.</p></dd>
 
 
 </dl><p></p></div>
@@ -161,7 +180,7 @@ Add an Edge</p></dd>
 
 <div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AgentDAG</span><span class="op">$</span><span class="fu">add_edge</span><span class="op">(</span><span class="va">from</span>, <span class="va">to</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AgentDAG</span><span class="op">$</span><span class="fu">add_edge</span><span class="op">(</span><span class="va">from</span>, <span class="va">to</span>, label <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -171,7 +190,11 @@ Add an Edge</p></dd>
 
 
 <dt><code>to</code></dt>
-<dd><p>String node ID.
+<dd><p>String node ID.</p></dd>
+
+
+<dt><code>label</code></dt>
+<dd><p>Optional string label for the edge.
 Add a Conditional Edge (Loop Support)</p></dd>
 
 
@@ -218,7 +241,12 @@ Run the Graph</p></dd>
 <span>  max_steps <span class="op">=</span> <span class="fl">25</span>,</span>
 <span>  checkpointer <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  thread_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  resume_from <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  resume_from <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  use_worktrees <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  repo_root <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  cleanup_policy <span class="op">=</span> <span class="st">"auto"</span>,</span>
+<span>  fail_if_dirty <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -244,6 +272,26 @@ Run the Graph</p></dd>
 <dd><p>String. Node ID to resume execution from.</p></dd>
 
 
+<dt><code>use_worktrees</code></dt>
+<dd><p>Logical. Whether to use isolated git worktrees for parallel branches.</p></dd>
+
+
+<dt><code>repo_root</code></dt>
+<dd><p>String. Path to the main git repository.</p></dd>
+
+
+<dt><code>cleanup_policy</code></dt>
+<dd><p>String. "auto", "none", or "aggressive".</p></dd>
+
+
+<dt><code>fail_if_dirty</code></dt>
+<dd><p>Logical. Whether to fail if repo has uncommitted changes.</p></dd>
+
+
+<dt><code>...</code></dt>
+<dd><p>Additional arguments passed to node run methods.</p></dd>
+
+
 </dl><p></p></div>
 </div>
 <div class="section">
@@ -258,18 +306,23 @@ Internal: Linear DAG Execution</p>
 <div class="section">
 <h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AgentDAG</span><span class="op">$</span><span class="fu">.run_linear</span><span class="op">(</span></span>
+<span>  max_steps <span class="op">=</span> <span class="fl">25</span>,</span>
 <span>  checkpointer <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  thread_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  resume_from <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  node_ids <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  depth <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  step_count <span class="op">=</span> <span class="fl">0</span></span>
+<span>  step_count <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  fail_if_dirty <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>checkpointer</code></dt>
+<p></p><div class="arguments"><dl><dt><code>max_steps</code></dt>
+<dd><p>Integer.</p></dd>
+
+
+<dt><code>checkpointer</code></dt>
 <dd><p>Checkpointer object.</p></dd>
 
 
@@ -285,12 +338,12 @@ Internal: Linear DAG Execution</p>
 <dd><p>Character vector of nodes to run.</p></dd>
 
 
-<dt><code>depth</code></dt>
-<dd><p>Integer current recursion depth.</p></dd>
-
-
 <dt><code>step_count</code></dt>
 <dd><p>Integer current total step count.</p></dd>
+
+
+<dt><code>fail_if_dirty</code></dt>
+<dd><p>Logical.</p></dd>
 
 
 </dl><p></p></div>
@@ -298,7 +351,7 @@ Internal: Linear DAG Execution</p>
 <div class="section">
 <h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
 <p>Execution result list.
-Internal: Iterative State Machine Execution</p>
+Internal: Iterative Execution</p>
 </div>
 
 </div><p></p><hr><a id="method-AgentDAG-.run_iterative"></a><div class="section">
@@ -311,9 +364,8 @@ Internal: Iterative State Machine Execution</p>
 <span>  checkpointer <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  thread_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  resume_from <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  current_nodes <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  step_count <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  depth <span class="op">=</span> <span class="fl">0</span></span>
+<span>  fail_if_dirty <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -324,7 +376,7 @@ Internal: Iterative State Machine Execution</p>
 
 
 <dt><code>checkpointer</code></dt>
-<dd><p>Checkpointer.</p></dd>
+<dd><p>Checkpointer object.</p></dd>
 
 
 <dt><code>thread_id</code></dt>
@@ -335,17 +387,12 @@ Internal: Iterative State Machine Execution</p>
 <dd><p>String.</p></dd>
 
 
-<dt><code>current_nodes</code></dt>
-<dd><p>Character vector.</p></dd>
-
-
 <dt><code>step_count</code></dt>
 <dd><p>Integer.</p></dd>
 
 
-<dt><code>depth</code></dt>
-<dd><p>Integer. Current recursion depth.
-Plot the DAG</p></dd>
+<dt><code>fail_if_dirty</code></dt>
+<dd><p>Logical.</p></dd>
 
 
 </dl><p></p></div>
@@ -356,13 +403,35 @@ Plot the DAG</p></dd>
 
 <div class="section">
 <h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AgentDAG</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>type <span class="op">=</span> <span class="st">"mermaid"</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AgentDAG</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span></span>
+<span>  type <span class="op">=</span> <span class="st">"mermaid"</span>,</span>
+<span>  status <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  details <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  include_params <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  show_edge_labels <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>type</code></dt>
-<dd><p>String. Currently only "mermaid" is supported.</p></dd>
+<dd><p>String. Type of plot (currently only "mermaid").</p></dd>
+
+
+<dt><code>status</code></dt>
+<dd><p>Logical. If TRUE, styling is applied to nodes/edges based on results.</p></dd>
+
+
+<dt><code>details</code></dt>
+<dd><p>Logical. If TRUE, node parameters are serialized into labels.</p></dd>
+
+
+<dt><code>include_params</code></dt>
+<dd><p>Character vector. Optional whitelist of parameters to show.</p></dd>
+
+
+<dt><code>show_edge_labels</code></dt>
+<dd><p>Logical. Whether to show labels on edges.</p></dd>
 
 
 </dl><p></p></div>
@@ -398,7 +467,7 @@ Save the Execution Trace</p>
 <h4 id="arguments-8">Arguments<a class="anchor" aria-label="anchor" href="#arguments-8"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>file</code></dt>
 <dd><p>String. Output path for the JSON trace.
-Create AgentDAG from Mermaid</p></dd>
+Create Graph from Mermaid</p></dd>
 
 
 </dl><p></p></div>
@@ -419,7 +488,7 @@ Create AgentDAG from Mermaid</p></dd>
 
 
 <dt><code>node_factory</code></dt>
-<dd><p>Function(id, label) -&gt; AgentNode.</p></dd>
+<dd><p>Function(id, label, params) -&gt; AgentNode.</p></dd>
 
 
 </dl><p></p></div>
@@ -449,12 +518,19 @@ Create AgentDAG from Mermaid</p></dd>
 
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="va">AgentDAG</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">node</span> <span class="op">&lt;-</span> <span class="va"><a href="AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"start"</span>, <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"success"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">node</span><span class="op">)</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Ignatius Pang, Aidan Tay, APAF Agentic Workflow.</p>
+  <p>Developed by Ignatius Pang, Aidan Tay.</p>
 </div>
 
 <div class="pkgdown-footer-right">

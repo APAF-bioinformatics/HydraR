@@ -35,6 +35,9 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Manual</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Instruction Manual</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -46,7 +49,11 @@
     <li><a class="dropdown-item" href="../articles/personalized_shopping.html">Agentic Personalized Shopping Assistant</a></li>
     <li><a class="dropdown-item" href="../articles/software_bug_assistant.html">Agentic Software Bug Assistant</a></li>
     <li><a class="dropdown-item" href="../articles/story_teller.html">Agentic Story Teller</a></li>
-    <li><a class="dropdown-item" href="../articles/travel_booking.html">Agentic Travel Booking Concierge</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/targets_integration.html">Reproducible Agentic Pipelines with targets</a></li>
+    <li><a class="dropdown-item" href="../articles/creating_drivers.html">Creating Custom Agent Drivers</a></li>
+    <li><a class="dropdown-item" href="../articles/git_worktree_toy.html">Isolated Execution with Git Worktrees</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -82,7 +89,8 @@
 using <code>HydraR</code>.</p>
 <p>Content creation often involves a multi-stage pipeline consisting of
 brainstorming, drafting, and reviewing. We model this as a DAG with a
-mix of linear execution and cyclic feedback.</p>
+mix of linear execution and cyclic feedback using the <strong>Gemini
+CLI</strong>.</p>
 <ol style="list-style-type: decimal">
 <li>
 <strong>Outliner Node</strong>: Generates a structured outline based
@@ -99,7 +107,10 @@ readability. If it fails the checks, it loops back to the Drafter.</li>
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Initialize the Gemini CLI driver</span></span>
+<span><span class="va">driver</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GeminiCLIDriver.html">GeminiCLIDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="building-the-dag">Building the DAG<a class="anchor" aria-label="anchor" href="#building-the-dag"></a>
@@ -110,78 +121,52 @@ readability. If it fails the checks, it loops back to the Drafter.</li>
 <div class="section level3">
 <h3 id="the-outliner-node">1. The Outliner Node<a class="anchor" aria-label="anchor" href="#the-outliner-node"></a>
 </h3>
-<p>This node only runs once at the beginning of the pipeline.</p>
+<p>Generates the core structure of the blog post.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">outliner_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"Outliner"</span>, logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">memory</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">topic</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"blog_topic"</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>    output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      outline <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"1. Introduction matching '%s'\n2. Detailed Body\n3. Conclusion"</span>, <span class="va">topic</span><span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">outliner_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLLMNode.html">AgentLLMNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">"Outliner"</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">"Content Strategist"</span>,</span>
+<span>  role <span class="op">=</span> <span class="st">"You are a content strategist. Create a structured outline for a blog post based on a topic provided by the user."</span>,</span>
+<span>  driver <span class="op">=</span> <span class="va">driver</span>,</span>
+<span>  prompt_builder <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Topic: %s\nProvide a detailed multisection outline."</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"blog_topic"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">outliner_node</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="the-drafter-node">2. The Drafter Node<a class="anchor" aria-label="anchor" href="#the-drafter-node"></a>
 </h3>
-<p>This node merges the outline with any editor feedback.</p>
+<p>Merges the outline with any editor feedback.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">drafter_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"Drafter"</span>, logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">memory</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">outline</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"outline"</span><span class="op">)</span></span>
-<span>  <span class="va">feedback</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"editor_feedback"</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="va">attempts</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"draft_attempts"</span><span class="op">)</span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">attempts</span><span class="op">)</span><span class="op">)</span> <span class="va">attempts</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
-<span>  <span class="va">attempts</span> <span class="op">&lt;-</span> <span class="va">attempts</span> <span class="op">+</span> <span class="fl">1</span></span>
-<span></span>
-<span>  <span class="co"># Mocking drafting: on the second attempt, we "fix" the SEO issue</span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">attempts</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">draft</span> <span class="op">&lt;-</span> <span class="st">"Here is a blog post based on the outline. It is very generic."</span></span>
-<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>    <span class="va">draft</span> <span class="op">&lt;-</span> <span class="st">"Here is an SEO-optimized blog post with correct keywords and structure."</span></span>
+<code class="sourceCode R"><span><span class="va">drafter_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLLMNode.html">AgentLLMNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">"Drafter"</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">"Creative Writer"</span>,</span>
+<span>  role <span class="op">=</span> <span class="st">"You are a professional blog writer. Draft a full blog post based on an outline and any specific editorial feedback."</span>,</span>
+<span>  driver <span class="op">=</span> <span class="va">driver</span>,</span>
+<span>  prompt_builder <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">feedback_text</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"Editor"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"\nFeedback: %s"</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"Editor"</span><span class="op">)</span><span class="op">)</span> <span class="kw">else</span> <span class="st">""</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Outline: %s%s\nDraft the full blog post."</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"Outliner"</span><span class="op">)</span>, <span class="va">feedback_text</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
-<span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>    output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      blog_draft <span class="op">=</span> <span class="va">draft</span>,</span>
-<span>      draft_attempts <span class="op">=</span> <span class="va">attempts</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">drafter_node</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="the-editor-node">3. The Editor Node<a class="anchor" aria-label="anchor" href="#the-editor-node"></a>
 </h3>
-<p>Checks the draft for specific keywords.</p>
+<p>Reviews the draft for SEO and quality.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">editor_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"Editor"</span>, logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">memory</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">draft</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"blog_draft"</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"SEO-optimized"</span>, <span class="va">draft</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>      output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>        is_published <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>        editor_feedback <span class="op">=</span> <span class="st">"Approved for publishing."</span></span>
-<span>      <span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>      output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>        is_published <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>        editor_feedback <span class="op">=</span> <span class="st">"The draft lacks SEO optimization. Please revise."</span></span>
-<span>      <span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">editor_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLLMNode.html">AgentLLMNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">"Editor"</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">"SEO Editor"</span>,</span>
+<span>  role <span class="op">=</span> <span class="st">"You are an SEO specialist. Review the blog draft. If it is excellent, say 'Approved'. If not, provide specific 'Improvement Feedback'."</span>,</span>
+<span>  driver <span class="op">=</span> <span class="va">driver</span>,</span>
+<span>  prompt_builder <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Draft: %s\nDoes this meet professional standards? Respond either with 'Approved' or detailed feedback."</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"Drafter"</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">editor_node</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -199,53 +184,56 @@ readability. If it fails the checks, it loops back to the Drafter.</li>
 <span><span class="va">dag</span><span class="op">$</span><span class="fu">add_conditional_edge</span><span class="op">(</span></span>
 <span>  from <span class="op">=</span> <span class="st">"Editor"</span>,</span>
 <span>  test <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">out</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">is_published</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"Approved"</span>, <span class="va">out</span>, ignore.case <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span>  <span class="op">}</span>,</span>
 <span>  if_true <span class="op">=</span> <span class="cn">NULL</span>, <span class="co"># Stop!</span></span>
 <span>  if_false <span class="op">=</span> <span class="st">"Drafter"</span> <span class="co"># Back to drafter</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">compiled_dag</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">compile</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in dag$compile(): Potential infinite loop detected: graph contains</span></span>
+<span><span class="co">#&gt; cycles. Ensure conditional edges have exit conditions.</span></span>
 <span><span class="co">#&gt; Graph compiled successfully.</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="running-the-scenario">Running the Scenario<a class="anchor" aria-label="anchor" href="#running-the-scenario"></a>
+<h2 id="visualizing-the-workflow">Visualizing the Workflow<a class="anchor" aria-label="anchor" href="#visualizing-the-workflow"></a>
 </h2>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">initial_state</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  blog_topic <span class="op">=</span> <span class="st">"Agentic Workflows in R"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Starting Blog Creation Engine...\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Starting Blog Creation Engine...</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">compiled_dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>initial_state <span class="op">=</span> <span class="va">initial_state</span>, max_steps <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Graph compiled successfully.</span></span>
-<span><span class="co">#&gt; [Iteration 1] Running Node: Outliner</span></span>
-<span><span class="co">#&gt;    [Outliner] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 2] Running Node: Drafter</span></span>
-<span><span class="co">#&gt;    [Drafter] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 3] Running Node: Editor</span></span>
-<span><span class="co">#&gt;    [Editor] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 4] Running Node: Drafter</span></span>
-<span><span class="co">#&gt;    [Drafter] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 5] Running Node: Editor</span></span>
-<span><span class="co">#&gt;    [Editor] Executing R logic...</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n--- BLOG PUBLICATION STATUS ---\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; --- BLOG PUBLICATION STATUS ---</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Outline Created:\n"</span>, <span class="va">result</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"outline"</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Outline Created:</span></span>
-<span><span class="co">#&gt;  1. Introduction matching 'Agentic Workflows in R'</span></span>
-<span><span class="co">#&gt; 2. Detailed Body</span></span>
-<span><span class="co">#&gt; 3. Conclusion</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Total Drafts:"</span>, <span class="va">result</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"draft_attempts"</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Total Drafts: 2</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Final Output:\n"</span>, <span class="va">result</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"blog_draft"</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Final Output:</span></span>
-<span><span class="co">#&gt;  Here is an SEO-optimized blog post with correct keywords and structure.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Editor Decision:"</span>, <span class="va">result</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"editor_feedback"</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Editor Decision: Approved for publishing.</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"```mermaid\n"</span><span class="op">)</span></span></code></pre></div>
+<pre class="mermaid"><code>
+``` r
+cat(compiled_dag$plot(type = "mermaid"))</code></pre>
+<pre class="mermaid"><code>graph TD
+  Outliner["Content Strategist"]
+  Drafter["Creative Writer"]
+  Editor["SEO Editor"]
+  Outliner --&gt; Drafter
+  Drafter --&gt; Editor
+  Editor -- Fail --&gt; Drafter</code></pre>
+<pre class="mermaid"><code>graph TD
+  Outliner["Content Strategist"]
+  Drafter["Creative Writer"]
+  Editor["SEO Editor"]
+  Outliner --&gt; Drafter
+  Drafter --&gt; Editor
+  Editor -- Fail --&gt; Drafter</code></pre>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n```\n"</span><span class="op">)</span></span></code></pre></div>
+<pre><code>
+## Running the Scenario
+
+
+``` r
+initial_state &lt;- list(
+  blog_topic = "Agentic Workflows in R"
+)
+
+cat("Starting Blog Creation Engine...\n")
+result &lt;- compiled_dag$run(initial_state = initial_state, max_steps = 10)
+
+cat("\n--- BLOG PUBLICATION STATUS ---\n")
+cat("Final Output:\n", result$state$get("Drafter"), "\n")
+cat("Editor Decision:", result$state$get("Editor"), "\n")</code></pre>
 <p>The DAG easily handles complex flows involving both straight-through
 processing and localized feedback loops.</p>
 <!-- APAF Bioinformatics | blog_writer.Rmd | Approved | 2026-03-29 -->
@@ -257,7 +245,7 @@ processing and localized feedback loops.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Ignatius Pang, Aidan Tay, APAF Agentic Workflow.</p>
+  <p>Developed by Ignatius Pang, Aidan Tay.</p>
 </div>
 
 <div class="pkgdown-footer-right">

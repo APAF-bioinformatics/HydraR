@@ -35,6 +35,9 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Manual</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Instruction Manual</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -46,7 +49,11 @@
     <li><a class="dropdown-item" href="../articles/personalized_shopping.html">Agentic Personalized Shopping Assistant</a></li>
     <li><a class="dropdown-item" href="../articles/software_bug_assistant.html">Agentic Software Bug Assistant</a></li>
     <li><a class="dropdown-item" href="../articles/story_teller.html">Agentic Story Teller</a></li>
-    <li><a class="dropdown-item" href="../articles/travel_booking.html">Agentic Travel Booking Concierge</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/targets_integration.html">Reproducible Agentic Pipelines with targets</a></li>
+    <li><a class="dropdown-item" href="../articles/creating_drivers.html">Creating Custom Agent Drivers</a></li>
+    <li><a class="dropdown-item" href="../articles/git_worktree_toy.html">Isolated Execution with Git Worktrees</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -81,50 +88,83 @@
 <p>This vignette demonstrates the <strong>Academic Research</strong>
 pattern using <code>HydraR</code>. We define a linear, multi-stage
 agentic workflow designed to synthesize academic literature into a final
-report.</p>
+report using the <strong>Gemini CLI</strong>.</p>
 <p>The pipeline comprises three agents: 1. <strong>Searcher
 Node</strong>: Given a research topic, finds relevant academic papers.
 2. <strong>Summarizer Node</strong>: Ingests the raw papers and extracts
 key findings. 3. <strong>Compiler Node</strong>: Takes the extracted
 findings and formats them into a comprehensive literature review.</p>
-<p>This pattern is a perfect example of a <strong>sequential processing
-pipeline</strong> without cyclic loops, where each node enriches the
-state.</p>
 </div>
 <div class="section level2">
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Initialize the Gemini CLI driver</span></span>
+<span><span class="co"># Note: This assumes the 'gemini' CLI is installed and configured on your system.</span></span>
+<span><span class="va">driver</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GeminiCLIDriver.html">GeminiCLIDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="checkpointer-configuration">Checkpointer Configuration<a class="anchor" aria-label="anchor" href="#checkpointer-configuration"></a>
+</h2>
+<p>HydraR supports optional state checkpointing after each node
+execution. Choose from four modes:</p>
+<ul>
+<li>
+<strong><code>"none"</code></strong> – Ephemeral run, no persistence
+(default).</li>
+<li>
+<strong><code>"memory"</code></strong> – In-memory via
+<code>MemorySaver</code> (lost on session exit).</li>
+<li>
+<strong><code>"rds"</code></strong> – File-based via
+<code>RDSSaver</code> (lightweight, base R only).</li>
+<li>
+<strong><code>"duckdb"</code></strong> – Database-backed via
+<code>DuckDBSaver</code> (requires <code>duckdb</code> package).</li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># ── USER CONFIGURATION ──────────────────────────────────────────</span></span>
+<span><span class="va">CHECKPOINTER_MODE</span> <span class="op">&lt;-</span> <span class="st">"none"</span> <span class="co"># "none" | "memory" | "rds" | "duckdb"</span></span>
+<span><span class="va">RDS_DIR</span> <span class="op">&lt;-</span> <span class="st">"checkpoints"</span></span>
+<span><span class="va">DUCKDB_PATH</span> <span class="op">&lt;-</span> <span class="st">"checkpoints/academic_research.duckdb"</span></span>
+<span><span class="va">THREAD_ID</span> <span class="op">&lt;-</span> <span class="st">"academic_research_run_1"</span></span>
+<span><span class="co"># ────────────────────────────────────────────────────────────────</span></span>
+<span></span>
+<span><span class="va">checkpointer</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/switch.html" class="external-link">switch</a></span><span class="op">(</span><span class="va">CHECKPOINTER_MODE</span>,</span>
+<span>  <span class="st">"memory"</span> <span class="op">=</span> <span class="va"><a href="../reference/MemorySaver.html">MemorySaver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  <span class="st">"rds"</span> <span class="op">=</span> <span class="va"><a href="../reference/RDSSaver.html">RDSSaver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>dir <span class="op">=</span> <span class="va">RDS_DIR</span><span class="op">)</span>,</span>
+<span>  <span class="st">"duckdb"</span> <span class="op">=</span> <span class="op">{</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.exists</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">dirname</a></span><span class="op">(</span><span class="va">DUCKDB_PATH</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">dirname</a></span><span class="op">(</span><span class="va">DUCKDB_PATH</span><span class="op">)</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>    <span class="va"><a href="../reference/DuckDBSaver.html">DuckDBSaver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>db_path <span class="op">=</span> <span class="va">DUCKDB_PATH</span><span class="op">)</span></span>
+<span>  <span class="op">}</span>,</span>
+<span>  <span class="st">"none"</span> <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Invalid CHECKPOINTER_MODE: '%s'"</span>, <span class="va">CHECKPOINTER_MODE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">thread_id</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">checkpointer</span><span class="op">)</span><span class="op">)</span> <span class="va">THREAD_ID</span> <span class="kw">else</span> <span class="cn">NULL</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="building-the-dag">Building the DAG<a class="anchor" aria-label="anchor" href="#building-the-dag"></a>
 </h2>
 <p>Initialize the <code>AgentDAG</code>.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentDAG.html">AgentDAG</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="the-searcher-node">1. The Searcher Node<a class="anchor" aria-label="anchor" href="#the-searcher-node"></a>
 </h3>
-<p>Mocking an LLM utilizing a tool to search PubMed or ArXiv.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">searcher_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"Searcher"</span>, logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">memory</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">topic</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"research_topic"</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="co"># Mock search results</span></span>
-<span>  <span class="va">papers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">topic</span>, <span class="st">"Basics"</span><span class="op">)</span>, content <span class="op">=</span> <span class="st">"Introduction to the topic."</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Advanced"</span>, <span class="va">topic</span><span class="op">)</span>, content <span class="op">=</span> <span class="st">"Complex analysis of the topic."</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>    output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      raw_papers <span class="op">=</span> <span class="va">papers</span>,</span>
-<span>      search_status <span class="op">=</span> <span class="st">"Found 2 papers."</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
+<p>Utilizing an LLM to identify key papers for a topic.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">searcher_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLLMNode.html">AgentLLMNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">"Searcher"</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">"Literature Searcher"</span>,</span>
+<span>  role <span class="op">=</span> <span class="st">"You are an academic research assistant. Identify 2-3 key hypothetical papers for the given topic. Output the result as a simple list."</span>,</span>
+<span>  driver <span class="op">=</span> <span class="va">driver</span>,</span>
+<span>  prompt_builder <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Research Topic: %s\nProvide a list of 2-3 paper titles and brief descriptions."</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"research_topic"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">searcher_node</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -132,22 +172,16 @@ state.</p>
 <h3 id="the-summarizer-node">2. The Summarizer Node<a class="anchor" aria-label="anchor" href="#the-summarizer-node"></a>
 </h3>
 <p>Extracts value from the search results.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">summarizer_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"Summarizer"</span>, logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">memory</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">papers</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"raw_papers"</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="co"># Mocking summarization</span></span>
-<span>  <span class="va">summaries</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">papers</span>, <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"- **%s**: Highlights - %s"</span>, <span class="va">p</span><span class="op">$</span><span class="va">title</span>, <span class="va">p</span><span class="op">$</span><span class="va">content</span><span class="op">)</span></span>
-<span>  <span class="op">}</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>    output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      paper_summaries <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">summaries</span><span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">summarizer_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLLMNode.html">AgentLLMNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">"Summarizer"</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">"Content Summarizer"</span>,</span>
+<span>  role <span class="op">=</span> <span class="st">"You are a scientific editor. Summarize the following paper list into key highlights."</span>,</span>
+<span>  driver <span class="op">=</span> <span class="va">driver</span>,</span>
+<span>  prompt_builder <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Paper List: %s"</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"Searcher"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">summarizer_node</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -155,24 +189,16 @@ state.</p>
 <h3 id="the-compiler-node">3. The Compiler Node<a class="anchor" aria-label="anchor" href="#the-compiler-node"></a>
 </h3>
 <p>Drafts the final markdown report.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">compiler_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"Compiler"</span>, logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">memory</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">topic</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"research_topic"</span><span class="op">)</span></span>
-<span>  <span class="va">summaries</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"paper_summaries"</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="va">report</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span></span>
-<span>    <span class="st">"# Literature Review: "</span>, <span class="va">topic</span>, <span class="st">"\n\n"</span>,</span>
-<span>    <span class="st">"## Key Findings\n"</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">summaries</span>, collapse <span class="op">=</span> <span class="st">"\n"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>    output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      final_report <span class="op">=</span> <span class="va">report</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">compiler_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLLMNode.html">AgentLLMNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">"Compiler"</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">"Report Compiler"</span>,</span>
+<span>  role <span class="op">=</span> <span class="st">"You are a technical writer. Format the following summaries into a professional markdown report with headers."</span>,</span>
+<span>  driver <span class="op">=</span> <span class="va">driver</span>,</span>
+<span>  prompt_builder <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Topic: %s\nSummaries: %s"</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"research_topic"</span><span class="op">)</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"Summarizer"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">compiler_node</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -182,7 +208,7 @@ state.</p>
 </h2>
 <p>Configure a straight-through pipeline:
 <code>Searcher -&gt; Summarizer -&gt; Compiler</code></p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dag</span><span class="op">$</span><span class="fu">set_start_node</span><span class="op">(</span><span class="st">"Searcher"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">dag</span><span class="op">$</span><span class="fu">add_edge</span><span class="op">(</span><span class="st">"Searcher"</span>, <span class="st">"Summarizer"</span><span class="op">)</span></span>
@@ -192,36 +218,48 @@ state.</p>
 <span><span class="co">#&gt; Graph compiled successfully.</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="running-the-scenario">Running the Scenario<a class="anchor" aria-label="anchor" href="#running-the-scenario"></a>
+<h2 id="visualizing-the-workflow">Visualizing the Workflow<a class="anchor" aria-label="anchor" href="#visualizing-the-workflow"></a>
 </h2>
-<p>Provide the topic and run the pipeline.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">initial_state</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  research_topic <span class="op">=</span> <span class="st">"CRISPR Gene Editing"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Starting Literature Pipeline...\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Starting Literature Pipeline...</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">compiled_dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>initial_state <span class="op">=</span> <span class="va">initial_state</span>, max_steps <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Graph compiled successfully.</span></span>
-<span><span class="co">#&gt; [Linear] Running Node: Searcher</span></span>
-<span><span class="co">#&gt;    [Searcher] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Linear] Running Node: Summarizer</span></span>
-<span><span class="co">#&gt;    [Summarizer] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Linear] Running Node: Compiler</span></span>
-<span><span class="co">#&gt;    [Compiler] Executing R logic...</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n--- PIPELINE EXECUTION COMPLETE ---\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; --- PIPELINE EXECUTION COMPLETE ---</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Search Status:"</span>, <span class="va">result</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"search_status"</span><span class="op">)</span>, <span class="st">"\n\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Search Status: Found 2 papers.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"final_report"</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # Literature Review: CRISPR Gene Editing</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ## Key Findings</span></span>
-<span><span class="co">#&gt; - **CRISPR Gene Editing Basics**: Highlights - Introduction to the topic.</span></span>
-<span><span class="co">#&gt; - **Advanced CRISPR Gene Editing**: Highlights - Complex analysis of the topic.</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"```mermaid\n"</span><span class="op">)</span></span></code></pre></div>
+<pre class="mermaid"><code>
+``` r
+cat(compiled_dag$plot(type = "mermaid"))</code></pre>
+<pre class="mermaid"><code>graph TD
+  Searcher["Literature Searcher"]
+  Summarizer["Content Summarizer"]
+  Compiler["Report Compiler"]
+  Searcher --&gt; Summarizer
+  Summarizer --&gt; Compiler</code></pre>
+<pre class="mermaid"><code>graph TD
+  Searcher["Literature Searcher"]
+  Summarizer["Content Summarizer"]
+  Compiler["Report Compiler"]
+  Searcher --&gt; Summarizer
+  Summarizer --&gt; Compiler</code></pre>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n```\n"</span><span class="op">)</span></span></code></pre></div>
+<pre><code>
+## Running the Scenario
+
+Provide the topic and run the pipeline.
+
+
+``` r
+initial_state &lt;- list(
+  research_topic = "CRISPR Gene Editing"
+)
+
+cat(sprintf("Starting Literature Pipeline (checkpointer: %s)...\n", CHECKPOINTER_MODE))
+result &lt;- compiled_dag$run(
+  initial_state = initial_state,
+  max_steps = 5,
+  checkpointer = checkpointer,
+  thread_id = thread_id
+)
+
+cat("\n--- PIPELINE EXECUTION COMPLETE ---\n")
+cat(result$state$get("Compiler"), "\n")</code></pre>
 <p>The system successfully routed the data through all three agents to
 build a consolidated report!</p>
 <!-- APAF Bioinformatics | academic_research.Rmd | Approved | 2026-03-29 -->
@@ -233,7 +271,7 @@ build a consolidated report!</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Ignatius Pang, Aidan Tay, APAF Agentic Workflow.</p>
+  <p>Developed by Ignatius Pang, Aidan Tay.</p>
 </div>
 
 <div class="pkgdown-footer-right">

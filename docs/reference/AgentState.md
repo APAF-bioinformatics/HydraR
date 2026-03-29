@@ -3,6 +3,10 @@
 A strongly typed, centrally managed state object for passing data
 between nodes in an AgentDAG.
 
+## Value
+
+An \`AgentState\` R6 object.
+
 ## Public fields
 
 - `data`:
@@ -32,6 +36,8 @@ between nodes in an AgentDAG.
 - [`AgentState$set()`](#method-AgentState-set)
 
 - [`AgentState$update()`](#method-AgentState-update)
+
+- [`AgentState$to_list_serializable()`](#method-AgentState-to_list_serializable)
 
 - [`AgentState$clone()`](#method-AgentState-clone)
 
@@ -144,7 +150,19 @@ TRUE if valid, throws error otherwise. Set a state variable directly
 
 - `updates`:
 
-  List of state updates.
+  List of state updates. Export state for persistence (logic as names)
+
+------------------------------------------------------------------------
+
+### Method `to_list_serializable()`
+
+#### Usage
+
+    AgentState$to_list_serializable()
+
+#### Returns
+
+List.
 
 ------------------------------------------------------------------------
 
@@ -161,3 +179,11 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+state <- AgentState$new(initial_data = list(topic = "R"))
+state$get("topic")
+#> [1] "R"
+```

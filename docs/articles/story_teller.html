@@ -35,6 +35,9 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Manual</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Instruction Manual</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -46,7 +49,11 @@
     <li><a class="dropdown-item" href="../articles/personalized_shopping.html">Agentic Personalized Shopping Assistant</a></li>
     <li><a class="dropdown-item" href="../articles/software_bug_assistant.html">Agentic Software Bug Assistant</a></li>
     <li><a class="dropdown-item" href="../articles/story_teller.html">Agentic Story Teller</a></li>
-    <li><a class="dropdown-item" href="../articles/travel_booking.html">Agentic Travel Booking Concierge</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/targets_integration.html">Reproducible Agentic Pipelines with targets</a></li>
+    <li><a class="dropdown-item" href="../articles/creating_drivers.html">Creating Custom Agent Drivers</a></li>
+    <li><a class="dropdown-item" href="../articles/git_worktree_toy.html">Isolated Execution with Git Worktrees</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -79,12 +86,12 @@
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
 <p>This vignette demonstrates the <strong>Story Teller</strong> pattern
-using <code>HydraR</code>. In this workflow, two LLM agents collaborate
-to write a story: 1. <strong>Writer Agent</strong>: Drafts the story
-based on the prompt or incorporates feedback. 2. <strong>Reviewer
-Agent</strong>: Critiques the draft using a rubric. If the story meets
-the criteria, it approves the draft. Otherwise, it sends feedback back
-to the Writer.</p>
+using <code>HydraR</code> and the <strong>Gemini CLI</strong>.</p>
+<p>In this workflow, two LLM agents collaborate to write a story: 1.
+<strong>Writer Agent</strong>: Drafts the story based on the prompt or
+incorporates feedback. 2. <strong>Reviewer Agent</strong>: Critiques the
+draft using a rubric. If the story meets the criteria, it approves the
+draft. Otherwise, it sends feedback back to the Writer.</p>
 <p>This forms a fundamental <strong>iterative
 critique-and-revise</strong> loop.</p>
 </div>
@@ -92,53 +99,34 @@ critique-and-revise</strong> loop.</p>
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Initialize the Gemini CLI driver</span></span>
+<span><span class="va">driver</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GeminiCLIDriver.html">GeminiCLIDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="building-the-story-teller-dag">Building the Story Teller DAG<a class="anchor" aria-label="anchor" href="#building-the-story-teller-dag"></a>
 </h2>
-<p>We’ll define an <code>AgentDAG</code> and inject two custom nodes to
-mock the LLM behavior. In a real-world scenario, you would use
-<code>node_llm()</code> or <code>AgentLogicNode</code> bound to a
-specific LLM driver (e.g., Gemini).</p>
+<p>We’ll define an <code>AgentDAG</code> and inject two
+<code>AgentLLMNode</code> nodes to demonstrate the collaboration.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentDAG.html">AgentDAG</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="the-writer-node">1. The Writer Node<a class="anchor" aria-label="anchor" href="#the-writer-node"></a>
 </h3>
-<p>The <code>Writer</code> node looks at the current
-<code>feedback</code> (if any) and updates the <code>story_draft</code>.
-We’ll mock the behavior to show that the story gets slightly better over
-time.</p>
+<p>The <code>Writer</code> node drafts or improves the story based on
+reviewer feedback.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">writer_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"Writer"</span>, logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">memory</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="co"># Extract current state</span></span>
-<span>  <span class="va">current_draft</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"story_draft"</span><span class="op">)</span></span>
-<span>  <span class="va">iteration</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"writer_iterations"</span><span class="op">)</span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">iteration</span><span class="op">)</span><span class="op">)</span> <span class="va">iteration</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
-<span>  <span class="va">feedback</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"reviewer_feedback"</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="co"># Increment iteration</span></span>
-<span>  <span class="va">iteration</span> <span class="op">&lt;-</span> <span class="va">iteration</span> <span class="op">+</span> <span class="fl">1</span></span>
-<span></span>
-<span>  <span class="co"># Generate new draft</span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">current_draft</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">new_draft</span> <span class="op">&lt;-</span> <span class="st">"Once upon a time, a brave knight went on a quest."</span></span>
-<span>    <span class="va">action_msg</span> <span class="op">&lt;-</span> <span class="st">"Drafting initial story."</span></span>
-<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>    <span class="va">new_draft</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">current_draft</span>, <span class="st">"He fought a dragon and saved the kingdom."</span><span class="op">)</span></span>
-<span>    <span class="va">action_msg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Improving story based on feedback:"</span>, <span class="va">feedback</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">writer_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLLMNode.html">AgentLLMNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">"Writer"</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">"Story Author"</span>,</span>
+<span>  role <span class="op">=</span> <span class="st">"You are a creative writer. Draft a story based on the initial prompt or update it according to reviewer feedback. Output exactly the story draft."</span>,</span>
+<span>  driver <span class="op">=</span> <span class="va">driver</span>,</span>
+<span>  prompt_builder <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">feedback_text</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"Reviewer"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"\nFeedback: %s"</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"Reviewer"</span><span class="op">)</span><span class="op">)</span> <span class="kw">else</span> <span class="st">""</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Prompt: %s%s\nDraft the story."</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"story_prompt"</span><span class="op">)</span>, <span class="va">feedback_text</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
-<span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>    output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      story_draft <span class="op">=</span> <span class="va">new_draft</span>,</span>
-<span>      writer_iterations <span class="op">=</span> <span class="va">iteration</span>,</span>
-<span>      latest_action <span class="op">=</span> <span class="va">action_msg</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">writer_node</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -146,32 +134,17 @@ time.</p>
 <h3 id="the-reviewer-node">2. The Reviewer Node<a class="anchor" aria-label="anchor" href="#the-reviewer-node"></a>
 </h3>
 <p>The <code>Reviewer</code> node checks the <code>story_draft</code>.
-In our mock logic, the reviewer demands at least 2 iterations before it
-considers the story complete.</p>
+It provides feedback or approves it.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">reviewer_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"Reviewer"</span>, logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">memory</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">iteration</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"writer_iterations"</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">iteration</span> <span class="op">&gt;=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="co"># Story is approved!</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>      output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>        is_approved <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>        reviewer_feedback <span class="op">=</span> <span class="st">"This is a great story! Approved."</span></span>
-<span>      <span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>    <span class="co"># Needs more work</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>      output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>        is_approved <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>        reviewer_feedback <span class="op">=</span> <span class="st">"The story lacks action. Add a dragon."</span></span>
-<span>      <span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">reviewer_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLLMNode.html">AgentLLMNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">"Reviewer"</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">"Literary Editor"</span>,</span>
+<span>  role <span class="op">=</span> <span class="st">"You are a literary editor. Critically review the story draft for tone and quality. If it is excellent, say 'Approved'. Otherwise, give specific critique."</span>,</span>
+<span>  driver <span class="op">=</span> <span class="va">driver</span>,</span>
+<span>  prompt_builder <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Draft: %s\nReview this draft."</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"Writer"</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">reviewer_node</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -191,52 +164,51 @@ to the Reviewer, and conditionally loop back or finish.</p>
 <span><span class="va">dag</span><span class="op">$</span><span class="fu">add_conditional_edge</span><span class="op">(</span></span>
 <span>  from <span class="op">=</span> <span class="st">"Reviewer"</span>,</span>
 <span>  test <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">out</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="co"># Return the boolean approval status</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">is_approved</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"Approved"</span>, <span class="va">out</span>, ignore.case <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span>  <span class="op">}</span>,</span>
 <span>  if_true <span class="op">=</span> <span class="cn">NULL</span>, <span class="co"># Stop execution</span></span>
-<span>  if_false <span class="op">=</span> <span class="st">"Writer"</span> <span class="co"># Loop back to Writer</span></span>
+<span>  if_false <span class="op">=</span> <span class="st">"Writer"</span> <span class="co"># Loop back</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="running-the-agent">Running the Agent<a class="anchor" aria-label="anchor" href="#running-the-agent"></a>
+<h2 id="visualizing-the-workflow">Visualizing the Workflow<a class="anchor" aria-label="anchor" href="#visualizing-the-workflow"></a>
 </h2>
-<p>We compile and run the DAG with an empty initial state. We set a
-<code>max_steps</code> to guarantee the loop terminates securely (a
-built-in HydraR safeguard).</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">compiled_dag</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">compile</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Graph compiled successfully.</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Starting Collaborative Writing Process...\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Starting Collaborative Writing Process...</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">compiled_dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>initial_state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>, max_steps <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Graph compiled successfully.</span></span>
-<span><span class="co">#&gt; [Iteration 1] Running Node: Writer</span></span>
-<span><span class="co">#&gt;    [Writer] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 2] Running Node: Reviewer</span></span>
-<span><span class="co">#&gt;    [Reviewer] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 3] Running Node: Writer</span></span>
-<span><span class="co">#&gt;    [Writer] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 4] Running Node: Reviewer</span></span>
-<span><span class="co">#&gt;    [Reviewer] Executing R logic...</span></span>
-<span></span>
-<span><span class="co"># Observe the final output</span></span>
-<span><span class="va">final_story</span> <span class="op">&lt;-</span> <span class="va">result</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"story_draft"</span><span class="op">)</span></span>
-<span><span class="va">total_iterations</span> <span class="op">&lt;-</span> <span class="va">result</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"writer_iterations"</span><span class="op">)</span></span>
-<span><span class="va">feedback</span> <span class="op">&lt;-</span> <span class="va">result</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"reviewer_feedback"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"--- FINAL RESULT ---\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; --- FINAL RESULT ---</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Total Writer Iterations:"</span>, <span class="va">total_iterations</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Total Writer Iterations: 2</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Final Feedback:"</span>, <span class="va">feedback</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Final Feedback: This is a great story! Approved.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Final Story Draft:\n"</span>, <span class="va">final_story</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Final Story Draft:</span></span>
-<span><span class="co">#&gt;  Once upon a time, a brave knight went on a quest. He fought a dragon and saved the kingdom.</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"```mermaid\n"</span><span class="op">)</span></span></code></pre></div>
+<pre class="mermaid"><code>
+``` r
+cat(dag$compile()$plot(type = "mermaid"))
+#&gt; Warning in dag$compile(): Potential infinite loop detected: graph contains
+#&gt; cycles. Ensure conditional edges have exit conditions.</code></pre>
+<p>Graph compiled successfully.</p>
+<pre class="mermaid"><code>graph TD
+  Writer["Story Author"]
+  Reviewer["Literary Editor"]
+  Writer --&gt; Reviewer
+  Reviewer -- Fail --&gt; Writer</code></pre>
+<pre class="mermaid"><code>graph TD
+  Writer["Story Author"]
+  Reviewer["Literary Editor"]
+  Writer --&gt; Reviewer
+  Reviewer -- Fail --&gt; Writer</code></pre>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n```\n"</span><span class="op">)</span></span></code></pre></div>
+<pre><code>
+## Running the Agent
+
+
+``` r
+compiled_dag &lt;- dag$compile()
+
+cat("Starting Collaborative Writing Process...\n")
+result &lt;- compiled_dag$run(initial_state = list(story_prompt = "A story about a robot learning to cook."), max_steps = 10)
+
+cat("--- FINAL RESULT ---\n")
+cat("Final Feedback:", result$state$get("Reviewer"), "\n")
+cat("Final Story Draft:\n", result$state$get("Writer"), "\n")</code></pre>
 <p>As we can see, HydraR flawlessly orchestrated the stateful
-communication and iteration loop between the two mock agents.</p>
+communication and iteration loop between the two agents to refine the
+creative output!</p>
 <!-- APAF Bioinformatics | story_teller.Rmd | Approved | 2026-03-29 -->
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -246,7 +218,7 @@ communication and iteration loop between the two mock agents.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Ignatius Pang, Aidan Tay, APAF Agentic Workflow.</p>
+  <p>Developed by Ignatius Pang, Aidan Tay.</p>
 </div>
 
 <div class="pkgdown-footer-right">

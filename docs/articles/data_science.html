@@ -35,6 +35,9 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Manual</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Instruction Manual</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -46,7 +49,11 @@
     <li><a class="dropdown-item" href="../articles/personalized_shopping.html">Agentic Personalized Shopping Assistant</a></li>
     <li><a class="dropdown-item" href="../articles/software_bug_assistant.html">Agentic Software Bug Assistant</a></li>
     <li><a class="dropdown-item" href="../articles/story_teller.html">Agentic Story Teller</a></li>
-    <li><a class="dropdown-item" href="../articles/travel_booking.html">Agentic Travel Booking Concierge</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/targets_integration.html">Reproducible Agentic Pipelines with targets</a></li>
+    <li><a class="dropdown-item" href="../articles/creating_drivers.html">Creating Custom Agent Drivers</a></li>
+    <li><a class="dropdown-item" href="../articles/git_worktree_toy.html">Isolated Execution with Git Worktrees</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -81,20 +88,24 @@
 <p>This vignette demonstrates the <strong>Data Science
 Assistant</strong> pattern using <code>HydraR</code>.</p>
 <p>In machine learning workflows, hyperparameter tuning is an inherently
-iterative process. We can map this paradigm to an <code>AgentDAG</code>.
-The workflow contains an initial data setup phase followed by a cyclic
-model optimization phase: 1. <strong>Data Cleaner Node</strong>: Ingests
-and prepares the raw data. 2. <strong>Model Trainer Node</strong>: Mocks
-training a model using a set of hyperparameters. 3. <strong>Evaluator
-Node</strong>: Assesses the model’s accuracy. If it falls below the
-target threshold, it routes back to the Trainer to adjust
-parameters.</p>
+iterative process. We can map this paradigm to an <code>AgentDAG</code>
+using the <strong>Gemini CLI</strong>.</p>
+<p>The workflow contains an initial data setup phase followed by a
+cyclic model optimization phase: 1. <strong>Data Cleaner Node</strong>:
+Ingests and prepares the raw data for analysis. 2. <strong>Model Trainer
+Node</strong>: Uses an LLM to recommend hyperparameters and simulate
+model training. 3. <strong>Evaluator Node</strong>: Assesses the model’s
+accuracy. If it falls below a target threshold, it generates specific
+refinement feedback and loops back for re-optimization.</p>
 </div>
 <div class="section level2">
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Initialize the Gemini CLI driver</span></span>
+<span><span class="va">driver</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GeminiCLIDriver.html">GeminiCLIDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="building-the-dag">Building the DAG<a class="anchor" aria-label="anchor" href="#building-the-dag"></a>
@@ -105,81 +116,77 @@ parameters.</p>
 <div class="section level3">
 <h3 id="the-data-cleaner-node">1. The Data Cleaner Node<a class="anchor" aria-label="anchor" href="#the-data-cleaner-node"></a>
 </h3>
-<p>Prepares the data exactly once.</p>
+<p>Prepares the data exactly once. This node uses a standard R function
+for deterministic data processing.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cleaner_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"DataCleaner"</span>, logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">memory</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">dataset</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"raw_data"</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="co"># Mock cleaning</span></span>
-<span>  <span class="va">clean_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Cleaned"</span>, <span class="va">dataset</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>    output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      clean_data <span class="op">=</span> <span class="va">clean_data</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">cleaner_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">"DataCleaner"</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">"Data Preprocessor"</span>,</span>
+<span>  logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">memory</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">dataset</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"raw_data"</span><span class="op">)</span></span>
+<span>    <span class="co"># Mock cleaning logic</span></span>
+<span>    <span class="va">clean_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Cleaned"</span>, <span class="va">dataset</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"SUCCESS"</span>, output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>clean_data <span class="op">=</span> <span class="va">clean_data</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">cleaner_node</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="the-model-trainer-node">2. The Model Trainer Node<a class="anchor" aria-label="anchor" href="#the-model-trainer-node"></a>
 </h3>
-<p>Trains the model iteratively. It increases the “epoch” or
-“complexity” every time it gets called by the Evaluator.</p>
+<p>Trains the model iteratively using LLM-driven parameter
+recommendations.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">trainer_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"ModelTrainer"</span>, logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">memory</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">clean_data</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"clean_data"</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="va">complexity</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"model_complexity"</span><span class="op">)</span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">complexity</span><span class="op">)</span><span class="op">)</span> <span class="va">complexity</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
-<span></span>
-<span>  <span class="co"># Increase complexity on each training loop</span></span>
-<span>  <span class="va">new_complexity</span> <span class="op">&lt;-</span> <span class="va">complexity</span> <span class="op">+</span> <span class="fl">1</span></span>
-<span></span>
-<span>  <span class="co"># Mocking training: accuracy improves with complexity, capping at 0.95</span></span>
-<span>  <span class="va">model_accuracy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fl">0.60</span> <span class="op">+</span> <span class="op">(</span><span class="va">new_complexity</span> <span class="op">*</span> <span class="fl">0.10</span><span class="op">)</span>, <span class="fl">0.95</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>    output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      model_complexity <span class="op">=</span> <span class="va">new_complexity</span>,</span>
-<span>      model_accuracy <span class="op">=</span> <span class="va">model_accuracy</span>,</span>
-<span>      model_artifact <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Model_v%d"</span>, <span class="va">new_complexity</span><span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">trainer_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLLMNode.html">AgentLLMNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">"ModelTrainer"</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">"AutoML Optimizer"</span>,</span>
+<span>  role <span class="op">=</span> <span class="st">"You are an AutoML expert. Given a dataset and previous accuracy logs, recommend a new set of hyperparameters."</span>,</span>
+<span>  driver <span class="op">=</span> <span class="va">driver</span>,</span>
+<span>  prompt_builder <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">feedback_text</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"Evaluator"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"\nFeedback: %s"</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"Evaluator"</span><span class="op">)</span><span class="op">)</span> <span class="kw">else</span> <span class="st">""</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Dataset: %s%s\nOutput exactly a model configuration string."</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"clean_data"</span><span class="op">)</span>, <span class="va">feedback_text</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">trainer_node</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="the-evaluator-node">3. The Evaluator Node<a class="anchor" aria-label="anchor" href="#the-evaluator-node"></a>
 </h3>
-<p>Compares the accuracy to the user’s requirement.</p>
+<p>This node uses logic to evaluate the result against a hard
+constraint.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">evaluator_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"Evaluator"</span>, logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">memory</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">accuracy</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"model_accuracy"</span><span class="op">)</span></span>
-<span>  <span class="va">target</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"target_accuracy"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">evaluator_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">"Evaluator"</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">"Threshold Guard"</span>,</span>
+<span>  logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">memory</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="co"># Extract training configuration from the previous LLM node</span></span>
+<span>    <span class="va">config</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"ModelTrainer"</span><span class="op">)</span></span>
+<span>    <span class="va">target</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"target_accuracy"</span><span class="op">)</span></span>
 <span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">accuracy</span> <span class="op">&gt;=</span> <span class="va">target</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>      output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    <span class="co"># Mock evaluation logic: Simulated improvement per iteration</span></span>
+<span>    <span class="va">iteration</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"total_evaluations"</span><span class="op">)</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">iteration</span><span class="op">)</span><span class="op">)</span> <span class="va">iteration</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span>    <span class="va">iteration</span> <span class="op">&lt;-</span> <span class="va">iteration</span> <span class="op">+</span> <span class="fl">1</span></span>
+<span></span>
+<span>    <span class="va">accuracy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fl">0.60</span> <span class="op">+</span> <span class="op">(</span><span class="va">iteration</span> <span class="op">*</span> <span class="fl">0.10</span><span class="op">)</span>, <span class="fl">0.95</span><span class="op">)</span></span>
+<span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">accuracy</span> <span class="op">&gt;=</span> <span class="va">target</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"SUCCESS"</span>, output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>        optimization_complete <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>        eval_message <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Target reached: %.2f &gt;= %.2f"</span>, <span class="va">accuracy</span>, <span class="va">target</span><span class="op">)</span></span>
-<span>      <span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>      output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>        eval_message <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Target reached: %.2f &gt;= %.2f using config: %s"</span>, <span class="va">accuracy</span>, <span class="va">target</span>, <span class="va">config</span><span class="op">)</span>,</span>
+<span>        total_evaluations <span class="op">=</span> <span class="va">iteration</span></span>
+<span>      <span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"SUCCESS"</span>, output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>        optimization_complete <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>        eval_message <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Accuracy %.2f is below %.2f. Retraining."</span>, <span class="va">accuracy</span>, <span class="va">target</span><span class="op">)</span></span>
-<span>      <span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
+<span>        eval_message <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Accuracy %.2f is below %.2f. Recommending new parameters."</span>, <span class="va">accuracy</span>, <span class="va">target</span><span class="op">)</span>,</span>
+<span>        total_evaluations <span class="op">=</span> <span class="va">iteration</span></span>
+<span>      <span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="op">}</span></span>
 <span>  <span class="op">}</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">evaluator_node</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -200,48 +207,54 @@ parameters.</p>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">optimization_complete</span><span class="op">)</span></span>
 <span>  <span class="op">}</span>,</span>
 <span>  if_true <span class="op">=</span> <span class="cn">NULL</span>, <span class="co"># Done!</span></span>
-<span>  if_false <span class="op">=</span> <span class="st">"ModelTrainer"</span> <span class="co"># Needs more complexity</span></span>
+<span>  if_false <span class="op">=</span> <span class="st">"ModelTrainer"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">compiled_dag</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">compile</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in dag$compile(): Potential infinite loop detected: graph contains</span></span>
+<span><span class="co">#&gt; cycles. Ensure conditional edges have exit conditions.</span></span>
 <span><span class="co">#&gt; Graph compiled successfully.</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="running-the-scenario">Running the Scenario<a class="anchor" aria-label="anchor" href="#running-the-scenario"></a>
+<h2 id="visualizing-the-workflow">Visualizing the Workflow<a class="anchor" aria-label="anchor" href="#visualizing-the-workflow"></a>
 </h2>
-<p>Let’s test it with a target accuracy constraint.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">initial_state</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  raw_data <span class="op">=</span> <span class="st">"Titanic_Dataset.csv"</span>,</span>
-<span>  target_accuracy <span class="op">=</span> <span class="fl">0.85</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Starting AutoML Pipeline...\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Starting AutoML Pipeline...</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">compiled_dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>initial_state <span class="op">=</span> <span class="va">initial_state</span>, max_steps <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Graph compiled successfully.</span></span>
-<span><span class="co">#&gt; [Iteration 1] Running Node: DataCleaner</span></span>
-<span><span class="co">#&gt;    [DataCleaner] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 2] Running Node: ModelTrainer</span></span>
-<span><span class="co">#&gt;    [ModelTrainer] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 3] Running Node: Evaluator</span></span>
-<span><span class="co">#&gt;    [Evaluator] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 4] Running Node: ModelTrainer</span></span>
-<span><span class="co">#&gt;    [ModelTrainer] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 5] Running Node: Evaluator</span></span>
-<span><span class="co">#&gt;    [Evaluator] Executing R logic...</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n--- TRAINING PIPELINE COMPLETE ---\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; --- TRAINING PIPELINE COMPLETE ---</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Clean Data Used:"</span>, <span class="va">result</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"clean_data"</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Clean Data Used: Cleaned Titanic_Dataset.csv</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Final Model Artifact:"</span>, <span class="va">result</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"model_artifact"</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Final Model Artifact: Model_v3</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Final Accuracy:"</span>, <span class="va">result</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"model_accuracy"</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Final Accuracy: 0.9</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Evaluation Message:"</span>, <span class="va">result</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"eval_message"</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Evaluation Message: Target reached: 0.90 &gt;= 0.85</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"```mermaid\n"</span><span class="op">)</span></span></code></pre></div>
+<pre class="mermaid"><code>
+``` r
+cat(compiled_dag$plot(type = "mermaid"))</code></pre>
+<pre class="mermaid"><code>graph TD
+  DataCleaner["Data Preprocessor"]
+  ModelTrainer["AutoML Optimizer"]
+  Evaluator["Threshold Guard"]
+  DataCleaner --&gt; ModelTrainer
+  ModelTrainer --&gt; Evaluator
+  Evaluator -- Fail --&gt; ModelTrainer</code></pre>
+<pre class="mermaid"><code>graph TD
+  DataCleaner["Data Preprocessor"]
+  ModelTrainer["AutoML Optimizer"]
+  Evaluator["Threshold Guard"]
+  DataCleaner --&gt; ModelTrainer
+  ModelTrainer --&gt; Evaluator
+  Evaluator -- Fail --&gt; ModelTrainer</code></pre>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n```\n"</span><span class="op">)</span></span></code></pre></div>
+<pre><code>
+## Running the Scenario
+
+
+``` r
+initial_state &lt;- list(
+  raw_data = "Titanic_Dataset.csv",
+  target_accuracy = 0.85
+)
+
+cat("Starting AutoML Pipeline...\n")
+result &lt;- compiled_dag$run(initial_state = initial_state, max_steps = 10)
+
+cat("\n--- TRAINING PIPELINE COMPLETE ---\n")
+cat("Final Training Config:", result$state$get("ModelTrainer"), "\n")
+cat("Final Accuracy Status:", result$state$get("eval_message"), "\n")</code></pre>
 <p>The DAG seamlessly executed the data prep before dropping into an
 iterative optimization loop until the target metric was satisfied!</p>
 <!-- APAF Bioinformatics | data_science.Rmd | Approved | 2026-03-29 -->
@@ -253,7 +266,7 @@ iterative optimization loop until the target metric was satisfied!</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Ignatius Pang, Aidan Tay, APAF Agentic Workflow.</p>
+  <p>Developed by Ignatius Pang, Aidan Tay.</p>
 </div>
 
 <div class="pkgdown-footer-right">

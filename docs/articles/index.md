@@ -1,5 +1,10 @@
 # Articles
 
+### Instruction Manual
+
+- [HydraR: The Complete Instruction
+  Manual](https://github.com/APAF-bioinformatics/HydraR/articles/manual.md):
+
 ### Case Studies
 
 - [Agentic Travel Planning: Sydney to Hong
@@ -21,5 +26,12 @@
   Assistant](https://github.com/APAF-bioinformatics/HydraR/articles/software_bug_assistant.md):
 - [Agentic Story
   Teller](https://github.com/APAF-bioinformatics/HydraR/articles/story_teller.md):
-- [Agentic Travel Booking
-  Concierge](https://github.com/APAF-bioinformatics/HydraR/articles/travel_booking.md):
+
+### Developer Guides
+
+- [Reproducible Agentic Pipelines with
+  targets](https://github.com/APAF-bioinformatics/HydraR/articles/targets_integration.md):
+- [Creating Custom Agent
+  Drivers](https://github.com/APAF-bioinformatics/HydraR/articles/creating_drivers.md):
+- [Isolated Execution with Git
+  Worktrees](https://github.com/APAF-bioinformatics/HydraR/articles/git_worktree_toy.md):

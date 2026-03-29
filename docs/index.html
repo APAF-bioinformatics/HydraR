@@ -11,8 +11,8 @@
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Stateful Agentic Orchestration for R (CLI-First)">
-<meta name="description" content="A professional framework for orchestrating complex agentic workflows in R. HydraR provides a robust, state-managed engine for Directed Acyclic Graphs (DAGs) and iterative loops, prioritizing CLI-native LLM interactions (e.g., Gemini, Claude, Copilot) and hardened state persistence for reproducible scientific research and automated bioinformatics pipelines.">
-<meta property="og:description" content="A professional framework for orchestrating complex agentic workflows in R. HydraR provides a robust, state-managed engine for Directed Acyclic Graphs (DAGs) and iterative loops, prioritizing CLI-native LLM interactions (e.g., Gemini, Claude, Copilot) and hardened state persistence for reproducible scientific research and automated bioinformatics pipelines.">
+<meta name="description" content="A high-performance framework for orchestrating complex agentic workflows in R, specifically designed for scientific reproducibility. HydraR provides a robust, state-managed engine for Directed Acyclic Graphs (DAGs) and iterative loops, prioritizing CLI-native LLM interactions (e.g., Gemini, Claude, Copilot) and hardened state persistence (DuckDB/SQLite). It enables the creation of auditable, resumable, and scalable bioinformatics pipelines and automated research assistants with a single source of truth for all agentic decisions.">
+<meta property="og:description" content="A high-performance framework for orchestrating complex agentic workflows in R, specifically designed for scientific reproducibility. HydraR provides a robust, state-managed engine for Directed Acyclic Graphs (DAGs) and iterative loops, prioritizing CLI-native LLM interactions (e.g., Gemini, Claude, Copilot) and hardened state persistence (DuckDB/SQLite). It enables the creation of auditable, resumable, and scalable bioinformatics pipelines and automated research assistants with a single source of truth for all agentic decisions.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -37,6 +37,9 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Manual</h6></li>
+    <li><a class="dropdown-item" href="articles/manual.html">HydraR: The Complete Instruction Manual</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -48,7 +51,11 @@
     <li><a class="dropdown-item" href="articles/personalized_shopping.html">Agentic Personalized Shopping Assistant</a></li>
     <li><a class="dropdown-item" href="articles/software_bug_assistant.html">Agentic Software Bug Assistant</a></li>
     <li><a class="dropdown-item" href="articles/story_teller.html">Agentic Story Teller</a></li>
-    <li><a class="dropdown-item" href="articles/travel_booking.html">Agentic Travel Booking Concierge</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="articles/targets_integration.html">Reproducible Agentic Pipelines with targets</a></li>
+    <li><a class="dropdown-item" href="articles/creating_drivers.html">Creating Custom Agent Drivers</a></li>
+    <li><a class="dropdown-item" href="articles/git_worktree_toy.html">Isolated Execution with Git Worktrees</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -100,9 +107,12 @@
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/install-deprecated.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"apaf-bioinformatics/HydraR"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="open_book-vignettes--examples">📖 Vignettes &amp; Examples<a class="anchor" aria-label="anchor" href="#open_book-vignettes--examples"></a>
+<h2 id="open_book-documentation--manual">📖 Documentation &amp; Manual<a class="anchor" aria-label="anchor" href="#open_book-documentation--manual"></a>
 </h2>
-<p>Learn how to use <code>HydraR</code> with these premium examples:</p>
+<p>The primary resource for learning <code>HydraR</code> is the <strong><a href="file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/manual.Rmd">Complete Instruction Manual</a></strong>.</p>
+<div class="section level3">
+<h3 id="case-studies--examples">Case Studies &amp; Examples<a class="anchor" aria-label="anchor" href="#case-studies--examples"></a>
+</h3>
 <ul>
 <li>
 <strong>📍 <a href="file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/hong_kong_travel.Rmd">Sydney to Hong Kong Travel Planner</a></strong>: High-fidelity orchestration using the <code>GeminiCLIDriver</code> to book a complex itinerary.</li>
@@ -110,12 +120,53 @@
 <strong>💾 <a href="file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/academic_research.Rmd">Academic Research Assistant</a></strong>: Demonstrates literature search and stateful summarization.</li>
 <li>
 <strong>🛡️ <a href="file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/software_bug_assistant.Rmd">Software Bug Assistant</a></strong>: Shows how to orchestrate code analysis and fix suggestions.</li>
+<li>
+<strong>🛠️ <a href="file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/creating_drivers.Rmd">Creating Custom Drivers</a></strong>: Developer guide on subclassing <code>AgentDriver</code> with Mocking and API support.</li>
+<li>
+<strong>🛡️ <a href="file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/git_worktree_toy.Rmd">Isolated Execution with Git Worktrees</a></strong>: A toy program demonstrating safe, parallel file modifications using the Gemini CLI.</li>
 </ul>
+</div>
+</div>
+<div class="section level2">
+<h2 id="custom-drivers">Custom Drivers<a class="anchor" aria-label="anchor" href="#custom-drivers"></a>
+</h2>
+<p><code>HydraR</code> is provider-agnostic. You can extend the framework by creating custom R6 classes that inherit from <code>AgentDriver</code>. This allows you to drive: - <strong>Local LLMs</strong>: Integration with specialized local CLI wrappers. - <strong>Enterprise APIs</strong>: Secure connection to internal LLM endpoints via <code>httr2</code>. - <strong>Mock Backends</strong>: Deterministic drivers for unit testing complex DAG logic.</p>
+<p>Refer to the <a href="file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/creating_drivers.Rmd">Creating Custom Drivers</a> guide for implementation details.</p>
+</div>
+<div class="section level2">
+<h2 id="bar_chart-visualizing-execution">📊 Visualizing Execution<a class="anchor" aria-label="anchor" href="#bar_chart-visualizing-execution"></a>
+</h2>
+<p><code>HydraR</code> includes a powerful visualization engine that goes beyond static DAGs. You can generate status-colored plots after a run to identify bottlenecks and failures.</p>
+<div class="section level3">
+<h3 id="interactive-rendering-in-r">Interactive Rendering in R<a class="anchor" aria-label="anchor" href="#interactive-rendering-in-r"></a>
+</h3>
+<p>We recommend using the <a href="https://dgritree.github.io/DiagrammeR/" class="external-link"><code>DiagrammeR</code></a> package to render your DAGs directly in the RStudio Viewer:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rich-iannone.github.io/DiagrammeR/" class="external-link">DiagrammeR</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Generate a status-colored plot after a run</span></span>
+<span><span class="co"># Green = Success, Red = Failure, Blue = Active path</span></span>
+<span><span class="fu">DiagrammeR</span><span class="fu">::</span><span class="fu">mermaid</span><span class="op">(</span><span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>status <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="path-highlighting">Path Highlighting<a class="anchor" aria-label="anchor" href="#path-highlighting"></a>
+</h3>
+<p>The <code>plot(status = TRUE)</code> method automatically correlates your execution <code>trace_log</code> with the graph structure to highlight the <strong>exact path</strong> taken by the agents, including loops and branches.</p>
+</div>
+<div class="section level3">
+<h3 id="mermaid-round-trip">Mermaid Round-Trip<a class="anchor" aria-label="anchor" href="#mermaid-round-trip"></a>
+</h3>
+<p>You can also define your agentic workflows using pure Mermaid syntax and convert them directly into R objects:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mermaid</span> <span class="op">&lt;-</span> <span class="st">"graph TD\n  Start --&gt; End"</span></span>
+<span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/mermaid_to_dag.html">mermaid_to_dag</a></span><span class="op">(</span><span class="va">mermaid</span>, <span class="va">my_node_factory</span><span class="op">)</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="hello-world-example">“Hello World” Example<a class="anchor" aria-label="anchor" href="#hello-world-example"></a>
 </h2>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 1. Define a simple logic node</span></span>
@@ -182,9 +233,9 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Ignatius Pang <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0001-9703-5741" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Ignatius Pang <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0001-9703-5741" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 <li>Aidan Tay <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0003-1315-4896" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
-<li>APAF Agentic Workflow <br><small class="roles"> Maintainer </small>   </li>
+<li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
 
@@ -195,7 +246,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Ignatius Pang, Aidan Tay, APAF Agentic Workflow.</p>
+  <p>Developed by Ignatius Pang, Aidan Tay.</p>
 </div>
 
 <div class="pkgdown-footer-right">

@@ -3,6 +3,10 @@
 Defines and executes a Directed Graph of AgentNodes. Supports both pure
 DAG execution (parallel) and iterative loops via conditional edges.
 
+## Value
+
+An \`AgentDAG\` R6 object.
+
 ## Public fields
 
 - `nodes`:
@@ -36,6 +40,14 @@ DAG execution (parallel) and iterative loops via conditional edges.
 - `state`:
 
   AgentState. Centralized state object.
+
+- `message_log`:
+
+  MessageLog. Optional audit log.
+
+- `worktree_manager`:
+
+  WorktreeManager. Optional isolation manager.
 
 ## Methods
 
@@ -111,7 +123,7 @@ Initialize AgentDAG Set Start Node
 
 #### Usage
 
-    AgentDAG$add_edge(from, to)
+    AgentDAG$add_edge(from, to, label = NULL)
 
 #### Arguments
 
@@ -121,7 +133,12 @@ Initialize AgentDAG Set Start Node
 
 - `to`:
 
-  String node ID. Add a Conditional Edge (Loop Support)
+  String node ID.
+
+- `label`:
+
+  Optional string label for the edge. Add a Conditional Edge (Loop
+  Support)
 
 ------------------------------------------------------------------------
 
@@ -161,7 +178,12 @@ Initialize AgentDAG Set Start Node
       max_steps = 25,
       checkpointer = NULL,
       thread_id = NULL,
-      resume_from = NULL
+      resume_from = NULL,
+      use_worktrees = FALSE,
+      repo_root = getwd(),
+      cleanup_policy = "auto",
+      fail_if_dirty = TRUE,
+      ...
     )
 
 #### Arguments
@@ -187,6 +209,26 @@ Initialize AgentDAG Set Start Node
 
   String. Node ID to resume execution from.
 
+- `use_worktrees`:
+
+  Logical. Whether to use isolated git worktrees for parallel branches.
+
+- `repo_root`:
+
+  String. Path to the main git repository.
+
+- `cleanup_policy`:
+
+  String. "auto", "none", or "aggressive".
+
+- `fail_if_dirty`:
+
+  Logical. Whether to fail if repo has uncommitted changes.
+
+- `...`:
+
+  Additional arguments passed to node run methods.
+
 #### Returns
 
 List of results for each node, and the final state. Internal: Linear DAG
@@ -199,15 +241,20 @@ Execution
 #### Usage
 
     AgentDAG$.run_linear(
+      max_steps = 25,
       checkpointer = NULL,
       thread_id = NULL,
       resume_from = NULL,
       node_ids = NULL,
-      depth = 0,
-      step_count = 0
+      step_count = 0,
+      fail_if_dirty = TRUE
     )
 
 #### Arguments
+
+- `max_steps`:
+
+  Integer.
 
 - `checkpointer`:
 
@@ -225,17 +272,17 @@ Execution
 
   Character vector of nodes to run.
 
-- `depth`:
-
-  Integer current recursion depth.
-
 - `step_count`:
 
   Integer current total step count.
 
+- `fail_if_dirty`:
+
+  Logical.
+
 #### Returns
 
-Execution result list. Internal: Iterative State Machine Execution
+Execution result list. Internal: Iterative Execution
 
 ------------------------------------------------------------------------
 
@@ -248,9 +295,8 @@ Execution result list. Internal: Iterative State Machine Execution
       checkpointer = NULL,
       thread_id = NULL,
       resume_from = NULL,
-      current_nodes = NULL,
       step_count = 0,
-      depth = 0
+      fail_if_dirty = TRUE
     )
 
 #### Arguments
@@ -261,7 +307,7 @@ Execution result list. Internal: Iterative State Machine Execution
 
 - `checkpointer`:
 
-  Checkpointer.
+  Checkpointer object.
 
 - `thread_id`:
 
@@ -271,17 +317,13 @@ Execution result list. Internal: Iterative State Machine Execution
 
   String.
 
-- `current_nodes`:
-
-  Character vector.
-
 - `step_count`:
 
   Integer.
 
-- `depth`:
+- `fail_if_dirty`:
 
-  Integer. Current recursion depth. Plot the DAG
+  Logical.
 
 ------------------------------------------------------------------------
 
@@ -289,13 +331,35 @@ Execution result list. Internal: Iterative State Machine Execution
 
 #### Usage
 
-    AgentDAG$plot(type = "mermaid")
+    AgentDAG$plot(
+      type = "mermaid",
+      status = FALSE,
+      details = FALSE,
+      include_params = NULL,
+      show_edge_labels = TRUE
+    )
 
 #### Arguments
 
 - `type`:
 
-  String. Currently only "mermaid" is supported.
+  String. Type of plot (currently only "mermaid").
+
+- `status`:
+
+  Logical. If TRUE, styling is applied to nodes/edges based on results.
+
+- `details`:
+
+  Logical. If TRUE, node parameters are serialized into labels.
+
+- `include_params`:
+
+  Character vector. Optional whitelist of parameters to show.
+
+- `show_edge_labels`:
+
+  Logical. Whether to show labels on edges.
 
 #### Returns
 
@@ -328,7 +392,7 @@ The AgentDAG object (invisibly). Save the Execution Trace
 
 - `file`:
 
-  String. Output path for the JSON trace. Create AgentDAG from Mermaid
+  String. Output path for the JSON trace. Create Graph from Mermaid
 
 ------------------------------------------------------------------------
 
@@ -346,7 +410,7 @@ The AgentDAG object (invisibly). Save the Execution Trace
 
 - `node_factory`:
 
-  Function(id, label) -\> AgentNode.
+  Function(id, label, params) -\> AgentNode.
 
 #### Returns
 
@@ -367,3 +431,11 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+dag <- AgentDAG$new()
+node <- AgentLogicNode$new("start", function(state) list(status = "success"))
+dag$add_node(node)
+```

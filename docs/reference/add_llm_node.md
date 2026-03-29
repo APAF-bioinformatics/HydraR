@@ -5,7 +5,7 @@ Create an LLM Agent Node easily
 ## Usage
 
 ``` r
-add_llm_node(id, role, driver, ...)
+add_llm_node(id, role, driver, model = NULL, cli_opts = list(), ...)
 ```
 
 ## Arguments
@@ -21,6 +21,14 @@ add_llm_node(id, role, driver, ...)
 - driver:
 
   AgentDriver object.
+
+- model:
+
+  String. Optional model override.
+
+- cli_opts:
+
+  List. Optional CLI options.
 
 - ...:
 

@@ -28,9 +28,11 @@ You can install the development version from GitHub:
 devtools::install_github("apaf-bioinformatics/HydraR")
 ```
 
-## 📖 Vignettes & Examples
+## 📖 Documentation & Manual
 
-Learn how to use `HydraR` with these premium examples:
+The primary resource for learning `HydraR` is the **[Complete Instruction Manual](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/manual.Rmd)**. 
+
+### Case Studies & Examples
 
 - **📍 [Sydney to Hong Kong Travel Planner](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/hong_kong_travel.Rmd)**: High-fidelity orchestration using the `GeminiCLIDriver` to book a complex itinerary.
 - **💾 [Academic Research Assistant](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/academic_research.Rmd)**: Demonstrates literature search and stateful summarization.

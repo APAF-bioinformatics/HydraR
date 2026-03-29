@@ -5,7 +5,7 @@ Add an LLM Agent Node directly to a DAG
 ## Usage
 
 ``` r
-dag_add_llm_node(dag, id, role, driver, ...)
+dag_add_llm_node(dag, id, role, driver, model = NULL, cli_opts = list(), ...)
 ```
 
 ## Arguments
@@ -25,6 +25,14 @@ dag_add_llm_node(dag, id, role, driver, ...)
 - driver:
 
   AgentDriver object.
+
+- model:
+
+  String. Optional model override.
+
+- cli_opts:
+
+  List. Optional CLI options.
 
 - ...:
 

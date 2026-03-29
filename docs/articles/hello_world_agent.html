@@ -35,6 +35,9 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Manual</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Instruction Manual</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -46,7 +49,11 @@
     <li><a class="dropdown-item" href="../articles/personalized_shopping.html">Agentic Personalized Shopping Assistant</a></li>
     <li><a class="dropdown-item" href="../articles/software_bug_assistant.html">Agentic Software Bug Assistant</a></li>
     <li><a class="dropdown-item" href="../articles/story_teller.html">Agentic Story Teller</a></li>
-    <li><a class="dropdown-item" href="../articles/travel_booking.html">Agentic Travel Booking Concierge</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/targets_integration.html">Reproducible Agentic Pipelines with targets</a></li>
+    <li><a class="dropdown-item" href="../articles/creating_drivers.html">Creating Custom Agent Drivers</a></li>
+    <li><a class="dropdown-item" href="../articles/git_worktree_toy.html">Isolated Execution with Git Worktrees</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -79,18 +86,22 @@
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
 <p>This vignette demonstrates how to construct a simple “Hello World”
-agentic loop using the <code>HydraR</code> framework. In this example,
-we will create a Directed Acyclic Graph (DAG) with two nodes: 1. An
-<strong>Executor</strong> node (simulating an LLM or an external tool).
+agentic loop using the <code>HydraR</code> framework and the
+<strong>Gemini CLI</strong>.</p>
+<p>In this example, we will create a Directed Acyclic Graph (DAG) with
+two nodes: 1. An <strong>Executor</strong> node (using the Gemini LLM).
 2. A <strong>Validator</strong> node ensuring the Executor achieved its
 goal.</p>
 </div>
 <div class="section level2">
 <h2 id="setup">1. Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
-<p>First, load the library:</p>
+<p>First, load the library and the Gemini CLI driver.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Initialize the Gemini CLI driver</span></span>
+<span><span class="va">driver</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GeminiCLIDriver.html">GeminiCLIDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="initialize-the-dag">2. Initialize the DAG<a class="anchor" aria-label="anchor" href="#initialize-the-dag"></a>
@@ -103,35 +114,30 @@ nodes.</p>
 <div class="section level2">
 <h2 id="define-nodes">3. Define Nodes<a class="anchor" aria-label="anchor" href="#define-nodes"></a>
 </h2>
-<p>We can use <code>AgentNode</code> or subclass it (such as
-<code>AgentLogicNode</code> from downstream implementations) to perform
-custom behaviors. Here, we simulate an agent trying to guess a specific
-word.</p>
+<p>We use <code>AgentLLMNode</code> for the reasoning part and
+<code>AgentLogicNode</code> for the deterministic check part.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Simulated LLM Node</span></span>
-<span><span class="va">executor_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"Guesser"</span>, logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">memory</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">attempts</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"attempts"</span><span class="op">)</span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">attempts</span><span class="op">)</span><span class="op">)</span> <span class="va">attempts</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
-<span>  <span class="va">attempts</span> <span class="op">&lt;-</span> <span class="va">attempts</span> <span class="op">+</span> <span class="fl">1</span></span>
+<code class="sourceCode R"><span><span class="co"># LLM Guesser Node</span></span>
+<span><span class="va">executor_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLLMNode.html">AgentLLMNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">"Guesser"</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">"LLM Guesser"</span>,</span>
+<span>  role <span class="op">=</span> <span class="st">"You are an agent trying to guess a specific word. Your task is to output exactly one word in lowercase."</span>,</span>
+<span>  driver <span class="op">=</span> <span class="va">driver</span>,</span>
+<span>  prompt_builder <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="st">"Guess the secret greeting word."</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span>  <span class="co"># Simulate the agent guessing the right word on the 3rd attempt</span></span>
-<span>  <span class="va">guess</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="va">attempts</span> <span class="op">&gt;=</span> <span class="fl">3</span><span class="op">)</span> <span class="st">"hello"</span> <span class="kw">else</span> <span class="st">"hi"</span></span>
-<span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>    output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>guess <span class="op">=</span> <span class="va">guess</span>, attempts <span class="op">=</span> <span class="va">attempts</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Simulated Validator Node</span></span>
-<span><span class="va">validator_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"Validator"</span>, logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">memory</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">guess</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"guess"</span><span class="op">)</span></span>
-<span>  <span class="va">is_valid</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">guess</span> <span class="op">==</span> <span class="st">"hello"</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>    output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>valid <span class="op">=</span> <span class="va">is_valid</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="co"># Deterministic Validator Node</span></span>
+<span><span class="va">validator_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">"Validator"</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">"Greeting Validator"</span>,</span>
+<span>  logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">memory</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">guess</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/chartr.html" class="external-link">tolower</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/trimws.html" class="external-link">trimws</a></span><span class="op">(</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"Guesser"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="va">is_valid</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">guess</span> <span class="op">==</span> <span class="st">"hello"</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"SUCCESS"</span>, output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>valid <span class="op">=</span> <span class="va">is_valid</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">executor_node</span><span class="op">)</span></span>
 <span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">validator_node</span><span class="op">)</span></span>
@@ -154,30 +160,43 @@ incorrect.</p>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="execution">5. Execution<a class="anchor" aria-label="anchor" href="#execution"></a>
+<h2 id="visualizing-the-workflow">5. Visualizing the Workflow<a class="anchor" aria-label="anchor" href="#visualizing-the-workflow"></a>
 </h2>
-<p>Run the DAG!</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">final_state</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>initial_state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>attempts <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>, max_steps <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Graph compiled successfully.</span></span>
-<span><span class="co">#&gt; [Iteration 1] Running Node: Guesser</span></span>
-<span><span class="co">#&gt;    [Guesser] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 2] Running Node: Validator</span></span>
-<span><span class="co">#&gt;    [Validator] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 3] Running Node: Guesser</span></span>
-<span><span class="co">#&gt;    [Guesser] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 4] Running Node: Validator</span></span>
-<span><span class="co">#&gt;    [Validator] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 5] Running Node: Guesser</span></span>
-<span><span class="co">#&gt;    [Guesser] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 6] Running Node: Validator</span></span>
-<span><span class="co">#&gt;    [Validator] Executing R logic...</span></span>
-<span></span>
-<span><span class="co"># View final state</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Total Attempts:"</span>, <span class="va">final_state</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"attempts"</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Total Attempts: 3</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Final Guess:"</span>, <span class="va">final_state</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"guess"</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Final Guess: hello</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"```mermaid\n"</span><span class="op">)</span></span></code></pre></div>
+<pre class="mermaid"><code>
+``` r
+cat(dag$compile()$plot(type = "mermaid"))
+#&gt; Warning in dag$compile(): Potential infinite loop detected: graph contains
+#&gt; cycles. Ensure conditional edges have exit conditions.</code></pre>
+<p>Graph compiled successfully.</p>
+<pre class="mermaid"><code>graph TD
+  Guesser["LLM Guesser"]
+  Validator["Greeting Validator"]
+  Guesser --&gt; Validator
+  Validator -- Fail --&gt; Guesser</code></pre>
+<pre class="mermaid"><code>graph TD
+  Guesser["LLM Guesser"]
+  Validator["Greeting Validator"]
+  Guesser --&gt; Validator
+  Validator -- Fail --&gt; Guesser</code></pre>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n```\n"</span><span class="op">)</span></span></code></pre></div>
+<pre><code>
+## 6. Execution
+
+Run the DAG!
+
+
+``` r
+compiled_dag &lt;- dag$compile()
+final_state &lt;- compiled_dag$run(initial_state = list(), max_steps = 10)
+
+# View final results
+cat("Final Guess:", final_state$state$get("Guesser"), "\n")
+cat("Success Status:", final_state$state$get("valid"), "\n")</code></pre>
+<p>The system successfully loops until the LLM produces the correct
+target greeting!</p>
 <!-- APAF Bioinformatics | hello_world_agent.Rmd | Approved | 2026-03-29 -->
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -187,7 +206,7 @@ incorrect.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Ignatius Pang, Aidan Tay, APAF Agentic Workflow.</p>
+  <p>Developed by Ignatius Pang, Aidan Tay.</p>
 </div>
 
 <div class="pkgdown-footer-right">

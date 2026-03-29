@@ -15,7 +15,11 @@ an abstract base class.
 
 - `last_result`:
 
-  List. Results from most recent execution. Initialize AgentNode
+  List. Results from most recent execution.
+
+- `params`:
+
+  List. Arbitrary metadata/config parameters. Initialize AgentNode
 
 ## Methods
 
@@ -33,7 +37,7 @@ an abstract base class.
 
 #### Usage
 
-    AgentNode$new(id, label = NULL)
+    AgentNode$new(id, label = NULL, params = list())
 
 #### Arguments
 
@@ -43,7 +47,11 @@ an abstract base class.
 
 - `label`:
 
-  Optional human-readable name. Run the Node
+  Optional human-readable name.
+
+- `params`:
+
+  Optional named list of parameters. Run the Node
 
 ------------------------------------------------------------------------
 

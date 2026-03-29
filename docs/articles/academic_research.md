@@ -4,7 +4,8 @@
 
 This vignette demonstrates the **Academic Research** pattern using
 `HydraR`. We define a linear, multi-stage agentic workflow designed to
-synthesize academic literature into a final report.
+synthesize academic literature into a final report using the **Gemini
+CLI**.
 
 The pipeline comprises three agents: 1. **Searcher Node**: Given a
 research topic, finds relevant academic papers. 2. **Summarizer Node**:
@@ -12,14 +13,49 @@ Ingests the raw papers and extracts key findings. 3. **Compiler Node**:
 Takes the extracted findings and formats them into a comprehensive
 literature review.
 
-This pattern is a perfect example of a **sequential processing
-pipeline** without cyclic loops, where each node enriches the state.
-
 ## Setup
 
 ``` r
 
 library(HydraR)
+
+# Initialize the Gemini CLI driver
+# Note: This assumes the 'gemini' CLI is installed and configured on your system.
+driver <- GeminiCLIDriver$new()
+```
+
+## Checkpointer Configuration
+
+HydraR supports optional state checkpointing after each node execution.
+Choose from four modes:
+
+- **`"none"`** – Ephemeral run, no persistence (default).
+- **`"memory"`** – In-memory via `MemorySaver` (lost on session exit).
+- **`"rds"`** – File-based via `RDSSaver` (lightweight, base R only).
+- **`"duckdb"`** – Database-backed via `DuckDBSaver` (requires `duckdb`
+  package).
+
+``` r
+
+# ── USER CONFIGURATION ──────────────────────────────────────────
+CHECKPOINTER_MODE <- "none" # "none" | "memory" | "rds" | "duckdb"
+RDS_DIR <- "checkpoints"
+DUCKDB_PATH <- "checkpoints/academic_research.duckdb"
+THREAD_ID <- "academic_research_run_1"
+# ────────────────────────────────────────────────────────────────
+
+checkpointer <- switch(CHECKPOINTER_MODE,
+  "memory" = MemorySaver$new(),
+  "rds" = RDSSaver$new(dir = RDS_DIR),
+  "duckdb" = {
+    if (!dir.exists(dirname(DUCKDB_PATH))) dir.create(dirname(DUCKDB_PATH), recursive = TRUE)
+    DuckDBSaver$new(db_path = DUCKDB_PATH)
+  },
+  "none" = NULL,
+  stop(sprintf("Invalid CHECKPOINTER_MODE: '%s'", CHECKPOINTER_MODE))
+)
+
+thread_id <- if (!is.null(checkpointer)) THREAD_ID else NULL
 ```
 
 ## Building the DAG
@@ -33,27 +69,19 @@ dag <- AgentDAG$new()
 
 ### 1. The Searcher Node
 
-Mocking an LLM utilizing a tool to search PubMed or ArXiv.
+Utilizing an LLM to identify key papers for a topic.
 
 ``` r
 
-searcher_node <- AgentLogicNode$new(id = "Searcher", logic_fn = function(state, memory = NULL) {
-  topic <- state$get("research_topic")
-
-  # Mock search results
-  papers <- list(
-    list(title = paste(topic, "Basics"), content = "Introduction to the topic."),
-    list(title = paste("Advanced", topic), content = "Complex analysis of the topic.")
-  )
-
-  list(
-    status = "SUCCESS",
-    output = list(
-      raw_papers = papers,
-      search_status = "Found 2 papers."
-    )
-  )
-})
+searcher_node <- AgentLLMNode$new(
+  id = "Searcher",
+  label = "Literature Searcher",
+  role = "You are an academic research assistant. Identify 2-3 key hypothetical papers for the given topic. Output the result as a simple list.",
+  driver = driver,
+  prompt_builder = function(state) {
+    sprintf("Research Topic: %s\nProvide a list of 2-3 paper titles and brief descriptions.", state$get("research_topic"))
+  }
+)
 
 dag$add_node(searcher_node)
 ```
@@ -64,21 +92,15 @@ Extracts value from the search results.
 
 ``` r
 
-summarizer_node <- AgentLogicNode$new(id = "Summarizer", logic_fn = function(state, memory = NULL) {
-  papers <- state$get("raw_papers")
-
-  # Mocking summarization
-  summaries <- lapply(papers, function(p) {
-    sprintf("- **%s**: Highlights - %s", p$title, p$content)
-  })
-
-  list(
-    status = "SUCCESS",
-    output = list(
-      paper_summaries = unlist(summaries)
-    )
-  )
-})
+summarizer_node <- AgentLLMNode$new(
+  id = "Summarizer",
+  label = "Content Summarizer",
+  role = "You are a scientific editor. Summarize the following paper list into key highlights.",
+  driver = driver,
+  prompt_builder = function(state) {
+    sprintf("Paper List: %s", state$get("Searcher"))
+  }
+)
 
 dag$add_node(summarizer_node)
 ```
@@ -89,23 +111,15 @@ Drafts the final markdown report.
 
 ``` r
 
-compiler_node <- AgentLogicNode$new(id = "Compiler", logic_fn = function(state, memory = NULL) {
-  topic <- state$get("research_topic")
-  summaries <- state$get("paper_summaries")
-
-  report <- paste0(
-    "# Literature Review: ", topic, "\n\n",
-    "## Key Findings\n",
-    paste(summaries, collapse = "\n")
-  )
-
-  list(
-    status = "SUCCESS",
-    output = list(
-      final_report = report
-    )
-  )
-})
+compiler_node <- AgentLLMNode$new(
+  id = "Compiler",
+  label = "Report Compiler",
+  role = "You are a technical writer. Format the following summaries into a professional markdown report with headers.",
+  driver = driver,
+  prompt_builder = function(state) {
+    sprintf("Topic: %s\nSummaries: %s", state$get("research_topic"), state$get("Summarizer"))
+  }
+)
 
 dag$add_node(compiler_node)
 ```
@@ -126,39 +140,63 @@ compiled_dag <- dag$compile()
 #> Graph compiled successfully.
 ```
 
-## Running the Scenario
-
-Provide the topic and run the pipeline.
+## Visualizing the Workflow
 
 ``` r
 
-initial_state <- list(
-  research_topic = "CRISPR Gene Editing"
-)
-
-cat("Starting Literature Pipeline...\n")
-#> Starting Literature Pipeline...
-result <- compiled_dag$run(initial_state = initial_state, max_steps = 5)
-#> Graph compiled successfully.
-#> [Linear] Running Node: Searcher
-#>    [Searcher] Executing R logic...
-#> [Linear] Running Node: Summarizer
-#>    [Summarizer] Executing R logic...
-#> [Linear] Running Node: Compiler
-#>    [Compiler] Executing R logic...
-
-cat("\n--- PIPELINE EXECUTION COMPLETE ---\n")
-#> 
-#> --- PIPELINE EXECUTION COMPLETE ---
-cat("Search Status:", result$state$get("search_status"), "\n\n")
-#> Search Status: Found 2 papers.
-cat(result$state$get("final_report"), "\n")
-#> # Literature Review: CRISPR Gene Editing
-#> 
-#> ## Key Findings
-#> - **CRISPR Gene Editing Basics**: Highlights - Introduction to the topic.
-#> - **Advanced CRISPR Gene Editing**: Highlights - Complex analysis of the topic.
+cat("```mermaid\n")
 ```
+
+``` mermaid
+
+``` r
+cat(compiled_dag$plot(type = "mermaid"))
+```
+
+``` mermaid
+graph TD
+  Searcher["Literature Searcher"]
+  Summarizer["Content Summarizer"]
+  Compiler["Report Compiler"]
+  Searcher --> Summarizer
+  Summarizer --> Compiler
+```
+
+``` mermaid
+graph TD
+  Searcher["Literature Searcher"]
+  Summarizer["Content Summarizer"]
+  Compiler["Report Compiler"]
+  Searcher --> Summarizer
+  Summarizer --> Compiler
+```
+
+``` r
+
+cat("\n```\n")
+```
+
+
+    ## Running the Scenario
+
+    Provide the topic and run the pipeline.
+
+
+    ``` r
+    initial_state <- list(
+      research_topic = "CRISPR Gene Editing"
+    )
+
+    cat(sprintf("Starting Literature Pipeline (checkpointer: %s)...\n", CHECKPOINTER_MODE))
+    result <- compiled_dag$run(
+      initial_state = initial_state,
+      max_steps = 5,
+      checkpointer = checkpointer,
+      thread_id = thread_id
+    )
+
+    cat("\n--- PIPELINE EXECUTION COMPLETE ---\n")
+    cat(result$state$get("Compiler"), "\n")
 
 The system successfully routed the data through all three agents to
 build a consolidated report!

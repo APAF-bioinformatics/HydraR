@@ -24,13 +24,25 @@ Driver for the 'gemini' CLI tool.
 
 - [`GeminiCLIDriver$clone()`](#method-GeminiCLIDriver-clone)
 
+Inherited methods
+
+- [`HydraR::AgentDriver$exec_in_dir()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-exec_in_dir)
+- [`HydraR::AgentDriver$format_cli_opts()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-format_cli_opts)
+- [`HydraR::AgentDriver$get_capabilities()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-get_capabilities)
+- [`HydraR::AgentDriver$validate_cli_opts()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-validate_cli_opts)
+
 ------------------------------------------------------------------------
 
 ### Method `new()`
 
 #### Usage
 
-    GeminiCLIDriver$new(id = "gemini_cli", model = NULL)
+    GeminiCLIDriver$new(
+      id = "gemini_cli",
+      model = "gemini-1.5-pro",
+      validation_mode = "warning",
+      working_dir = NULL
+    )
 
 #### Arguments
 
@@ -40,7 +52,15 @@ Driver for the 'gemini' CLI tool.
 
 - `model`:
 
-  String. Optional model. Call the LLM
+  String. Optional model.
+
+- `validation_mode`:
+
+  String. "warning" or "strict".
+
+- `working_dir`:
+
+  String. Optional. Path to isolated Git worktree. Call the LLM
 
 ------------------------------------------------------------------------
 
@@ -48,7 +68,7 @@ Driver for the 'gemini' CLI tool.
 
 #### Usage
 
-    GeminiCLIDriver$call(prompt, model = NULL, ...)
+    GeminiCLIDriver$call(prompt, model = NULL, cli_opts = list(), ...)
 
 #### Arguments
 
@@ -59,6 +79,10 @@ Driver for the 'gemini' CLI tool.
 - `model`:
 
   String override.
+
+- `cli_opts`:
+
+  List. Named list of CLI options.
 
 - `...`:
 

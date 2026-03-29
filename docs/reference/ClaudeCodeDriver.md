@@ -23,13 +23,25 @@ Driver for the 'claude' CLI tool.
 
 - [`ClaudeCodeDriver$clone()`](#method-ClaudeCodeDriver-clone)
 
+Inherited methods
+
+- [`HydraR::AgentDriver$exec_in_dir()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-exec_in_dir)
+- [`HydraR::AgentDriver$format_cli_opts()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-format_cli_opts)
+- [`HydraR::AgentDriver$get_capabilities()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-get_capabilities)
+- [`HydraR::AgentDriver$validate_cli_opts()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-validate_cli_opts)
+
 ------------------------------------------------------------------------
 
 ### Method `new()`
 
 #### Usage
 
-    ClaudeCodeDriver$new(id = "claude_cli", model = "claude-3-5-sonnet-latest")
+    ClaudeCodeDriver$new(
+      id = "claude_cli",
+      model = "claude-3-5-sonnet-latest",
+      validation_mode = "warning",
+      working_dir = NULL
+    )
 
 #### Arguments
 
@@ -39,7 +51,15 @@ Driver for the 'claude' CLI tool.
 
 - `model`:
 
-  String. Default model. Call the LLM
+  String. Default model.
+
+- `validation_mode`:
+
+  String. "warning" or "strict".
+
+- `working_dir`:
+
+  String. Optional. Path to isolated Git worktree. Call the LLM
 
 ------------------------------------------------------------------------
 
@@ -47,7 +67,7 @@ Driver for the 'claude' CLI tool.
 
 #### Usage
 
-    ClaudeCodeDriver$call(prompt, model = NULL, ...)
+    ClaudeCodeDriver$call(prompt, model = NULL, cli_opts = list(), ...)
 
 #### Arguments
 
@@ -58,6 +78,10 @@ Driver for the 'claude' CLI tool.
 - `model`:
 
   String override.
+
+- `cli_opts`:
+
+  List.
 
 - `...`:
 

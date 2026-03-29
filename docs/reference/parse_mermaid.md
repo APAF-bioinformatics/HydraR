@@ -17,4 +17,20 @@ parse_mermaid(mermaid_str)
 
 ## Value
 
-List with 'nodes' (data.frame) and 'edges' (data.frame).
+A list containing \`nodes\` (data.frame) and \`edges\` (data.frame).
+
+## Examples
+
+``` r
+mermaid <- "graph TD\n  A --> B"
+parse_mermaid(mermaid)
+#> $nodes
+#>   id label params
+#> A  A     A   NULL
+#> B  B     B   NULL
+#> 
+#> $edges
+#>   from to label
+#> 1    A  B      
+#> 
+```

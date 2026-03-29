@@ -35,6 +35,9 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Manual</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Instruction Manual</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -46,7 +49,11 @@
     <li><a class="dropdown-item" href="../articles/personalized_shopping.html">Agentic Personalized Shopping Assistant</a></li>
     <li><a class="dropdown-item" href="../articles/software_bug_assistant.html">Agentic Software Bug Assistant</a></li>
     <li><a class="dropdown-item" href="../articles/story_teller.html">Agentic Story Teller</a></li>
-    <li><a class="dropdown-item" href="../articles/travel_booking.html">Agentic Travel Booking Concierge</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/targets_integration.html">Reproducible Agentic Pipelines with targets</a></li>
+    <li><a class="dropdown-item" href="../articles/creating_drivers.html">Creating Custom Agent Drivers</a></li>
+    <li><a class="dropdown-item" href="../articles/git_worktree_toy.html">Isolated Execution with Git Worktrees</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -79,15 +86,14 @@
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
 <p>This vignette demonstrates the <strong>Personalized Shopping
-Assistant</strong> pattern using <code>HydraR</code>. We define an
-agentic graph where a recommendation engine interacts with a mock
-user.</p>
+Assistant</strong> pattern using <code>HydraR</code> and the
+<strong>Gemini CLI</strong>.</p>
+<p>We define an agentic graph where a recommendation engine interacts
+with a mock user.</p>
 <p>The two roles are: 1. <strong>Shopper Node</strong>: Acts as the
 intelligent proxy that searches the catalogue based on preferences. 2.
-<strong>User Proxy Node</strong>: Represents the user. It provides
-feedback on the recommended item. If it likes the item, the loop
-terminates. Otherwise, it gives feedback and requests a new
-recommendation.</p>
+<strong>User Proxy Node</strong>: Represents the user feedback loop. It
+provides critiques on the recommended item.</p>
 <p>This models a continuous interaction loop where the agent refines its
 search based on real-time feedback.</p>
 </div>
@@ -95,7 +101,10 @@ search based on real-time feedback.</p>
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Initialize the Gemini CLI driver</span></span>
+<span><span class="va">driver</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GeminiCLIDriver.html">GeminiCLIDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="building-the-dag">Building the DAG<a class="anchor" aria-label="anchor" href="#building-the-dag"></a>
@@ -108,61 +117,33 @@ search based on real-time feedback.</p>
 </h3>
 <p>This node uses user feedback to update its recommendations.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">shopper_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"Shopper"</span>, logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">memory</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="co"># Extract state</span></span>
-<span>  <span class="va">request</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"shopping_request"</span><span class="op">)</span></span>
-<span>  <span class="va">feedback</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"user_feedback"</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="va">attempts</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"shopping_attempts"</span><span class="op">)</span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">attempts</span><span class="op">)</span><span class="op">)</span> <span class="va">attempts</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
-<span>  <span class="va">attempts</span> <span class="op">&lt;-</span> <span class="va">attempts</span> <span class="op">+</span> <span class="fl">1</span></span>
-<span></span>
-<span>  <span class="co"># Mocking catalogue search logic</span></span>
-<span>  <span class="va">recommended_item</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="va">attempts</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="st">"Generic Blue T-Shirt"</span></span>
-<span>  <span class="op">}</span> <span class="kw">else</span> <span class="kw">if</span> <span class="op">(</span><span class="va">attempts</span> <span class="op">==</span> <span class="fl">2</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="st">"Premium V-Neck T-Shirt"</span></span>
-<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>    <span class="st">"Vintage Graphic T-Shirt"</span></span>
+<code class="sourceCode R"><span><span class="va">shopper_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLLMNode.html">AgentLLMNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">"Shopper"</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">"Store Concierge"</span>,</span>
+<span>  role <span class="op">=</span> <span class="st">"You are a personalized shopping assistant. Based on the user's initial request and any feedback provide a specific product recommendation."</span>,</span>
+<span>  driver <span class="op">=</span> <span class="va">driver</span>,</span>
+<span>  prompt_builder <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">feedback_text</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"UserProxy"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"\nUser Feedback: %s"</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"UserProxy"</span><span class="op">)</span><span class="op">)</span> <span class="kw">else</span> <span class="st">""</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Original Request: %s%s\nOutput exactly a product name."</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"shopping_request"</span><span class="op">)</span>, <span class="va">feedback_text</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
-<span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>    output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      recommended_item <span class="op">=</span> <span class="va">recommended_item</span>,</span>
-<span>      shopping_attempts <span class="op">=</span> <span class="va">attempts</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">shopper_node</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="the-user-proxy-node">2. The User Proxy Node<a class="anchor" aria-label="anchor" href="#the-user-proxy-node"></a>
 </h3>
-<p>This node simulates a picky user.</p>
+<p>This node simulates a picky user receiving recommendations.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">user_proxy_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"UserProxy"</span>, logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">memory</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">item</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"recommended_item"</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">item</span> <span class="op">==</span> <span class="st">"Vintage Graphic T-Shirt"</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>      output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>        user_is_satisfied <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>        user_feedback <span class="op">=</span> <span class="st">"I love this graphic tee! I'll buy it."</span></span>
-<span>      <span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      status <span class="op">=</span> <span class="st">"SUCCESS"</span>,</span>
-<span>      output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>        user_is_satisfied <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>        user_feedback <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"I don't like %s. Show me something with a graphic design."</span>, <span class="va">item</span><span class="op">)</span></span>
-<span>      <span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">user_proxy_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLLMNode.html">AgentLLMNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">"UserProxy"</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">"Customer Proxy"</span>,</span>
+<span>  role <span class="op">=</span> <span class="st">"You are a customer looking for a specific item. Review the recommended product and either say 'I'll buy it' or provide 'Modification Feedback'."</span>,</span>
+<span>  driver <span class="op">=</span> <span class="va">driver</span>,</span>
+<span>  prompt_builder <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Recommended Item: %s\nOriginal Request: %s\nDecide if you like it or need something different."</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"Shopper"</span><span class="op">)</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"shopping_request"</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">user_proxy_node</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -179,52 +160,56 @@ search based on real-time feedback.</p>
 <span><span class="va">dag</span><span class="op">$</span><span class="fu">add_conditional_edge</span><span class="op">(</span></span>
 <span>  from <span class="op">=</span> <span class="st">"UserProxy"</span>,</span>
 <span>  test <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">out</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">user_is_satisfied</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"buy it"</span>, <span class="va">out</span>, ignore.case <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span>  <span class="op">}</span>,</span>
 <span>  if_true <span class="op">=</span> <span class="cn">NULL</span>, <span class="co"># Done</span></span>
 <span>  if_false <span class="op">=</span> <span class="st">"Shopper"</span> <span class="co"># Try again</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">compiled_dag</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">compile</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in dag$compile(): Potential infinite loop detected: graph contains</span></span>
+<span><span class="co">#&gt; cycles. Ensure conditional edges have exit conditions.</span></span>
 <span><span class="co">#&gt; Graph compiled successfully.</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="running-the-scenario">Running the Scenario<a class="anchor" aria-label="anchor" href="#running-the-scenario"></a>
+<h2 id="visualizing-the-workflow">Visualizing the Workflow<a class="anchor" aria-label="anchor" href="#visualizing-the-workflow"></a>
 </h2>
-<p>Provide the initial request and observe the iterations.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">initial_state</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  shopping_request <span class="op">=</span> <span class="st">"I need a cool t-shirt for the weekend."</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Starting Personalized Shopper...\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Starting Personalized Shopper...</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">compiled_dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>initial_state <span class="op">=</span> <span class="va">initial_state</span>, max_steps <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Graph compiled successfully.</span></span>
-<span><span class="co">#&gt; [Iteration 1] Running Node: Shopper</span></span>
-<span><span class="co">#&gt;    [Shopper] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 2] Running Node: UserProxy</span></span>
-<span><span class="co">#&gt;    [UserProxy] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 3] Running Node: Shopper</span></span>
-<span><span class="co">#&gt;    [Shopper] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 4] Running Node: UserProxy</span></span>
-<span><span class="co">#&gt;    [UserProxy] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 5] Running Node: Shopper</span></span>
-<span><span class="co">#&gt;    [Shopper] Executing R logic...</span></span>
-<span><span class="co">#&gt; [Iteration 6] Running Node: UserProxy</span></span>
-<span><span class="co">#&gt;    [UserProxy] Executing R logic...</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n--- SHOPPING RESULT ---\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; --- SHOPPING RESULT ---</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Search Attempts:"</span>, <span class="va">result</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"shopping_attempts"</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Search Attempts: 3</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Final Purchase:"</span>, <span class="va">result</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"recommended_item"</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Final Purchase: Vintage Graphic T-Shirt</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"User Feedback:"</span>, <span class="va">result</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"user_feedback"</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; User Feedback: I love this graphic tee! I'll buy it.</span></span></code></pre></div>
-<p>The DAG refined its recommendation across 3 cycles until the User
-Proxy was satisfied!</p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"```mermaid\n"</span><span class="op">)</span></span></code></pre></div>
+<pre class="mermaid"><code>
+``` r
+cat(compiled_dag$plot(type = "mermaid"))</code></pre>
+<pre class="mermaid"><code>graph TD
+  Shopper["Store Concierge"]
+  UserProxy["Customer Proxy"]
+  Shopper --&gt; UserProxy
+  UserProxy -- Fail --&gt; Shopper</code></pre>
+<pre class="mermaid"><code>graph TD
+  Shopper["Store Concierge"]
+  UserProxy["Customer Proxy"]
+  Shopper --&gt; UserProxy
+  UserProxy -- Fail --&gt; Shopper</code></pre>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n```\n"</span><span class="op">)</span></span></code></pre></div>
+<pre><code>
+## Running the Scenario
+
+Provide the initial request and observe the iterations.
+
+
+``` r
+initial_state &lt;- list(
+  shopping_request = "I need a cool t-shirt for the weekend with graphic design."
+)
+
+cat("Starting Personalized Shopper...\n")
+result &lt;- compiled_dag$run(initial_state = initial_state, max_steps = 10)
+
+cat("\n--- SHOPPING RESULT ---\n")
+cat("Final Recommendation:", result$state$get("Shopper"), "\n")
+cat("User Feedback:", result$state$get("UserProxy"), "\n")</code></pre>
+<p>The DAG successfully refined its recommendation through the
+interactive cycles until the customer proxy was satisfied!</p>
 <!-- APAF Bioinformatics | personalized_shopping.Rmd | Approved | 2026-03-29 -->
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -234,7 +219,7 @@ Proxy was satisfied!</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Ignatius Pang, Aidan Tay, APAF Agentic Workflow.</p>
+  <p>Developed by Ignatius Pang, Aidan Tay.</p>
 </div>
 
 <div class="pkgdown-footer-right">
