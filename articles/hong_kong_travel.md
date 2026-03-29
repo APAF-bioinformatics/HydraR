@@ -22,14 +22,12 @@ specific airline and activity constraints.
 
 ## Setup
 
-First, load the library and initialize the `GeminiCLIDriver`.
+First, load the HydraR library. Since we’re using the **Node Factory**
+pattern with Mermaid, drivers are instantiated on-demand during DAG
+creation.
 
 ``` r
 library(HydraR)
-
-# Initialize the Gemini CLI driver
-# Note: This assumes the 'gemini' CLI is installed and configured on your system.
-driver <- GeminiCLIDriver$new()
 ```
 
 ## Defining the Workflow Components

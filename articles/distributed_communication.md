@@ -158,9 +158,9 @@ msg_history <- purrr::map(all_msgs, function(m) {
 
 print(msg_history)
 #>   From     To     Time    Vote
-#> 1   V1 Leader 13:17:24 SUCCESS
-#> 2   V2 Leader 13:17:24 SUCCESS
-#> 3   V3 Leader 13:17:24 FAILURE
+#> 1   V1 Leader 13:23:55 SUCCESS
+#> 2   V2 Leader 13:23:55 SUCCESS
+#> 3   V3 Leader 13:23:55 FAILURE
 ```
 
 ## Visualization
