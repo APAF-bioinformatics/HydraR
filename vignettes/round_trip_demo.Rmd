@@ -44,7 +44,7 @@ node_factory <- function(id, label) {
     return(AgentLogicNode$new(id, function(state) {
       run_count <- state$get("check_runs") %||% 0
       state$set("check_runs", run_count + 1)
-      
+
       if (run_count == 0) {
         cat("Quality check failed. Routing to ReSearch...\n")
         return(list(status = "success", output = FALSE))
@@ -54,7 +54,7 @@ node_factory <- function(id, label) {
       }
     }, label = label))
   }
-  
+
   # Default node type
   return(AgentLogicNode$new(id, function(state) {
     list(status = "success", output = paste("Result from", label))
