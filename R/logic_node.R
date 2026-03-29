@@ -28,8 +28,9 @@ AgentLogicNode <- R6::R6Class("AgentLogicNode",
     #' @param id Unique identifier.
     #' @param logic_fn Function that takes an AgentState object and returns a list.
     #' @param label Optional human-readable name.
-    initialize = function(id, logic_fn, label = NULL) {
-      super$initialize(id, label = label)
+    #' @param params Optional list of parameters.
+    initialize = function(id, logic_fn, label = NULL, params = list()) {
+      super$initialize(id, label = label, params = params)
       stopifnot(is.function(logic_fn))
       self$logic_fn <- logic_fn
     },

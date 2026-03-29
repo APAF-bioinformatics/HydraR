@@ -58,123 +58,109 @@ initial_state <- list(
 state <- AgentState$new(initial_state)
 ```
 
-## Building the Orchestration Graph
+## Defining the Logic Registry
 
-We will define two nodes:
-1. **The Planner**: An `AgentLLMNode` that calls Gemini to generate the itinerary.
-2. **The Auditor**: An `AgentLogicNode` that checks if all "must-include" items are actually in the draft.
+To keep our architecture clean, we store complex R functions (like prompts and validation logic) in a central registry. This allows the Mermaid graph to focus on the structure and metadata.
 
-### 1. The Planner Node
-
-We use a `prompt_builder` to inject the state dynamically into the LLM prompt.
-
-```{r}
-planner_node <- AgentLLMNode$new(
-  id = "TravelPlanner",
-  label = "Gemini Itinerary Engine",
-  role = "You are a professional travel concierge specializing in premium Hong Kong travel.",
-  driver = driver,
-  prompt_builder = function(state) {
+```{r logic_registry}
+travel_logic_registry <- list(
+  # 1. The itinerary generation prompt
+  plan_itinerary = function(state) {
     sprintf(
-      "Plan a 3-day trip from %s to %s.
-      Dates: %s to %s.
-      Airline: %s.
-      Must include: %s.
-      Provide a detailed itinerary in Hong Kong.",
-      state$get("origin"),
-      state$get("destination"),
-      state$get("departure_date"),
-      state$get("return_date"),
-      state$get("airline"),
-      paste(state$get("must_include"), collapse = ", ")
+      "Plan a 3-day trip from %s to %s. Dates: %s to %s. Airline: %s. Must include: %s.",
+      state$get("origin"), state$get("destination"),
+      state$get("departure_date"), state$get("return_date"),
+      state$get("airline"), paste(state$get("must_include"), collapse = ", ")
     )
-  }
-)
-```
-
-### 2. The Auditor Node
-
-This node uses standard R logic to validate the LLM's output.
-
-```{r}
-auditor_node <- AgentLogicNode$new(
-  id = "Auditor",
-  label = "Constraint Validator",
-  logic_fn = function(state) {
-    itinerary <- state$get("TravelPlanner") # From the previous LLM node
-    if (is.null(itinerary)) itinerary <- ""
+  },
+  
+  # 2. The constraint validation logic
+  validate_constraints = function(state) {
+    itinerary <- state$get("Planner") %||% ""
     must_include <- state$get("must_include")
-
-    # Simple string matching to check constraints
     found <- sapply(must_include, function(x) grepl(x, itinerary, ignore.case = TRUE))
-    found_vec <- unlist(found)
-
-    if (all(found_vec)) {
-      list(
-        status = "SUCCESS",
-        output = list(validation_passed = TRUE, message = "All constraints met!")
-      )
+    
+    if (all(found)) {
+      list(status = "SUCCESS", output = list(validation_passed = TRUE))
     } else {
-      missing <- must_include[!found_vec]
-      list(
-        status = "SUCCESS",
-        output = list(
-          validation_passed = FALSE,
-          message = paste("Missing items:", paste(missing, collapse = ", "))
-        )
-      )
+      missing <- must_include[!found]
+      list(status = "SUCCESS", output = list(
+        validation_passed = FALSE, 
+        message = paste("Missing:", paste(missing, collapse = ", "))
+      ))
     }
   }
 )
 ```
 
-## Compiling the DAG
+## Defining the Workflow (Mermaid-as-Source)
 
-We link the nodes and add a conditional loop. If the Auditor fails, we go back to the Planner with the missing feedback.
+We define the entire orchestration using Mermaid syntax. Parameters like `role` and `driver` are baked directly into the graph.
 
-```{r}
-dag <- AgentDAG$new()
-dag$add_node(planner_node)
-dag$add_node(auditor_node)
+```{r mermaid_source}
+mermaid_src <- '
+graph TD
+  Planner["Travel Planner | role=Travel Concierge | driver=gemini | prompt_id=plan_itinerary | workdir=./hkg_trip"]
+  Auditor["Constraint Validator | logic_id=validate_constraints | retries=3"]
 
-dag$add_edge("TravelPlanner", "Auditor")
+  Planner --> Auditor
+  Auditor -- "fail" --> Planner
+'
+```
 
-# Conditional loop: Back to planner if validation fails
-dag$add_conditional_edge(
-  from = "Auditor",
-  test = function(out) isTRUE(out$validation_passed),
-  if_true = NULL, # END
-  if_false = "TravelPlanner"
-)
+## Instantiating the DAG
 
-dag$set_start_node("TravelPlanner")
-compiled_dag <- dag$compile()
+We use a **Node Factory** to resolve the IDs in the Mermaid string against our logic registry.
+
+```{r dag_creation}
+# The factory maps Mermaid params to HydraR Node objects
+travel_node_factory <- function(id, label, params) {
+  if (id == "Planner") {
+    return(AgentLLMNode$new(
+      id = id, label = label,
+      role = params$role,
+      driver = GeminiCLIDriver$new(),
+      prompt_builder = travel_logic_registry[[params$prompt_id]],
+      params = params
+    ))
+  } else if (id == "Auditor") {
+    return(AgentLogicNode$new(
+      id = id, label = label,
+      logic_fn = travel_logic_registry[[params$logic_id]],
+      params = params
+    ))
+  }
+}
+
+# Create the DAG directly from the visual source
+dag <- mermaid_to_dag(mermaid_src, travel_node_factory)
+dag$compile()
 ```
 
 ## Visualizing the Workflow
 
-We can view the agent's logic directly using Mermaid.js syntax.
+We can view the agent's logic directly using Mermaid.js syntax. By setting `details = TRUE`, we see the embedded configuration parameters.
 
 ```{r, results = 'asis'}
 cat("```mermaid\n")
-cat(compiled_dag$plot(type = "mermaid"))
+cat(dag$plot(type = "mermaid", details = TRUE))
 cat("\n```\n")
 ```
 
 ## Execution
 
-When we run the DAG, `HydraR` manages the state transitions and LLM calls. If the LLM forgets to mention "Spaghetti House", the Auditor will detect it and loop back for a correction.
+When we run the DAG, `HydraR` manages the state transitions and LLM calls. The `workdir` and `role` parameters are automatically applied.
 
 ```{r, eval = FALSE}
 # Register a checkpointer for durability
-checkpointer <- AgentCheckpointer$new(path = "travel_booking.duckdb")
-compiled_dag$set_checkpointer(checkpointer)
+checkpointer <- DuckDBSaver$new(path = "travel_booking.duckdb")
+dag$set_checkpointer(checkpointer)
 
 # Run the orchestration
-results <- compiled_dag$run(initial_state = initial_state, max_steps = 5)
+results <- dag$run(initial_state = initial_state, max_steps = 5)
 
 # Display final itinerary
-cat(results$state$get("TravelPlanner"))
+cat(results$state$get("Planner"))
 ```
 
 ## Conclusion

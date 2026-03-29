@@ -47,8 +47,9 @@ AgentLLMNode <- R6::R6Class("AgentLLMNode",
     #' @param prompt_builder Function(state) -> String.
     #' @param tools List of AgentTool objects.
     #' @param label Optional human-readable name.
-    initialize = function(id, role, driver, model = NULL, cli_opts = list(), prompt_builder = NULL, tools = list(), label = NULL) {
-      super$initialize(id, label = label)
+    #' @param params Optional list of parameters.
+    initialize = function(id, role, driver, model = NULL, cli_opts = list(), prompt_builder = NULL, tools = list(), label = NULL, params = list()) {
+      super$initialize(id, label = label, params = params)
       stopifnot(is.character(role) && length(role) == 1)
       stopifnot(inherits(driver, "AgentDriver"))
 
