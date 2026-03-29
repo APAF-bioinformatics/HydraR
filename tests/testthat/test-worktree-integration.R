@@ -10,7 +10,7 @@ test_that("Git Worktree Parallel Integration works", {
   tmp_repo <- withr::local_tempdir()
   withr::with_dir(tmp_repo, {
     system2("git", c("init", "--initial-branch=main"))
-    system2("git", c("branch", "-m", "main"))
+    suppressWarnings(system2("git", c("checkout", "-b", "main"), stdout = FALSE, stderr = FALSE))
     writeLines("Initial content", "README.md")
     system2("git", c("add", "README.md"))
     system2("git", c("commit", "-m", "'Initial commit'"))
@@ -83,7 +83,7 @@ test_that("Merge Conflict detection works", {
   tmp_repo <- withr::local_tempdir()
   withr::with_dir(tmp_repo, {
     system2("git", c("init", "--initial-branch=main"))
-    system2("git", c("branch", "-m", "main"))
+    suppressWarnings(system2("git", c("checkout", "-b", "main"), stdout = FALSE, stderr = FALSE))
     writeLines("Initial", "conflict.txt")
     system2("git", c("add", "conflict.txt"))
     system2("git", c("commit", "-m", "'Initial'"))
