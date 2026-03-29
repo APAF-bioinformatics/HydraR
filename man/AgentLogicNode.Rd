@@ -38,7 +38,7 @@ Initialize AgentLogicNode}
 \if{latex}{\out{\hypertarget{method-AgentLogicNode-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AgentLogicNode$new(id, logic_fn, label = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{AgentLogicNode$new(id, logic_fn, label = NULL, params = list())}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -48,7 +48,9 @@ Initialize AgentLogicNode}
 
 \item{\code{logic_fn}}{Function that takes an AgentState object and returns a list.}
 
-\item{\code{label}}{Optional human-readable name.
+\item{\code{label}}{Optional human-readable name.}
+
+\item{\code{params}}{Optional list of parameters.
 Run the Logic Node}
 }
 \if{html}{\out{</div>}}

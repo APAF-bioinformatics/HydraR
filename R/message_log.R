@@ -124,4 +124,40 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
   )
 )
 
-# <!-- APAF Bioinformatics | message_log.R | Approved | 2026-03-29 -->
+#' JSONL Message Log R6 Class
+#'
+#' @description Persists messages to a JSON Lines file. Atomic file appending
+#' ensures that multiple parallel worktree processes can log messages
+#' without locking conflicts.
+#' @export
+JSONLMessageLog <- R6::R6Class("JSONLMessageLog",
+  inherit = MessageLog,
+  public = list(
+    #' @field path String. Path to JSONL file.
+    path = NULL,
+    #' @description Initialize JSONLMessageLog.
+    #' @param path String.
+    initialize = function(path = tempfile(fileext = ".jsonl")) {
+      self$path <- path
+    },
+    #' @description Store a message (atomic append).
+    #' @param msg List. Message object.
+    log = function(msg) {
+      # Use base::cat with append=TRUE for simple, atomic-like writes on Unix
+      line <- jsonlite::toJSON(msg, auto_unbox = TRUE)
+      cat(paste0(line, "\n"), file = self$path, append = TRUE)
+      invisible(self)
+    },
+    #' @description Get all logs.
+    #' @return List of logs.
+    get_all = function() {
+      if (!file.exists(self$path)) {
+        return(list())
+      }
+      lines <- readLines(self$path, warn = FALSE)
+      lapply(lines, jsonlite::fromJSON)
+    }
+  )
+)
+
+# <!-- APAF Bioinformatics | message_log.R | Approved | 2026-03-30 -->

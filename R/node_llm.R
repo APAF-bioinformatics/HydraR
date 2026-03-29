@@ -71,8 +71,11 @@ AgentLLMNode <- R6::R6Class("AgentLLMNode",
       input_text <- if (!is.null(self$prompt_builder)) {
         self$prompt_builder(state)
       } else {
-        # Fallback: simple state summary
-        jsonlite::toJSON(state$get_all(), auto_unbox = TRUE)
+        # Fallback: simple state summary (Sanitized to avoid R6 serialization issues)
+        all_state <- state$get_all()
+        # Filter out R6 and other unspeakable objects
+        safe_state <- purrr::discard(all_state, ~ inherits(.x, "R6") || is.function(.x) || is.environment(.x))
+        jsonlite::toJSON(safe_state, auto_unbox = TRUE)
       }
 
       # Construct prompt
@@ -100,9 +103,28 @@ AgentLLMNode <- R6::R6Class("AgentLLMNode",
         return(self$last_result)
       }
 
+      # 1. Automatic Code Extraction (if requested in params)
+      output_res <- raw_response
+      if (identical(self$params$output_format, "r")) {
+        output_res <- HydraR::extract_r_code_advanced(raw_response)
+      }
+
+      # 2. File Persistence (if output_path is provided in params)
+      if (!is.null(self$params$output_path)) {
+        tryCatch({
+          writeLines(output_res, self$params$output_path)
+          # Optional: Automatic git tracking if in a worktree
+          # We check system status or state for worktree indicator
+          system2("git", c("add", shQuote(self$params$output_path)), stdout = FALSE, stderr = FALSE)
+          system2("git", c("commit", "-m", shQuote(sprintf("HydraR: Updated %s", self$id))), stdout = FALSE, stderr = FALSE)
+        }, error = function(e) {
+          warning(sprintf("[%s] Failed to write/commit LLM output to '%s': %s", self$id, self$params$output_path, e$message))
+        })
+      }
+
       self$last_result <- list(
         status = "success",
-        output = raw_response,
+        output = output_res,
         raw = raw_response,
         attempts = 1
       )

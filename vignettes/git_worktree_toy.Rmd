@@ -47,33 +47,65 @@ withr::with_dir(repo_root, {
 
 ---
 
-## 🤖 Step 2: Define a Writing Agent
+## 🤖 Step 2: Define the Workflow Components
 
-We'll use the `GeminiCLIDriver` to request code generation. The agent will attempt to write a simple R function into a file called `math_fun.R`.
+To keep our architecture clean, we store all workflow components—agent roles and prompts—in a central registry.
 
-```{r define_dag, eval = FALSE}
-# 1. Set up the Driver
-# Requires 'gemini' CLI to be installed
-driver <- GeminiCLIDriver$new(id = "gemini_bot")
-register_driver(driver)
+```{r logic_registry, eval = FALSE}
+git_logic_registry <- list(
+  # 1. Agent Roles
+  roles = list(
+    code_creator = "Generate a simple R function to calculate the square of a number. SAVE IT to a file named 'math_fun.R'. Output ONLY the code."
+  ),
 
-# 2. Define the Writer node
-node_writer <- AgentLLMNode$new(
-  id = "code_creator",
-  driver_id = "gemini_bot",
-  prompt_template = "Generate a simple R function to calculate the square of a number. SAVE IT to a file named 'math_fun.R'. Output ONLY the code."
+  # 2. Prompt Builders
+  prompts = list(
+    code_creator = function(state) {
+      # In this example, we use the role as the direct prompt for simplicity
+      git_logic_registry$roles$code_creator
+    }
+  )
 )
+```
 
-# 3. Define the Merger node (Harmonizer)
-# This node will reconcile the worktree changes back to 'main'
-node_merger <- create_merge_harmonizer(id = "merger")
+## The Node Factory
 
-# 4. Build the DAG
-dag <- AgentDAG$new()
-dag$add_node(node_writer)
-dag$add_node(node_merger)
-dag$add_edge("code_creator", "merger")
-dag$compile()
+We use a factory function to dynamically resolve nodes. This factory handles both standard LLM nodes and specialized nodes like the **Merge Harmonizer**.
+
+```{r factory, eval = FALSE}
+git_node_factory <- function(id, label, params) {
+  if (id == "merger") {
+    # Resolve the specialized MergeHarmonizer node
+    create_merge_harmonizer(id = id)
+  } else {
+    # Resolve standard LLM nodes
+    driver_obj <- if (!is.null(params$driver) && params$driver == "gemini") GeminiCLIDriver$new() else NULL
+    
+    AgentLLMNode$new(
+      id = id,
+      label = label,
+      role = git_logic_registry$roles[[id]],
+      driver = driver_obj,
+      prompt_builder = git_logic_registry$prompts[[id]]
+    )
+  }
+}
+```
+
+## Building the DAG via Mermaid
+
+We define the entire workflow architecture as a Mermaid string. This string serves as the single source of truth for both structure and node metadata.
+
+```{r mermaid_source, eval = FALSE}
+mermaid_graph <- "
+graph TD
+  code_creator[Code Creator | driver=gemini] --> merger
+  merger[Merge Harmonizer]
+"
+
+# Instantiate the DAG
+dag <- AgentDAG$from_mermaid(mermaid_graph, node_factory = git_node_factory)
+compiled_dag <- dag$compile()
 ```
 
 ---
@@ -87,7 +119,7 @@ By setting `use_worktrees = TRUE`, `HydraR` will:
 
 ```{r run_dag, eval = FALSE}
 # Run the DAG from the temporary repo root
-results <- dag$run(
+results <- compiled_dag$run(
   initial_state = list(input = "Start execution"),
   use_worktrees = TRUE,
   repo_root = repo_root,

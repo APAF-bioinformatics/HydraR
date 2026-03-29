@@ -23,40 +23,58 @@ This vignette provides a basic "Hello World" example of `HydraR` logic nodes, de
 library(HydraR)
 ```
 
-## Defining Logic Nodes
+## Defining the Workflow Components
 
-Logic nodes perform computation on the project state. We define two: one to collect input and another to transform it.
+To keep our architecture clean, we store all deterministic logic functions and the initial configuration in a central registry.
 
-```{r nodes}
-# 1. Collect Input Node
-node_input <- AgentLogicNode$new(
-  id = "collect_input",
-  logic_fn = function(state) {
-    list(status = "SUCCESS", output = list(input_raw = state$get("input")))
-  }
-)
+```{r logic_registry}
+hello_logic_registry <- list(
+  # 0. Initial Configuration
+  initial_state = list(
+    input = "hello hydra"
+  ),
 
-# 2. Process Data Node
-node_process <- AgentLogicNode$new(
-  id = "process_data",
-  logic_fn = function(state) {
-    raw <- state$get("input_raw")
-    res <- paste0("HYDRAR says: ", toupper(raw))
-    list(status = "SUCCESS", output = list(processed_result = res))
-  }
+  # 1. Deterministic Logic Functions
+  logic = list(
+    collect_input = function(state, params = NULL) {
+      list(status = "SUCCESS", output = list(input_raw = state$get("input")))
+    },
+    process_data = function(state, params = NULL) {
+      raw <- state$get("input_raw")
+      res <- paste0("HYDRAR says: ", toupper(raw))
+      list(status = "SUCCESS", output = list(processed_result = res))
+    }
+  )
 )
 ```
 
-## Assembling the DAG
+## The Node Factory
 
-Next, we add these nodes to an `AgentDAG` and connect them.
+We use a factory function to dynamically create nodes based on their IDs defined in the Mermaid graph.
 
-```{r dag}
-dag <- AgentDAG$new()
-dag$add_node(node_input)
-dag$add_node(node_process)
-dag$add_edge("collect_input", "process_data")
-dag$compile()
+```{r factory}
+hello_node_factory <- function(id, label, params) {
+  AgentLogicNode$new(
+    id = id,
+    label = label,
+    logic_fn = hello_logic_registry$logic[[id]]
+  )
+}
+```
+
+## Building the DAG via Mermaid
+
+We define the entire workflow architecture as a Mermaid string. This string serves as the single source of truth for both structure and node metadata.
+
+```{r mermaid_source}
+mermaid_graph <- "
+graph TD
+  collect_input[Collect Input] --> process_data[Process Data]
+"
+
+# Instantiate the DAG
+dag <- AgentDAG$from_mermaid(mermaid_graph, node_factory = hello_node_factory)
+compiled_dag <- dag$compile()
 ```
 
 ## Running with the Checkpointer
@@ -67,8 +85,8 @@ We use a `MemorySaver` to persist the state throughout the run.
 checkpointer <- MemorySaver$new()
 thread_id <- "hello_test_run"
 
-final <- dag$run(
-  initial_state = list(input = "hello hydra"),
+final <- compiled_dag$run(
+  initial_state = hello_logic_registry$initial_state,
   checkpointer = checkpointer,
   thread_id = thread_id
 )

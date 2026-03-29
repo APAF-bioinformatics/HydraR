@@ -47,8 +47,8 @@ create_merge_harmonizer <- function(id = "merge_harmonizer",
     merge_results <- list()
     conflicts <- list()
 
-    # Ensure we are on the base branch in the main repo
-    system2("git", c("-C", shQuote(repo_root), "checkout", shQuote(base_branch)), stdout = FALSE, stderr = FALSE)
+    # Ensure we are on the base branch in the main repo and it is physically up to date
+    system2("git", c("-C", shQuote(repo_root), "checkout", "-f", shQuote(base_branch)), stdout = FALSE, stderr = FALSE)
 
     purrr::walk(node_ids, function(node_id) {
       branch <- wt_manager$get_branch(node_id)
@@ -58,8 +58,8 @@ create_merge_harmonizer <- function(id = "merge_harmonizer",
 
       cat(sprintf("   [%s] Merging branch: %s\n", id, branch))
 
-      # Execute git merge <branch>
-      res <- system2("git", c("-C", shQuote(repo_root), "merge", "--no-ff", shQuote(branch)),
+      # Execute git merge <branch> --no-edit --no-gpg-sign
+      res <- system2("git", c("-C", shQuote(repo_root), "merge", "--no-ff", "--no-edit", "--no-gpg-sign", shQuote(branch)),
         stdout = TRUE, stderr = TRUE
       )
 
@@ -92,6 +92,10 @@ create_merge_harmonizer <- function(id = "merge_harmonizer",
         merge_results[[node_id]] <<- "merged"
         # Cleanup the branch now that it is merged
         wt_manager$delete_branch(node_id)
+        # Re-checkout base_branch in main repo to physically populate the new files
+        # Use reset --hard to ensure any staged changes or index inconsistencies are cleared
+        system2("git", c("-C", shQuote(repo_root), "reset", "--hard", shQuote(base_branch)), stdout = FALSE, stderr = FALSE)
+        system2("git", c("-C", shQuote(repo_root), "checkout", "-f", shQuote(base_branch)), stdout = FALSE, stderr = FALSE)
       }
     })
 

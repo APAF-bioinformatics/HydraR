@@ -63,7 +63,8 @@ GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
       }
 
       cleaned <- paste(res, collapse = "\n")
-      return(trimws(cleaned))
+      # Use HydraR utility to strip markdown fences if present
+      return(extract_r_code_advanced(trimws(cleaned)))
     }
   )
 )
@@ -130,7 +131,7 @@ OllamaDriver <- R6::R6Class("OllamaDriver",
       }
 
       cleaned <- paste(res, collapse = "\n")
-      return(cleaned)
+      return(extract_r_code_advanced(cleaned))
     }
   )
 )
@@ -197,7 +198,7 @@ ClaudeCodeDriver <- R6::R6Class("ClaudeCodeDriver",
       }
 
       cleaned <- paste(res, collapse = "\n")
-      return(cleaned)
+      return(extract_r_code_advanced(cleaned))
     }
   )
 )
@@ -254,7 +255,7 @@ CopilotCLIDriver <- R6::R6Class("CopilotCLIDriver",
       }
 
       cleaned <- paste(res, collapse = "\n")
-      return(cleaned)
+      return(extract_r_code_advanced(cleaned))
     }
   )
 )

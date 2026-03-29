@@ -64,7 +64,7 @@ OpenAIDriver <- R6::R6Class("OpenAIDriver",
         resp <- httr2::req_perform(req)
         cont <- httr2::resp_body_json(resp)
 
-        return(cont$choices[[1]]$message$content)
+        return(extract_r_code_advanced(cont$choices[[1]]$message$content))
       })
     }
   )
@@ -133,7 +133,7 @@ AnthropicDriver <- R6::R6Class("AnthropicDriver",
         resp <- httr2::req_perform(req)
         cont <- httr2::resp_body_json(resp)
 
-        return(cont$content[[1]]$text)
+        return(extract_r_code_advanced(cont$content[[1]]$text))
       })
     }
   )
@@ -197,7 +197,7 @@ GeminiAPIDriver <- R6::R6Class("GeminiAPIDriver",
         resp <- httr2::req_perform(req)
         cont <- httr2::resp_body_json(resp)
 
-        return(cont$candidates[[1]]$content$parts[[1]]$text)
+        return(extract_r_code_advanced(cont$candidates[[1]]$content$parts[[1]]$text))
       })
     }
   )

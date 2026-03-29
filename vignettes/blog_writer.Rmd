@@ -26,93 +26,84 @@ Content creation often involves a multi-stage pipeline consisting of brainstormi
 
 ## Setup
 
-```{r}
+```{r setup}
 library(HydraR)
-
-# Initialize the Gemini CLI driver
-driver <- GeminiCLIDriver$new()
 ```
 
-## Building the DAG
+## Defining the Workflow Components
 
-Initialize the `AgentDAG`.
+To keep our architecture clean, we store all workflow components—initial configuration, LLM prompts, and agent roles—in a central registry.
 
-```{r}
-dag <- AgentDAG$new()
-```
+```{r logic_registry}
+blog_logic_registry <- list(
+  # 0. Initial Blog Topic
+  initial_state = list(
+    blog_topic = "Agentic Workflows in R"
+  ),
 
-### 1. The Outliner Node
+  # 1. Agent Roles
+  roles = list(
+    Outliner = "You are a content strategist. Create a structured outline for a blog post based on a topic provided by the user.",
+    Drafter = "You are a professional blog writer. Draft a full blog post based on an outline and any specific editorial feedback.",
+    Editor = "You are an SEO specialist. Review the blog draft. If it is excellent, say 'Approved'. If not, provide specific 'Improvement Feedback'."
+  ),
 
-Generates the core structure of the blog post.
-
-```{r}
-outliner_node <- AgentLLMNode$new(
-  id = "Outliner",
-  label = "Content Strategist",
-  role = "You are a content strategist. Create a structured outline for a blog post based on a topic provided by the user.",
-  driver = driver,
-  prompt_builder = function(state) {
-    sprintf("Topic: %s\nProvide a detailed multisection outline.", state$get("blog_topic"))
-  }
+  # 2. Prompt Builders
+  prompts = list(
+    Outliner = function(state) {
+      sprintf("Topic: %s\nProvide a detailed multisection outline.", state$get("blog_topic"))
+    },
+    Drafter = function(state) {
+      feedback_text <- if (!is.null(state$get("Editor"))) sprintf("\nFeedback: %s", state$get("Editor")) else ""
+      sprintf("Outline: %s%s\nDraft the full blog post.", state$get("Outliner"), feedback_text)
+    },
+    Editor = function(state) {
+      sprintf("Draft: %s\nDoes this meet professional standards? Respond either with 'Approved' or detailed feedback.", state$get("Drafter"))
+    }
+  )
 )
-
-dag$add_node(outliner_node)
 ```
 
-### 2. The Drafter Node
+## The Node Factory
 
-Merges the outline with any editor feedback.
+We use a factory function to dynamically create nodes based on parameters defined in the Mermaid graph.
 
-```{r}
-drafter_node <- AgentLLMNode$new(
-  id = "Drafter",
-  label = "Creative Writer",
-  role = "You are a professional blog writer. Draft a full blog post based on an outline and any specific editorial feedback.",
-  driver = driver,
-  prompt_builder = function(state) {
-    feedback_text <- if (!is.null(state$get("Editor"))) sprintf("\nFeedback: %s", state$get("Editor")) else ""
-    sprintf("Outline: %s%s\nDraft the full blog post.", state$get("Outliner"), feedback_text)
-  }
-)
-
-dag$add_node(drafter_node)
+```{r factory}
+blog_node_factory <- function(id, label, params) {
+  # Driver resolution from Mermaid params
+  driver_obj <- if (params$driver == "gemini") GeminiCLIDriver$new() else NULL
+  
+  AgentLLMNode$new(
+    id = id,
+    label = label,
+    role = blog_logic_registry$roles[[id]],
+    driver = driver_obj,
+    prompt_builder = blog_logic_registry$prompts[[id]]
+  )
+}
 ```
 
-### 3. The Editor Node
+## Building the DAG via Mermaid
 
-Reviews the draft for SEO and quality.
+We define the entire workflow architecture as a Mermaid string. This string serves as the single source of truth for both structure and node metadata.
 
-```{r}
-editor_node <- AgentLLMNode$new(
-  id = "Editor",
-  label = "SEO Editor",
-  role = "You are an SEO specialist. Review the blog draft. If it is excellent, say 'Approved'. If not, provide specific 'Improvement Feedback'.",
-  driver = driver,
-  prompt_builder = function(state) {
-    sprintf("Draft: %s\nDoes this meet professional standards? Respond either with 'Approved' or detailed feedback.", state$get("Drafter"))
-  }
-)
+```{r mermaid_source}
+mermaid_graph <- "
+graph TD
+  Outliner[Content Strategist | driver=gemini] --> Drafter
+  Drafter[Creative Writer | driver=gemini] --> Editor
+  Editor[SEO Editor | driver=gemini] -- Needs Improvement --> Drafter
+"
 
-dag$add_node(editor_node)
-```
+# Instantiate the DAG
+dag <- AgentDAG$from_mermaid(mermaid_graph, node_factory = blog_node_factory)
 
-## Defining Transitions
-
-Combine linear and cyclic edges.
-
-```{r}
-dag$set_start_node("Outliner")
-
-dag$add_edge("Outliner", "Drafter")
-dag$add_edge("Drafter", "Editor")
-
+# Add conditional logic for the 'Approved' route (stop)
 dag$add_conditional_edge(
   from = "Editor",
-  test = function(out) {
-    grepl("Approved", out, ignore.case = TRUE)
-  },
-  if_true = NULL, # Stop!
-  if_false = "Drafter" # Back to drafter
+  test = function(out) grepl("Approved", out, ignore.case = TRUE),
+  if_true = NULL, # Stop execution
+  if_false = "Drafter" # Feedback loop
 )
 
 compiled_dag <- dag$compile()
@@ -129,12 +120,12 @@ cat("\n```\n")
 ## Running the Scenario
 
 ```{r, eval = FALSE}
-initial_state <- list(
-  blog_topic = "Agentic Workflows in R"
-)
-
 cat("Starting Blog Creation Engine...\n")
-result <- compiled_dag$run(initial_state = initial_state, max_steps = 10)
+
+result <- compiled_dag$run(
+  initial_state = blog_logic_registry$initial_state,
+  max_steps = 10
+)
 
 cat("\n--- BLOG PUBLICATION STATUS ---\n")
 cat("Final Output:\n", result$state$get("Drafter"), "\n")

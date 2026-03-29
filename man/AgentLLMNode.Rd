@@ -60,7 +60,8 @@ Initialize AgentLLMNode}
   cli_opts = list(),
   prompt_builder = NULL,
   tools = list(),
-  label = NULL
+  label = NULL,
+  params = list()
 )}\if{html}{\out{</div>}}
 }
 
@@ -81,7 +82,9 @@ Initialize AgentLLMNode}
 
 \item{\code{tools}}{List of AgentTool objects.}
 
-\item{\code{label}}{Optional human-readable name.
+\item{\code{label}}{Optional human-readable name.}
+
+\item{\code{params}}{Optional list of parameters.
 Run the LLM Node}
 }
 \if{html}{\out{</div>}}

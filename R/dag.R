@@ -149,7 +149,9 @@ AgentDAG <- R6::R6Class("AgentDAG",
     #' @param repo_root String. Path to the main git repository.
     #' @param cleanup_policy String. "auto", "none", or "aggressive".
     #' @param fail_if_dirty Logical. Whether to fail if repo has uncommitted changes.
+    #' @param packages Character vector. Packages to load in parallel workers.
     #' @param ... Additional arguments passed to node run methods.
+
     #' @return List of results for each node, and the final state.
     run = function(initial_state = NULL,
                    max_steps = 25,
@@ -160,10 +162,12 @@ AgentDAG <- R6::R6Class("AgentDAG",
                    repo_root = getwd(),
                    cleanup_policy = "auto",
                    fail_if_dirty = TRUE,
+                   packages = c("withr", "HydraR"),
                    ...) {
       self$compile()
       private$.fail_if_dirty <- fail_if_dirty
       private$.run_args <- list(...)
+      private$.packages <- packages
 
       # 1. Thread and State Initialization
       if (is.null(thread_id)) {
@@ -218,7 +222,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
       # 5. Unified Execution Routing
       # If worktrees are enabled, we MUST use iterative mode to handle branch isolation.
       if (use_worktrees) {
-        return(self$.run_iterative(max_steps, checkpointer, thread_id, resume_from, fail_if_dirty = fail_if_dirty))
+        return(self$.run_iterative(max_steps, checkpointer, thread_id, resume_from, fail_if_dirty = fail_if_dirty, packages = packages))
       }
 
       # Default to linear if pure DAG and no complex features requested
@@ -279,7 +283,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
         self$results[[node_id]] <<- res
 
         if (!is.null(res$output)) {
-          if (is.list(res$output)) {
+          if (is.list(res$output) && !is.data.frame(res$output)) {
             self$state$update(res$output)
           } else {
             self$state$update(setNames(list(res$output), node_id))
@@ -321,7 +325,9 @@ AgentDAG <- R6::R6Class("AgentDAG",
     #' @param resume_from String.
     #' @param step_count Integer.
     #' @param fail_if_dirty Logical.
-    .run_iterative = function(max_steps, checkpointer = NULL, thread_id = NULL, resume_from = NULL, step_count = 0, fail_if_dirty = TRUE) {
+    #' @param packages Character vector. Packages to load in parallel workers.
+    .run_iterative = function(max_steps, checkpointer = NULL, thread_id = NULL, resume_from = NULL, step_count = 0, fail_if_dirty = TRUE, packages = c("withr", "HydraR")) {
+
       current_nodes <- if (!is.null(resume_from)) {
         cat(sprintf("[Resuming] Resuming Iterative DAG Execution from node(s): %s\n", paste(resume_from, collapse = ", ")))
         resume_from
@@ -373,7 +379,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
               et <- Sys.time()
               list(id = node_id, res = res, start = st, end = et)
             })
-          }, .options = furrr::furrr_options(globals = c("self"), packages = c("withr", "HydraR")))
+          }, .options = furrr::furrr_options(globals = c("self"), packages = packages))
 
           # Integrate results and collect next nodes
           purrr::walk(parallel_results, function(p_res) {
@@ -381,14 +387,15 @@ AgentDAG <- R6::R6Class("AgentDAG",
             res <- p_res$res
             self$results[[node_id]] <<- res
             if (!is.null(res$output)) {
-              if (is.list(res$output)) self$state$update(res$output) else self$state$update(setNames(list(res$output), node_id))
+              if (is.list(res$output) && !is.data.frame(res$output)) self$state$update(res$output) else self$state$update(setNames(list(res$output), node_id))
             }
             step_count <<- step_count + 1
             self$trace_log[[step_count]] <<- list(
               step = step_count, node = node_id, mode = "parallel",
               start_time = as.character(p_res$start), end_time = as.character(p_res$end),
               duration_secs = as.numeric(difftime(p_res$end, p_res$start, units = "secs")),
-              status = res$status, error = res$error
+              status = res$status, 
+              error = if (!is.null(res$error)) as.character(res$error) else if (res$status == "failed" && !is.null(p_res$error)) as.character(p_res$error) else NULL
             )
             # if (!is.null(self$worktree_manager)) self$worktree_manager$remove_worktree(node_id)
             if (!is.null(res$status) && tolower(res$status) == "pause") {
@@ -429,7 +436,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
             self$results[[node_id]] <<- res
             if (!is.null(res$output)) {
-              if (is.list(res$output)) self$state$update(res$output) else self$state$update(setNames(list(res$output), node_id))
+              if (is.list(res$output) && !is.data.frame(res$output)) self$state$update(res$output) else self$state$update(setNames(list(res$output), node_id))
             }
             self$trace_log[[step_idx_inner]] <<- list(
               step = step_idx_inner, node = node_id, mode = "iterative",
@@ -582,9 +589,10 @@ AgentDAG <- R6::R6Class("AgentDAG",
         }
       }
 
-      lines <- c("graph TD", node_lines, edge_lines, extra_lines)
+      lines <- c("```mermaid", "graph TD", node_lines, edge_lines, extra_lines, "```")
       res <- paste(lines, collapse = "\n")
-      return(res)
+      cat(res, "\n")
+      return(invisible(res))
     },
 
     #' Compile the Graph
@@ -675,6 +683,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
   private = list(
     .fail_if_dirty = TRUE,
     .run_args = list(),
+    .packages = c("withr", "HydraR"),
     .rebuild_graph = function() {
       if (!is.null(self$graph)) {
         return(invisible(self))
@@ -741,4 +750,12 @@ mermaid_to_dag <- function(mermaid_str, node_factory) {
   return(dag)
 }
 
-#' <!-- APAF Bioinformatics | dag.R | Approved | 2026-03-29 -->
+# static method for factory instantiation
+AgentDAG$from_mermaid <- function(mermaid_str, node_factory) {
+  dag <- AgentDAG$new()
+  dag$from_mermaid(mermaid_str, node_factory)
+  return(dag)
+}
+
+#' <!-- APAF Bioinformatics | dag.R | Approved | 2026-03-30 -->
+

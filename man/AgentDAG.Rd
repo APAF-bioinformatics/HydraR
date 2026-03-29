@@ -162,6 +162,7 @@ Run the Graph}
   repo_root = getwd(),
   cleanup_policy = "auto",
   fail_if_dirty = TRUE,
+  packages = c("withr", "HydraR"),
   ...
 )}\if{html}{\out{</div>}}
 }
@@ -247,7 +248,8 @@ Internal: Iterative Execution
   thread_id = NULL,
   resume_from = NULL,
   step_count = 0,
-  fail_if_dirty = TRUE
+  fail_if_dirty = TRUE,
+  packages = c("withr", "HydraR")
 )}\if{html}{\out{</div>}}
 }
 

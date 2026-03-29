@@ -28,16 +28,24 @@ Imagine a pipeline where we first fetch raw data, and then an agent summarizes i
 library(targets)
 library(HydraR)
 
-# 1. Define your agent nodes in a separate script or as functions
-summarize_logic <- function(state) {
-  text <- state$get("raw_text")
-  # Simulate LLM call
-  summary <- paste("Summary of:", substr(text, 1, 50), "...")
-  list(status = "success", output = list(summary = summary))
+# 1. Define your registry components
+summarize_logic_registry <- list(
+  logic = list(
+    summarizer = function(state, params = NULL) {
+      text <- state$get("raw_text")
+      # Simulate LLM call
+      summary <- paste("Summary of:", substr(text, 1, 50), "...")
+      list(status = "SUCCESS", output = list(summary = summary))
+    }
+  )
+)
+
+# 2. Define a factory for the target
+summarize_factory <- function(id, label, params) {
+  AgentLogicNode$new(id = id, label = label, logic_fn = summarize_logic_registry$logic[[id]])
 }
 
-# 2. Define your _targets.R file
-# _targets.R
+# 3. Define your _targets.R file
 list(
   tar_target(
     raw_document,
@@ -47,13 +55,11 @@ list(
   tar_target(
     agent_results,
     {
-      # Build the DAG
-      dag <- AgentDAG$new()
-      node <- AgentLogicNode$new(id = "summarizer", logic_fn = summarize_logic)
-      dag$add_node(node)
-      dag$compile()
+      # Build the DAG from Mermaid
+      mermaid_spec <- "graph TD; summarizer[Summarize Finding]"
+      dag <- AgentDAG$from_mermaid(mermaid_spec, node_factory = summarize_factory)
       
-      # Run the DAG with the data from the previous target
+      # Run the DAG with data from the previous target
       dag$run(initial_state = list(raw_text = raw_document))
     }
   ),
