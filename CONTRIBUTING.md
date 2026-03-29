@@ -1,0 +1,47 @@
+# Contributing to HydraR
+
+Thank you for your interest in contributing to `HydraR`! We welcome
+contributions from the community to help make this framework more robust
+and useful for agentic research.
+
+## How to Contribute
+
+### Reporting Bugs
+
+- Please check the [existing
+  issues](https://github.com/APAF-bioinformatics/HydraR/issues) before
+  opening a new one.
+- Use a clear and descriptive title.
+- Provide a minimal reproducible example (reprex) if possible.
+- Include information about your R version, OS, and package versions.
+
+### Suggesting Enhancements
+
+- Open a new issue to discuss your idea before starting implementation.
+- Explain the use case and why the feature would be beneficial.
+
+### Pull Requests
+
+- Fork the repository and create your branch from `main`.
+- Follow the [APAF Bioinformatics coding
+  standards](https://github.com/APAF-bioinformatics/HydraR#coding-standards).
+- Ensure all new functions are documented with `roxygen2`.
+- Add tests for any new functionality in `tests/testthat/`.
+- Ensure
+  [`devtools::check()`](https://devtools.r-lib.org/reference/check.html)
+  passes without errors or warnings.
+- Run `styler::style_pkg()` before submitting.
+
+## Style Guidelines
+
+We follow the Tidyverse style guide. Please run `styler::style_pkg()` on
+your changes to ensure consistency with the rest of the package.
+
+## Code of Conduct
+
+Please note that the `HydraR` project is released with a [Contributor
+Code of
+Conduct](https://github.com/APAF-bioinformatics/HydraR/CONDUCT.md). By
+contributing to this project, you agree to abide by its terms.
+
+------------------------------------------------------------------------

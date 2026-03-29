@@ -1,0 +1,322 @@
+# HydraR: Stateful Agentic Orchestration for R
+
+`HydraR` is a lightweight, state-of-the-art orchestrator for building
+general-purpose agentic workflows in R. It prioritizes **CLI-native LLM
+interactions**, **hardened state management**, and **graph-based
+execution** (supporting both Directed Acyclic Graphs and iterative
+loops).
+
+## Why HydraR?
+
+Standard agentic frameworks often rely heavily on brittle API wrappers
+and volatile state. `HydraR` is built for durability and
+reproducibility: - **CLI-First**: Directly drive high-performance CLI
+tools like `gemini-cli`, `claude-code`, or `gh copilot`. - **Hardened
+State**: Implements a robust state machine with persistent checkpointing
+(DuckDB/SQLite). - **Graph-Native**: Design complex logic transitions
+and loops with built-in validation.
+
+## Key Features
+
+- **📍 Graph Orchestration**: Define complex agentic workflows using
+  `AgentDAG` with support for parallel execution (`furrr`) and
+  conditional loops.
+- **💾 Centralized State**: `AgentState` provides a single source of
+  truth for all nodes, with support for complex reducers and history
+  management.
+- **🕒 Persistent Checkpointing**: Resumable execution threads via
+  `Checkpointer` (supporting SQLite/DuckDB).
+- **🖥️ CLI-First Drivers**: High-fidelity drivers for local and
+  provider-based CLIs, ensuring tool calls and environment discovery are
+  robust.
+- **📊 Mermaid Visualization**: Export your agent’s logic directly to
+  Mermaid.js syntax for interactive documentation.
+- **🛡️ Validation Engine**: Integrated compile-time checks for undefined
+  nodes, circular dependencies, and unreachable states.
+- **🏷️ Node Labeling**: Support for human-readable labels in DAG nodes,
+  independent of their unique IDs.
+
+## Installation
+
+You can install the development version from GitHub:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("apaf-bioinformatics/HydraR")
+```
+
+## 📖 Documentation & Manual
+
+The primary resource for learning `HydraR` is the **[Complete
+Instruction
+Manual](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/manual.Rmd)**.
+
+### Case Studies & Examples
+
+- **📍 [Sydney to Hong Kong Travel
+  Planner](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/hong_kong_travel.Rmd)**:
+  High-fidelity orchestration using the `GeminiCLIDriver` to book a
+  complex itinerary.
+- **💾 [Academic Research
+  Assistant](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/academic_research.Rmd)**:
+  Demonstrates literature search and stateful summarization.
+- **🛡️ [Software Bug
+  Assistant](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/software_bug_assistant.Rmd)**:
+  Shows how to orchestrate code analysis and fix suggestions.
+- **🛠️ [Creating Custom
+  Drivers](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/creating_drivers.Rmd)**:
+  Developer guide on subclassing `AgentDriver` with Mocking and API
+  support.
+- **🛡️ [Isolated Execution with Git
+  Worktrees](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/git_worktree_toy.Rmd)**:
+  A toy program demonstrating safe, parallel file modifications using
+  the Gemini CLI.
+
+## Custom Drivers
+
+`HydraR` is provider-agnostic. You can extend the framework by creating
+custom R6 classes that inherit from `AgentDriver`. This allows you to
+drive: - **Local LLMs**: Integration with specialized local CLI
+wrappers. - **Enterprise APIs**: Secure connection to internal LLM
+endpoints via `httr2`. - **Mock Backends**: Deterministic drivers for
+unit testing complex DAG logic.
+
+Refer to the [Creating Custom
+Drivers](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/creating_drivers.Rmd)
+guide for implementation details.
+
+## 📊 Visualizing Execution
+
+`HydraR` includes a powerful visualization engine that goes beyond
+static DAGs. You can generate status-colored plots after a run to
+identify bottlenecks and failures.
+
+### Interactive Rendering in R
+
+We recommend using the
+[`DiagrammeR`](https://dgritree.github.io/DiagrammeR/) package to render
+your DAGs directly in the RStudio Viewer:
+
+``` r
+library(HydraR)
+library(DiagrammeR)
+
+# Generate a status-colored plot after a run
+# Green = Success, Red = Failure, Blue = Active path
+DiagrammeR::mermaid(dag$plot(status = TRUE))
+```
+
+### Path Highlighting
+
+The `plot(status = TRUE)` method automatically correlates your execution
+`trace_log` with the graph structure to highlight the **exact path**
+taken by the agents, including loops and branches.
+
+### Mermaid Round-Trip
+
+You can also define your agentic workflows using pure Mermaid syntax and
+convert them directly into R objects:
+
+``` r
+mermaid <- "graph TD\n  Start --> End"
+dag <- mermaid_to_dag(mermaid, my_node_factory)
+```
+
+## “Hello World” Example
+
+``` r
+library(HydraR)
+
+# 1. Define a simple logic node
+node_hello <- AgentLogicNode$new(
+    id = "hello_world",
+    logic_fn = function(state) {
+        input_text <- state$get("input")
+        list(status = "SUCCESS", output = list(message = paste("Hello", input_text)))
+    }
+)
+
+# 2. Build the orchestrator
+dag <- AgentDAG$new()
+dag$add_node(node_hello)
+dag$compile()
+
+# 3. Execute
+results <- dag$run(initial_state = list(input = "Hydra"))
+print(results$results$hello_world$output$message)
+# [1] "Hello Hydra"
+
+# 4. Round-Trip Visualization
+dag$plot(type = "mermaid")
+# Outputs Mermaid syntax using node labels if provided
+```
+
+## APAF Standards
+
+This project adheres to the **APAF Bioinformatics** standards for
+agentic reproducibility and software hardness.
+
+------------------------------------------------------------------------
+
+# Package index
+
+## Core Orchestration
+
+The heart of the HydraR framework.
+
+- [`AgentDAG`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDAG.md)
+  : Agent Graph R6 Class
+- [`AgentNode`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentNode.md)
+  : Agent Node R6 Class
+- [`AgentState`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentState.md)
+  : Agent State R6 Class
+
+## Agent Nodes
+
+Specialized nodes for LLM interaction and logical routing.
+
+- [`AgentLLMNode`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentLLMNode.md)
+  : Agent LLM Node R6 Class
+- [`AgentLogicNode`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentLogicNode.md)
+  : Agent Logic Node R6 Class
+- [`AgentBashNode`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentBashNode.md)
+  : Bash Execution Node
+- [`AgentPythonNode`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentPythonNode.md)
+  : Python Execution Node
+- [`add_llm_node()`](https://github.com/APAF-bioinformatics/HydraR/reference/add_llm_node.md)
+  : Create an LLM Agent Node easily
+- [`add_logic_node()`](https://github.com/APAF-bioinformatics/HydraR/reference/add_logic_node.md)
+  : Create an R Logic Node easily
+- [`dag_add_llm_node()`](https://github.com/APAF-bioinformatics/HydraR/reference/dag_add_llm_node.md)
+  : Add an LLM Agent Node directly to a DAG
+- [`dag_add_logic_node()`](https://github.com/APAF-bioinformatics/HydraR/reference/dag_add_logic_node.md)
+  : Add an R Logic Node directly to a DAG
+- [`standard_node_factory()`](https://github.com/APAF-bioinformatics/HydraR/reference/standard_node_factory.md)
+  : Standard Node Factory for Mermaid
+
+## Parallelism & Merge Harmonization
+
+Infrastructure for isolated execution and conflict resolution.
+
+- [`WorktreeManager`](https://github.com/APAF-bioinformatics/HydraR/reference/WorktreeManager.md)
+  : Git Worktree Manager R6 Class
+- [`ConflictResolver`](https://github.com/APAF-bioinformatics/HydraR/reference/ConflictResolver.md)
+  : Git Conflict Resolver R6 Class
+- [`create_merge_harmonizer()`](https://github.com/APAF-bioinformatics/HydraR/reference/create_merge_harmonizer.md)
+  : Create a Merge Harmonizer Node
+- [`RestrictedState`](https://github.com/APAF-bioinformatics/HydraR/reference/RestrictedState.md)
+  : Restricted State R6 Class
+
+## LLM Drivers
+
+Provider-agnostic interfaces for CLI-based and API-based LLMs.
+
+- [`AgentDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.md)
+  : Agent Driver R6 Class
+- [`GeminiCLIDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/GeminiCLIDriver.md)
+  : Gemini CLI Driver R6 Class
+- [`GeminiAPIDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/GeminiAPIDriver.md)
+  : Gemini API Driver R6 Class
+- [`OpenAIDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/OpenAIDriver.md)
+  : OpenAI API Driver R6 Class
+- [`AnthropicDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/AnthropicDriver.md)
+  : Anthropic API Driver R6 Class
+- [`OllamaDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/OllamaDriver.md)
+  : Ollama Driver R6 Class
+- [`ClaudeCodeDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/ClaudeCodeDriver.md)
+  : Claude CLI Driver R6 Class
+- [`CopilotCLIDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/CopilotCLIDriver.md)
+  : Copilot CLI Driver R6 Class
+
+## Dynamic Driver & Logic Registry
+
+Tools for hot-swapping drivers and registering domain-specific logic.
+
+- [`DriverRegistry`](https://github.com/APAF-bioinformatics/HydraR/reference/DriverRegistry.md)
+  : Driver Registry R6 Class
+- [`get_driver_registry()`](https://github.com/APAF-bioinformatics/HydraR/reference/get_driver_registry.md)
+  : Global Driver Registry Accessor
+- [`list_logic()`](https://github.com/APAF-bioinformatics/HydraR/reference/list_logic.md)
+  : List Registered Components
+- [`get_logic()`](https://github.com/APAF-bioinformatics/HydraR/reference/get_logic.md)
+  : Get Logic Function
+- [`register_logic()`](https://github.com/APAF-bioinformatics/HydraR/reference/register_logic.md)
+  : Register Logic Function
+
+## Messaging & Persistence
+
+State persistence and inter-node messaging infrastructure.
+
+- [`MessageLog`](https://github.com/APAF-bioinformatics/HydraR/reference/MessageLog.md)
+  : Message Log Base R6 Class
+- [`MemoryMessageLog`](https://github.com/APAF-bioinformatics/HydraR/reference/MemoryMessageLog.md)
+  : Memory Message Log R6 Class
+- [`DuckDBMessageLog`](https://github.com/APAF-bioinformatics/HydraR/reference/DuckDBMessageLog.md)
+  : DuckDB Message Log R6 Class
+- [`Checkpointer`](https://github.com/APAF-bioinformatics/HydraR/reference/Checkpointer.md)
+  : Checkpointer Interface
+- [`MemorySaver`](https://github.com/APAF-bioinformatics/HydraR/reference/MemorySaver.md)
+  : MemorySaver Checkpointer
+- [`DuckDBSaver`](https://github.com/APAF-bioinformatics/HydraR/reference/DuckDBSaver.md)
+  : DuckDBSaver Checkpointer
+- [`RDSSaver`](https://github.com/APAF-bioinformatics/HydraR/reference/RDSSaver.md)
+  : RDS File Checkpointer
+
+## Utilities & Parsing
+
+Helper functions for mermaid visualization and code extraction.
+
+- [`AgentTool`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentTool.md)
+  : Agent Tool R6 Class
+- [`dag_create()`](https://github.com/APAF-bioinformatics/HydraR/reference/dag_create.md)
+  : Create an Agent Graph
+- [`parse_mermaid()`](https://github.com/APAF-bioinformatics/HydraR/reference/parse_mermaid.md)
+  : Parse Mermaid Flowchart Syntax
+- [`mermaid_to_dag()`](https://github.com/APAF-bioinformatics/HydraR/reference/mermaid_to_dag.md)
+  : Create AgentDAG from Mermaid
+- [`extract_r_code_advanced()`](https://github.com/APAF-bioinformatics/HydraR/reference/extract_r_code_advanced.md)
+  : Extract R Code from LLM Response
+- [`format_toolset()`](https://github.com/APAF-bioinformatics/HydraR/reference/format_toolset.md)
+  : Format Toolset for Prompt
+- [`reducer_merge_list()`](https://github.com/APAF-bioinformatics/HydraR/reference/reducer_merge_list.md)
+  : Built-in Reducer: Merge List
+- [`reducer_append()`](https://github.com/APAF-bioinformatics/HydraR/reference/reducer_append.md)
+  : Built-in Reducer: Append
+
+# Articles
+
+### Instruction Manual
+
+- [HydraR: The Complete Instruction
+  Manual](https://github.com/APAF-bioinformatics/HydraR/articles/manual.md):
+
+### Case Studies
+
+- [Agentic Travel Planning: Sydney to Hong
+  Kong](https://github.com/APAF-bioinformatics/HydraR/articles/hong_kong_travel.md):
+
+### Examples Gallery
+
+- [Agentic Academic
+  Researcher](https://github.com/APAF-bioinformatics/HydraR/articles/academic_research.md):
+- [Agentic Blog
+  Writer](https://github.com/APAF-bioinformatics/HydraR/articles/blog_writer.md):
+- [Agentic Data Science
+  Assistant](https://github.com/APAF-bioinformatics/HydraR/articles/data_science.md):
+- [Hello World: Building an Agentic Loop with
+  HydraR](https://github.com/APAF-bioinformatics/HydraR/articles/hello_world_agent.md):
+- [Agentic Personalized Shopping
+  Assistant](https://github.com/APAF-bioinformatics/HydraR/articles/personalized_shopping.md):
+- [Agentic Software Bug
+  Assistant](https://github.com/APAF-bioinformatics/HydraR/articles/software_bug_assistant.md):
+- [Agentic Story
+  Teller](https://github.com/APAF-bioinformatics/HydraR/articles/story_teller.md):
+
+### Developer Guides
+
+- [Reproducible Agentic Pipelines with
+  targets](https://github.com/APAF-bioinformatics/HydraR/articles/targets_integration.md):
+- [Creating Custom Agent
+  Drivers](https://github.com/APAF-bioinformatics/HydraR/articles/creating_drivers.md):
+- [Isolated Execution with Git
+  Worktrees](https://github.com/APAF-bioinformatics/HydraR/articles/git_worktree_toy.md):

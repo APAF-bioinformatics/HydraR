@@ -1,0 +1,185 @@
+# Creating Custom Agent Drivers
+
+## Introduction
+
+`HydraR` is built with a provider-agnostic architecture. While it ships
+with drivers for Gemini, Claude, and OpenAI, you can extend the
+framework by subclassing the `AgentDriver` R6 class.
+
+This guide covers: 1. **Architecture**: The `AgentDriver` base class. 2.
+**Mocking**: Creating a `MockDriver` for testing. 3. **CLI Pattern**:
+Driving local tools. 4. **API Pattern**: Connecting to cloud services.
+5. **Isolation**: Integrating with Git worktrees.
+
+------------------------------------------------------------------------
+
+## 🧪 Testing with a Mock Driver
+
+When developing complex `AgentDAG` workflows, you often want to avoid
+the cost and latency of real LLM calls. A **Mock Driver** provides
+deterministic responses.
+
+### Implementation: Response Queuing
+
+A powerful mocking pattern is **Response Queuing**, where the driver
+returns a sequence of pre-defined answers across multiple calls.
+
+``` r
+library(HydraR)
+library(R6)
+
+MockDriver <- R6::R6Class("MockDriver",
+  inherit = AgentDriver,
+  public = list(
+    responses = list(),
+    
+    initialize = function(id = "mock", responses = list(), ...) {
+      super$initialize(id = id, provider = "mock", ...)
+      self$responses <- responses
+    },
+    
+    call = function(prompt, ...) {
+      if (length(self$responses) == 0) {
+        return("Default Mock Response")
+      }
+      # Pop the first response from the queue
+      res <- self$responses[[1]]
+      self$responses <- self$responses[-1]
+      return(res)
+    }
+  )
+)
+
+# Usage in a test
+driver <- MockDriver$new(responses = list("Answer A", "Answer B"))
+driver$call("Q1") # Returns "Answer A"
+driver$call("Q2") # Returns "Answer B"
+```
+
+------------------------------------------------------------------------
+
+## 🛠️ Pattern 1: Creating a CLI Driver
+
+CLI drivers are the primary way `HydraR` interacts with tools like
+`gemini-cli` or `gh copilot`.
+
+### Implementation Steps
+
+1.  **Identify the CLI**: Determine the command (e.g., `my-llm-cli`).
+2.  **Define Supported Options**: Populate `self$supported_opts` for
+    `cli_opts` validation.
+3.  **Use `exec_in_dir`**: Always use the built-in helper to respect
+    worktree isolation.
+
+``` r
+CustomCLIDriver <- R6::R6Class("CustomCLIDriver",
+  inherit = AgentDriver,
+  public = list(
+    initialize = function(id = "custom_cli", ...) {
+      super$initialize(id = id, provider = "my-tool", ...)
+      # Define flags allowed in cli_opts (e.g., node$run(cli_opts = list(temperature = 0.7)))
+      self$supported_opts <- c("temperature", "top_p")
+    },
+    
+    call = function(prompt, model = NULL, cli_opts = list(), ...) {
+      # 1. Format flags automatically (converts _ to -)
+      flags <- self$format_cli_opts(cli_opts)
+      
+      # 2. Execute command
+      # exec_in_dir is critical for Git Worktree safety
+      res <- self$exec_in_dir(
+        command = "my-llm-cli",
+        args = c("generate", flags),
+        input = prompt,
+        stdout = TRUE
+      )
+      
+      return(paste(res, collapse = "\n"))
+    }
+  )
+)
+```
+
+------------------------------------------------------------------------
+
+## 🌐 Pattern 2: Creating an API Driver
+
+For cloud-based providers, use `httr2` inside the
+[`call()`](https://rdrr.io/r/base/call.html) method.
+
+``` r
+CustomAPIDriver <- R6::R6Class("CustomAPIDriver",
+  inherit = AgentDriver,
+  public = list(
+    api_url = "https://api.example.com/v1/chat",
+    
+    call = function(prompt, model = NULL, cli_opts = list(), ...) {
+      # Use httr2 for robust HTTP requests
+      req <- httr2::request(self$api_url) |>
+        httr2::req_body_json(list(prompt = prompt, config = cli_opts)) |>
+        httr2::req_perform()
+      
+      resp <- httr2::resp_body_json(req)
+      return(resp$choices[[1]]$text)
+    }
+  )
+)
+```
+
+------------------------------------------------------------------------
+
+## 🛡️ Git Worktree Isolation
+
+A unique feature of `HydraR` is its ability to run parallel
+file-modifying agents in isolated **Git Worktrees**. As a driver
+developer, you must ensure your driver respects this context.
+
+### The Role of `working_dir`
+
+When an `AgentDAG` runs with `use_worktrees = TRUE`, each node is
+assigned an isolated directory. This path is injected into the driver’s
+`working_dir` field and the CWD is changed during the node’s execution
+context.
+
+> \[!IMPORTANT\] **CLI Drivers**: Use `self$exec_in_dir()` which
+> internally uses
+> [`withr::with_dir()`](https://withr.r-lib.org/reference/with_dir.html)
+> to ensure the CLI sees the worktree as its root. **API Drivers**: If
+> your model needs to read local files to provide context, ensure you
+> look in `self$working_dir` rather than
+> [`getwd()`](https://rdrr.io/r/base/getwd.html).
+
+``` r
+# Internal logic in AgentDriver
+exec_in_dir = function(command, args, ...) {
+  if (!is.null(self$working_dir)) {
+    withr::with_dir(self$working_dir, {
+      system2(command, args, ...)
+    })
+  } else {
+    system2(command, args, ...)
+  }
+}
+```
+
+------------------------------------------------------------------------
+
+## 🚀 Registration & Usage
+
+Register your driver with the global registry to make it available to
+any node in the DAG.
+
+``` r
+# 1. Register
+my_driver <- CustomCLIDriver$new(id = "my-bot")
+register_driver(my_driver)
+
+# 2. Bind to a node
+node <- AgentLLMNode$new(
+  id = "writer",
+  driver_id = "my-bot",
+  prompt_template = "Draft a README for {{project}}"
+)
+```
+
+------------------------------------------------------------------------

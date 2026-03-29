@@ -1,0 +1,146 @@
+# Agentic Personalized Shopping Assistant
+
+## Introduction
+
+This vignette demonstrates the **Personalized Shopping Assistant**
+pattern using `HydraR` and the **Gemini CLI**.
+
+We define an agentic graph where a recommendation engine interacts with
+a mock user.
+
+The two roles are: 1. **Shopper Node**: Acts as the intelligent proxy
+that searches the catalogue based on preferences. 2. **User Proxy
+Node**: Represents the user feedback loop. It provides critiques on the
+recommended item.
+
+This models a continuous interaction loop where the agent refines its
+search based on real-time feedback.
+
+## Setup
+
+``` r
+library(HydraR)
+
+# Initialize the Gemini CLI driver
+driver <- GeminiCLIDriver$new()
+```
+
+## Building the DAG
+
+Initialize the `AgentDAG`.
+
+``` r
+dag <- AgentDAG$new()
+```
+
+### 1. The Shopper Node
+
+This node uses user feedback to update its recommendations.
+
+``` r
+shopper_node <- AgentLLMNode$new(
+  id = "Shopper",
+  label = "Store Concierge",
+  role = "You are a personalized shopping assistant. Based on the user's initial request and any feedback provide a specific product recommendation.",
+  driver = driver,
+  prompt_builder = function(state) {
+    feedback_text <- if (!is.null(state$get("UserProxy"))) sprintf("\nUser Feedback: %s", state$get("UserProxy")) else ""
+    sprintf("Original Request: %s%s\nOutput exactly a product name.", state$get("shopping_request"), feedback_text)
+  }
+)
+
+dag$add_node(shopper_node)
+```
+
+### 2. The User Proxy Node
+
+This node simulates a picky user receiving recommendations.
+
+``` r
+user_proxy_node <- AgentLLMNode$new(
+  id = "UserProxy",
+  label = "Customer Proxy",
+  role = "You are a customer looking for a specific item. Review the recommended product and either say 'I'll buy it' or provide 'Modification Feedback'.",
+  driver = driver,
+  prompt_builder = function(state) {
+    sprintf("Recommended Item: %s\nOriginal Request: %s\nDecide if you like it or need something different.", state$get("Shopper"), state$get("shopping_request"))
+  }
+)
+
+dag$add_node(user_proxy_node)
+```
+
+## Defining Transitions
+
+Configure the feedback loop.
+
+``` r
+dag$set_start_node("Shopper")
+
+dag$add_edge("Shopper", "UserProxy")
+
+dag$add_conditional_edge(
+  from = "UserProxy",
+  test = function(out) {
+    grepl("buy it", out, ignore.case = TRUE)
+  },
+  if_true = NULL, # Done
+  if_false = "Shopper" # Try again
+)
+
+compiled_dag <- dag$compile()
+#> Warning in dag$compile(): Potential infinite loop detected: graph contains
+#> cycles. Ensure conditional edges have exit conditions.
+#> Graph compiled successfully.
+```
+
+## Visualizing the Workflow
+
+``` r
+cat("```mermaid\n")
+```
+
+``` mermaid
+``` r
+cat(compiled_dag$plot(type = "mermaid"))
+```
+
+``` mermaid
+graph TD
+  Shopper["Store Concierge"]
+  UserProxy["Customer Proxy"]
+  Shopper --> UserProxy
+  UserProxy -- Fail --> Shopper
+```
+
+``` mermaid
+graph TD
+  Shopper["Store Concierge"]
+  UserProxy["Customer Proxy"]
+  Shopper --> UserProxy
+  UserProxy -- Fail --> Shopper
+```
+
+``` r
+cat("\n```\n")
+```
+
+    ## Running the Scenario
+
+    Provide the initial request and observe the iterations.
+
+
+    ``` r
+    initial_state <- list(
+      shopping_request = "I need a cool t-shirt for the weekend with graphic design."
+    )
+
+    cat("Starting Personalized Shopper...\n")
+    result <- compiled_dag$run(initial_state = initial_state, max_steps = 10)
+
+    cat("\n--- SHOPPING RESULT ---\n")
+    cat("Final Recommendation:", result$state$get("Shopper"), "\n")
+    cat("User Feedback:", result$state$get("UserProxy"), "\n")
+
+The DAG successfully refined its recommendation through the interactive
+cycles until the customer proxy was satisfied!

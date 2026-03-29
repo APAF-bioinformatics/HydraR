@@ -1,0 +1,144 @@
+# Agentic Story Teller
+
+## Introduction
+
+This vignette demonstrates the **Story Teller** pattern using `HydraR`
+and the **Gemini CLI**.
+
+In this workflow, two LLM agents collaborate to write a story: 1.
+**Writer Agent**: Drafts the story based on the prompt or incorporates
+feedback. 2. **Reviewer Agent**: Critiques the draft using a rubric. If
+the story meets the criteria, it approves the draft. Otherwise, it sends
+feedback back to the Writer.
+
+This forms a fundamental **iterative critique-and-revise** loop.
+
+## Setup
+
+``` r
+library(HydraR)
+
+# Initialize the Gemini CLI driver
+driver <- GeminiCLIDriver$new()
+```
+
+## Building the Story Teller DAG
+
+We’ll define an `AgentDAG` and inject two `AgentLLMNode` nodes to
+demonstrate the collaboration.
+
+``` r
+dag <- AgentDAG$new()
+```
+
+### 1. The Writer Node
+
+The `Writer` node drafts or improves the story based on reviewer
+feedback.
+
+``` r
+writer_node <- AgentLLMNode$new(
+  id = "Writer",
+  label = "Story Author",
+  role = "You are a creative writer. Draft a story based on the initial prompt or update it according to reviewer feedback. Output exactly the story draft.",
+  driver = driver,
+  prompt_builder = function(state) {
+    feedback_text <- if (!is.null(state$get("Reviewer"))) sprintf("\nFeedback: %s", state$get("Reviewer")) else ""
+    sprintf("Prompt: %s%s\nDraft the story.", state$get("story_prompt"), feedback_text)
+  }
+)
+
+dag$add_node(writer_node)
+```
+
+### 2. The Reviewer Node
+
+The `Reviewer` node checks the `story_draft`. It provides feedback or
+approves it.
+
+``` r
+reviewer_node <- AgentLLMNode$new(
+  id = "Reviewer",
+  label = "Literary Editor",
+  role = "You are a literary editor. Critically review the story draft for tone and quality. If it is excellent, say 'Approved'. Otherwise, give specific critique.",
+  driver = driver,
+  prompt_builder = function(state) {
+    sprintf("Draft: %s\nReview this draft.", state$get("Writer"))
+  }
+)
+
+dag$add_node(reviewer_node)
+```
+
+## Defining Transitions
+
+We configure the graph to start with the Writer, unconditionally pass to
+the Reviewer, and conditionally loop back or finish.
+
+``` r
+dag$set_start_node("Writer")
+
+# Unconditional transition from Writer -> Reviewer
+dag$add_edge("Writer", "Reviewer")
+
+# Conditional transition from Reviewer -> Writer or END
+dag$add_conditional_edge(
+  from = "Reviewer",
+  test = function(out) {
+    grepl("Approved", out, ignore.case = TRUE)
+  },
+  if_true = NULL, # Stop execution
+  if_false = "Writer" # Loop back
+)
+```
+
+## Visualizing the Workflow
+
+``` r
+cat("```mermaid\n")
+```
+
+``` mermaid
+``` r
+cat(dag$compile()$plot(type = "mermaid"))
+#> Warning in dag$compile(): Potential infinite loop detected: graph contains
+#> cycles. Ensure conditional edges have exit conditions.
+```
+
+Graph compiled successfully.
+
+``` mermaid
+graph TD
+  Writer["Story Author"]
+  Reviewer["Literary Editor"]
+  Writer --> Reviewer
+  Reviewer -- Fail --> Writer
+```
+
+``` mermaid
+graph TD
+  Writer["Story Author"]
+  Reviewer["Literary Editor"]
+  Writer --> Reviewer
+  Reviewer -- Fail --> Writer
+```
+
+``` r
+cat("\n```\n")
+```
+
+    ## Running the Agent
+
+
+    ``` r
+    compiled_dag <- dag$compile()
+
+    cat("Starting Collaborative Writing Process...\n")
+    result <- compiled_dag$run(initial_state = list(story_prompt = "A story about a robot learning to cook."), max_steps = 10)
+
+    cat("--- FINAL RESULT ---\n")
+    cat("Final Feedback:", result$state$get("Reviewer"), "\n")
+    cat("Final Story Draft:\n", result$state$get("Writer"), "\n")
+
+As we can see, HydraR flawlessly orchestrated the stateful communication
+and iteration loop between the two agents to refine the creative output!

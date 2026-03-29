@@ -1,0 +1,20 @@
+pandoc: 3.1.11
+pkgdown: 2.2.0
+pkgdown_sha: ~
+articles:
+  academic_research: academic_research.html
+  blog_writer: blog_writer.html
+  creating_drivers: creating_drivers.html
+  data_science: data_science.html
+  git_worktree_toy: git_worktree_toy.html
+  hello_world_agent: hello_world_agent.html
+  hong_kong_travel: hong_kong_travel.html
+  manual: manual.html
+  personalized_shopping: personalized_shopping.html
+  software_bug_assistant: software_bug_assistant.html
+  story_teller: story_teller.html
+  targets_integration: targets_integration.html
+last_built: 2026-03-29T08:31Z
+urls:
+  reference: https://github.com/APAF-bioinformatics/HydraR/reference
+  article: https://github.com/APAF-bioinformatics/HydraR/articles
