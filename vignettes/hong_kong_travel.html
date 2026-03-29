@@ -447,30 +447,38 @@ Mermaid string against our logic registry.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># The factory maps Mermaid params to HydraR Node objects</span></span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>travel_node_factory <span class="ot">&lt;-</span> <span class="cf">function</span>(id, label, params) {</span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="cf">if</span> (id <span class="sc">==</span> <span class="st">&quot;Planner&quot;</span>) {</span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    <span class="fu">return</span>(AgentLLMNode<span class="sc">$</span><span class="fu">new</span>(</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>      <span class="at">id =</span> id, <span class="at">label =</span> label,</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>      <span class="at">role =</span> params<span class="sc">$</span>role,</span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>      <span class="at">driver =</span> GeminiCLIDriver<span class="sc">$</span><span class="fu">new</span>(),</span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>      <span class="at">prompt_builder =</span> travel_logic_registry[[params<span class="sc">$</span>prompt_id]],</span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>      <span class="at">params =</span> params</span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>    ))</span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (id <span class="sc">==</span> <span class="st">&quot;Auditor&quot;</span>) {</span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>    <span class="fu">return</span>(AgentLogicNode<span class="sc">$</span><span class="fu">new</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    <span class="co"># Resolve driver from Mermaid params</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    driver_obj <span class="ot">&lt;-</span> <span class="cf">if</span> (params<span class="sc">$</span>driver <span class="sc">==</span> <span class="st">&quot;gemini&quot;</span>) {</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>      GeminiCLIDriver<span class="sc">$</span><span class="fu">new</span>()</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>      <span class="co"># Fallback or other drivers (Claude, OpenAI)</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>      <span class="cn">NULL</span> </span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>    }</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>    </span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>    <span class="fu">return</span>(AgentLLMNode<span class="sc">$</span><span class="fu">new</span>(</span>
 <span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>      <span class="at">id =</span> id, <span class="at">label =</span> label,</span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>      <span class="at">logic_fn =</span> travel_logic_registry[[params<span class="sc">$</span>logic_id]],</span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>      <span class="at">params =</span> params</span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>    ))</span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>  }</span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>}</span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a></span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co"># Create the DAG directly from the visual source</span></span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a>dag <span class="ot">&lt;-</span> <span class="fu">mermaid_to_dag</span>(mermaid_src, travel_node_factory)</span>
-<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a>dag<span class="sc">$</span><span class="fu">compile</span>()</span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; Warning in dag$compile(): The graph contains cycles and no conditional edges</span></span>
-<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt; are defined. Linear execution may fail.</span></span>
-<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; Warning in dag$compile(): Potential infinite loop detected: graph contains</span></span>
-<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt; cycles. Ensure conditional edges have exit conditions.</span></span>
-<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt; Graph compiled successfully.</span></span></code></pre></div>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>      <span class="at">role =</span> params<span class="sc">$</span>role,</span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>      <span class="at">driver =</span> driver_obj,</span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>      <span class="at">prompt_builder =</span> travel_logic_registry[[params<span class="sc">$</span>prompt_id]],</span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>      <span class="at">params =</span> params</span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>    ))</span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (id <span class="sc">==</span> <span class="st">&quot;Auditor&quot;</span>) {</span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>    <span class="fu">return</span>(AgentLogicNode<span class="sc">$</span><span class="fu">new</span>(</span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a>      <span class="at">id =</span> id, <span class="at">label =</span> label,</span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a>      <span class="at">logic_fn =</span> travel_logic_registry[[params<span class="sc">$</span>logic_id]],</span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a>      <span class="at">params =</span> params</span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a>    ))</span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a>  }</span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a>}</span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a></span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co"># Create the DAG directly from the visual source</span></span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a>dag <span class="ot">&lt;-</span> <span class="fu">mermaid_to_dag</span>(mermaid_src, travel_node_factory)</span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a>dag<span class="sc">$</span><span class="fu">compile</span>()</span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt; Warning in dag$compile(): The graph contains cycles and no conditional edges</span></span>
+<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a><span class="co">#&gt; are defined. Linear execution may fail.</span></span>
+<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a><span class="co">#&gt; Warning in dag$compile(): Potential infinite loop detected: graph contains</span></span>
+<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a><span class="co">#&gt; cycles. Ensure conditional edges have exit conditions.</span></span>
+<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a><span class="co">#&gt; Graph compiled successfully.</span></span></code></pre></div>
 </div>
 <div id="visualizing-the-workflow" class="section level2">
 <h2>Visualizing the Workflow</h2>

@@ -116,10 +116,18 @@ We use a **Node Factory** to resolve the IDs in the Mermaid string against our l
 # The factory maps Mermaid params to HydraR Node objects
 travel_node_factory <- function(id, label, params) {
   if (id == "Planner") {
+    # Resolve driver from Mermaid params
+    driver_obj <- if (params$driver == "gemini") {
+      GeminiCLIDriver$new()
+    } else {
+      # Fallback or other drivers (Claude, OpenAI)
+      NULL 
+    }
+    
     return(AgentLLMNode$new(
       id = id, label = label,
       role = params$role,
-      driver = GeminiCLIDriver$new(),
+      driver = driver_obj,
       prompt_builder = travel_logic_registry[[params$prompt_id]],
       params = params
     ))
