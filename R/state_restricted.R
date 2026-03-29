@@ -72,7 +72,7 @@ RestrictedState <- R6::R6Class("RestrictedState",
     #' @param ... Additional metadata.
     send_message = function(to, content, ...) {
       inbox_key <- sprintf(".__inbox__%s__", to)
-      
+
       # Prepare message object
       msg <- list(
         from = self$node_id,
@@ -90,7 +90,7 @@ RestrictedState <- R6::R6Class("RestrictedState",
       if (!is.null(self$logger)) {
         self$logger$log(msg)
       }
-      
+
       invisible(self)
     },
 
@@ -116,7 +116,7 @@ RestrictedState <- R6::R6Class("RestrictedState",
       # Hide all other inboxes but allow own.
       names <- names(all_data)
       own_inbox_pattern <- sprintf("^\\.__inbox__%s__$", self$node_id)
-      
+
       # Keep keys that are NOT inboxes OR match our own inbox
       visible_keys <- !grepl("^\\.__inbox__", names) | grepl(own_inbox_pattern, names)
       all_data[visible_keys]
@@ -125,11 +125,20 @@ RestrictedState <- R6::R6Class("RestrictedState",
   private = list(
     # Internal: Check if a key is a private inbox of another node
     .is_forbidden = function(key) {
-      if (!grepl("^\\.__inbox__", key)) return(FALSE)
-      
+      # Internal HydraR keys (starting/ending with __) are never forbidden
+      if (grepl("^__.*__$", key)) {
+        return(FALSE)
+      }
+
+      if (!grepl("^\\.__inbox__", key)) {
+        return(FALSE)
+      }
+
       target_inbox_pattern <- sprintf("^\\.__inbox__%s__$", self$node_id)
-      if (grepl(target_inbox_pattern, key)) return(FALSE)
-      
+      if (grepl(target_inbox_pattern, key)) {
+        return(FALSE)
+      }
+
       return(TRUE)
     }
   )

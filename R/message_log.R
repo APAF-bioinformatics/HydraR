@@ -7,17 +7,19 @@
 # ==============================================================
 
 #' Message Log Base R6 Class
+#'
 #' @description Abstract base class for logging inter-agent messages.
 #' @importFrom R6 R6Class
 #' @export
 MessageLog <- R6::R6Class("MessageLog",
   public = list(
-    #' Log a message
+    #' @description Store a message.
     #' @param msg List. Message object.
+    #' @return The log object (invisibly).
     log = function(msg) {
       stop("Abstract method: log() must be implemented by subclass.")
     },
-    #' Get all logs
+    #' @description Get all logs.
     #' @return List of logs.
     get_all = function() {
       stop("Abstract method: get_all() must be implemented by subclass.")
@@ -26,19 +28,23 @@ MessageLog <- R6::R6Class("MessageLog",
 )
 
 #' Memory Message Log R6 Class
+#'
 #' @description In-memory storage for messages.
 #' @export
 MemoryMessageLog <- R6::R6Class("MemoryMessageLog",
   inherit = MessageLog,
   public = list(
-    #' @field logs List.
+    #' @field logs List. Storage for message logs.
     logs = list(),
-    #' Log a message
+    #' @description Store a message.
+    #' @param msg List. Message object.
+    #' @return The log object (invisibly).
     log = function(msg) {
       self$logs[[length(self$logs) + 1]] <- msg
       invisible(self)
     },
-    #' Get all logs
+    #' @description Get all logs.
+    #' @return List of logs.
     get_all = function() {
       self$logs
     }
@@ -46,6 +52,7 @@ MemoryMessageLog <- R6::R6Class("MemoryMessageLog",
 )
 
 #' DuckDB Message Log R6 Class
+#'
 #' @description Persists messages to the master DuckDB database.
 #' @export
 DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
@@ -53,25 +60,24 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
   public = list(
     #' @field db_path String. Path to DuckDB file.
     db_path = NULL,
-    #' Initialize DuckDBMessageLog
+    #' @description Initialize DuckDBMessageLog.
     #' @param db_path String.
+    #' @return A new `DuckDBMessageLog` object.
     initialize = function(db_path = "~/.gemini/memory/bot_history.duckdb") {
       self$db_path <- path.expand(db_path)
     },
-    #' Log a message
+    #' @description Store a message.
+    #' @param msg List. Message object.
+    #' @return The log object (invisibly).
     log = function(msg) {
-      # Use R/init_duckdb.R pattern if available, or direct DBI call.
-      # Since we're keeping it portable, we use DBI directly.
       if (!requireNamespace("DBI", quietly = TRUE) || !requireNamespace("duckdb", quietly = TRUE)) {
         warning("DBI or duckdb not available. Skipping persistent log.")
         return(invisible(self))
       }
-      
+
       con <- DBI::dbConnect(duckdb::duckdb(), self$db_path)
       on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
 
-      # Ensure table exists
-      # Table schema: from, to, timestamp, content (json)
       DBI::dbExecute(con, "
         CREATE TABLE IF NOT EXISTS agent_messages (
           sender VARCHAR,
@@ -81,7 +87,6 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
         )
       ")
 
-      # Prepare data for insertion
       df <- data.frame(
         sender = msg$from,
         recipient = msg$to,
@@ -93,18 +98,20 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
       DBI::dbWriteTable(con, "agent_messages", df, append = TRUE)
       invisible(self)
     },
-    #' Get all logs
+    #' @description Get all logs.
+    #' @return List of logs.
     get_all = function() {
       if (!requireNamespace("DBI", quietly = TRUE) || !requireNamespace("duckdb", quietly = TRUE)) {
         return(list())
       }
       con <- DBI::dbConnect(duckdb::duckdb(), self$db_path, read_only = TRUE)
       on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
-      
-      if (!DBI::dbExistsTable(con, "agent_messages")) return(list())
-      
+
+      if (!DBI::dbExistsTable(con, "agent_messages")) {
+        return(list())
+      }
+
       res <- DBI::dbReadTable(con, "agent_messages")
-      # Convert back to list of objects
       lapply(seq_len(nrow(res)), function(i) {
         list(
           from = res$sender[i],

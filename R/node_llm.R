@@ -11,6 +11,12 @@
 #' @description
 #' A specialized AgentNode that executes LLM calls via a Driver.
 #'
+#' @return An `AgentLLMNode` R6 object.
+#' @examples
+#' \dontrun{
+#' driver <- GeminiCLIDriver$new()
+#' node <- AgentLLMNode$new("research", role = "Researcher", driver = driver)
+#' }
 #' @importFrom R6 R6Class
 #' @export
 AgentLLMNode <- R6::R6Class("AgentLLMNode",
@@ -82,7 +88,6 @@ AgentLLMNode <- R6::R6Class("AgentLLMNode",
             ...
           )
         },
-
         error = function(e) {
           warning(sprintf("[%s] LLM driver call failed: %s", self$id, e$message))
           return(NULL)
@@ -122,7 +127,6 @@ AgentLLMNode <- R6::R6Class("AgentLLMNode",
       }
       invisible(self)
     }
-
   )
 )
 

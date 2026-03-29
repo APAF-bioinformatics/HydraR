@@ -12,7 +12,7 @@ library(httr2)
 test_that("OpenAIDriver correctly formats requests and parses response", {
   withr::with_envvar(list(OPENAI_API_KEY = "test_key"), {
     drv <- OpenAIDriver$new()
-    
+
     # Mock response
     mock_resp <- httr2::response(
       status_code = 200,
@@ -35,7 +35,7 @@ test_that("OpenAIDriver correctly formats requests and parses response", {
 test_that("AnthropicDriver correctly formats requests and parses response", {
   withr::with_envvar(list(ANTHROPIC_API_KEY = "test_key"), {
     drv <- AnthropicDriver$new()
-    
+
     # Mock response
     mock_resp <- httr2::response(
       status_code = 200,
@@ -58,7 +58,7 @@ test_that("AnthropicDriver correctly formats requests and parses response", {
 test_that("GeminiAPIDriver correctly formats requests and parses response", {
   withr::with_envvar(list(GOOGLE_API_KEY = "test_key"), {
     drv <- GeminiAPIDriver$new()
-    
+
     # Mock response
     mock_resp <- httr2::response(
       status_code = 200,
@@ -78,7 +78,6 @@ test_that("GeminiAPIDriver correctly formats requests and parses response", {
     )
   })
 })
-
 
 
 test_that("API Drivers report correct capabilities", {

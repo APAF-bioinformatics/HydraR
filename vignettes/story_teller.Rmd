@@ -95,7 +95,7 @@ dag$add_conditional_edge(
     grepl("Approved", out, ignore.case = TRUE)
   },
   if_true = NULL, # Stop execution
-  if_false = "Writer" # Loop back 
+  if_false = "Writer" # Loop back
 )
 ```
 

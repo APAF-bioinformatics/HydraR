@@ -2,16 +2,16 @@
 % Please edit documentation in R/registry.R
 \name{get_logic}
 \alias{get_logic}
-\title{Get a Registered Logic Component}
+\title{Get Logic Function}
 \usage{
 get_logic(name)
 }
 \arguments{
-\item{name}{String.}
+\item{name}{String. Unique identifier.}
 }
 \value{
-The function or NULL if not found.
+Function or NULL.
 }
 \description{
-Get a Registered Logic Component
+Get Logic Function
 }

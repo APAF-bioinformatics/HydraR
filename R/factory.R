@@ -9,7 +9,7 @@
 #' Create an Agent Graph
 #' @param message_log MessageLog. Optional audit log for the DAG.
 #' @return An AgentDAG object.
-#' @export
+#' 
 dag_create <- function(message_log = NULL) {
   dag <- AgentDAG$new()
   dag$message_log <- message_log
@@ -26,7 +26,7 @@ dag_create <- function(message_log = NULL) {
 #' @param cli_opts List. Optional CLI options.
 #' @param ... Additional arguments passed to AgentLLMNode$new()
 #' @return AgentLLMNode object.
-#' @export
+#' 
 add_llm_node <- function(id, role, driver, model = NULL, cli_opts = list(), ...) {
   AgentLLMNode$new(id = id, role = role, driver = driver, model = model, cli_opts = cli_opts, ...)
 }
@@ -37,7 +37,7 @@ add_llm_node <- function(id, role, driver, model = NULL, cli_opts = list(), ...)
 #' @param logic_fn Function. Pure R function taking an AgentState object.
 #' @param ... Additional arguments passed to AgentLogicNode$new()
 #' @return AgentLogicNode object.
-#' @export
+#' 
 add_logic_node <- function(id, logic_fn, ...) {
   AgentLogicNode$new(id = id, logic_fn = logic_fn, ...)
 }
@@ -52,7 +52,7 @@ add_logic_node <- function(id, logic_fn, ...) {
 #' @param cli_opts List. Optional CLI options.
 #' @param ... Additional arguments passed to AgentLLMNode$new()
 #' @return The modified AgentDAG object (invisibly).
-#' @export
+#' 
 dag_add_llm_node <- function(dag, id, role, driver, model = NULL, cli_opts = list(), ...) {
   if (!inherits(dag, "AgentDAG")) {
     stop("dag must be an AgentDAG object.")
@@ -69,7 +69,7 @@ dag_add_llm_node <- function(dag, id, role, driver, model = NULL, cli_opts = lis
 #' @param logic_fn Function. Pure R function taking an AgentState object.
 #' @param ... Additional arguments passed to AgentLogicNode$new()
 #' @return The modified AgentDAG object (invisibly).
-#' @export
+#' 
 dag_add_logic_node <- function(dag, id, logic_fn, ...) {
   if (!inherits(dag, "AgentDAG")) {
     stop("dag must be an AgentDAG object.")
@@ -90,7 +90,7 @@ dag_add_logic_node <- function(dag, id, logic_fn, ...) {
 #' @param label String. Node label.
 #' @param driver AgentDriver. Optional driver for LLM nodes.
 #' @return AgentNode object.
-#' @export
+#' 
 standard_node_factory <- function(id, label, driver = NULL) {
   if (grepl("^logic:", label)) {
     fn_name <- gsub("^logic:", "", label)

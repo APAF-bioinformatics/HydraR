@@ -1,0 +1,97 @@
+ℹ Loading HydraR
+Warning message:
+package ‘testthat’ was built under R version 4.5.2 
+
+══ Testing test-worktree-integration.R ═════════════════════════════════════════
+
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 0 ]Initialized empty Git repository in /private/var/folders/hg/851fgqz946bdmzx9yg0f5bbw0000gp/T/RtmpVxVyLO/file569e983ebb5/.git/
+[main (root-commit) 62df586] Initial commit
+ 1 file changed, 1 insertion(+)
+ create mode 100644 README.md
+Graph compiled successfully.
+[Worktree] Initializing WorktreeManager for thread: run-6bdd3a6d
+[Linear] Running Node: node_A
+   [node_A] Executing R logic...
+[Linear] Running Node: node_B
+   [node_B] Executing R logic...
+[Linear] Running Node: merge
+   [merge] Executing R logic...
+
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 1 ]
+[ FAIL 1 | WARN 0 | SKIP 0 | PASS 1 ]
+[ FAIL 2 | WARN 0 | SKIP 0 | PASS 1 ]
+[ FAIL 3 | WARN 0 | SKIP 0 | PASS 1 ]
+[ FAIL 4 | WARN 0 | SKIP 0 | PASS 1 ]
+[ FAIL 4 | WARN 0 | SKIP 0 | PASS 2 ]Initialized empty Git repository in /private/var/folders/hg/851fgqz946bdmzx9yg0f5bbw0000gp/T/RtmpVxVyLO/file569e5f26b291/.git/
+[main (root-commit) 5144fb6] Initial
+ 1 file changed, 1 insertion(+)
+ create mode 100644 conflict.txt
+Graph compiled successfully.
+[Worktree] Initializing WorktreeManager for thread: run-54859328
+[Linear] Running Node: node_A
+   [node_A] Executing R logic...
+[main 7ecd12e] Conflicting commit A
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+[Linear] Running Node: node_B
+   [node_B] Executing R logic...
+[main 8b4c317] Conflicting commit B
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+[Linear] Running Node: merge
+   [merge] Executing R logic...
+
+[ FAIL 5 | WARN 0 | SKIP 0 | PASS 2 ]
+[ FAIL 6 | WARN 0 | SKIP 0 | PASS 2 ]
+
+── Failure ('test-worktree-integration.R:67:3'): Git Worktree Parallel Integration works ──
+Expected `file.exists(file.path(tmp_repo, "file_a.txt"))` to be TRUE.
+Differences:
+`actual`:   FALSE
+`expected`: TRUE 
+
+
+── Failure ('test-worktree-integration.R:68:3'): Git Worktree Parallel Integration works ──
+Expected `file.exists(file.path(tmp_repo, "file_b.txt"))` to be TRUE.
+Differences:
+`actual`:   FALSE
+`expected`: TRUE 
+
+
+── Failure ('test-worktree-integration.R:73:5'): Git Worktree Parallel Integration works ──
+Expected `any(grepl("Node A commit", log))` to be TRUE.
+Differences:
+`actual`:   FALSE
+`expected`: TRUE 
+
+Backtrace:
+    ▆
+ 1. ├─withr::with_dir(...) at test-worktree-integration.R:71:3
+ 2. │ └─base::force(code)
+ 3. └─testthat::expect_true(any(grepl("Node A commit", log))) at test-worktree-integration.R:73:5
+
+── Failure ('test-worktree-integration.R:74:5'): Git Worktree Parallel Integration works ──
+Expected `any(grepl("Node B commit", log))` to be TRUE.
+Differences:
+`actual`:   FALSE
+`expected`: TRUE 
+
+Backtrace:
+    ▆
+ 1. ├─withr::with_dir(...) at test-worktree-integration.R:71:3
+ 2. │ └─base::force(code)
+ 3. └─testthat::expect_true(any(grepl("Node B commit", log))) at test-worktree-integration.R:74:5
+
+── Failure ('test-worktree-integration.R:116:3'): Merge Conflict detection works ──
+Expected `results$status` to equal "paused".
+Differences:
+`actual`:   "completed"
+`expected`: "paused"   
+
+
+── Failure ('test-worktree-integration.R:117:3'): Merge Conflict detection works ──
+Expected `results$paused_at` to equal "merge".
+Differences:
+`actual` is NULL
+`expected` is a character vector ('merge')
+
+
+[ FAIL 6 | WARN 0 | SKIP 0 | PASS 2 ]

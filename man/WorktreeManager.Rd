@@ -3,10 +3,18 @@
 \name{WorktreeManager}
 \alias{WorktreeManager}
 \title{Git Worktree Manager R6 Class}
+\value{
+A `WorktreeManager` R6 object.
+}
 \description{
 Manages the lifecycle of isolated git worktrees for parallel DAG branches.
 This ensures that each parallel worker has its own filesystem checkout,
 preventing file-level conflicts between concurrent CLI agents.
+}
+\examples{
+\dontrun{
+wt_manager <- WorktreeManager$new(repo_root = getwd())
+}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -68,10 +76,13 @@ Initialize WorktreeManager}
 
 \item{\code{cleanup_policy}}{Cleanup strategy.}
 
-\item{\code{thread_id}}{Optional execution identifier.
-Create an Isolated Worktree}
+\item{\code{thread_id}}{Optional execution identifier.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new `WorktreeManager` object.
+Create an Isolated Worktree
 }
 }
 \if{html}{\out{<hr>}}
@@ -79,7 +90,7 @@ Create an Isolated Worktree}
 \if{latex}{\out{\hypertarget{method-WorktreeManager-create}{}}}
 \subsection{Method \code{create()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{WorktreeManager$create(node_id, branch_name = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{WorktreeManager$create(node_id, branch_name = NULL, fail_if_dirty = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -88,6 +99,8 @@ Create an Isolated Worktree}
 \item{\code{node_id}}{String. Identifier for the DAG node.}
 
 \item{\code{branch_name}}{Optional specific branch name.}
+
+\item{\code{fail_if_dirty}}{Logical. Whether to stop if repo has uncommitted changes.}
 }
 \if{html}{\out{</div>}}
 }
@@ -154,7 +167,7 @@ Remove the Physical Worktree Directory
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-Logical.
+Logical (invisibly).
 Delete the branch and unregister node
 }
 }
@@ -169,11 +182,13 @@ Delete the branch and unregister node
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{node_id}}{Node identifier.
-Legacy remove method for backward compatibility
-Cleanup Worktree based on Policy and Status}
+\item{\code{node_id}}{Node identifier.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Logical (invisibly).
+Legacy remove method for backward compatibility
 }
 }
 \if{html}{\out{<hr>}}
@@ -184,6 +199,21 @@ Cleanup Worktree based on Policy and Status}
 \if{html}{\out{<div class="r">}}\preformatted{WorktreeManager$remove(node_id, force = TRUE, delete_branch = FALSE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{node_id}}{Node identifier.}
+
+\item{\code{force}}{Logical. Force removal.}
+
+\item{\code{delete_branch}}{Logical. Delete the branch.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+NULL (called for side effect).
+Cleanup Worktree based on Policy and Status
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-WorktreeManager-cleanup_node"></a>}}
@@ -198,10 +228,13 @@ Cleanup Worktree based on Policy and Status}
 \describe{
 \item{\code{node_id}}{Node identifier.}
 
-\item{\code{status}}{String. "success", "failure", or "conflict".
-Cleanup All Worktrees}
+\item{\code{status}}{String. "success", "failure", or "conflict".}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+NULL (called for side effect).
+Cleanup All Worktrees
 }
 }
 \if{html}{\out{<hr>}}
@@ -209,11 +242,14 @@ Cleanup All Worktrees}
 \if{latex}{\out{\hypertarget{method-WorktreeManager-cleanup}{}}}
 \subsection{Method \code{cleanup()}}{
 Removes all worktrees managed by this instance.
-Check if a branch exists
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{WorktreeManager$cleanup()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+Logical (invisibly).
+Check if a branch exists
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-WorktreeManager-branch_exists"></a>}}

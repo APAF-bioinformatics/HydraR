@@ -3,9 +3,17 @@
 \name{DuckDBSaver}
 \alias{DuckDBSaver}
 \title{DuckDBSaver Checkpointer}
+\value{
+A `DuckDBSaver` R6 object.
+}
 \description{
 Persistent implementation of the Checkpointer interface using DuckDB.
 Supports both direct DBI connections and file paths.
+}
+\examples{
+\dontrun{
+saver <- DuckDBSaver$new(db_path = "checkpoints.duckdb")
+}
 }
 \section{Super class}{
 \code{\link[HydraR:Checkpointer]{HydraR::Checkpointer}} -> \code{DuckDBSaver}

@@ -3,9 +3,17 @@
 \name{AgentDAG}
 \alias{AgentDAG}
 \title{Agent Graph R6 Class}
+\value{
+An `AgentDAG` R6 object.
+}
 \description{
 Defines and executes a Directed Graph of AgentNodes.
 Supports both pure DAG execution (parallel) and iterative loops via conditional edges.
+}
+\examples{
+dag <- AgentDAG$new()
+node <- AgentLogicNode$new("start", function(state) list(status = "success"))
+dag$add_node(node)
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -150,7 +158,9 @@ Run the Graph}
   resume_from = NULL,
   use_worktrees = FALSE,
   repo_root = getwd(),
-  cleanup_policy = "auto"
+  cleanup_policy = "auto",
+  fail_if_dirty = TRUE,
+  ...
 )}\if{html}{\out{</div>}}
 }
 
@@ -172,6 +182,10 @@ Run the Graph}
 \item{\code{repo_root}}{String. Path to the main git repository.}
 
 \item{\code{cleanup_policy}}{String. "auto", "none", or "aggressive".}
+
+\item{\code{fail_if_dirty}}{Logical. Whether to fail if repo has uncommitted changes.}
+
+\item{\code{...}}{Additional arguments passed to node run methods.}
 }
 \if{html}{\out{</div>}}
 }
@@ -186,17 +200,21 @@ Internal: Linear DAG Execution
 \subsection{Method \code{.run_linear()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentDAG$.run_linear(
+  max_steps = 25,
   checkpointer = NULL,
   thread_id = NULL,
   resume_from = NULL,
   node_ids = NULL,
-  step_count = 0
+  step_count = 0,
+  fail_if_dirty = TRUE
 )}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
+\item{\code{max_steps}}{Integer.}
+
 \item{\code{checkpointer}}{Checkpointer object.}
 
 \item{\code{thread_id}}{String thread ID.}
@@ -207,13 +225,13 @@ Internal: Linear DAG Execution
 
 \item{\code{step_count}}{Integer current total step count.}
 
-\item{\code{depth}}{Integer current recursion depth.}
+\item{\code{fail_if_dirty}}{Logical.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
 Execution result list.
-Internal: Iterative State Machine Execution
+Internal: Iterative Execution
 }
 }
 \if{html}{\out{<hr>}}
@@ -226,7 +244,8 @@ Internal: Iterative State Machine Execution
   checkpointer = NULL,
   thread_id = NULL,
   resume_from = NULL,
-  step_count = 0
+  step_count = 0,
+  fail_if_dirty = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -235,7 +254,7 @@ Internal: Iterative State Machine Execution
 \describe{
 \item{\code{max_steps}}{Integer.}
 
-\item{\code{checkpointer}}{Checkpointer.}
+\item{\code{checkpointer}}{Checkpointer object.}
 
 \item{\code{thread_id}}{String.}
 
@@ -243,9 +262,7 @@ Internal: Iterative State Machine Execution
 
 \item{\code{step_count}}{Integer.}
 
-\item{\code{current_nodes}}{Character vector.}
-
-\item{\code{depth}}{Integer. Current recursion depth.
+\item{\code{fail_if_dirty}}{Logical.
 Plot the DAG}
 }
 \if{html}{\out{</div>}}

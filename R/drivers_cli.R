@@ -23,8 +23,8 @@ GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
     #' @param id Unique identifier.
     #' @param model String. Optional model.
     #' @param validation_mode String. "warning" or "strict".
-    initialize = function(id = "gemini_cli", model = "gemini-1.5-pro", validation_mode = "warning") {
-      super$initialize(id, provider = "google", model_name = model, validation_mode = validation_mode)
+    initialize = function(id = "gemini_cli", model = "gemini-1.5-pro", validation_mode = "warning", working_dir = NULL) {
+      super$initialize(id, provider = "google", model_name = model, validation_mode = validation_mode, working_dir = working_dir)
       self$model <- model
       self$supported_opts <- c(
         "model", "sandbox", "yolo", "approval_mode", "policy",
@@ -84,8 +84,8 @@ OllamaDriver <- R6::R6Class("OllamaDriver",
     #' @param id Unique identifier.
     #' @param model String. Default model.
     #' @param validation_mode String. "warning" or "strict".
-    initialize = function(id = "ollama", model = "llama3.2", validation_mode = "warning") {
-      super$initialize(id, provider = "ollama", model_name = model, validation_mode = validation_mode)
+    initialize = function(id = "ollama", model = "llama3.2", validation_mode = "warning", working_dir = NULL) {
+      super$initialize(id, provider = "ollama", model_name = model, validation_mode = validation_mode, working_dir = working_dir)
       self$model <- model
       self$supported_opts <- c(
         "num_ctx", "temperature", "top_p", "top_k",
@@ -97,7 +97,9 @@ OllamaDriver <- R6::R6Class("OllamaDriver",
     #' @param cli_opts List.
     #' @return Character vector.
     format_cli_opts = function(cli_opts = list()) {
-      if (length(cli_opts) == 0) return(character(0))
+      if (length(cli_opts) == 0) {
+        return(character(0))
+      }
       self$validate_cli_opts(cli_opts)
       # Ollama uses: -p key=value (stackable)
       purrr::imap(cli_opts, function(val, key) {
@@ -148,8 +150,8 @@ ClaudeCodeDriver <- R6::R6Class("ClaudeCodeDriver",
     #' @param id Unique identifier.
     #' @param model String. Default model.
     #' @param validation_mode String. "warning" or "strict".
-    initialize = function(id = "claude_cli", model = "claude-3-5-sonnet-latest", validation_mode = "warning") {
-      super$initialize(id, provider = "anthropic", model_name = model, validation_mode = validation_mode)
+    initialize = function(id = "claude_cli", model = "claude-3-5-sonnet-latest", validation_mode = "warning", working_dir = NULL) {
+      super$initialize(id, provider = "anthropic", model_name = model, validation_mode = validation_mode, working_dir = working_dir)
       self$model <- model
       self$supported_opts <- c(
         "add_dir", "agent", "agents", "allowedTools", "append_system_prompt",
@@ -214,8 +216,8 @@ CopilotCLIDriver <- R6::R6Class("CopilotCLIDriver",
     #' @param id Unique identifier.
     #' @param type String. Default type ('shell').
     #' @param validation_mode String. "warning" or "strict".
-    initialize = function(id = "copilot_cli", type = "shell", validation_mode = "warning") {
-      super$initialize(id, provider = "github", model_name = "copilot", validation_mode = validation_mode)
+    initialize = function(id = "copilot_cli", type = "shell", validation_mode = "warning", working_dir = NULL) {
+      super$initialize(id, provider = "github", model_name = "copilot", validation_mode = validation_mode, working_dir = working_dir)
       self$type <- type
       self$supported_opts <- c(
         "add_dir", "allow_all_paths", "allow_all_tools", "allow_tool",

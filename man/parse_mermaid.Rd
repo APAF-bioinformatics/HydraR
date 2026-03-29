@@ -10,9 +10,13 @@ parse_mermaid(mermaid_str)
 \item{mermaid_str}{String. Mermaid syntax.}
 }
 \value{
-List with 'nodes' (data.frame) and 'edges' (data.frame).
+A list containing `nodes` (data.frame) and `edges` (data.frame).
 }
 \description{
 Extracts nodes and edges from 'graph TD' or 'flowchart TD' strings.
 Supports basic node labels and directed edges.
+}
+\examples{
+mermaid <- "graph TD\n  A --> B"
+parse_mermaid(mermaid)
 }

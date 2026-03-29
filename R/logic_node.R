@@ -11,6 +11,11 @@
 #' @description
 #' A specialized AgentNode that executes a pure R function instead of an LLM call.
 #'
+#' @return An `AgentLogicNode` R6 object.
+#' @examples
+#' node <- AgentLogicNode$new("calculate", function(state) {
+#'   list(status = "success", output = list(result = 42))
+#' })
 #' @importFrom R6 R6Class
 #' @export
 AgentLogicNode <- R6::R6Class("AgentLogicNode",

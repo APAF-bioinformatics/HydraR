@@ -12,6 +12,10 @@
 #' A strongly typed, centrally managed state object for passing data
 #' between nodes in an AgentDAG.
 #'
+#' @return An `AgentState` R6 object.
+#' @examples
+#' state <- AgentState$new(initial_data = list(topic = "R"))
+#' state$get("topic")
 #' @importFrom R6 R6Class
 #' @importFrom purrr iwalk walk
 #' @export
@@ -30,7 +34,7 @@ AgentState <- R6::R6Class("AgentState",
     #' @param schema Named list of expected types.
     initialize = function(initial_data = list(), reducers = list(), schema = list()) {
       self$data <- new.env(parent = emptyenv())
-      
+
       # Resolve reducers if they are character names
       self$reducers <- purrr::map(reducers, function(fn_or_name) {
         if (is.character(fn_or_name)) {
@@ -40,7 +44,7 @@ AgentState <- R6::R6Class("AgentState",
         }
         fn_or_name
       })
-      
+
       # Resolve schema if keys are names (optional enhancement)
       self$schema <- schema
 
@@ -130,7 +134,9 @@ AgentState <- R6::R6Class("AgentState",
         match_idx <- purrr::detect_index(all_logic, function(name) {
           identical(get(name, envir = .hydra_registry), fn)
         })
-        if (match_idx > 0) return(all_logic[match_idx])
+        if (match_idx > 0) {
+          return(all_logic[match_idx])
+        }
         return(NULL) # anonymous function, not serializable to JSON readability cleanly
       })
 

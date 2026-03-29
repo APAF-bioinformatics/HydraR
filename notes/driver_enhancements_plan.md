@@ -365,7 +365,7 @@ Private messaging primitives:
 #' Generate the private inbox key for a node
 #' @param node_id String. Target node ID.
 #' @return String. The state key for this node's inbox.
-#' @export
+#' \@export
 inbox_key <- function(node_id) {
   paste0("__inbox__", node_id, "__")
 }
@@ -378,7 +378,7 @@ inbox_key <- function(node_id) {
 #' @param to String. Recipient node ID.
 #' @param content Any. The message payload.
 #' @return The state (invisibly).
-#' @export
+#' \@export
 send_message <- function(state, from, to, content) {
   stopifnot(inherits(state, "AgentState"))
   stopifnot(is.character(from) && length(from) == 1)
@@ -405,7 +405,7 @@ send_message <- function(state, from, to, content) {
 #' @param node_id String. The node reading its own inbox.
 #' @param from String. Optional sender filter.
 #' @return List of message objects.
-#' @export
+#' \@export
 read_messages <- function(state, node_id, from = NULL) {
   stopifnot(inherits(state, "AgentState"))
   key <- inbox_key(node_id)
@@ -421,7 +421,7 @@ read_messages <- function(state, node_id, from = NULL) {
 #' @param state AgentState object.
 #' @param node_id String. The node clearing its inbox.
 #' @return The state (invisibly).
-#' @export
+#' \@export
 clear_inbox <- function(state, node_id) {
   stopifnot(inherits(state, "AgentState"))
   state$set(inbox_key(node_id), list())

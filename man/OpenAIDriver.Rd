@@ -3,6 +3,9 @@
 \name{OpenAIDriver}
 \alias{OpenAIDriver}
 \title{OpenAI API Driver R6 Class}
+\value{
+An `OpenAIDriver` R6 object.
+}
 \description{
 Driver for OpenAI Chat Completions API.
 }
@@ -13,9 +16,7 @@ Driver for OpenAI Chat Completions API.
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{api_url}}{String. Base URL.
-Initialize OpenAIDriver
-Get Capabilities
-Call OpenAI API}
+Initialize OpenAIDriver}
 }
 \if{html}{\out{</div>}}
 }
@@ -49,6 +50,21 @@ Call OpenAI API}
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{id}}{String. Unique identifier.}
+
+\item{\code{model}}{String. Model name.}
+
+\item{\code{validation_mode}}{String. "warning" or "strict".}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new `OpenAIDriver` object.
+Get Capabilities
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-OpenAIDriver-get_capabilities"></a>}}
@@ -58,6 +74,10 @@ Call OpenAI API}
 \if{html}{\out{<div class="r">}}\preformatted{OpenAIDriver$get_capabilities()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A list of capabilities.
+Call OpenAI API
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-OpenAIDriver-call"></a>}}
@@ -67,6 +87,22 @@ Call OpenAI API}
 \if{html}{\out{<div class="r">}}\preformatted{OpenAIDriver$call(prompt, model = NULL, cli_opts = list(), ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{prompt}}{String. The prompt text.}
+
+\item{\code{model}}{String. Optional model override.}
+
+\item{\code{cli_opts}}{List. Additional API options.}
+
+\item{\code{...}}{Additional arguments.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+String. LLM response.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-OpenAIDriver-clone"></a>}}

@@ -40,7 +40,6 @@ test_that("GeminiCLIDriver invokes gemini CLI and captures output", {
       args <- readLines("last_args.txt")
       expect_match(args, "--model model-override")
       expect_match(args, "-p -")
-
     })
   })
 })

@@ -13,6 +13,11 @@
 #' This ensures that each parallel worker has its own filesystem checkout,
 #' preventing file-level conflicts between concurrent CLI agents.
 #'
+#' @return A `WorktreeManager` R6 object.
+#' @examples
+#' \dontrun{
+#' wt_manager <- WorktreeManager$new(repo_root = getwd())
+#' }
 #' @importFrom R6 R6Class
 #' @importFrom purrr walk
 #' @importFrom digest digest
@@ -38,8 +43,9 @@ WorktreeManager <- R6::R6Class("WorktreeManager",
     #' @param branch_prefix Prefix for new branches.
     #' @param cleanup_policy Cleanup strategy.
     #' @param thread_id Optional execution identifier.
-    initialize = function(repo_root = getwd(), 
-                          base_branch = "main", 
+    #' @return A new `WorktreeManager` object.
+    initialize = function(repo_root = getwd(),
+                          base_branch = "main",
                           branch_prefix = "hydra",
                           cleanup_policy = "auto",
                           thread_id = NULL) {
@@ -53,10 +59,11 @@ WorktreeManager <- R6::R6Class("WorktreeManager",
     #' Create an Isolated Worktree
     #' @param node_id String. Identifier for the DAG node.
     #' @param branch_name Optional specific branch name.
+    #' @param fail_if_dirty Logical. Whether to stop if repo has uncommitted changes.
     #' @return String. The absolute path to the new worktree.
-    create = function(node_id, branch_name = NULL) {
+    create = function(node_id, branch_name = NULL, fail_if_dirty = TRUE) {
       # Defensive check: Ensure repo is clean
-      if (!self$is_repo_clean()) {
+      if (fail_if_dirty && !self$is_repo_clean()) {
         stop(sprintf("[%s] Cannot create worktree: repository has uncommitted changes. Please commit or stash them first.", node_id))
       }
 
@@ -67,27 +74,32 @@ WorktreeManager <- R6::R6Class("WorktreeManager",
         tid <- self$thread_id %||% "default"
         branch <- paste0(self$branch_prefix, "/", tid, "/", node_id, "-", hash)
       }
-      
+
       wt_path <- file.path(self$repo_root, ".hydra_worktrees", gsub("/", "_", branch))
-      
+
       # Execute git worktree add -b <branch> <path> <base>
-      res <- system2("git", c("-C", shQuote(self$repo_root), 
-                             "worktree", "add", "-b", shQuote(branch), 
-                             shQuote(wt_path), shQuote(self$base_branch)),
-                    stdout = TRUE, stderr = TRUE)
-      
+      res <- system2("git", c(
+        "-C", shQuote(self$repo_root),
+        "worktree", "add", "-b", shQuote(branch),
+        shQuote(wt_path), shQuote(self$base_branch)
+      ),
+      stdout = TRUE, stderr = TRUE
+      )
+
       exit_code <- attr(res, "status") %||% 0L
       if (exit_code != 0L) {
-        stop(sprintf("Failed to create git worktree for node '%s': %s", 
-                    node_id, paste(res, collapse = "\n")))
+        stop(sprintf(
+          "Failed to create git worktree for node '%s': %s",
+          node_id, paste(res, collapse = "\n")
+        ))
       }
 
       self$worktrees[[node_id]] <- list(
-        path = wt_path, 
+        path = wt_path,
         branch = branch,
         created_at = Sys.time()
       )
-      
+
       return(wt_path)
     },
 
@@ -108,19 +120,22 @@ WorktreeManager <- R6::R6Class("WorktreeManager",
     #' Remove the Physical Worktree Directory
     #' @param node_id Node identifier.
     #' @param force Logical. Force removal.
-    #' @return Logical.
+    #' @return Logical (invisibly).
     remove_worktree = function(node_id, force = TRUE) {
       wt <- self$worktrees[[node_id]]
-      if (is.null(wt) || is.null(wt$path)) return(invisible(FALSE))
-      
+      if (is.null(wt) || is.null(wt$path)) {
+        return(invisible(FALSE))
+      }
+
       args <- c("worktree", "remove")
       if (force) args <- c(args, "--force")
       args <- c(args, shQuote(wt$path))
-      
+
       # Attempt to remove the worktree
-      res <- system2("git", c("-C", shQuote(self$repo_root), args), 
-                      stdout = TRUE, stderr = TRUE)
-      
+      res <- system2("git", c("-C", shQuote(self$repo_root), args),
+        stdout = TRUE, stderr = TRUE
+      )
+
       # Mark as detached (directory gone, but branch/metadata preserved)
       wt$path <- NULL
       self$worktrees[[node_id]] <- wt
@@ -129,61 +144,74 @@ WorktreeManager <- R6::R6Class("WorktreeManager",
 
     #' Delete the branch and unregister node
     #' @param node_id Node identifier.
+    #' @return Logical (invisibly).
     delete_branch = function(node_id) {
       wt <- self$worktrees[[node_id]]
-      if (is.null(wt)) return(invisible(FALSE))
-      
+      if (is.null(wt)) {
+        return(invisible(FALSE))
+      }
+
       # Attempt to delete the branch (cleanup)
       system2("git", c("-C", shQuote(self$repo_root), "branch", "-D", shQuote(wt$branch)),
-              stdout = FALSE, stderr = FALSE)
-      
+        stdout = FALSE, stderr = FALSE
+      )
+
       self$worktrees[[node_id]] <- NULL
       invisible(TRUE)
     },
 
     #' Legacy remove method for backward compatibility
+    #' @param node_id Node identifier.
+    #' @param force Logical. Force removal.
+    #' @param delete_branch Logical. Delete the branch.
+    #' @return NULL (called for side effect).
     remove = function(node_id, force = TRUE, delete_branch = FALSE) {
       self$remove_worktree(node_id, force = force)
       if (delete_branch) self$delete_branch(node_id)
+      invisible(NULL)
     },
 
     #' Cleanup Worktree based on Policy and Status
     #' @param node_id Node identifier.
     #' @param status String. "success", "failure", or "conflict".
+    #' @return NULL (called for side effect).
     cleanup_node = function(node_id, status = "success") {
       policy <- self$cleanup_policy
-      
+
       should_remove <- switch(policy,
         "aggressive" = TRUE,
         "none" = FALSE,
         "auto" = (status == "success"),
         TRUE # default to removing
       )
-      
+
       if (should_remove) {
         # default to only removing the worktree dir, keeping branch for harmonizer
         self$remove(node_id, delete_branch = FALSE)
       } else {
         # Keep it, but maybe log it?
-        message(sprintf("Persisting worktree for node '%s' (status: %s, policy: %s)", 
-                       node_id, status, policy))
+        message(sprintf(
+          "Persisting worktree for node '%s' (status: %s, policy: %s)",
+          node_id, status, policy
+        ))
       }
+      invisible(NULL)
     },
 
     #' Cleanup All Worktrees
     #' @description
     #' Removes all worktrees managed by this instance.
+    #' @return Logical (invisibly).
     cleanup = function() {
       if (length(self$worktrees) > 0) {
-        purrr::walk(names(self$worktrees), ~self$remove(.x))
+        # Only remove worktrees that still have a path (haven't been removed yet)
+        purrr::walk(names(self$worktrees), function(node_id) {
+          self$remove_worktree(node_id)
+        })
       }
-      
-      # Remove the parent worktree directory if empty or force remove it
-      wt_base <- file.path(self$repo_root, ".hydra_worktrees")
-      if (dir.exists(wt_base)) {
-        # Check if empty or just force remove if we are cleaning up everything
-        unlink(wt_base, recursive = TRUE)
-      }
+
+      # DO NOT remove the .hydra_worktrees folder here as it may contain 
+      # metadata or still-needed branches for the main repo process.
       invisible(TRUE)
     },
 
@@ -191,20 +219,26 @@ WorktreeManager <- R6::R6Class("WorktreeManager",
     #' @param branch String.
     #' @return Logical.
     branch_exists = function(branch) {
-      res <- system2("git", c("-C", shQuote(self$repo_root), 
-                             "rev-parse", "--verify", shQuote(branch)),
-                    stdout = FALSE, stderr = FALSE)
+      res <- system2("git", c(
+        "-C", shQuote(self$repo_root),
+        "rev-parse", "--verify", shQuote(branch)
+      ),
+      stdout = FALSE, stderr = FALSE
+      )
       return(attr(res, "status") %||% 0L == 0L)
     },
 
     #' Check if the Repository is Clean
     #' @return Logical.
     is_repo_clean = function() {
-      res <- system2("git", c("-C", shQuote(self$repo_root), "status", "--porcelain"), 
-                      stdout = TRUE, stderr = TRUE)
+      res <- system2("git", c("-C", shQuote(self$repo_root), "status", "--porcelain"),
+        stdout = TRUE, stderr = TRUE
+      )
       # status is 0, but stdout should be empty if clean
       status <- attr(res, "status") %||% 0L
-      if (status != 0L) return(FALSE)
+      if (status != 0L) {
+        return(FALSE)
+      }
       return(length(res) == 0)
     }
   )
@@ -216,6 +250,7 @@ WorktreeManager <- R6::R6Class("WorktreeManager",
 #' Handles semantic or git-level conflicts during branch merges.
 #' Used by Conflict Harmonizer nodes.
 #'
+#' @return A `ConflictResolver` R6 object.
 #' @importFrom R6 R6Class
 #' @export
 ConflictResolver <- R6::R6Class("ConflictResolver",
@@ -228,6 +263,7 @@ ConflictResolver <- R6::R6Class("ConflictResolver",
     #' Initialize ConflictResolver
     #' @param strategy Conflict resolution strategy.
     #' @param driver Optional LLM driver for semantic resolution.
+    #' @return A new `ConflictResolver` object.
     initialize = function(strategy = "llm", driver = NULL) {
       self$strategy <- strategy
       self$driver <- driver
@@ -251,7 +287,7 @@ ConflictResolver <- R6::R6Class("ConflictResolver",
       }
 
       if (self$strategy == "llm") {
-        # Implement semantic merge? This is complex. 
+        # Implement semantic merge? This is complex.
         # For now, it might just flag for review with an LLM summary.
         return(list(status = "RESOLVED", method = "llm", detail = "Semantic merge attempted."))
       }

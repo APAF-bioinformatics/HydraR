@@ -12,6 +12,7 @@
 #' A singleton-like registry for managing AgentDriver instances.
 #' Enables runtime recovery and hot-swapping of drivers across nodes.
 #'
+#' @return A `DriverRegistry` R6 object.
 #' @importFrom R6 R6Class
 #' @export
 DriverRegistry <- R6::R6Class("DriverRegistry",
@@ -20,6 +21,7 @@ DriverRegistry <- R6::R6Class("DriverRegistry",
     drivers = list(),
 
     #' Initialize DriverRegistry
+    #' @return A new `DriverRegistry` object.
     initialize = function() {
       self$drivers <- list()
     },
@@ -27,17 +29,18 @@ DriverRegistry <- R6::R6Class("DriverRegistry",
     #' Register a Driver
     #' @param driver AgentDriver object.
     #' @param overwrite Logical. Whether to overwrite existing driver with same ID.
+    #' @return The registry object (invisibly).
     register = function(driver, overwrite = FALSE) {
       if (!inherits(driver, "AgentDriver")) {
         stop("Only objects inheriting from AgentDriver can be registered.")
       }
-      
+
       id <- driver$id
       if (id %in% names(self$drivers) && !overwrite) {
         warning(sprintf("Driver with ID '%s' already registered. Use overwrite=TRUE to replace.", id))
         return(invisible(self))
       }
-      
+
       self$drivers[[id]] <- driver
       invisible(self)
     },
@@ -58,7 +61,7 @@ DriverRegistry <- R6::R6Class("DriverRegistry",
       if (length(self$drivers) == 0) {
         return(data.frame(id = character(), provider = character(), model = character()))
       }
-      
+
       data.frame(
         id = names(self$drivers),
         provider = sapply(self$drivers, function(d) d$provider),
@@ -69,12 +72,14 @@ DriverRegistry <- R6::R6Class("DriverRegistry",
 
     #' Remove a Driver
     #' @param id String.
+    #' @return The registry object (invisibly).
     remove = function(id) {
       self$drivers[[id]] <- NULL
       invisible(self)
     },
 
     #' Clear Registry
+    #' @return The registry object (invisibly).
     clear = function() {
       self$drivers <- list()
       invisible(self)

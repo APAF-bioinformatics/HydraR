@@ -11,7 +11,7 @@
   # Note: These functions are available in the package namespace
   register_logic("reducer_append", reducer_append)
   register_logic("reducer_merge_list", reducer_merge_list)
-  
+
   invisible(NULL)
 }
 

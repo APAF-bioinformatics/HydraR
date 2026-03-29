@@ -28,9 +28,9 @@ MockDriver <- R6::R6Class("MockDriver",
 
 test_that("Hello World Guesser loop works", {
   driver <- MockDriver$new(response = "hi")
-  
+
   dag <- AgentDAG$new()
-  
+
   # 1. Guesser
   dag$add_node(AgentLLMNode$new(
     id = "Guesser",
@@ -38,7 +38,7 @@ test_that("Hello World Guesser loop works", {
     driver = driver,
     prompt_builder = function(state) "Guess word"
   ))
-  
+
   # 2. Validator
   dag$add_node(AgentLogicNode$new(
     id = "Validator",
@@ -53,23 +53,22 @@ test_that("Hello World Guesser loop works", {
       }
     }
   ))
-  
+
   # Transitions
   dag$set_start_node("Guesser")
   dag$add_edge("Guesser", "Validator")
-  
+
   dag$add_conditional_edge(
     from = "Validator",
     test = function(out) isTRUE(out$valid),
     if_true = NULL,
     if_false = "Guesser"
   )
-  
-  compiled_dag <- dag$compile()
-  
+
+  capture_warnings(dag$compile())
+  compiled_dag <- dag
   # Run the DAG
   result <- compiled_dag$run(initial_state = list(), max_steps = 10)
-  
   # Assertions
   expect_equal(result$state$get("Guesser"), "hello")
   expect_true(result$state$get("valid"))

@@ -28,9 +28,9 @@ MockDriver <- R6::R6Class("MockDriver",
 
 test_that("Personalized Shopping loop works", {
   driver <- MockDriver$new(response = "Blue Shirt")
-  
+
   dag <- AgentDAG$new()
-  
+
   # 1. Shopper
   dag$add_node(AgentLLMNode$new(
     id = "Shopper",
@@ -38,7 +38,7 @@ test_that("Personalized Shopping loop works", {
     driver = driver,
     prompt_builder = function(state) paste("Find shirt like:", state$get("shopping_request"))
   ))
-  
+
   # 2. UserProxy
   dag$add_node(AgentLLMNode$new(
     id = "UserProxy",
@@ -46,11 +46,11 @@ test_that("Personalized Shopping loop works", {
     driver = driver,
     prompt_builder = function(state) paste("Review shirt:", state$get("Shopper"))
   ))
-  
+
   # Transitions
   dag$set_start_node("Shopper")
   dag$add_edge("Shopper", "UserProxy")
-  
+
   # Inject loop success on second iteration
   loop_count <- 0
   dag$add_conditional_edge(
@@ -68,15 +68,14 @@ test_that("Personalized Shopping loop works", {
     if_true = NULL,
     if_false = "Shopper"
   )
-  
-  compiled_dag <- dag$compile()
-  
-  # Run the DAG
-  result <- compiled_dag$run(
-    initial_state = list(shopping_request = "Cool shirt"),
-    max_steps = 10
-  )
-  
+
+  capture_warnings(dag$compile())
+  compiled_dag <- dag
+# Run the DAG
+result <- compiled_dag$run(
+  initial_state = list(shopping_request = "Cool shirt"),
+  max_steps = 10
+)
   # Assertions
   expect_equal(loop_count, 2)
   expect_equal(result$state$get("UserProxy"), "I'll buy it")

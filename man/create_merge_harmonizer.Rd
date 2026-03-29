@@ -7,8 +7,7 @@
 create_merge_harmonizer(
   id = "merge_harmonizer",
   strategy = "sequential",
-  conflict_policy = "llm_fix",
-  llm_driver = NULL
+  conflict_resolver = NULL
 )
 }
 \arguments{
@@ -19,9 +18,14 @@ create_merge_harmonizer(
 \item{conflict_resolver}{ConflictResolver. Optional custom resolver.}
 }
 \value{
-AgentLogicNode.
+An `AgentLogicNode` R6 object.
 }
 \description{
 Factory function to create an AgentLogicNode that merges parallel git branches
 back into the base branch.
+}
+\examples{
+\dontrun{
+node <- create_merge_harmonizer(id = "merger", strategy = "sequential")
+}
 }

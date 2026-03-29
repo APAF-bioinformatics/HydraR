@@ -3,6 +3,9 @@
 \name{GeminiAPIDriver}
 \alias{GeminiAPIDriver}
 \title{Gemini API Driver R6 Class}
+\value{
+A `GeminiAPIDriver` R6 object.
+}
 \description{
 Driver for Google Gemini (AI Studio) API.
 }
@@ -13,9 +16,7 @@ Driver for Google Gemini (AI Studio) API.
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{api_base}}{String. Base URL.
-Initialize GeminiAPIDriver
-Get Capabilities
-Call Gemini API}
+Initialize GeminiAPIDriver}
 }
 \if{html}{\out{</div>}}
 }
@@ -49,6 +50,21 @@ Call Gemini API}
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{id}}{String. Unique identifier.}
+
+\item{\code{model}}{String. Model name.}
+
+\item{\code{validation_mode}}{String. "warning" or "strict".}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new `GeminiAPIDriver` object.
+Get Capabilities
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GeminiAPIDriver-get_capabilities"></a>}}
@@ -58,6 +74,10 @@ Call Gemini API}
 \if{html}{\out{<div class="r">}}\preformatted{GeminiAPIDriver$get_capabilities()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A list of capabilities.
+Call Gemini API
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GeminiAPIDriver-call"></a>}}
@@ -67,6 +87,22 @@ Call Gemini API}
 \if{html}{\out{<div class="r">}}\preformatted{GeminiAPIDriver$call(prompt, model = NULL, cli_opts = list(), ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{prompt}}{String. The prompt text.}
+
+\item{\code{model}}{String. Optional model override.}
+
+\item{\code{cli_opts}}{List. Additional API options.}
+
+\item{\code{...}}{Additional arguments.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+String. LLM response.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GeminiAPIDriver-clone"></a>}}

@@ -3,6 +3,9 @@
 \name{AnthropicDriver}
 \alias{AnthropicDriver}
 \title{Anthropic API Driver R6 Class}
+\value{
+An `AnthropicDriver` R6 object.
+}
 \description{
 Driver for Anthropic Messages API.
 }
@@ -13,9 +16,7 @@ Driver for Anthropic Messages API.
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{api_url}}{String. Base URL.
-Initialize AnthropicDriver
-Get Capabilities
-Call Anthropic API}
+Initialize AnthropicDriver}
 }
 \if{html}{\out{</div>}}
 }
@@ -49,6 +50,21 @@ Call Anthropic API}
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{id}}{String. Unique identifier.}
+
+\item{\code{model}}{String. Model name.}
+
+\item{\code{validation_mode}}{String. "warning" or "strict".}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new `AnthropicDriver` object.
+Get Capabilities
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AnthropicDriver-get_capabilities"></a>}}
@@ -58,6 +74,10 @@ Call Anthropic API}
 \if{html}{\out{<div class="r">}}\preformatted{AnthropicDriver$get_capabilities()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A list of capabilities.
+Call Anthropic API
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AnthropicDriver-call"></a>}}
@@ -67,6 +87,22 @@ Call Anthropic API}
 \if{html}{\out{<div class="r">}}\preformatted{AnthropicDriver$call(prompt, model = NULL, cli_opts = list(), ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{prompt}}{String. The prompt text.}
+
+\item{\code{model}}{String. Optional model override.}
+
+\item{\code{cli_opts}}{List. Additional API options.}
+
+\item{\code{...}}{Additional arguments.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+String. LLM response.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AnthropicDriver-clone"></a>}}

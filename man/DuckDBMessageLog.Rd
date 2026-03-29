@@ -12,8 +12,7 @@ Persists messages to the master DuckDB database.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{db_path}}{String. Path to DuckDB file.
-Initialize DuckDBMessageLog}
+\item{\code{db_path}}{String. Path to DuckDB file.}
 }
 \if{html}{\out{</div>}}
 }
@@ -30,6 +29,7 @@ Initialize DuckDBMessageLog}
 \if{html}{\out{<a id="method-DuckDBMessageLog-new"></a>}}
 \if{latex}{\out{\hypertarget{method-DuckDBMessageLog-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize DuckDBMessageLog.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DuckDBMessageLog$new(db_path = "~/.gemini/memory/bot_history.duckdb")}\if{html}{\out{</div>}}
 }
@@ -37,30 +37,46 @@ Initialize DuckDBMessageLog}
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{db_path}}{String.
-Log a message
-Get all logs}
+\item{\code{db_path}}{String.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new `DuckDBMessageLog` object.
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DuckDBMessageLog-log"></a>}}
 \if{latex}{\out{\hypertarget{method-DuckDBMessageLog-log}{}}}
 \subsection{Method \code{log()}}{
+Store a message.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DuckDBMessageLog$log(msg)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{msg}}{List. Message object.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The log object (invisibly).
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DuckDBMessageLog-get_all"></a>}}
 \if{latex}{\out{\hypertarget{method-DuckDBMessageLog-get_all}{}}}
 \subsection{Method \code{get_all()}}{
+Get all logs.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DuckDBMessageLog$get_all()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+List of logs.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DuckDBMessageLog-clone"></a>}}

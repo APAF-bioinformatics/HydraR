@@ -29,9 +29,9 @@ MockDriver <- R6::R6Class("MockDriver",
 test_that("Software Bug Assistant loop works", {
   # Driver returns invalid fix then valid fix
   driver <- MockDriver$new(response = "Fix A")
-  
+
   dag <- AgentDAG$new()
-  
+
   # 1. Analyzer
   dag$add_node(AgentLLMNode$new(
     id = "Analyzer",
@@ -39,7 +39,7 @@ test_that("Software Bug Assistant loop works", {
     driver = driver,
     prompt_builder = function(state) paste("Fix bug:", state$get("bug_report"))
   ))
-  
+
   # 2. Tester
   dag$add_node(AgentLogicNode$new(
     id = "Tester",
@@ -54,26 +54,25 @@ test_that("Software Bug Assistant loop works", {
       }
     }
   ))
-  
+
   # Transitions
   dag$set_start_node("Analyzer")
   dag$add_edge("Analyzer", "Tester")
-  
+
   dag$add_conditional_edge(
     from = "Tester",
     test = function(out) isTRUE(out$tests_passed),
     if_true = NULL,
     if_false = "Analyzer"
   )
-  
-  compiled_dag <- dag$compile()
-  
-  # Run the DAG
-  result <- compiled_dag$run(
-    initial_state = list(bug_report = "Crash on missing"),
-    max_steps = 10
-  )
-  
+
+  capture_warnings(dag$compile())
+  compiled_dag <- dag
+# Run the DAG
+result <- compiled_dag$run(
+  initial_state = list(bug_report = "App crashes on startup"),
+  max_steps = 10
+)
   # Assertions
   expect_equal(result$state$get("Analyzer"), "Use is.null(x)")
 })

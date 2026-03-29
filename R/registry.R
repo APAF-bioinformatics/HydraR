@@ -6,32 +6,23 @@
 # License:     LGPL (>= 3) (see LICENSE)
 # ==============================================================
 
-#' HydraR Logic Registry
-#'
-#' @description
-#' An internal environment mapping names to functions for reducers and schemas.
-#' This allows saving AgentState as JSON by only storing function names.
-#'
-#' @keywords internal
+# Internal environment for storing function logic
 .hydra_registry <- new.env(parent = emptyenv())
 
-#' Register a Logic Component
-#'
-#' @param name String. Unique name for the component.
-#' @param fn Function. The R function to register.
-#' @return NULL (called for side effect).
+#' Register Logic Function
+#' @param name String. Unique identifier for the function.
+#' @param fn Function. The R function to store.
+#' @return The registry environment (invisibly).
 #' @export
 register_logic <- function(name, fn) {
-  if (!is.character(name) || length(name) != 1) stop("name must be a single string.")
-  if (!is.function(fn)) stop("fn must be a function.")
+  stopifnot(is.character(name) && is.function(fn))
   assign(name, fn, envir = .hydra_registry)
-  invisible(NULL)
+  invisible(.hydra_registry)
 }
 
-#' Get a Registered Logic Component
-#'
-#' @param name String.
-#' @return The function or NULL if not found.
+#' Get Logic Function
+#' @param name String. Unique identifier.
+#' @return Function or NULL.
 #' @export
 get_logic <- function(name) {
   if (exists(name, envir = .hydra_registry)) {

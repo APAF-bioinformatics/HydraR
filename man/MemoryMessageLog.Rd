@@ -12,9 +12,7 @@ In-memory storage for messages.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{logs}}{List.
-Log a message
-Get all logs}
+\item{\code{logs}}{List. Storage for message logs.}
 }
 \if{html}{\out{</div>}}
 }
@@ -30,19 +28,34 @@ Get all logs}
 \if{html}{\out{<a id="method-MemoryMessageLog-log"></a>}}
 \if{latex}{\out{\hypertarget{method-MemoryMessageLog-log}{}}}
 \subsection{Method \code{log()}}{
+Store a message.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{MemoryMessageLog$log(msg)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{msg}}{List. Message object.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The log object (invisibly).
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-MemoryMessageLog-get_all"></a>}}
 \if{latex}{\out{\hypertarget{method-MemoryMessageLog-get_all}{}}}
 \subsection{Method \code{get_all()}}{
+Get all logs.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{MemoryMessageLog$get_all()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+List of logs.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-MemoryMessageLog-clone"></a>}}

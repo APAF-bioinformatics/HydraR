@@ -3,6 +3,9 @@
 \name{DriverRegistry}
 \alias{DriverRegistry}
 \title{Driver Registry R6 Class}
+\value{
+A `DriverRegistry` R6 object.
+}
 \description{
 A singleton-like registry for managing AgentDriver instances.
 Enables runtime recovery and hot-swapping of drivers across nodes.
@@ -11,8 +14,7 @@ Enables runtime recovery and hot-swapping of drivers across nodes.
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{drivers}}{List. Storage for registered drivers.
-Initialize DriverRegistry
-Register a Driver}
+Initialize DriverRegistry}
 }
 \if{html}{\out{</div>}}
 }
@@ -36,6 +38,10 @@ Register a Driver}
 \if{html}{\out{<div class="r">}}\preformatted{DriverRegistry$new()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A new `DriverRegistry` object.
+Register a Driver
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DriverRegistry-register"></a>}}
@@ -50,10 +56,13 @@ Register a Driver}
 \describe{
 \item{\code{driver}}{AgentDriver object.}
 
-\item{\code{overwrite}}{Logical. Whether to overwrite existing driver with same ID.
-Get a Driver}
+\item{\code{overwrite}}{Logical. Whether to overwrite existing driver with same ID.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The registry object (invisibly).
+Get a Driver
 }
 }
 \if{html}{\out{<hr>}}
@@ -100,10 +109,13 @@ Remove a Driver
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{id}}{String.
-Clear Registry}
+\item{\code{id}}{String.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The registry object (invisibly).
+Clear Registry
 }
 }
 \if{html}{\out{<hr>}}
@@ -114,6 +126,9 @@ Clear Registry}
 \if{html}{\out{<div class="r">}}\preformatted{DriverRegistry$clear()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+The registry object (invisibly).
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DriverRegistry-clone"></a>}}

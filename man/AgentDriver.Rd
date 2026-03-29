@@ -3,8 +3,16 @@
 \name{AgentDriver}
 \alias{AgentDriver}
 \title{Agent Driver R6 Class}
+\value{
+An `AgentDriver` R6 object.
+}
 \description{
 Abstract base class for CLI-based LLM drivers.
+}
+\examples{
+\dontrun{
+driver <- AgentDriver$new(id = "test", provider = "mock")
+}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

@@ -13,7 +13,10 @@
 #' Supports basic node labels and directed edges.
 #'
 #' @param mermaid_str String. Mermaid syntax.
-#' @return List with 'nodes' (data.frame) and 'edges' (data.frame).
+#' @return A list containing `nodes` (data.frame) and `edges` (data.frame).
+#' @examples
+#' mermaid <- "graph TD\n  A --> B"
+#' parse_mermaid(mermaid)
 #' @importFrom purrr walk map map_chr compact flatten
 #' @export
 parse_mermaid <- function(mermaid_str) {

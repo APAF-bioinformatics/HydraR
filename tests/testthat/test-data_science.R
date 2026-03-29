@@ -28,15 +28,15 @@ MockDriver <- R6::R6Class("MockDriver",
 
 test_that("Data Science AutoML loop works", {
   driver <- MockDriver$new(response = "Model Config")
-  
+
   dag <- AgentDAG$new()
-  
+
   # 1. Cleaner
   dag$add_node(AgentLogicNode$new(
     id = "DataCleaner",
     logic_fn = function(state) list(status = "success", output = list(clean_data = "CLEANED DATA"))
   ))
-  
+
   # 2. Trainer
   dag$add_node(AgentLLMNode$new(
     id = "ModelTrainer",
@@ -44,7 +44,7 @@ test_that("Data Science AutoML loop works", {
     driver = driver,
     prompt_builder = function(state) paste("Train on:", state$get("clean_data"))
   ))
-  
+
   # 3. Evaluator
   eval_count <- 0
   dag$add_node(AgentLogicNode$new(
@@ -53,7 +53,7 @@ test_that("Data Science AutoML loop works", {
       eval_count <<- eval_count + 1
       # Accuracy improves per call
       accuracy <- min(0.60 + (eval_count * 0.10), 0.95)
-      
+
       if (accuracy >= state$get("target_accuracy")) {
         list(status = "success", output = list(optimization_complete = TRUE))
       } else {
@@ -61,30 +61,29 @@ test_that("Data Science AutoML loop works", {
       }
     }
   ))
-  
+
   # Transitions
   dag$set_start_node("DataCleaner")
   dag$add_edge("DataCleaner", "ModelTrainer")
   dag$add_edge("ModelTrainer", "Evaluator")
-  
+
   dag$add_conditional_edge(
     from = "Evaluator",
     test = function(out) isTRUE(out$optimization_complete),
     if_true = NULL,
     if_false = "ModelTrainer"
   )
-  
-  compiled_dag <- dag$compile()
-  
+
+  capture_warnings(dag$compile())
+  compiled_dag <- dag
   # Run the DAG
   result <- compiled_dag$run(
     initial_state = list(target_accuracy = 0.85),
     max_steps = 10
   )
-  
   # Assertions
   # 0.60 -> 0.70 -> 0.80 -> 0.90 (Success)
-  expect_equal(eval_count, 3) 
+  expect_equal(eval_count, 3)
   expect_equal(result$state$get("ModelTrainer"), "Model Config")
 })
 

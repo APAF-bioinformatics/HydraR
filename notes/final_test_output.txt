@@ -1,0 +1,181 @@
+ℹ Testing HydraR
+✔ | F W  S  OK | Context
+
+⠏ |          0 | worktree-integration                                           Initialized empty Git repository in /private/var/folders/hg/851fgqz946bdmzx9yg0f5bbw0000gp/T/RtmpTZfKl6/file5a712f24fe95/.git/
+[main (root-commit) 785e87a] Initial commit
+ 1 file changed, 1 insertion(+)
+ create mode 100644 README.md
+Graph compiled successfully.
+[Worktree] Initializing WorktreeManager for thread: run-9a283539
+[Parallel] Executing 2 nodes in isolated worktrees using furrr...
+[hydra/run-9a283539/node_A-14db337a 33646e2] Node A commit
+ 1 file changed, 1 insertion(+)
+ create mode 100644 file_a.txt
+[hydra/run-9a283539/node_B-450411db e4ee524] Node B commit
+ 1 file changed, 1 insertion(+)
+ create mode 100644 file_b.txt
+   [node_A] Executing R logic...
+   [node_B] Executing R logic...
+
+⠋ |   1      0 | worktree-integration                                           [Iteration 3] Running Node: merge
+   [merge] Executing R logic...
+
+⠙ |   1      1 | worktree-integration                                           Initialized empty Git repository in /private/var/folders/hg/851fgqz946bdmzx9yg0f5bbw0000gp/T/RtmpTZfKl6/file5a7148ae2586/.git/
+[main (root-commit) 761dfc6] Initial
+ 1 file changed, 1 insertion(+)
+ create mode 100644 conflict.txt
+Graph compiled successfully.
+[Worktree] Initializing WorktreeManager for thread: run-ca478ec6
+[Parallel] Executing 2 nodes in isolated worktrees using furrr...
+[hydra/run-ca478ec6/node_A-bba5b7e6 8b141f6] Conflicting commit A
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+[hydra/run-ca478ec6/node_B-e246ac97 3b2487a] Conflicting commit B
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+   [node_A] Executing R logic...
+   [node_B] Executing R logic...
+[Iteration 3] Running Node: merge
+   [merge] Executing R logic...
+
+⠧ | 6 1      1 | worktree-integration                                           
+✖ | 7 1      1 | worktree-integration
+────────────────────────────────────────────────────────────────────────────────
+Warning ('test-worktree-integration.R:61:3'): Git Worktree Parallel Integration works
+package 'purrr' was built under R version 4.5.2
+Backtrace:
+    ▆
+ 1. └─dag$run(use_worktrees = TRUE, repo_root = tmp_repo, initial_state = list()) at test-worktree-integration.R:61:3
+ 2.   └─self$.run_iterative(max_steps, checkpointer, thread_id, resume_from) at HydraR/R/dag.R:214:9
+ 3.     └─furrr::future_map(...) at HydraR/R/dag.R:380:9
+ 4.       └─furrr:::furrr_map_template(...)
+ 5.         └─furrr:::furrr_template(...)
+ 6.           ├─future::value(futures)
+ 7.           └─future:::value.list(futures)
+ 8.             └─future (local) signalConditionsASAP(...)
+ 9.               └─future:::signalConditions(...)
+
+Failure ('test-worktree-integration.R:67:3'): Git Worktree Parallel Integration works
+Expected `file.exists(file.path(tmp_repo, "file_a.txt"))` to be TRUE.
+Differences:
+`actual`:   FALSE
+`expected`: TRUE 
+
+
+Failure ('test-worktree-integration.R:68:3'): Git Worktree Parallel Integration works
+Expected `file.exists(file.path(tmp_repo, "file_b.txt"))` to be TRUE.
+Differences:
+`actual`:   FALSE
+`expected`: TRUE 
+
+
+Failure ('test-worktree-integration.R:73:5'): Git Worktree Parallel Integration works
+Expected `any(grepl("Node A commit", log))` to be TRUE.
+Differences:
+`actual`:   FALSE
+`expected`: TRUE 
+
+Backtrace:
+    ▆
+ 1. ├─withr::with_dir(...) at test-worktree-integration.R:71:3
+ 2. │ └─base::force(code)
+ 3. └─testthat::expect_true(any(grepl("Node A commit", log))) at test-worktree-integration.R:73:5
+
+Failure ('test-worktree-integration.R:74:5'): Git Worktree Parallel Integration works
+Expected `any(grepl("Node B commit", log))` to be TRUE.
+Differences:
+`actual`:   FALSE
+`expected`: TRUE 
+
+Backtrace:
+    ▆
+ 1. ├─withr::with_dir(...) at test-worktree-integration.R:71:3
+ 2. │ └─base::force(code)
+ 3. └─testthat::expect_true(any(grepl("Node B commit", log))) at test-worktree-integration.R:74:5
+
+Failure ('test-worktree-integration.R:78:3'): Git Worktree Parallel Integration works
+Expected `dir.exists(file.path(tmp_repo, ".hydra_worktrees"))` to be FALSE.
+Differences:
+`actual`:   TRUE 
+`expected`: FALSE
+
+
+Failure ('test-worktree-integration.R:116:3'): Merge Conflict detection works
+Expected `results$status` to equal "paused".
+Differences:
+`actual`:   "completed"
+`expected`: "paused"   
+
+
+Failure ('test-worktree-integration.R:117:3'): Merge Conflict detection works
+Expected `results$paused_at` to equal "merge".
+Differences:
+`actual` is NULL
+`expected` is a character vector ('merge')
+
+────────────────────────────────────────────────────────────────────────────────
+
+══ Results ═════════════════════════════════════════════════════════════════════
+Duration: 1.0 s
+
+── Failed tests ────────────────────────────────────────────────────────────────
+Failure ('test-worktree-integration.R:67:3'): Git Worktree Parallel Integration works
+Expected `file.exists(file.path(tmp_repo, "file_a.txt"))` to be TRUE.
+Differences:
+`actual`:   FALSE
+`expected`: TRUE 
+
+
+Failure ('test-worktree-integration.R:68:3'): Git Worktree Parallel Integration works
+Expected `file.exists(file.path(tmp_repo, "file_b.txt"))` to be TRUE.
+Differences:
+`actual`:   FALSE
+`expected`: TRUE 
+
+
+Failure ('test-worktree-integration.R:73:5'): Git Worktree Parallel Integration works
+Expected `any(grepl("Node A commit", log))` to be TRUE.
+Differences:
+`actual`:   FALSE
+`expected`: TRUE 
+
+Backtrace:
+    ▆
+ 1. ├─withr::with_dir(...) at test-worktree-integration.R:71:3
+ 2. │ └─base::force(code)
+ 3. └─testthat::expect_true(any(grepl("Node A commit", log))) at test-worktree-integration.R:73:5
+
+Failure ('test-worktree-integration.R:74:5'): Git Worktree Parallel Integration works
+Expected `any(grepl("Node B commit", log))` to be TRUE.
+Differences:
+`actual`:   FALSE
+`expected`: TRUE 
+
+Backtrace:
+    ▆
+ 1. ├─withr::with_dir(...) at test-worktree-integration.R:71:3
+ 2. │ └─base::force(code)
+ 3. └─testthat::expect_true(any(grepl("Node B commit", log))) at test-worktree-integration.R:74:5
+
+Failure ('test-worktree-integration.R:78:3'): Git Worktree Parallel Integration works
+Expected `dir.exists(file.path(tmp_repo, ".hydra_worktrees"))` to be FALSE.
+Differences:
+`actual`:   TRUE 
+`expected`: FALSE
+
+
+Failure ('test-worktree-integration.R:116:3'): Merge Conflict detection works
+Expected `results$status` to equal "paused".
+Differences:
+`actual`:   "completed"
+`expected`: "paused"   
+
+
+Failure ('test-worktree-integration.R:117:3'): Merge Conflict detection works
+Expected `results$paused_at` to equal "merge".
+Differences:
+`actual` is NULL
+`expected` is a character vector ('merge')
+
+
+[ FAIL 7 | WARN 1 | SKIP 0 | PASS 1 ]
+Warning message:
+package ‘testthat’ was built under R version 4.5.2 

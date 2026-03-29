@@ -3,8 +3,17 @@
 \name{AgentLLMNode}
 \alias{AgentLLMNode}
 \title{Agent LLM Node R6 Class}
+\value{
+An `AgentLLMNode` R6 object.
+}
 \description{
 A specialized AgentNode that executes LLM calls via a Driver.
+}
+\examples{
+\dontrun{
+driver <- GeminiCLIDriver$new()
+node <- AgentLLMNode$new("research", role = "Researcher", driver = driver)
+}
 }
 \section{Super class}{
 \code{\link[HydraR:AgentNode]{HydraR::AgentNode}} -> \code{AgentLLMNode}

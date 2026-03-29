@@ -48,24 +48,24 @@ We use `AgentLLMNode` for the reasoning part and `AgentLogicNode` for the determ
 ```{r}
 # LLM Guesser Node
 executor_node <- AgentLLMNode$new(
-    id = "Guesser",
-    label = "LLM Guesser",
-    role = "You are an agent trying to guess a specific word. Your task is to output exactly one word in lowercase.",
-    driver = driver,
-    prompt_builder = function(state) {
-        "Guess the secret greeting word."
-    }
+  id = "Guesser",
+  label = "LLM Guesser",
+  role = "You are an agent trying to guess a specific word. Your task is to output exactly one word in lowercase.",
+  driver = driver,
+  prompt_builder = function(state) {
+    "Guess the secret greeting word."
+  }
 )
 
 # Deterministic Validator Node
 validator_node <- AgentLogicNode$new(
-    id = "Validator",
-    label = "Greeting Validator",
-    logic_fn = function(state, memory = NULL) {
-        guess <- tolower(trimws(state$get("Guesser")))
-        is_valid <- (guess == "hello")
-        list(status = "SUCCESS", output = list(valid = is_valid))
-    }
+  id = "Validator",
+  label = "Greeting Validator",
+  logic_fn = function(state, memory = NULL) {
+    guess <- tolower(trimws(state$get("Guesser")))
+    is_valid <- (guess == "hello")
+    list(status = "SUCCESS", output = list(valid = is_valid))
+  }
 )
 
 dag$add_node(executor_node)

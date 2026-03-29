@@ -3,8 +3,16 @@
 \name{AgentLogicNode}
 \alias{AgentLogicNode}
 \title{Agent Logic Node R6 Class}
+\value{
+An `AgentLogicNode` R6 object.
+}
 \description{
 A specialized AgentNode that executes a pure R function instead of an LLM call.
+}
+\examples{
+node <- AgentLogicNode$new("calculate", function(state) {
+  list(status = "success", output = list(result = 42))
+})
 }
 \section{Super class}{
 \code{\link[HydraR:AgentNode]{HydraR::AgentNode}} -> \code{AgentLogicNode}

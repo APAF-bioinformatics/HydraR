@@ -2,18 +2,18 @@
 % Please edit documentation in R/registry.R
 \name{register_logic}
 \alias{register_logic}
-\title{Register a Logic Component}
+\title{Register Logic Function}
 \usage{
 register_logic(name, fn)
 }
 \arguments{
-\item{name}{String. Unique name for the component.}
+\item{name}{String. Unique identifier for the function.}
 
-\item{fn}{Function. The R function to register.}
+\item{fn}{Function. The R function to store.}
 }
 \value{
-NULL (called for side effect).
+The registry environment (invisibly).
 }
 \description{
-Register a Logic Component
+Register Logic Function
 }

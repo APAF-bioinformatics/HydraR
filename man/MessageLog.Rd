@@ -18,6 +18,7 @@ Abstract base class for logging inter-agent messages.
 \if{html}{\out{<a id="method-MessageLog-log"></a>}}
 \if{latex}{\out{\hypertarget{method-MessageLog-log}{}}}
 \subsection{Method \code{log()}}{
+Store a message.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{MessageLog$log(msg)}\if{html}{\out{</div>}}
 }
@@ -25,16 +26,19 @@ Abstract base class for logging inter-agent messages.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{msg}}{List. Message object.
-Get all logs}
+\item{\code{msg}}{List. Message object.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The log object (invisibly).
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-MessageLog-get_all"></a>}}
 \if{latex}{\out{\hypertarget{method-MessageLog-get_all}{}}}
 \subsection{Method \code{get_all()}}{
+Get all logs.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{MessageLog$get_all()}\if{html}{\out{</div>}}
 }

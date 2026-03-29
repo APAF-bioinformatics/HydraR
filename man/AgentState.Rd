@@ -3,9 +3,16 @@
 \name{AgentState}
 \alias{AgentState}
 \title{Agent State R6 Class}
+\value{
+An `AgentState` R6 object.
+}
 \description{
 A strongly typed, centrally managed state object for passing data
 between nodes in an AgentDAG.
+}
+\examples{
+state <- AgentState$new(initial_data = list(topic = "R"))
+state$get("topic")
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

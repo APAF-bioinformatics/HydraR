@@ -97,7 +97,7 @@ evaluator_node <- AgentLogicNode$new(
     iteration <- state$get("total_evaluations")
     if (is.null(iteration)) iteration <- 0
     iteration <- iteration + 1
-    
+
     accuracy <- min(0.60 + (iteration * 0.10), 0.95)
 
     if (accuracy >= target) {
@@ -135,7 +135,7 @@ dag$add_conditional_edge(
     isTRUE(out$optimization_complete)
   },
   if_true = NULL, # Done!
-  if_false = "ModelTrainer" 
+  if_false = "ModelTrainer"
 )
 
 compiled_dag <- dag$compile()

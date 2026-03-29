@@ -29,9 +29,9 @@ MockDriver <- R6::R6Class("MockDriver",
 test_that("Blog Writer DAG loop works", {
   # Mock driver that starts with no "Approved" then returns it on the second call for Editor
   driver <- MockDriver$new(response = "Initial Content")
-  
+
   dag <- AgentDAG$new()
-  
+
   # 1. Outliner
   dag$add_node(AgentLLMNode$new(
     id = "Outliner",
@@ -39,7 +39,7 @@ test_that("Blog Writer DAG loop works", {
     driver = driver,
     prompt_builder = function(state) paste("Outline:", state$get("blog_topic"))
   ))
-  
+
   # 2. Drafter
   dag$add_node(AgentLLMNode$new(
     id = "Drafter",
@@ -47,12 +47,12 @@ test_that("Blog Writer DAG loop works", {
     driver = driver,
     prompt_builder = function(state) paste("Draft based on:", state$get("Outliner"))
   ))
-  
+
   # 3. Editor
   # We make the Editor LLM-based. For testing, it should eventually return "Approved".
   # We can mock the driver to return "Approved" if it sees "Draft based on" in the prompt for a certain number of times.
   # Or we just use a custom mock function if needed.
-  
+
   editor_node <- AgentLLMNode$new(
     id = "Editor",
     role = "Editor",
@@ -60,12 +60,12 @@ test_that("Blog Writer DAG loop works", {
     prompt_builder = function(state) paste("Review:", state$get("Drafter"))
   )
   dag$add_node(editor_node)
-  
+
   # Transitions
   dag$set_start_node("Outliner")
   dag$add_edge("Outliner", "Drafter")
   dag$add_edge("Drafter", "Editor")
-  
+
   # Inject loop success on second iteration
   loop_count <- 0
   dag$add_conditional_edge(
@@ -83,14 +83,14 @@ test_that("Blog Writer DAG loop works", {
     if_true = NULL,
     if_false = "Drafter"
   )
-  
-  compiled_dag <- dag$compile()
-  
+
+  capture_warnings(dag$compile())
+  compiled_dag <- dag
+
   result <- compiled_dag$run(
     initial_state = list(blog_topic = "R Agents"),
     max_steps = 10
   )
-  
   expect_equal(loop_count, 2)
   expect_equal(result$state$get("Editor"), "Approved")
 })

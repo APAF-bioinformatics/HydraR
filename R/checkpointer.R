@@ -160,6 +160,11 @@ RDSSaver <- R6::R6Class("RDSSaver",
 #' Persistent implementation of the Checkpointer interface using DuckDB.
 #' Supports both direct DBI connections and file paths.
 #'
+#' @return A `DuckDBSaver` R6 object.
+#' @examples
+#' \dontrun{
+#' saver <- DuckDBSaver$new(db_path = "checkpoints.duckdb")
+#' }
 #' @importFrom R6 R6Class
 #' @importFrom DBI dbExecute dbWriteTable dbGetQuery dbDisconnect dbConnect
 #' @export

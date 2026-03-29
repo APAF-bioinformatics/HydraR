@@ -11,6 +11,11 @@
 #' @description
 #' Abstract base class for CLI-based LLM drivers.
 #'
+#' @return An `AgentDriver` R6 object.
+#' @examples
+#' \dontrun{
+#' driver <- AgentDriver$new(id = "test", provider = "mock")
+#' }
 #' @importFrom R6 R6Class
 #' @importFrom purrr imap
 #' @export
@@ -35,7 +40,7 @@ AgentDriver <- R6::R6Class("AgentDriver",
     #' @param model_name String. Model identifier.
     #' @param validation_mode String. "warning" or "strict".
     #' @param working_dir String. Optional working directory.
-    initialize = function(id, provider = "unknown", model_name = "unknown", 
+    initialize = function(id, provider = "unknown", model_name = "unknown",
                           validation_mode = "warning", working_dir = NULL) {
       stopifnot(is.character(id) && length(id) == 1)
       stopifnot(validation_mode %in% c("warning", "strict"))
@@ -118,14 +123,18 @@ AgentDriver <- R6::R6Class("AgentDriver",
     #' @param cli_opts List. Named list to format.
     #' @return Character vector of CLI flags.
     format_cli_opts = function(cli_opts = list()) {
-      if (length(cli_opts) == 0) return(character(0))
+      if (length(cli_opts) == 0) {
+        return(character(0))
+      }
       self$validate_cli_opts(cli_opts)
       purrr::imap(cli_opts, function(val, key) {
         # Convert underscores to hyphens for CLI flags
         flag <- paste0("--", gsub("_", "-", key))
         # Boolean flags: if TRUE, return flag name only; if FALSE, return nothing
         if (is.logical(val)) {
-          if (isTRUE(val)) return(flag)
+          if (isTRUE(val)) {
+            return(flag)
+          }
           return(character(0))
         }
         # Multi-value flags: repeat the flag name for each value

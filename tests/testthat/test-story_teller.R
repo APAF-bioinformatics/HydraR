@@ -28,9 +28,9 @@ MockDriver <- R6::R6Class("MockDriver",
 
 test_that("Story Teller collaboration works", {
   driver <- MockDriver$new(response = "Story draft")
-  
+
   dag <- AgentDAG$new()
-  
+
   # 1. Writer
   dag$add_node(AgentLLMNode$new(
     id = "Writer",
@@ -38,7 +38,7 @@ test_that("Story Teller collaboration works", {
     driver = driver,
     prompt_builder = function(state) paste("Write story about:", state$get("story_prompt"))
   ))
-  
+
   # 2. Reviewer
   dag$add_node(AgentLLMNode$new(
     id = "Reviewer",
@@ -46,11 +46,11 @@ test_that("Story Teller collaboration works", {
     driver = driver,
     prompt_builder = function(state) paste("Review story:", state$get("Writer"))
   ))
-  
+
   # Transitions
   dag$set_start_node("Writer")
   dag$add_edge("Writer", "Reviewer")
-  
+
   # Inject loop success on second iteration
   loop_count <- 0
   dag$add_conditional_edge(
@@ -68,15 +68,14 @@ test_that("Story Teller collaboration works", {
     if_true = NULL, # Stop
     if_false = "Writer" # Loop back
   )
-  
-  compiled_dag <- dag$compile()
-  
-  # Run the DAG
-  result <- compiled_dag$run(
-    initial_state = list(story_prompt = "Robot chef"),
-    max_steps = 10
-  )
-  
+
+  capture_warnings(dag$compile())
+  compiled_dag <- dag
+# Run the DAG
+result <- compiled_dag$run(
+  initial_state = list(story_prompt = "A robot learning to cook."),
+  max_steps = 10
+)
   # Assertions
   expect_equal(loop_count, 2)
   expect_equal(result$state$get("Reviewer"), "Approved")

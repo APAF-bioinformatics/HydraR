@@ -3,6 +3,9 @@
 \name{ConflictResolver}
 \alias{ConflictResolver}
 \title{Git Conflict Resolver R6 Class}
+\value{
+A `ConflictResolver` R6 object.
+}
 \description{
 Handles semantic or git-level conflicts during branch merges.
 Used by Conflict Harmonizer nodes.
@@ -38,10 +41,13 @@ Initialize ConflictResolver}
 \describe{
 \item{\code{strategy}}{Conflict resolution strategy.}
 
-\item{\code{driver}}{Optional LLM driver for semantic resolution.
-Resolve a Conflict}
+\item{\code{driver}}{Optional LLM driver for semantic resolution.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new `ConflictResolver` object.
+Resolve a Conflict
 }
 }
 \if{html}{\out{<hr>}}
