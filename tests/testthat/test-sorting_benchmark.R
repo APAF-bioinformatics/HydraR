@@ -97,14 +97,13 @@ test_that("Parallel Sorting Benchmark workflow executes successfully", {
           return(list(status = "failed", error = "No data"))
         }
 
-        # TEST FIX: Graphics device suppression
-        pdf(NULL)
-        on.exit(if (dev.cur() > 1) dev.off())
-
         p <- ggplot(df, aes(x = method, y = time, fill = method)) +
           geom_boxplot()
-        # Verify print doesn't crash in parallel worker
-        print(p)
+        
+        # Save plot to the repo_root for access
+        plot_path <- file.path(state$get("repo_root"), "test_sorting_benchmark.pdf")
+        ggsave(plot_path, p, width = 8, height = 6)
+        
         list(status = "success", output = "Plot rendered.")
       }))
     }
@@ -166,6 +165,13 @@ test_that("Parallel Sorting Benchmark workflow executes successfully", {
     expect_true("quick_sort.R" %in% merged_files)
     expect_true("merge_sort.R" %in% merged_files)
   })
+
+  # Save Trace and Copy PDF to project root for user access
+  # Use ../.. if running inside tests/testthat, else current dir
+  proj_root <- if (dir.exists("../..") && dir.exists("../../tests")) "../.." else "."
+  
+  compiled_dag$save_trace(file.path(proj_root, "sorting_trace.json"))
+  file.copy(file.path(repo_root, "test_sorting_benchmark.pdf"), file.path(proj_root, "sorting_benchmark.pdf"), overwrite = TRUE)
 })
 
 # <!-- APAF Bioinformatics | test-sorting_benchmark.R | Approved | 2026-03-30 -->
