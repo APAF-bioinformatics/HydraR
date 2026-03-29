@@ -1,5 +1,9 @@
 # HydraR: Stateful Agentic Orchestration for R
 
+[![R-CMD-check](https://github.com/APAF-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/APAF-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml)
+[![Test
+Coverage](https://github.com/APAF-bioinformatics/HydraR/actions/workflows/test-coverage.yaml/badge.svg)](https://app.codecov.io/gh/APAF-bioinformatics/HydraR)
+
 `HydraR` is a lightweight, state-of-the-art orchestrator for building
 general-purpose agentic workflows in R. It prioritizes **CLI-native LLM
 interactions**, **hardened state management**, and **graph-based
@@ -315,6 +319,14 @@ Helper functions for mermaid visualization and code extraction.
   Assistant](https://github.com/APAF-bioinformatics/HydraR/articles/software_bug_assistant.md):
 - [Agentic Story
   Teller](https://github.com/APAF-bioinformatics/HydraR/articles/story_teller.md):
+- [Gemini CLI Driver
+  Demo](https://github.com/APAF-bioinformatics/HydraR/articles/gemini_cli_demo.md):
+- [Hello World Logic
+  Nodes](https://github.com/APAF-bioinformatics/HydraR/articles/hello_world_logic.md):
+- [Advanced Mermaid
+  Parameters](https://github.com/APAF-bioinformatics/HydraR/articles/parameterized_mermaid.md):
+- [Mermaid Round-Trip
+  Visualization](https://github.com/APAF-bioinformatics/HydraR/articles/round_trip_demo.md):
 
 ### Developer Guides
 

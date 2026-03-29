@@ -99,6 +99,10 @@ articles:
       - personalized_shopping
       - software_bug_assistant
       - story_teller
+      - gemini_cli_demo
+      - hello_world_logic
+      - parameterized_mermaid
+      - round_trip_demo
   - title: Developer Guides
     navbar: Guides
     contents:

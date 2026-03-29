@@ -1,0 +1,88 @@
+---
+title: "Hello World Logic Nodes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Hello World Logic Nodes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = TRUE
+)
+```
+
+This vignette provides a basic "Hello World" example of `HydraR` logic nodes, demonstrating simple data processing and state persistence.
+
+## Setup
+
+```{r setup}
+library(HydraR)
+```
+
+## Defining Logic Nodes
+
+Logic nodes perform computation on the project state. We define two: one to collect input and another to transform it.
+
+```{r nodes}
+# 1. Collect Input Node
+node_input <- AgentLogicNode$new(
+  id = "collect_input",
+  logic_fn = function(state) {
+    list(status = "SUCCESS", output = list(input_raw = state$get("input")))
+  }
+)
+
+# 2. Process Data Node
+node_process <- AgentLogicNode$new(
+  id = "process_data",
+  logic_fn = function(state) {
+    raw <- state$get("input_raw")
+    res <- paste0("HYDRAR says: ", toupper(raw))
+    list(status = "SUCCESS", output = list(processed_result = res))
+  }
+)
+```
+
+## Assembling the DAG
+
+Next, we add these nodes to an `AgentDAG` and connect them.
+
+```{r dag}
+dag <- AgentDAG$new()
+dag$add_node(node_input)
+dag$add_node(node_process)
+dag$add_edge("collect_input", "process_data")
+dag$compile()
+```
+
+## Running with the Checkpointer
+
+We use a `MemorySaver` to persist the state throughout the run.
+
+```{r running}
+checkpointer <- MemorySaver$new()
+thread_id <- "hello_test_run"
+
+final <- dag$run(
+  initial_state = list(input = "hello hydra"),
+  checkpointer = checkpointer,
+  thread_id = thread_id
+)
+
+print(final$results$process_data$output$processed_result)
+```
+
+## Verifying Checkpoint Restoration
+
+The `Checkpointer` allows us to verify the final state.
+
+```{r restore}
+restored <- checkpointer$get(thread_id)
+print(restored$get("processed_result"))
+```
+
+<!-- APAF Bioinformatics | hello_world_logic.Rmd | Approved | 2026-03-29 -->
