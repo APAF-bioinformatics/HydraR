@@ -4,7 +4,7 @@
 \alias{add_llm_node}
 \title{Create an LLM Agent Node easily}
 \usage{
-add_llm_node(id, role, driver, ...)
+add_llm_node(id, role, driver, model = NULL, cli_opts = list(), ...)
 }
 \arguments{
 \item{id}{String. Unique identifier for the node.}
@@ -12,6 +12,10 @@ add_llm_node(id, role, driver, ...)
 \item{role}{String. System prompt/role for the agent.}
 
 \item{driver}{AgentDriver object.}
+
+\item{model}{String. Optional model override.}
+
+\item{cli_opts}{List. Optional CLI options.}
 
 \item{...}{Additional arguments passed to AgentLLMNode$new()}
 }

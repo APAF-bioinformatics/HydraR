@@ -30,7 +30,18 @@ AgentState <- R6::R6Class("AgentState",
     #' @param schema Named list of expected types.
     initialize = function(initial_data = list(), reducers = list(), schema = list()) {
       self$data <- new.env(parent = emptyenv())
-      self$reducers <- reducers
+      
+      # Resolve reducers if they are character names
+      self$reducers <- purrr::map(reducers, function(fn_or_name) {
+        if (is.character(fn_or_name)) {
+          resolved <- get_logic(fn_or_name)
+          if (is.null(resolved)) stop(sprintf("Reducer '%s' not found in Logic Registry.", fn_or_name))
+          return(resolved)
+        }
+        fn_or_name
+      })
+      
+      # Resolve schema if keys are names (optional enhancement)
       self$schema <- schema
 
       if (is.list(initial_data)) {
@@ -107,6 +118,27 @@ AgentState <- R6::R6Class("AgentState",
         }
       })
       invisible(self)
+    },
+
+    #' Export state for persistence (logic as names)
+    #' @return List.
+    to_list_serializable = function() {
+      # Find names for reducers in registry
+      reducer_names <- purrr::map(self$reducers, function(fn) {
+        # Look up in registry
+        all_logic <- ls(envir = .hydra_registry)
+        match_idx <- purrr::detect_index(all_logic, function(name) {
+          identical(get(name, envir = .hydra_registry), fn)
+        })
+        if (match_idx > 0) return(all_logic[match_idx])
+        return(NULL) # anonymous function, not serializable to JSON readability cleanly
+      })
+
+      list(
+        data = self$get_all(),
+        reducers = reducer_names,
+        schema = self$schema
+      )
     }
   )
 )

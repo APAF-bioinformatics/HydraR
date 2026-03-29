@@ -4,7 +4,7 @@
 \alias{dag_add_llm_node}
 \title{Add an LLM Agent Node directly to a DAG}
 \usage{
-dag_add_llm_node(dag, id, role, driver, ...)
+dag_add_llm_node(dag, id, role, driver, model = NULL, cli_opts = list(), ...)
 }
 \arguments{
 \item{dag}{AgentDAG object.}
@@ -14,6 +14,10 @@ dag_add_llm_node(dag, id, role, driver, ...)
 \item{role}{String. System prompt/role for the agent.}
 
 \item{driver}{AgentDriver object.}
+
+\item{model}{String. Optional model override.}
+
+\item{cli_opts}{List. Optional CLI options.}
 
 \item{...}{Additional arguments passed to AgentLLMNode$new()}
 }

@@ -9,7 +9,17 @@ Abstract base class for CLI-based LLM drivers.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{id}}{String. Unique identifier for the driver.
+\item{\code{id}}{String. Unique identifier for the driver.}
+
+\item{\code{provider}}{String. Provider name (e.g., "google", "ollama").}
+
+\item{\code{model_name}}{String. The specific model identifier.}
+
+\item{\code{supported_opts}}{Character vector. Allowed CLI option names.}
+
+\item{\code{validation_mode}}{String. Either "warning" or "strict".}
+
+\item{\code{working_dir}}{String. Optional path to the working directory/worktree.
 Initialize AgentDriver}
 }
 \if{html}{\out{</div>}}
@@ -18,7 +28,11 @@ Initialize AgentDriver}
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-AgentDriver-new}{\code{AgentDriver$new()}}
+\item \href{#method-AgentDriver-get_capabilities}{\code{AgentDriver$get_capabilities()}}
+\item \href{#method-AgentDriver-exec_in_dir}{\code{AgentDriver$exec_in_dir()}}
 \item \href{#method-AgentDriver-call}{\code{AgentDriver$call()}}
+\item \href{#method-AgentDriver-validate_cli_opts}{\code{AgentDriver$validate_cli_opts()}}
+\item \href{#method-AgentDriver-format_cli_opts}{\code{AgentDriver$format_cli_opts()}}
 \item \href{#method-AgentDriver-clone}{\code{AgentDriver$clone()}}
 }
 }
@@ -27,16 +41,69 @@ Initialize AgentDriver}
 \if{latex}{\out{\hypertarget{method-AgentDriver-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AgentDriver$new(id)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{AgentDriver$new(
+  id,
+  provider = "unknown",
+  model_name = "unknown",
+  validation_mode = "warning",
+  working_dir = NULL
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{id}}{Unique identifier.
-Call the LLM}
+\item{\code{id}}{Unique identifier.}
+
+\item{\code{provider}}{String. Provider name.}
+
+\item{\code{model_name}}{String. Model identifier.}
+
+\item{\code{validation_mode}}{String. "warning" or "strict".}
+
+\item{\code{working_dir}}{String. Optional working directory.
+Get Driver Capabilities}
 }
 \if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AgentDriver-get_capabilities"></a>}}
+\if{latex}{\out{\hypertarget{method-AgentDriver-get_capabilities}{}}}
+\subsection{Method \code{get_capabilities()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{AgentDriver$get_capabilities()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+List of logicals.
+Execute Command in Working Directory
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AgentDriver-exec_in_dir"></a>}}
+\if{latex}{\out{\hypertarget{method-AgentDriver-exec_in_dir}{}}}
+\subsection{Method \code{exec_in_dir()}}{
+Safely executes a system command within the specified 'working_dir'
+using 'withr::with_dir' to ensure the original CWD is restored.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{AgentDriver$exec_in_dir(command, args, ...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{command}}{String. The command to run.}
+
+\item{\code{args}}{Character vector. Command arguments.}
+
+\item{\code{...}}{Additional arguments passed to system2.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Result of system2 call.
+Call the LLM
 }
 }
 \if{html}{\out{<hr>}}
@@ -44,7 +111,7 @@ Call the LLM}
 \if{latex}{\out{\hypertarget{method-AgentDriver-call}{}}}
 \subsection{Method \code{call()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AgentDriver$call(prompt, model = NULL, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{AgentDriver$call(prompt, model = NULL, cli_opts = list(), ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -54,12 +121,54 @@ Call the LLM}
 
 \item{\code{model}}{String. Optional model override.}
 
+\item{\code{cli_opts}}{List. Named list of CLI options.}
+
 \item{\code{...}}{Additional arguments.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
 String. Cleaned response from the LLM.
+Validate CLI Options
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AgentDriver-validate_cli_opts"></a>}}
+\if{latex}{\out{\hypertarget{method-AgentDriver-validate_cli_opts}{}}}
+\subsection{Method \code{validate_cli_opts()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{AgentDriver$validate_cli_opts(cli_opts)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{cli_opts}}{List. Named list to validate.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Invisible TRUE if valid.
+Format CLI Options
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AgentDriver-format_cli_opts"></a>}}
+\if{latex}{\out{\hypertarget{method-AgentDriver-format_cli_opts}{}}}
+\subsection{Method \code{format_cli_opts()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{AgentDriver$format_cli_opts(cli_opts = list())}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{cli_opts}}{List. Named list to format.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character vector of CLI flags.
 }
 }
 \if{html}{\out{<hr>}}

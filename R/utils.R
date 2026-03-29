@@ -21,9 +21,11 @@ extract_r_code_advanced <- function(raw) {
   matches <- regmatches(raw, gregexpr("(?s)```[rR]\\s*\\n(.*?)```", raw, perl = TRUE))[[1]]
 
   if (length(matches) > 0) {
-    # Strip the fences from the first block
-    code <- gsub("^```[rR]\\s*\\n?|\\n?```$", "", matches[1])
-    return(trimws(code))
+    # Strip the fences from all blocks and concatenate
+    clean_blocks <- purrr::map_chr(matches, function(m) {
+      gsub("^```[rR]\\s*\\n?|\\n?```$", "", m)
+    })
+    return(trimws(paste(clean_blocks, collapse = "\n\n")))
   }
 
   # 2. Fallback: Entire text if it looks like R code (heuristic)

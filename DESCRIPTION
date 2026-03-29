@@ -13,13 +13,16 @@ Authors@R: c(person(given = "Ignatius",
              person(given = c("APAF", "Agentic"),
                     family = "Workflow",
                     role = "cre",
-                    email = "ignatius.pang@mq.edu.au"))
-Description: A professional framework for orchestrating complex agentic
-    workflows in R. HydraR provides a robust, state-managed engine for
-    Directed Acyclic Graphs (DAGs) and iterative loops, prioritizing 
-    CLI-native LLM interactions (e.g., Gemini, Claude, Copilot) and 
-    hardened state persistence for reproducible scientific research and 
-    automated bioinformatics pipelines.
+                    Title: Scientific Agentic Orchestration and Reproducible Workflows
+                    Description: A high-performance framework for orchestrating complex 
+                        agentic workflows in R, specifically designed for scientific 
+                        reproducibility. HydraR provides a robust, state-managed engine 
+                        for Directed Acyclic Graphs (DAGs) and iterative loops, 
+                        prioritizing CLI-native LLM interactions (e.g., Gemini, Claude, 
+                        Copilot) and hardened state persistence (DuckDB/SQLite). It 
+                        enables the creation of auditable, resumable, and scalable 
+                        bioinformatics pipelines and automated research assistants with 
+                        a single source of truth for all agentic decisions.
 URL: https://github.com/APAF-bioinformatics/HydraR
 BugReports: https://github.com/APAF-bioinformatics/HydraR/issues
 License: LGPL (>= 3) + file LICENSE
@@ -29,16 +32,18 @@ Depends:
     R (>= 4.1.0)
 Imports: 
     DBI,
+    digest,
     furrr,
     igraph,
     jsonlite,
     purrr,
-    R6
+    R6,
+    withr
 Suggests: 
     testthat (>= 3.0.0),
     duckdb,
     knitr,
     rmarkdown,
-    withr
+    httr2
 VignetteBuilder: knitr
 Config/testthat/edition: 3

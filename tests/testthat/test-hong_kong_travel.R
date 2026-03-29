@@ -49,11 +49,11 @@ test_that("Hong Kong planning loop works", {
       
       found <- sapply(must_include, function(x) grepl(x, itinerary, ignore.case = TRUE))
       if (all(found)) {
-        list(status = "SUCCESS", output = list(validation_passed = TRUE))
+        list(status = "success", output = list(validation_passed = TRUE))
       } else {
         # Update driver to include the missing item in the next call
         driver$response <- "Visit Cheung Chau Island and Spaghetti House!"
-        list(status = "SUCCESS", output = list(validation_passed = FALSE))
+        list(status = "success", output = list(validation_passed = FALSE))
       }
     }
   ))

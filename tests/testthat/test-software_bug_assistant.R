@@ -46,11 +46,11 @@ test_that("Software Bug Assistant loop works", {
     logic_fn = function(state) {
       patch <- state$get("Analyzer")
       if (grepl("is.null", patch)) {
-        list(status = "SUCCESS", output = list(tests_passed = TRUE))
+        list(status = "success", output = list(tests_passed = TRUE))
       } else {
         # Update driver for next call
         driver$response <- "Use is.null(x)"
-        list(status = "SUCCESS", output = list(tests_passed = FALSE))
+        list(status = "success", output = list(tests_passed = FALSE))
       }
     }
   ))

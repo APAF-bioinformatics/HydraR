@@ -14,6 +14,7 @@
 #' Supports both pure DAG execution (parallel) and iterative loops via conditional edges.
 #'
 #' @importFrom R6 R6Class
+#' @importFrom digest digest
 #' @importFrom jsonlite toJSON fromJSON write_json
 #' @importFrom igraph graph_from_data_frame is_dag topo_sort edge V vcount make_empty_graph degree is_connected components bfs
 #' @importFrom furrr future_map
@@ -37,6 +38,10 @@ AgentDAG <- R6::R6Class("AgentDAG",
     start_node = NULL,
     #' @field state AgentState. Centralized state object.
     state = NULL,
+    #' @field message_log MessageLog. Optional audit log.
+    message_log = NULL,
+    #' @field worktree_manager WorktreeManager. Optional isolation manager.
+    worktree_manager = NULL,
 
     #' @description
     #' Initialize AgentDAG
@@ -49,12 +54,19 @@ AgentDAG <- R6::R6Class("AgentDAG",
       self$graph <- NULL
       self$start_node <- NULL
       self$state <- NULL
+      self$message_log <- NULL
+      self$worktree_manager <- NULL
     },
 
     #' Set Start Node
     #' @param node_id String node ID.
     set_start_node = function(node_id) {
-      stopifnot(is.character(node_id) && node_id %in% names(self$nodes))
+      if (!is.character(node_id) || length(node_id) != 1) {
+        stop("node_id must be a single string.")
+      }
+      if (!node_id %in% names(self$nodes)) {
+        stop(sprintf("Node '%s' not found in DAG. Add the node before setting it as start.", node_id))
+      }
       self$start_node <- node_id
       invisible(self)
     },
@@ -62,7 +74,9 @@ AgentDAG <- R6::R6Class("AgentDAG",
     #' Add a Node
     #' @param node AgentNode object.
     add_node = function(node) {
-      stopifnot(inherits(node, "AgentNode"))
+      if (!inherits(node, "AgentNode")) {
+        stop(sprintf("node must be an AgentNode object (received: %s).", class(node)[1]))
+      }
       if (node$id %in% names(self$nodes)) {
         stop(sprintf("Node ID '%s' already exists in DAG.", node$id))
       }
@@ -74,7 +88,9 @@ AgentDAG <- R6::R6Class("AgentDAG",
     #' @param from String or character vector of node IDs.
     #' @param to String node ID.
     add_edge = function(from, to) {
-      stopifnot(is.character(from) && is.character(to))
+      if (!is.character(from)) stop("from must be a character vector of node IDs.")
+      if (!is.character(to) || length(to) != 1) stop("to must be a single string node ID.")
+      
       new_edges <- data.frame(from = from, to = to, stringsAsFactors = FALSE)
       self$edges[[length(self$edges) + 1]] <- new_edges
       self$graph <- NULL # Invalidate cache
@@ -87,8 +103,10 @@ AgentDAG <- R6::R6Class("AgentDAG",
     #' @param if_true String node ID (next node if test is TRUE) or NULL to stop.
     #' @param if_false String node ID (next node if test is FALSE) or NULL to stop.
     add_conditional_edge = function(from, test, if_true, if_false = NULL) {
-      stopifnot(is.character(from) && from %in% names(self$nodes))
-      stopifnot(is.function(test))
+      if (!is.character(from) || length(from) != 1 || !from %in% names(self$nodes)) {
+        stop(sprintf("from node '%s' must be an existing node ID string.", from))
+      }
+      if (!is.function(test)) stop("test must be a function.")
 
       if (!is.null(if_true)) {
         if (!is.character(if_true) || !if_true %in% names(self$nodes)) {
@@ -116,44 +134,40 @@ AgentDAG <- R6::R6Class("AgentDAG",
     #' @param checkpointer Checkpointer object. Optional.
     #' @param thread_id String. Identifier for the execution thread. Required if using checkpointer.
     #' @param resume_from String. Node ID to resume execution from.
+    #' @param use_worktrees Logical. Whether to use isolated git worktrees for parallel branches.
+    #' @param repo_root String. Path to the main git repository.
+    #' @param cleanup_policy String. "auto", "none", or "aggressive".
     #' @return List of results for each node, and the final state.
-    run = function(initial_state = NULL, max_steps = 25, checkpointer = NULL, thread_id = NULL, resume_from = NULL) {
+    run = function(initial_state = NULL, 
+                  max_steps = 25, 
+                  checkpointer = NULL, 
+                  thread_id = NULL, 
+                  resume_from = NULL,
+                  use_worktrees = FALSE,
+                  repo_root = getwd(),
+                  cleanup_policy = "auto") {
       self$compile()
+      
+      # 1. Thread and State Initialization
+      if (is.null(thread_id)) {
+        thread_id <- paste0("run-", substr(digest::digest(Sys.time()), 1, 8))
+      }
 
-      # Preallocation of results and trace log
-      # For linear execution, we know the exact number of nodes.
-      # For iterative, we use max_steps as the upper bound.
+      # Preallocation
       self$results <- vector("list", length(self$nodes))
       names(self$results) <- names(self$nodes)
-
       self$trace_log <- vector("list", max_steps)
 
+      # 2. Checkpoint/State Recovery
       if (!is.null(checkpointer)) {
         stopifnot(inherits(checkpointer, "Checkpointer"))
-        if (is.null(thread_id)) stop("thread_id must be provided when using a checkpointer.")
-
-        # Try to load state from checkpointer
         loaded_state <- checkpointer$get(thread_id)
         if (!is.null(loaded_state)) {
           cat(sprintf("[Iteration] Restored state from checkpoint for thread: %s\n", thread_id))
-
-          if (is.null(initial_state)) {
-            self$state <- loaded_state
-          } else {
-            # Merge restored data into the provided initial state configuration
-            if (inherits(initial_state, "AgentState")) {
-              self$state <- initial_state
-              restored_data <- loaded_state$get_all()
-              purrr::iwalk(restored_data, function(val, k) {
-                self$state$set(k, val)
-              })
-            } else {
-              self$state <- AgentState$new(initial_state)
-              restored_data <- loaded_state$get_all()
-              purrr::iwalk(restored_data, function(val, k) {
-                self$state$set(k, val)
-              })
-            }
+          self$state <- if (is.null(initial_state)) loaded_state else {
+            s <- if (inherits(initial_state, "AgentState")) initial_state else AgentState$new(initial_state)
+            purrr::iwalk(loaded_state$get_all(), ~s$set(.y, .x))
+            s
           }
         } else {
           if (is.null(initial_state)) stop("initial_state cannot be NULL if no checkpoint exists.")
@@ -164,16 +178,36 @@ AgentDAG <- R6::R6Class("AgentDAG",
         self$state <- if (inherits(initial_state, "AgentState")) initial_state else AgentState$new(initial_state)
       }
 
-      # Check for auto-resume
+      # 3. Unified Worktree Initialization
+      if (use_worktrees) {
+        cat(sprintf("[Worktree] Initializing WorktreeManager for thread: %s\n", thread_id))
+        self$worktree_manager <- WorktreeManager$new(
+          repo_root = repo_root %||% getwd(),
+          thread_id = thread_id,
+          cleanup_policy = cleanup_policy
+        )
+        # Store in state so nodes (like MergeHarmonizer) can find it
+        self$state$set("__worktree_manager__", self$worktree_manager)
+      }
+
+      # 4. Resume Logic
       auto_resume_nodes <- self$state$get("__next_nodes__")
       if (is.null(resume_from) && !is.null(auto_resume_nodes)) {
         resume_from <- auto_resume_nodes
       }
 
+      # 5. Unified Execution Routing
+      # If worktrees are enabled, we MUST use iterative mode to handle branch isolation.
+      if (use_worktrees) {
+        return(self$.run_iterative(max_steps, checkpointer, thread_id, resume_from))
+      }
+
+      # Default to linear if pure DAG and no complex features requested
       if (length(self$conditional_edges) == 0 && igraph::is_dag(self$graph)) {
         return(self$.run_linear(checkpointer, thread_id, resume_from))
       }
 
+      # Fallback to iterative for cycles and conditional logic
       return(self$.run_iterative(max_steps, checkpointer, thread_id, resume_from))
     },
 
@@ -185,7 +219,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
     #' @param depth Integer current recursion depth.
     #' @param step_count Integer current total step count.
     #' @return Execution result list.
-    .run_linear = function(checkpointer = NULL, thread_id = NULL, resume_from = NULL, node_ids = NULL, depth = 0, step_count = 0) {
+    .run_linear = function(checkpointer = NULL, thread_id = NULL, resume_from = NULL, node_ids = NULL, step_count = 0) {
       if (is.null(node_ids)) {
         topo_order <- igraph::topo_sort(self$graph)
         node_ids <- names(igraph::V(self$graph)[topo_order])
@@ -199,67 +233,63 @@ AgentDAG <- R6::R6Class("AgentDAG",
         }
       }
 
-      if (length(node_ids) == 0) {
-        # Trim unused preallocated trace log slots
-        if (step_count < length(self$trace_log)) {
-          self$trace_log <- self$trace_log[seq_len(step_count)]
+      # Use purrr::walk instead of while to comply with APAF Zero-Tolerance Policy
+      paused_at <- NULL
+      purrr::walk(seq_along(node_ids), function(i) {
+        if (!is.null(paused_at)) return()
+        
+        node_id <- node_ids[1]
+        node_ids <<- node_ids[-1]
+        
+        if ((step_count + 1) > length(self$trace_log)) {
+          warning(sprintf("Execution limit reached in .run_linear for thread: %s. Saving state for restart.", thread_id %||% "unknown"))
+          paused_at <<- node_id
+          return()
         }
-        self$state$set("__next_nodes__", NULL)
+
+        cat(sprintf("[Linear] Running Node: %s\n", node_id))
+        restricted_state <- RestrictedState$new(self$state, node_id, self$message_log)
+        
+        start_time <- Sys.time()
+        res <- self$nodes[[node_id]]$run(restricted_state)
+        end_time <- Sys.time()
+
+        self$results[[node_id]] <<- res
+
+        if (!is.null(res$output)) {
+          if (is.list(res$output)) {
+            self$state$update(res$output)
+          } else {
+            self$state$update(setNames(list(res$output), node_id))
+          }
+        }
+
+        step_count <<- step_count + 1
+        self$trace_log[[step_count]] <<- list(
+          step = step_count, node = node_id, mode = "linear",
+          start_time = as.character(start_time), end_time = as.character(end_time),
+          duration_secs = as.numeric(difftime(end_time, start_time, units = "secs")),
+          status = res$status, error = res$error
+        )
+
         if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
-        return(list(results = self$results, state = self$state, status = "completed"))
-      }
 
-      if (depth >= 100 || (step_count + 1) > length(self$trace_log)) {
-        reason <- if (depth >= 100) "recursion_limit" else "max_steps_limit"
-        warning(sprintf("Execution limit reached in .run_linear for thread: %s. Saving state for restart.", thread_id %||% "unknown"))
+        if (!is.null(res$status) && res$status == "pause") {
+          paused_at <<- node_id
+        }
+      })
 
-        # Trim trace log
+      if (!is.null(paused_at)) {
         self$trace_log <- self$trace_log[seq_len(step_count)]
-
-        self$state$set("__next_nodes__", node_ids)
+        self$state$set("__next_nodes__", if (length(node_ids) > 0) node_ids else NULL)
         if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
-        return(list(results = self$results, state = self$state, status = "paused", paused_at = node_ids[1], reason = reason))
+        return(list(results = self$results, state = self$state, status = "paused", paused_at = paused_at))
       }
 
-      node_id <- node_ids[1]
-      cat(sprintf("[Linear] Running Node: %s\n", node_id))
-      start_time <- Sys.time()
-      res <- self$nodes[[node_id]]$run(self$state)
-      end_time <- Sys.time()
-
-      self$results[[node_id]] <- res
-
-      if (!is.null(res$output)) {
-        if (is.list(res$output)) {
-          self$state$update(res$output)
-        } else {
-          self$state$update(setNames(list(res$output), node_id))
-        }
-      }
-
-      step_idx <- step_count + 1
-      self$trace_log[[step_idx]] <- list(
-        step = step_idx,
-        node = node_id,
-        mode = "linear",
-        start_time = as.character(start_time),
-        end_time = as.character(end_time),
-        duration_secs = as.numeric(difftime(end_time, start_time, units = "secs")),
-        status = res$status,
-        error = res$error
-      )
-
+      self$trace_log <- self$trace_log[seq_len(step_count)]
+      self$state$set("__next_nodes__", NULL)
       if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
-
-      if (!is.null(res$status) && res$status == "pause") {
-        # Trim trace log
-        self$trace_log <- self$trace_log[seq_len(step_idx)]
-        self$state$set("__next_nodes__", node_ids[-1])
-        if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
-        return(list(results = self$results, state = self$state, status = "paused", paused_at = node_id))
-      }
-
-      return(self$.run_linear(checkpointer, thread_id, NULL, node_ids[-1], depth + 1, step_idx))
+      return(list(results = self$results, state = self$state, status = "completed"))
     },
 
     #' Internal: Iterative State Machine Execution
@@ -270,119 +300,132 @@ AgentDAG <- R6::R6Class("AgentDAG",
     #' @param current_nodes Character vector.
     #' @param step_count Integer.
     #' @param depth Integer. Current recursion depth.
-    .run_iterative = function(max_steps, checkpointer = NULL, thread_id = NULL, resume_from = NULL, current_nodes = NULL, step_count = 0, depth = 0) {
-      if (is.null(current_nodes)) {
-        if (!is.null(resume_from)) {
-          current_nodes <- resume_from
-          cat(sprintf("[Resuming] Resuming Iterative DAG Execution from node(s): %s\n", paste(resume_from, collapse = ", ")))
-        } else {
-          current_nodes <- if (!is.null(self$start_node)) {
-            self$start_node
-          } else {
-            names(igraph::V(self$graph)[igraph::degree(self$graph, mode = "in") == 0])
-          }
-          if (length(current_nodes) == 0) stop("No start nodes found.")
-        }
+    .run_iterative = function(max_steps, checkpointer = NULL, thread_id = NULL, resume_from = NULL, step_count = 0) {
+      current_nodes <- if (!is.null(resume_from)) {
+        cat(sprintf("[Resuming] Resuming Iterative DAG Execution from node(s): %s\n", paste(resume_from, collapse = ", ")))
+        resume_from
+      } else if (!is.null(self$start_node)) {
+        self$start_node
+      } else {
+        names(igraph::V(self$graph)[igraph::degree(self$graph, mode = "in") == 0])
       }
 
-      if (length(current_nodes) == 0 || step_count >= max_steps) {
-        if (step_count >= max_steps) warning("Reached max_steps.")
-        # Trim trace log
-        if (step_count < length(self$trace_log)) {
-          self$trace_log <- self$trace_log[seq_len(step_count)]
-        }
-        self$state$set("__next_nodes__", NULL)
-        if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
-        return(list(results = self$results, state = self$state, status = "completed"))
-      }
+      if (length(current_nodes) == 0) stop("No start nodes found.")
 
-      if (depth >= 100) {
-        warning(sprintf("Recursion limit (100) reached in .run_iterative for thread: %s. Saving state for restart.", thread_id %||% "unknown"))
-        # Trim trace log
-        self$trace_log <- self$trace_log[seq_len(step_count)]
-        self$state$set("__next_nodes__", current_nodes)
-        if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
-        return(list(results = self$results, state = self$state, status = "paused", paused_at = current_nodes[1], reason = "recursion_limit"))
-      }
-
-      # Preallocate space for potential children (max out-degree approximation or dynamic growth)
-      # Since iterative step nodes can be multiple, we collect them.
-      next_queue_list <- vector("list", length(current_nodes))
+      # Use purrr::walk instead of while/for to comply with APAF Zero-Tolerance Policy
       paused_at <- NULL
-      actual_steps_in_this_recursion <- 0
-
-      # Using imap to track index for preallocation assignment if needed,
-      # but trace_log is sequential across recursive calls.
-      purrr::walk(current_nodes, function(node_id) {
-        if (!is.null(paused_at)) {
+      completed <- FALSE
+      
+      purrr::walk(seq_len(max_steps), function(step_idx) {
+        if (!is.null(paused_at) || completed || step_count >= max_steps) return()
+        if (length(current_nodes) == 0) {
+          completed <<- TRUE
           return()
         }
 
-        step_idx <- step_count + actual_steps_in_this_recursion + 1
-        if (step_idx > length(self$trace_log)) {
-          return()
-        } # Safety check
+        next_queue <- character(0)
 
-        cat(sprintf("[Iteration %d] Running Node: %s\n", step_idx, node_id))
-        start_time <- Sys.time()
-        res <- self$nodes[[node_id]]$run(self$state)
-        end_time <- Sys.time()
+        # Parallel Execution Block
+        nodes_to_run_parallel <- if (!is.null(self$worktree_manager)) current_nodes else character(0)
+        
+        if (length(nodes_to_run_parallel) > 0) {
+          cat(sprintf("[Parallel] Executing %d nodes in isolated worktrees using furrr...\n", length(nodes_to_run_parallel)))
+          self$state$set("__worktree_manager__", self$worktree_manager)
+          purrr::walk(nodes_to_run_parallel, ~self$worktree_manager$create(.x))
+          
+          parallel_results <- furrr::future_map(nodes_to_run_parallel, function(node_id) {
+            node <- self$nodes[[node_id]]
+            wt_path <- self$worktree_manager$get_path(node_id)
+            if (inherits(node, "AgentLLMNode") && !is.null(node$driver)) {
+              node$driver$working_dir <- wt_path
+            }
+            withr::with_dir(wt_path, {
+              restricted_state <- RestrictedState$new(self$state, node_id, self$message_log)
+              st <- Sys.time()
+              res <- node$run(restricted_state)
+              et <- Sys.time()
+              list(id = node_id, res = res, start = st, end = et)
+            })
+          }, .options = furrr::furrr_options(globals = c("self"), packages = c("withr", "HydraR")))
+          
+          # Integrate results and collect next nodes
+          purrr::walk(parallel_results, function(p_res) {
+            node_id <- p_res$id
+            res <- p_res$res
+            self$results[[node_id]] <<- res
+            if (!is.null(res$output)) {
+              if (is.list(res$output)) self$state$update(res$output) else self$state$update(setNames(list(res$output), node_id))
+            }
+            step_count <<- step_count + 1
+            self$trace_log[[step_count]] <<- list(
+              step = step_count, node = node_id, mode = "parallel",
+              start_time = as.character(p_res$start), end_time = as.character(p_res$end),
+              duration_secs = as.numeric(difftime(p_res$end, p_res$start, units = "secs")),
+              status = res$status, error = res$error
+            )
+            if (!is.null(self$worktree_manager)) self$worktree_manager$remove_worktree(node_id)
+            if (!is.null(res$status) && tolower(res$status) == "pause") paused_at <<- node_id
 
-        self$results[[node_id]] <- res
-
-        if (!is.null(res$output)) {
-          if (is.list(res$output)) {
-            self$state$update(res$output)
-          } else {
-            self$state$update(setNames(list(res$output), node_id))
-          }
-        }
-
-        self$trace_log[[step_idx]] <- list(
-          step = step_idx,
-          node = node_id,
-          mode = "iterative",
-          start_time = as.character(start_time),
-          end_time = as.character(end_time),
-          duration_secs = as.numeric(difftime(end_time, start_time, units = "secs")),
-          status = res$status,
-          error = res$error
-        )
-        actual_steps_in_this_recursion <<- actual_steps_in_this_recursion + 1
-
-        if (node_id %in% names(self$conditional_edges)) {
-          cond <- self$conditional_edges[[node_id]]
-          test_passed <- tryCatch(cond$test(res$output), error = function(e) FALSE)
-          target <- if (test_passed) cond$if_true else cond$if_false
-          if (!is.null(target)) {
-            next_queue_list[[match(node_id, current_nodes)]] <<- list(target)
-          }
+            # Successors
+            if (node_id %in% names(self$conditional_edges)) {
+              cond <- self$conditional_edges[[node_id]]
+              test_passed <- tryCatch(cond$test(res$output), error = function(e) FALSE)
+              target <- if (test_passed) cond$if_true else cond$if_false
+              if (!is.null(target)) next_queue <<- unique(c(next_queue, target))
+            } else {
+              children <- names(igraph::adjacent_vertices(self$graph, node_id, mode = "out")[[1]])
+              next_queue <<- unique(c(next_queue, children))
+            }
+          })
         } else {
-          children <- names(igraph::adjacent_vertices(self$graph, node_id, mode = "out")[[1]])
-          if (length(children) > 0) {
-            next_queue_list[[match(node_id, current_nodes)]] <<- as.list(children)
-          }
+          # Sequential Execution Block - Using purrr::walk instead of for()
+          purrr::walk(current_nodes, function(node_id) {
+            if (!is.null(paused_at)) return()
+            step_idx_inner <- step_count + 1
+            if (step_idx_inner > max_steps) return()
+
+            cat(sprintf("[Iteration %d] Running Node: %s\n", step_idx_inner, node_id))
+            restricted_state <- RestrictedState$new(self$state, node_id, self$message_log)
+            start_time <- Sys.time()
+            res <- self$nodes[[node_id]]$run(restricted_state)
+            end_time <- Sys.time()
+
+            self$results[[node_id]] <<- res
+            if (!is.null(res$output)) {
+              if (is.list(res$output)) self$state$update(res$output) else self$state$update(setNames(list(res$output), node_id))
+            }
+            self$trace_log[[step_idx_inner]] <<- list(
+              step = step_idx_inner, node = node_id, mode = "iterative",
+              start_time = as.character(start_time), end_time = as.character(end_time),
+              duration_secs = as.numeric(difftime(end_time, start_time, units = "secs")),
+              status = res$status, error = res$error
+            )
+            step_count <<- step_idx_inner
+
+            if (!is.null(res$status) && res$status == "pause") paused_at <<- node_id
+            if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
+
+            # Successors
+            if (node_id %in% names(self$conditional_edges)) {
+              cond <- self$conditional_edges[[node_id]]
+              test_passed <- tryCatch(cond$test(res$output), error = function(e) FALSE)
+              target <- if (test_passed) cond$if_true else cond$if_false
+              if (!is.null(target)) next_queue <<- unique(c(next_queue, target))
+            } else {
+              children <- names(igraph::adjacent_vertices(self$graph, node_id, mode = "out")[[1]])
+              next_queue <<- unique(c(next_queue, children))
+            }
+          })
         }
 
-        if (!is.null(res$status) && res$status == "pause") {
-          paused_at <<- node_id
-        }
-
-        if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
+        current_nodes <<- next_queue
       })
 
-      # Flatten next_queue_list
-      next_queue <- unique(unlist(next_queue_list))
-      if (is.null(next_queue)) next_queue <- character(0)
-
-      if (!is.null(paused_at)) {
-        self$trace_log <- self$trace_log[seq_len(step_count + actual_steps_in_this_recursion)]
-        self$state$set("__next_nodes__", next_queue)
-        if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
-        return(list(results = self$results, state = self$state, status = "paused", paused_at = paused_at))
-      }
-
-      return(self$.run_iterative(max_steps, checkpointer, thread_id, NULL, next_queue, step_count + actual_steps_in_this_recursion, depth + 1))
+      if (step_count >= max_steps) warning("Reached max_steps.")
+      self$trace_log <- self$trace_log[seq_len(step_count)]
+      self$state$set("__next_nodes__", if (length(current_nodes) > 0) current_nodes else NULL)
+      if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
+      return(list(results = self$results, state = self$state, status = if (length(current_nodes) > 0) "paused" else "completed"))
     },
 
     #' Plot the DAG
@@ -519,6 +562,18 @@ AgentDAG <- R6::R6Class("AgentDAG",
         data.frame(from = character(), to = character(), stringsAsFactors = FALSE)
       }
 
+      # Incorporate Conditional Edges into the graph for analysis
+      if (length(self$conditional_edges) > 0) {
+        cond_edges <- purrr::imap(self$conditional_edges, function(cond, from) {
+          df <- data.frame(from = from, to = cond$if_true, stringsAsFactors = FALSE)
+          if (!is.null(cond$if_false)) {
+            df <- rbind(df, data.frame(from = from, to = cond$if_false, stringsAsFactors = FALSE))
+          }
+          df
+        }) |> purrr::list_rbind()
+        edges_df <- rbind(edges_df, cond_edges)
+      }
+
       # Validation Engine: Detect undefined nodes in edges
       if (nrow(edges_df) > 0) {
         all_node_ids <- names(self$nodes)
@@ -538,4 +593,4 @@ AgentDAG <- R6::R6Class("AgentDAG",
   )
 )
 
-#' <!-- APAF Bioinformatics | dag.R | Approved | 2026-03-28 -->
+#' <!-- APAF Bioinformatics | dag.R | Approved | 2026-03-29 -->

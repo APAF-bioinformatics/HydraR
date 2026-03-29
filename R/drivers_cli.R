@@ -22,32 +22,40 @@ GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
     #' Initialize GeminiCLIDriver
     #' @param id Unique identifier.
     #' @param model String. Optional model.
-    initialize = function(id = "gemini_cli", model = NULL) {
-      super$initialize(id)
+    #' @param validation_mode String. "warning" or "strict".
+    initialize = function(id = "gemini_cli", model = "gemini-1.5-pro", validation_mode = "warning") {
+      super$initialize(id, provider = "google", model_name = model, validation_mode = validation_mode)
       self$model <- model
+      self$supported_opts <- c(
+        "model", "sandbox", "yolo", "approval_mode", "policy",
+        "admin_policy", "allowed_mcp_server_names", "allowed_tools",
+        "extensions", "resume", "include_directories", "screen_reader",
+        "output_format", "raw_output", "accept_raw_output_risk", "debug"
+      )
     },
 
     #' Call the LLM
     #' @param prompt String.
     #' @param model String override.
+    #' @param cli_opts List. Named list of CLI options.
     #' @param ... Additional arguments.
     #' @return String. Cleaned result.
-    call = function(prompt, model = NULL, ...) {
+    call = function(prompt, model = NULL, cli_opts = list(), ...) {
       target_model <- if (!is.null(model)) model else self$model
 
-      # Execution using a temporary file for the prompt
-      # Headless mode: gemini --prompt "..." or piping to stdin.
-      # Using system2 with stdin is most robust for this CLI version.
-      
+      # Ensure model is in cli_opts if provided
+      if (!is.null(target_model) && !"model" %in% names(cli_opts)) {
+        cli_opts$model <- target_model
+      }
+
+      formatted_opts <- self$format_cli_opts(cli_opts)
+
       tmp_prompt <- tempfile(pattern = "gemini_prompt_", fileext = ".txt")
       writeLines(prompt, tmp_prompt)
       on.exit(unlink(tmp_prompt))
 
-      # Use 'stdin' argument in system2 to provide the prompt
-      # and the -p flag with an empty string or just the flag if supported.
-      # Based on help: 'query' is positional, -p is for prompt.
-      
-      res <- system2("gemini", args = c("-p", "-"), stdin = tmp_prompt, stdout = TRUE, stderr = TRUE)
+      # Use exec_in_dir to support worktrees
+      res <- self$exec_in_dir("gemini", args = c("-p", "-", formatted_opts), stdin = tmp_prompt, stdout = TRUE, stderr = TRUE)
 
       if (length(res) == 0) {
         return("")
@@ -75,28 +83,43 @@ OllamaDriver <- R6::R6Class("OllamaDriver",
     #' Initialize OllamaDriver
     #' @param id Unique identifier.
     #' @param model String. Default model.
-    initialize = function(id = "ollama", model = "llama3.2") {
-      super$initialize(id)
+    #' @param validation_mode String. "warning" or "strict".
+    initialize = function(id = "ollama", model = "llama3.2", validation_mode = "warning") {
+      super$initialize(id, provider = "ollama", model_name = model, validation_mode = validation_mode)
       self$model <- model
+      self$supported_opts <- c(
+        "num_ctx", "temperature", "top_p", "top_k",
+        "repeat_penalty", "seed", "num_predict"
+      )
+    },
+
+    #' Format CLI Options for Ollama
+    #' @param cli_opts List.
+    #' @return Character vector.
+    format_cli_opts = function(cli_opts = list()) {
+      if (length(cli_opts) == 0) return(character(0))
+      self$validate_cli_opts(cli_opts)
+      # Ollama uses: -p key=value (stackable)
+      purrr::imap(cli_opts, function(val, key) {
+        c("-p", paste0(key, "=", val))
+      }) |> unlist()
     },
 
     #' Call the LLM
     #' @param prompt String.
     #' @param model String override.
+    #' @param cli_opts List.
     #' @param ... Additional arguments.
     #' @return String. Cleaned result.
-    call = function(prompt, model = NULL, ...) {
+    call = function(prompt, model = NULL, cli_opts = list(), ...) {
       target_model <- if (!is.null(model)) model else self$model
-
-      # Implementation: ollama run <model> "<prompt>"
-      # For ollama, it's often better to pipe the prompt or use the API if possible,
-      # but the task specifies CLI drivers.
+      formatted_opts <- self$format_cli_opts(cli_opts)
 
       tmp_prompt <- tempfile(pattern = "ollama_prompt_", fileext = ".txt")
       writeLines(prompt, tmp_prompt)
       on.exit(unlink(tmp_prompt))
 
-      res <- system2("ollama", args = c("run", target_model), stdin = tmp_prompt, stdout = TRUE, stderr = FALSE)
+      res <- self$exec_in_dir("ollama", args = c("run", target_model, formatted_opts), stdin = tmp_prompt, stdout = TRUE, stderr = FALSE)
 
       if (length(res) == 0) {
         return("")
@@ -124,29 +147,45 @@ ClaudeCodeDriver <- R6::R6Class("ClaudeCodeDriver",
     #' Initialize ClaudeCodeDriver
     #' @param id Unique identifier.
     #' @param model String. Default model.
-    initialize = function(id = "claude_cli", model = "claude-3-5-sonnet-latest") {
-      super$initialize(id)
+    #' @param validation_mode String. "warning" or "strict".
+    initialize = function(id = "claude_cli", model = "claude-3-5-sonnet-latest", validation_mode = "warning") {
+      super$initialize(id, provider = "anthropic", model_name = model, validation_mode = validation_mode)
       self$model <- model
+      self$supported_opts <- c(
+        "add_dir", "agent", "agents", "allowedTools", "append_system_prompt",
+        "betas", "continue", "dangerously_skip_permissions", "debug",
+        "disallowedTools", "fallback_model", "input_format", "json_schema",
+        "max_budget_usd", "mcp_config", "model", "output_format",
+        "permission_mode", "print", "system_prompt", "tools", "verbose"
+      )
     },
 
     #' Call the LLM
     #' @param prompt String.
     #' @param model String override.
+    #' @param cli_opts List.
     #' @param ... Additional arguments.
     #' @return String. Cleaned result.
-    call = function(prompt, model = NULL, ...) {
+    call = function(prompt, model = NULL, cli_opts = list(), ...) {
       target_model <- if (!is.null(model)) model else self$model
 
-      # Implementation: claude "<prompt>"
-      # Assuming the 'claude' CLI takes the prompt as an argument or stdin.
-      # Using stdin for better handling of multi-line prompts.
+      if (!is.null(target_model) && !"model" %in% names(cli_opts)) {
+        cli_opts$model <- target_model
+      }
+
+      # Claude CLI usually needs --print for non-interactive
+      if (!"print" %in% names(cli_opts)) {
+        cli_opts$print <- TRUE
+      }
+
+      formatted_opts <- self$format_cli_opts(cli_opts)
 
       tmp_prompt <- tempfile(pattern = "claude_prompt_", fileext = ".txt")
       writeLines(prompt, tmp_prompt)
       on.exit(unlink(tmp_prompt))
 
-      # Using system2 with stdin
-      res <- system2("claude", args = character(), stdin = tmp_prompt, stdout = TRUE, stderr = TRUE)
+      # Use exec_in_dir to support worktrees
+      res <- self$exec_in_dir("claude", args = formatted_opts, stdin = tmp_prompt, stdout = TRUE, stderr = TRUE)
 
       if (length(res) == 0) {
         return("")
@@ -174,24 +213,35 @@ CopilotCLIDriver <- R6::R6Class("CopilotCLIDriver",
     #' Initialize CopilotCLIDriver
     #' @param id Unique identifier.
     #' @param type String. Default type ('shell').
-    initialize = function(id = "copilot_cli", type = "shell") {
-      super$initialize(id)
+    #' @param validation_mode String. "warning" or "strict".
+    initialize = function(id = "copilot_cli", type = "shell", validation_mode = "warning") {
+      super$initialize(id, provider = "github", model_name = "copilot", validation_mode = validation_mode)
       self$type <- type
+      self$supported_opts <- c(
+        "add_dir", "allow_all_paths", "allow_all_tools", "allow_tool",
+        "deny_tool", "model", "prompt", "resume", "screen_reader",
+        "log_level", "no_custom_instructions"
+      )
     },
 
     #' Call the LLM
     #' @param prompt String.
     #' @param type String override.
+    #' @param cli_opts List.
     #' @param ... Additional arguments.
     #' @return String. Cleaned result.
-    call = function(prompt, type = NULL, ...) {
+    call = function(prompt, type = NULL, cli_opts = list(), ...) {
       target_type <- if (!is.null(type)) type else self$type
 
-      # Implementation: gh copilot suggest -t <type> "<prompt>"
-      # Note: gh copilot returns interactive suggestions.
-      # We use it for one-shot by grabbing the stdout.
+      # Copilot CLI often uses --prompt for non-interactive
+      if (!"prompt" %in% names(cli_opts)) {
+        cli_opts$prompt <- prompt
+      }
 
-      res <- system2("gh", args = c("copilot", "suggest", "-t", target_type, prompt), stdout = TRUE, stderr = TRUE)
+      formatted_opts <- self$format_cli_opts(cli_opts)
+
+      # Implementation: gh copilot suggest -t <type> [opts]
+      res <- self$exec_in_dir("gh", args = c("copilot", "suggest", "-t", target_type, formatted_opts), stdout = TRUE, stderr = TRUE)
 
       if (length(res) == 0) {
         return("")

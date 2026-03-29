@@ -41,12 +41,12 @@ AgentLogicNode <- R6::R6Class("AgentLogicNode",
           self$logic_fn(state)
         },
         error = function(e) {
-          list(status = "FAILED", output = NULL, error = e$message)
+          list(status = "failed", output = NULL, error = e$message)
         }
       )
 
       self$last_result <- list(
-        status = res$status %||% "SUCCESS",
+        status = res$status %||% "success",
         output = res$output,
         error = res$error,
         attempts = 1

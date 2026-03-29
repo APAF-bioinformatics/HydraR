@@ -2,8 +2,8 @@ library(testthat)
 
 test_that("AgentDAG Mermaid plotting works", {
   dag <- AgentDAG$new()
-  dag_add_logic_node(dag, "node1", function(state) list(status = "SUCCESS"))
-  dag_add_logic_node(dag, "node2", function(state) list(status = "SUCCESS"))
+  dag_add_logic_node(dag, "node1", function(state) list(status = "success"))
+  dag_add_logic_node(dag, "node2", function(state) list(status = "success"))
   dag$add_edge("node1", "node2")
 
   # Capture Mermaid output
@@ -22,9 +22,9 @@ test_that("AgentDAG Mermaid plotting works", {
 
 test_that("AgentDAG compile detects unreachable nodes and cycles", {
   dag <- AgentDAG$new()
-  dag_add_logic_node(dag, "node1", function(state) list(status = "SUCCESS"))
-  dag_add_logic_node(dag, "node2", function(state) list(status = "SUCCESS"))
-  dag_add_logic_node(dag, "node3", function(state) list(status = "SUCCESS"))
+  dag_add_logic_node(dag, "node1", function(state) list(status = "success"))
+  dag_add_logic_node(dag, "node2", function(state) list(status = "success"))
+  dag_add_logic_node(dag, "node3", function(state) list(status = "success"))
 
   # node2 -> node3 -> node2 (cycle)
   dag$add_edge("node2", "node3")
@@ -52,7 +52,7 @@ test_that("AgentDAG logic node captures error context", {
   dag$run(state)
 
   log_entry <- dag$trace_log[[1]]
-  expect_equal(log_entry$status, "FAILED")
+  expect_equal(log_entry$status, "failed")
   expect_match(log_entry$error, "Deep logic failure")
 })
 

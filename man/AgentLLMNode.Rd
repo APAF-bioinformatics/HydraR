@@ -20,6 +20,8 @@ A specialized AgentNode that executes LLM calls via a Driver.
 
 \item{\code{output_format}}{String. Output expectation.}
 
+\item{\code{cli_opts}}{List. Default CLI options for the driver.}
+
 \item{\code{prompt_builder}}{Function(state) -> String.}
 
 \item{\code{tools}}{List of AgentTool objects.
@@ -32,6 +34,7 @@ Initialize AgentLLMNode}
 \itemize{
 \item \href{#method-AgentLLMNode-new}{\code{AgentLLMNode$new()}}
 \item \href{#method-AgentLLMNode-run}{\code{AgentLLMNode$run()}}
+\item \href{#method-AgentLLMNode-swap_driver}{\code{AgentLLMNode$swap_driver()}}
 \item \href{#method-AgentLLMNode-clone}{\code{AgentLLMNode$clone()}}
 }
 }
@@ -45,6 +48,7 @@ Initialize AgentLLMNode}
   role,
   driver,
   model = NULL,
+  cli_opts = list(),
   prompt_builder = NULL,
   tools = list(),
   label = NULL
@@ -61,6 +65,8 @@ Initialize AgentLLMNode}
 \item{\code{driver}}{AgentDriver object.}
 
 \item{\code{model}}{String. Optional model override.}
+
+\item{\code{cli_opts}}{List. Optional default CLI options.}
 
 \item{\code{prompt_builder}}{Function(state) -> String.}
 
@@ -91,6 +97,26 @@ Run the LLM Node}
 }
 \subsection{Returns}{
 List with status, output, and metadata.
+Swap Driver at Runtime
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AgentLLMNode-swap_driver"></a>}}
+\if{latex}{\out{\hypertarget{method-AgentLLMNode-swap_driver}{}}}
+\subsection{Method \code{swap_driver()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{AgentLLMNode$swap_driver(driver)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{driver}}{AgentDriver object or String ID.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The Node (invisibly).
 }
 }
 \if{html}{\out{<hr>}}

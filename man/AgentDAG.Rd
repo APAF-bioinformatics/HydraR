@@ -25,6 +25,10 @@ Supports both pure DAG execution (parallel) and iterative loops via conditional 
 \item{\code{start_node}}{String. Explicit entry point for cycles.}
 
 \item{\code{state}}{AgentState. Centralized state object.}
+
+\item{\code{message_log}}{MessageLog. Optional audit log.}
+
+\item{\code{worktree_manager}}{WorktreeManager. Optional isolation manager.}
 }
 \if{html}{\out{</div>}}
 }
@@ -143,7 +147,10 @@ Run the Graph}
   max_steps = 25,
   checkpointer = NULL,
   thread_id = NULL,
-  resume_from = NULL
+  resume_from = NULL,
+  use_worktrees = FALSE,
+  repo_root = getwd(),
+  cleanup_policy = "auto"
 )}\if{html}{\out{</div>}}
 }
 
@@ -159,6 +166,12 @@ Run the Graph}
 \item{\code{thread_id}}{String. Identifier for the execution thread. Required if using checkpointer.}
 
 \item{\code{resume_from}}{String. Node ID to resume execution from.}
+
+\item{\code{use_worktrees}}{Logical. Whether to use isolated git worktrees for parallel branches.}
+
+\item{\code{repo_root}}{String. Path to the main git repository.}
+
+\item{\code{cleanup_policy}}{String. "auto", "none", or "aggressive".}
 }
 \if{html}{\out{</div>}}
 }
@@ -177,7 +190,6 @@ Internal: Linear DAG Execution
   thread_id = NULL,
   resume_from = NULL,
   node_ids = NULL,
-  depth = 0,
   step_count = 0
 )}\if{html}{\out{</div>}}
 }
@@ -193,9 +205,9 @@ Internal: Linear DAG Execution
 
 \item{\code{node_ids}}{Character vector of nodes to run.}
 
-\item{\code{depth}}{Integer current recursion depth.}
-
 \item{\code{step_count}}{Integer current total step count.}
+
+\item{\code{depth}}{Integer current recursion depth.}
 }
 \if{html}{\out{</div>}}
 }
@@ -214,9 +226,7 @@ Internal: Iterative State Machine Execution
   checkpointer = NULL,
   thread_id = NULL,
   resume_from = NULL,
-  current_nodes = NULL,
-  step_count = 0,
-  depth = 0
+  step_count = 0
 )}\if{html}{\out{</div>}}
 }
 
@@ -231,9 +241,9 @@ Internal: Iterative State Machine Execution
 
 \item{\code{resume_from}}{String.}
 
-\item{\code{current_nodes}}{Character vector.}
-
 \item{\code{step_count}}{Integer.}
+
+\item{\code{current_nodes}}{Character vector.}
 
 \item{\code{depth}}{Integer. Current recursion depth.
 Plot the DAG}

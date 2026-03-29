@@ -93,6 +93,67 @@ MemorySaver <- R6::R6Class("MemorySaver",
   )
 )
 
+#' RDS File Checkpointer
+#'
+#' @description
+#' Lightweight file-based checkpointer using base R `saveRDS`/`readRDS`.
+#' Each thread is persisted as a separate `.rds` file in the specified directory.
+#' No external dependencies required.
+#'
+#' @importFrom R6 R6Class
+#' @export
+RDSSaver <- R6::R6Class("RDSSaver",
+  inherit = Checkpointer,
+  public = list(
+    #' @field dir String. Directory to store .rds checkpoint files.
+    dir = NULL,
+
+    #' Initialize RDSSaver
+    #' @param dir String. Directory path for checkpoint files.
+    initialize = function(dir = "checkpoints") {
+      self$dir <- dir
+      if (!dir.exists(self$dir)) dir.create(self$dir, recursive = TRUE)
+    },
+
+    #' @description Persist state to an .rds file.
+    #' @param thread_id String.
+    #' @param state AgentState object.
+    put = function(thread_id, state) {
+      stopifnot(is.character(thread_id) && length(thread_id) == 1)
+      stopifnot(inherits(state, "AgentState"))
+
+      state_copy <- list(
+        data = as.list(state$data),
+        reducers = state$reducers,
+        schema = state$schema
+      )
+
+      rds_path <- file.path(self$dir, paste0(thread_id, ".rds"))
+      saveRDS(state_copy, rds_path)
+      invisible(self)
+    },
+
+    #' @description Load state from an .rds file.
+    #' @param thread_id String.
+    #' @return AgentState object or NULL.
+    get = function(thread_id) {
+      stopifnot(is.character(thread_id) && length(thread_id) == 1)
+
+      rds_path <- file.path(self$dir, paste0(thread_id, ".rds"))
+      if (file.exists(rds_path)) {
+        state_copy <- readRDS(rds_path)
+        restored_state <- AgentState$new(
+          initial_data = state_copy$data,
+          reducers = state_copy$reducers,
+          schema = state_copy$schema
+        )
+        return(restored_state)
+      }
+      return(NULL)
+    }
+  )
+)
+
 #' DuckDBSaver Checkpointer
 #'
 #' @description
@@ -131,7 +192,7 @@ DuckDBSaver <- R6::R6Class("DuckDBSaver",
         DBI::dbExecute(self$con, sprintf("
                     CREATE TABLE IF NOT EXISTS %s (
                         thread_id VARCHAR PRIMARY KEY,
-                        state_json JSON,
+                        state_json TEXT,
                         updated_at TIMESTAMP DEFAULT current_timestamp
                     )
                 ", self$table_name))
@@ -142,15 +203,15 @@ DuckDBSaver <- R6::R6Class("DuckDBSaver",
     #' @param thread_id String.
     #' @param state AgentState object.
     put = function(thread_id, state) {
-      stopifnot(is.character(thread_id) && length(thread_id) == 1)
-      stopifnot(inherits(state, "AgentState"))
+      if (!is.character(thread_id) || length(thread_id) != 1) {
+        stop("thread_id must be a single string.")
+      }
+      if (!inherits(state, "AgentState")) {
+        stop(sprintf("state must be an AgentState object (received: %s).", class(state)[1]))
+      }
 
-      state_data <- list(
-        data = as.list(state$data),
-        schema_keys = names(state$schema)
-      )
-
-      state_json <- jsonlite::toJSON(state_data, auto_unbox = TRUE, force = TRUE)
+      state_list <- state$to_list_serializable()
+      state_json <- jsonlite::toJSON(state_list, auto_unbox = TRUE, pretty = TRUE)
 
       # Upsert logic (DuckDB specific)
       DBI::dbExecute(self$con, sprintf("
@@ -168,21 +229,25 @@ DuckDBSaver <- R6::R6Class("DuckDBSaver",
     #' @param thread_id String.
     #' @return AgentState object or NULL.
     get = function(thread_id) {
-      stopifnot(is.character(thread_id) && length(thread_id) == 1)
+      if (!is.character(thread_id) || length(thread_id) != 1) {
+        stop("thread_id must be a single string.")
+      }
 
       df <- DBI::dbGetQuery(self$con, sprintf("SELECT state_json FROM %s WHERE thread_id = ?", self$table_name), params = list(thread_id))
 
       if (nrow(df) > 0) {
-        state_data <- jsonlite::fromJSON(df$state_json[1], simplifyVector = FALSE)
-        if (!exists("AgentState")) {
-          stop("AgentState class not found. Ensure it is loaded.")
-        }
-        # Return data wrapped in AgentState
-        return(AgentState$new(initial_data = state_data$data))
+        state_list <- jsonlite::fromJSON(df$state_json[[1]], simplifyVector = FALSE)
+        # Re-hydrate AgentState
+        restored_state <- AgentState$new(
+          initial_data = state_list$data,
+          reducers = state_list$reducers,
+          schema = state_list$schema
+        )
+        return(restored_state)
       }
       return(NULL)
     }
   )
 )
 
-#' <!-- APAF Bioinformatics | checkpointer.R | Approved | 2026-03-28 -->
+#' <!-- APAF Bioinformatics | checkpointer.R | Approved | 2026-03-29 -->

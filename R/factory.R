@@ -6,16 +6,29 @@
 # License:     LGPL (>= 3) (see LICENSE)
 # ==============================================================
 
+#' Create an Agent Graph
+#' @param message_log MessageLog. Optional audit log for the DAG.
+#' @return An AgentDAG object.
+#' @export
+dag_create <- function(message_log = NULL) {
+  dag <- AgentDAG$new()
+  dag$message_log <- message_log
+  return(dag)
+}
+
+
 #' Create an LLM Agent Node easily
 #'
 #' @param id String. Unique identifier for the node.
 #' @param role String. System prompt/role for the agent.
 #' @param driver AgentDriver object.
+#' @param model String. Optional model override.
+#' @param cli_opts List. Optional CLI options.
 #' @param ... Additional arguments passed to AgentLLMNode$new()
 #' @return AgentLLMNode object.
 #' @export
-add_llm_node <- function(id, role, driver, ...) {
-  AgentLLMNode$new(id = id, role = role, driver = driver, ...)
+add_llm_node <- function(id, role, driver, model = NULL, cli_opts = list(), ...) {
+  AgentLLMNode$new(id = id, role = role, driver = driver, model = model, cli_opts = cli_opts, ...)
 }
 
 #' Create an R Logic Node easily
@@ -35,14 +48,16 @@ add_logic_node <- function(id, logic_fn, ...) {
 #' @param id String. Unique identifier for the node.
 #' @param role String. System prompt/role for the agent.
 #' @param driver AgentDriver object.
+#' @param model String. Optional model override.
+#' @param cli_opts List. Optional CLI options.
 #' @param ... Additional arguments passed to AgentLLMNode$new()
 #' @return The modified AgentDAG object (invisibly).
 #' @export
-dag_add_llm_node <- function(dag, id, role, driver, ...) {
+dag_add_llm_node <- function(dag, id, role, driver, model = NULL, cli_opts = list(), ...) {
   if (!inherits(dag, "AgentDAG")) {
     stop("dag must be an AgentDAG object.")
   }
-  node <- add_llm_node(id = id, role = role, driver = driver, ...)
+  node <- add_llm_node(id = id, role = role, driver = driver, model = model, cli_opts = cli_opts, ...)
   dag$add_node(node)
   invisible(dag)
 }

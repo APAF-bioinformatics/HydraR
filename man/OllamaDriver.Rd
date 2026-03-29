@@ -21,16 +21,30 @@ Initialize OllamaDriver}
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-OllamaDriver-new}{\code{OllamaDriver$new()}}
+\item \href{#method-OllamaDriver-format_cli_opts}{\code{OllamaDriver$format_cli_opts()}}
 \item \href{#method-OllamaDriver-call}{\code{OllamaDriver$call()}}
 \item \href{#method-OllamaDriver-clone}{\code{OllamaDriver$clone()}}
 }
 }
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="HydraR" data-topic="AgentDriver" data-id="exec_in_dir"><a href='../../HydraR/html/AgentDriver.html#method-AgentDriver-exec_in_dir'><code>HydraR::AgentDriver$exec_in_dir()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="HydraR" data-topic="AgentDriver" data-id="get_capabilities"><a href='../../HydraR/html/AgentDriver.html#method-AgentDriver-get_capabilities'><code>HydraR::AgentDriver$get_capabilities()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="HydraR" data-topic="AgentDriver" data-id="validate_cli_opts"><a href='../../HydraR/html/AgentDriver.html#method-AgentDriver-validate_cli_opts'><code>HydraR::AgentDriver$validate_cli_opts()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-OllamaDriver-new"></a>}}
 \if{latex}{\out{\hypertarget{method-OllamaDriver-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{OllamaDriver$new(id = "ollama", model = "llama3.2")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{OllamaDriver$new(
+  id = "ollama",
+  model = "llama3.2",
+  validation_mode = "warning"
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -38,10 +52,32 @@ Initialize OllamaDriver}
 \describe{
 \item{\code{id}}{Unique identifier.}
 
-\item{\code{model}}{String. Default model.
-Call the LLM}
+\item{\code{model}}{String. Default model.}
+
+\item{\code{validation_mode}}{String. "warning" or "strict".
+Format CLI Options for Ollama}
 }
 \if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-OllamaDriver-format_cli_opts"></a>}}
+\if{latex}{\out{\hypertarget{method-OllamaDriver-format_cli_opts}{}}}
+\subsection{Method \code{format_cli_opts()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{OllamaDriver$format_cli_opts(cli_opts = list())}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{cli_opts}}{List.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character vector.
+Call the LLM
 }
 }
 \if{html}{\out{<hr>}}
@@ -49,7 +85,7 @@ Call the LLM}
 \if{latex}{\out{\hypertarget{method-OllamaDriver-call}{}}}
 \subsection{Method \code{call()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{OllamaDriver$call(prompt, model = NULL, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{OllamaDriver$call(prompt, model = NULL, cli_opts = list(), ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -58,6 +94,8 @@ Call the LLM}
 \item{\code{prompt}}{String.}
 
 \item{\code{model}}{String override.}
+
+\item{\code{cli_opts}}{List.}
 
 \item{\code{...}}{Additional arguments.}
 }

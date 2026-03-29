@@ -34,7 +34,7 @@ test_that("Data Science AutoML loop works", {
   # 1. Cleaner
   dag$add_node(AgentLogicNode$new(
     id = "DataCleaner",
-    logic_fn = function(state) list(status = "SUCCESS", output = list(clean_data = "CLEANED DATA"))
+    logic_fn = function(state) list(status = "success", output = list(clean_data = "CLEANED DATA"))
   ))
   
   # 2. Trainer
@@ -55,9 +55,9 @@ test_that("Data Science AutoML loop works", {
       accuracy <- min(0.60 + (eval_count * 0.10), 0.95)
       
       if (accuracy >= state$get("target_accuracy")) {
-        list(status = "SUCCESS", output = list(optimization_complete = TRUE))
+        list(status = "success", output = list(optimization_complete = TRUE))
       } else {
-        list(status = "SUCCESS", output = list(optimization_complete = FALSE))
+        list(status = "success", output = list(optimization_complete = FALSE))
       }
     }
   ))

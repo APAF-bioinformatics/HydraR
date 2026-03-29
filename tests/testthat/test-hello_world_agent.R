@@ -45,11 +45,11 @@ test_that("Hello World Guesser loop works", {
     logic_fn = function(state) {
       guess <- state$get("Guesser")
       if (guess == "hello") {
-        list(status = "SUCCESS", output = list(valid = TRUE))
+        list(status = "success", output = list(valid = TRUE))
       } else {
         # Update driver for next call
         driver$response <- "hello"
-        list(status = "SUCCESS", output = list(valid = FALSE))
+        list(status = "success", output = list(valid = FALSE))
       }
     }
   ))

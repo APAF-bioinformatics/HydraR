@@ -25,12 +25,26 @@ Initialize GeminiCLIDriver}
 \item \href{#method-GeminiCLIDriver-clone}{\code{GeminiCLIDriver$clone()}}
 }
 }
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="HydraR" data-topic="AgentDriver" data-id="exec_in_dir"><a href='../../HydraR/html/AgentDriver.html#method-AgentDriver-exec_in_dir'><code>HydraR::AgentDriver$exec_in_dir()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="HydraR" data-topic="AgentDriver" data-id="format_cli_opts"><a href='../../HydraR/html/AgentDriver.html#method-AgentDriver-format_cli_opts'><code>HydraR::AgentDriver$format_cli_opts()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="HydraR" data-topic="AgentDriver" data-id="get_capabilities"><a href='../../HydraR/html/AgentDriver.html#method-AgentDriver-get_capabilities'><code>HydraR::AgentDriver$get_capabilities()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="HydraR" data-topic="AgentDriver" data-id="validate_cli_opts"><a href='../../HydraR/html/AgentDriver.html#method-AgentDriver-validate_cli_opts'><code>HydraR::AgentDriver$validate_cli_opts()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GeminiCLIDriver-new"></a>}}
 \if{latex}{\out{\hypertarget{method-GeminiCLIDriver-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GeminiCLIDriver$new(id = "gemini_cli", model = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GeminiCLIDriver$new(
+  id = "gemini_cli",
+  model = "gemini-1.5-pro",
+  validation_mode = "warning"
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -38,7 +52,9 @@ Initialize GeminiCLIDriver}
 \describe{
 \item{\code{id}}{Unique identifier.}
 
-\item{\code{model}}{String. Optional model.
+\item{\code{model}}{String. Optional model.}
+
+\item{\code{validation_mode}}{String. "warning" or "strict".
 Call the LLM}
 }
 \if{html}{\out{</div>}}
@@ -49,7 +65,7 @@ Call the LLM}
 \if{latex}{\out{\hypertarget{method-GeminiCLIDriver-call}{}}}
 \subsection{Method \code{call()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GeminiCLIDriver$call(prompt, model = NULL, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GeminiCLIDriver$call(prompt, model = NULL, cli_opts = list(), ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -58,6 +74,8 @@ Call the LLM}
 \item{\code{prompt}}{String.}
 
 \item{\code{model}}{String override.}
+
+\item{\code{cli_opts}}{List. Named list of CLI options.}
 
 \item{\code{...}}{Additional arguments.}
 }
