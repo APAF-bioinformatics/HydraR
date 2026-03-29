@@ -103,6 +103,7 @@ articles:
       - hello_world_logic
       - parameterized_mermaid
       - round_trip_demo
+      - distributed_communication
   - title: Developer Guides
     navbar: Guides
     contents:

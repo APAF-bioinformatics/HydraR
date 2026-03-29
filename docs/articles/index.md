@@ -34,6 +34,8 @@
   Parameters](https://github.com/APAF-bioinformatics/HydraR/articles/parameterized_mermaid.md):
 - [Mermaid Round-Trip
   Visualization](https://github.com/APAF-bioinformatics/HydraR/articles/round_trip_demo.md):
+- [Distributed Consensus
+  Simulation](https://github.com/APAF-bioinformatics/HydraR/articles/distributed_communication.md):
 
 ### Developer Guides
 
