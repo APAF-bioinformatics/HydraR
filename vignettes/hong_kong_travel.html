@@ -367,13 +367,10 @@ respects these constraints.</li>
 </div>
 <div id="setup" class="section level2">
 <h2>Setup</h2>
-<p>First, load the library and initialize the
-<code>GeminiCLIDriver</code>.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(HydraR)</span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># Initialize the Gemini CLI driver</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># Note: This assumes the &#39;gemini&#39; CLI is installed and configured on your system.</span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>driver <span class="ot">&lt;-</span> GeminiCLIDriver<span class="sc">$</span><span class="fu">new</span>()</span></code></pre></div>
+<p>First, load the HydraR library. Since we’re using the <strong>Node
+Factory</strong> pattern with Mermaid, drivers are instantiated
+on-demand during DAG creation.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(HydraR)</span></code></pre></div>
 </div>
 <div id="defining-the-workflow-components" class="section level2">
 <h2>Defining the Workflow Components</h2>

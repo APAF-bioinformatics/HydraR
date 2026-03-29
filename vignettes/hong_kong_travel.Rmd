@@ -29,14 +29,10 @@ We will plan a trip from **Sydney (SYD)** to **Hong Kong (HKG)** with specific a
 
 ## Setup
 
-First, load the library and initialize the `GeminiCLIDriver`.
+First, load the HydraR library. Since we're using the **Node Factory** pattern with Mermaid, drivers are instantiated on-demand during DAG creation.
 
-```{r}
+```{r lib_load}
 library(HydraR)
-
-# Initialize the Gemini CLI driver
-# Note: This assumes the 'gemini' CLI is installed and configured on your system.
-driver <- GeminiCLIDriver$new()
 ```
 
 ## Defining the Workflow Components
