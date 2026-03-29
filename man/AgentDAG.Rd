@@ -108,7 +108,7 @@ Add an Edge}
 \if{latex}{\out{\hypertarget{method-AgentDAG-add_edge}{}}}
 \subsection{Method \code{add_edge()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AgentDAG$add_edge(from, to)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{AgentDAG$add_edge(from, to, label = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -116,7 +116,9 @@ Add an Edge}
 \describe{
 \item{\code{from}}{String or character vector of node IDs.}
 
-\item{\code{to}}{String node ID.
+\item{\code{to}}{String node ID.}
+
+\item{\code{label}}{Optional string label for the edge.
 Add a Conditional Edge (Loop Support)}
 }
 \if{html}{\out{</div>}}
@@ -262,8 +264,7 @@ Internal: Iterative Execution
 
 \item{\code{step_count}}{Integer.}
 
-\item{\code{fail_if_dirty}}{Logical.
-Plot the DAG}
+\item{\code{fail_if_dirty}}{Logical.}
 }
 \if{html}{\out{</div>}}
 }
@@ -273,13 +274,27 @@ Plot the DAG}
 \if{latex}{\out{\hypertarget{method-AgentDAG-plot}{}}}
 \subsection{Method \code{plot()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AgentDAG$plot(type = "mermaid")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{AgentDAG$plot(
+  type = "mermaid",
+  status = FALSE,
+  details = FALSE,
+  include_params = NULL,
+  show_edge_labels = TRUE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{type}}{String. Currently only "mermaid" is supported.}
+\item{\code{type}}{String. Type of plot (currently only "mermaid").}
+
+\item{\code{status}}{Logical. If TRUE, styling is applied to nodes/edges based on results.}
+
+\item{\code{details}}{Logical. If TRUE, node parameters are serialized into labels.}
+
+\item{\code{include_params}}{Character vector. Optional whitelist of parameters to show.}
+
+\item{\code{show_edge_labels}}{Logical. Whether to show labels on edges.}
 }
 \if{html}{\out{</div>}}
 }
@@ -314,7 +329,7 @@ Save the Execution Trace
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{file}}{String. Output path for the JSON trace.
-Create AgentDAG from Mermaid}
+Create Graph from Mermaid}
 }
 \if{html}{\out{</div>}}
 }
@@ -332,7 +347,7 @@ Create AgentDAG from Mermaid}
 \describe{
 \item{\code{mermaid_str}}{String. Mermaid syntax.}
 
-\item{\code{node_factory}}{Function(id, label) -> AgentNode.}
+\item{\code{node_factory}}{Function(id, label, params) -> AgentNode.}
 }
 \if{html}{\out{</div>}}
 }

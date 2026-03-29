@@ -14,7 +14,9 @@ This is an abstract base class.
 
 \item{\code{label}}{String. Human-readable name/label.}
 
-\item{\code{last_result}}{List. Results from most recent execution.
+\item{\code{last_result}}{List. Results from most recent execution.}
+
+\item{\code{params}}{List. Arbitrary metadata/config parameters.
 Initialize AgentNode}
 }
 \if{html}{\out{</div>}}
@@ -32,7 +34,7 @@ Initialize AgentNode}
 \if{latex}{\out{\hypertarget{method-AgentNode-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AgentNode$new(id, label = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{AgentNode$new(id, label = NULL, params = list())}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -40,7 +42,9 @@ Initialize AgentNode}
 \describe{
 \item{\code{id}}{Unique identifier.}
 
-\item{\code{label}}{Optional human-readable name.
+\item{\code{label}}{Optional human-readable name.}
+
+\item{\code{params}}{Optional named list of parameters.
 Run the Node}
 }
 \if{html}{\out{</div>}}

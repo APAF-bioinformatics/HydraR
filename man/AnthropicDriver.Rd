@@ -46,7 +46,8 @@ Initialize AnthropicDriver}
 \if{html}{\out{<div class="r">}}\preformatted{AnthropicDriver$new(
   id = "anthropic_api",
   model = "claude-3-5-sonnet-20241022",
-  validation_mode = "warning"
+  validation_mode = "warning",
+  working_dir = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -58,6 +59,8 @@ Initialize AnthropicDriver}
 \item{\code{model}}{String. Model name.}
 
 \item{\code{validation_mode}}{String. "warning" or "strict".}
+
+\item{\code{working_dir}}{String. Optional. Path to worktree.}
 }
 \if{html}{\out{</div>}}
 }

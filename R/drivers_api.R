@@ -21,6 +21,7 @@ OpenAIDriver <- R6::R6Class("OpenAIDriver",
     #' @param id String. Unique identifier.
     #' @param model String. Model name.
     #' @param validation_mode String. "warning" or "strict".
+    #' @param working_dir String. Optional. Path to worktree.
     #' @return A new `OpenAIDriver` object.
     initialize = function(id = "openai_api", model = "gpt-4o", validation_mode = "warning", working_dir = NULL) {
       super$initialize(id, provider = "openai", model_name = model, validation_mode = validation_mode, working_dir = working_dir)
@@ -84,6 +85,7 @@ AnthropicDriver <- R6::R6Class("AnthropicDriver",
     #' @param id String. Unique identifier.
     #' @param model String. Model name.
     #' @param validation_mode String. "warning" or "strict".
+    #' @param working_dir String. Optional. Path to worktree.
     #' @return A new `AnthropicDriver` object.
     initialize = function(id = "anthropic_api", model = "claude-3-5-sonnet-20241022", validation_mode = "warning", working_dir = NULL) {
       super$initialize(id, provider = "anthropic", model_name = model, validation_mode = validation_mode, working_dir = working_dir)
@@ -152,6 +154,7 @@ GeminiAPIDriver <- R6::R6Class("GeminiAPIDriver",
     #' @param id String. Unique identifier.
     #' @param model String. Model name.
     #' @param validation_mode String. "warning" or "strict".
+    #' @param working_dir String. Optional. Path to worktree.
     #' @return A new `GeminiAPIDriver` object.
     initialize = function(id = "gemini_api", model = "gemini-1.5-pro", validation_mode = "warning", working_dir = NULL) {
       super$initialize(id, provider = "google", model_name = model, validation_mode = validation_mode, working_dir = working_dir)

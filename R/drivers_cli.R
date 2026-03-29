@@ -23,6 +23,7 @@ GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
     #' @param id Unique identifier.
     #' @param model String. Optional model.
     #' @param validation_mode String. "warning" or "strict".
+    #' @param working_dir String. Optional. Path to isolated Git worktree.
     initialize = function(id = "gemini_cli", model = "gemini-1.5-pro", validation_mode = "warning", working_dir = NULL) {
       super$initialize(id, provider = "google", model_name = model, validation_mode = validation_mode, working_dir = working_dir)
       self$model <- model
@@ -84,6 +85,7 @@ OllamaDriver <- R6::R6Class("OllamaDriver",
     #' @param id Unique identifier.
     #' @param model String. Default model.
     #' @param validation_mode String. "warning" or "strict".
+    #' @param working_dir String. Optional. Path to isolated Git worktree.
     initialize = function(id = "ollama", model = "llama3.2", validation_mode = "warning", working_dir = NULL) {
       super$initialize(id, provider = "ollama", model_name = model, validation_mode = validation_mode, working_dir = working_dir)
       self$model <- model
@@ -150,6 +152,7 @@ ClaudeCodeDriver <- R6::R6Class("ClaudeCodeDriver",
     #' @param id Unique identifier.
     #' @param model String. Default model.
     #' @param validation_mode String. "warning" or "strict".
+    #' @param working_dir String. Optional. Path to isolated Git worktree.
     initialize = function(id = "claude_cli", model = "claude-3-5-sonnet-latest", validation_mode = "warning", working_dir = NULL) {
       super$initialize(id, provider = "anthropic", model_name = model, validation_mode = validation_mode, working_dir = working_dir)
       self$model <- model
@@ -216,6 +219,7 @@ CopilotCLIDriver <- R6::R6Class("CopilotCLIDriver",
     #' @param id Unique identifier.
     #' @param type String. Default type ('shell').
     #' @param validation_mode String. "warning" or "strict".
+    #' @param working_dir String. Optional. Path to isolated Git worktree.
     initialize = function(id = "copilot_cli", type = "shell", validation_mode = "warning", working_dir = NULL) {
       super$initialize(id, provider = "github", model_name = "copilot", validation_mode = validation_mode, working_dir = working_dir)
       self$type <- type

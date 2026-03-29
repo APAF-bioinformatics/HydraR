@@ -43,7 +43,8 @@ Initialize GeminiCLIDriver}
 \if{html}{\out{<div class="r">}}\preformatted{GeminiCLIDriver$new(
   id = "gemini_cli",
   model = "gemini-1.5-pro",
-  validation_mode = "warning"
+  validation_mode = "warning",
+  working_dir = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -54,7 +55,9 @@ Initialize GeminiCLIDriver}
 
 \item{\code{model}}{String. Optional model.}
 
-\item{\code{validation_mode}}{String. "warning" or "strict".
+\item{\code{validation_mode}}{String. "warning" or "strict".}
+
+\item{\code{working_dir}}{String. Optional. Path to isolated Git worktree.
 Call the LLM}
 }
 \if{html}{\out{</div>}}

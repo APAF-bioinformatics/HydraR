@@ -622,6 +622,8 @@ AgentDAG <- R6::R6Class("AgentDAG",
       invisible(self)
     },
 
+    #' Create Graph from Mermaid
+    #' @param mermaid_str String. Mermaid syntax.
     #' @param node_factory Function(id, label, params) -> AgentNode.
     #' @return The AgentDAG object.
     from_mermaid = function(mermaid_str, node_factory) {
@@ -629,10 +631,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
       parsed <- parse_mermaid(mermaid_str)
 
       # Add nodes
-      purrr::walk(parsed$nodes, function(node_data) {
-        id <- node_data$id
-        label <- node_data$label
-        params <- node_data$params
+      purrr::pwalk(parsed$nodes, function(id, label, params) {
         
         # Support both 2-arg and 3-arg factories for robustness
         # Logic: if factory has >=3 args, pass params. Otherwise just id/label.
@@ -679,7 +678,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
       } else if (is.data.frame(self$edges)) {
         self$edges
       } else {
-        data.frame(from = character(), to = character(), stringsAsFactors = FALSE)
+        data.frame(from = character(), to = character(), label = character(), stringsAsFactors = FALSE)
       }
 
       # Incorporate Conditional Edges into the graph for analysis
@@ -687,10 +686,10 @@ AgentDAG <- R6::R6Class("AgentDAG",
         cond_edges <- purrr::imap(self$conditional_edges, function(cond, from) {
           df_list <- list()
           if (!is.null(cond$if_true)) {
-            df_list[[length(df_list) + 1]] <- data.frame(from = from, to = cond$if_true, stringsAsFactors = FALSE)
+            df_list[[length(df_list) + 1]] <- data.frame(from = from, to = cond$if_true, label = NA_character_, stringsAsFactors = FALSE)
           }
           if (!is.null(cond$if_false)) {
-            df_list[[length(df_list) + 1]] <- data.frame(from = from, to = cond$if_false, stringsAsFactors = FALSE)
+            df_list[[length(df_list) + 1]] <- data.frame(from = from, to = cond$if_false, label = NA_character_, stringsAsFactors = FALSE)
           }
           if (length(df_list) == 0) return(NULL)
           do.call(rbind, df_list)

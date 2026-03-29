@@ -134,15 +134,17 @@ parse_mermaid <- function(mermaid_str) {
   })
 
   nodes_df <- if (length(node_map) > 0) {
-    # We store params as a list column for the transition but return it as a list in the final structure
-    # Actually, data.frame doesn't like list columns easily without I() or tibble
-    # Let's keep node_map as a structure and convert to a list of lists at the end
-    node_data_list <- purrr::map(names(node_map), function(id) {
-       list(id = id, label = node_map[[id]]$label, params = node_map[[id]]$params)
-    })
-    node_data_list
+    df <- data.frame(
+      id = names(node_map),
+      label = purrr::map_chr(node_map, "label"),
+      stringsAsFactors = FALSE
+    )
+    df$params <- lapply(node_map, function(x) x$params)
+    df
   } else {
-    list()
+    df <- data.frame(id = character(), label = character(), stringsAsFactors = FALSE)
+    df$params <- list()
+    df
   }
 
   # Process Edges: Convert to dataframe

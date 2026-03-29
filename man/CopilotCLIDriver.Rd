@@ -43,7 +43,8 @@ Initialize CopilotCLIDriver}
 \if{html}{\out{<div class="r">}}\preformatted{CopilotCLIDriver$new(
   id = "copilot_cli",
   type = "shell",
-  validation_mode = "warning"
+  validation_mode = "warning",
+  working_dir = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -54,7 +55,9 @@ Initialize CopilotCLIDriver}
 
 \item{\code{type}}{String. Default type ('shell').}
 
-\item{\code{validation_mode}}{String. "warning" or "strict".
+\item{\code{validation_mode}}{String. "warning" or "strict".}
+
+\item{\code{working_dir}}{String. Optional. Path to isolated Git worktree.
 Call the LLM}
 }
 \if{html}{\out{</div>}}

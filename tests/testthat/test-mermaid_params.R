@@ -6,33 +6,33 @@ test_that("Mermaid parser extracts parameters correctly", {
   mermaid <- "graph TD\n  A[\"Node A | retries=3 | isolation=true\"] --> B"
   parsed <- parse_mermaid(mermaid)
   
-  node_a <- purrr::detect(parsed$nodes, ~ .x$id == "A")
+  node_a <- subset(parsed$nodes, id == "A")
   expect_equal(node_a$label, "Node A")
-  expect_equal(node_a$params$retries, 3)
-  expect_equal(node_a$params$isolation, TRUE)
+  expect_equal(node_a$params[[1]]$retries, 3)
+  expect_equal(node_a$params[[1]]$isolation, TRUE)
 })
 
 test_that("Mermaid parser handles edge cases", {
   # 1. Special characters in paths
   m1 <- "graph TD\n  A[\"Repo | path=/Users/test/repo\"]"
   p1 <- parse_mermaid(m1)
-  expect_equal(p1$nodes[[1]]$params$path, "/Users/test/repo")
+  expect_equal(p1$nodes$params[[1]]$path, "/Users/test/repo")
   
   # 2. Spaces around equals
   m2 <- "graph TD\n  A[\"Node | key = value \"]"
   p2 <- parse_mermaid(m2)
-  expect_equal(p2$nodes[[1]]$params$key, "value")
+  expect_equal(p2$nodes$params[[1]]$key, "value")
   
   # 3. Brackets in values
   m3 <- "graph TD\n  A[\"Regex | pattern=[A-Z]+\"]"
   p3 <- parse_mermaid(m3)
-  expect_equal(p3$nodes[[1]]$params$pattern, "[A-Z]+")
+  expect_equal(p3$nodes$params[[1]]$pattern, "[A-Z]+")
   
   # 4. Multiple pipes and empty values
   m4 <- "graph TD\n  A[\"Node | k1=v1 | k2= \"]"
   p4 <- parse_mermaid(m4)
-  expect_equal(p4$nodes[[1]]$params$k1, "v1")
-  expect_equal(p4$nodes[[1]]$params$k2, "")
+  expect_equal(p4$nodes$params[[1]]$k1, "v1")
+  expect_equal(p4$nodes$params[[1]]$k2, "")
 })
 
 test_that("Bidirectional parameter round-trip works", {

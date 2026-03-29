@@ -43,7 +43,8 @@ Initialize ClaudeCodeDriver}
 \if{html}{\out{<div class="r">}}\preformatted{ClaudeCodeDriver$new(
   id = "claude_cli",
   model = "claude-3-5-sonnet-latest",
-  validation_mode = "warning"
+  validation_mode = "warning",
+  working_dir = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -54,7 +55,9 @@ Initialize ClaudeCodeDriver}
 
 \item{\code{model}}{String. Default model.}
 
-\item{\code{validation_mode}}{String. "warning" or "strict".
+\item{\code{validation_mode}}{String. "warning" or "strict".}
+
+\item{\code{working_dir}}{String. Optional. Path to isolated Git worktree.
 Call the LLM}
 }
 \if{html}{\out{</div>}}

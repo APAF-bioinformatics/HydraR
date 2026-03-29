@@ -43,7 +43,8 @@ Initialize OllamaDriver}
 \if{html}{\out{<div class="r">}}\preformatted{OllamaDriver$new(
   id = "ollama",
   model = "llama3.2",
-  validation_mode = "warning"
+  validation_mode = "warning",
+  working_dir = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -54,7 +55,9 @@ Initialize OllamaDriver}
 
 \item{\code{model}}{String. Default model.}
 
-\item{\code{validation_mode}}{String. "warning" or "strict".
+\item{\code{validation_mode}}{String. "warning" or "strict".}
+
+\item{\code{working_dir}}{String. Optional. Path to isolated Git worktree.
 Format CLI Options for Ollama}
 }
 \if{html}{\out{</div>}}

@@ -46,7 +46,8 @@ Initialize GeminiAPIDriver}
 \if{html}{\out{<div class="r">}}\preformatted{GeminiAPIDriver$new(
   id = "gemini_api",
   model = "gemini-1.5-pro",
-  validation_mode = "warning"
+  validation_mode = "warning",
+  working_dir = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -58,6 +59,8 @@ Initialize GeminiAPIDriver}
 \item{\code{model}}{String. Model name.}
 
 \item{\code{validation_mode}}{String. "warning" or "strict".}
+
+\item{\code{working_dir}}{String. Optional. Path to worktree.}
 }
 \if{html}{\out{</div>}}
 }
