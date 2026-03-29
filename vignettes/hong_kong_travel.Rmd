@@ -73,19 +73,19 @@ travel_logic_registry <- list(
       state$get("airline"), paste(state$get("must_include"), collapse = ", ")
     )
   },
-  
+
   # 2. The constraint validation logic
   validate_constraints = function(state) {
     itinerary <- state$get("Planner") %||% ""
     must_include <- state$get("must_include")
     found <- sapply(must_include, function(x) grepl(x, itinerary, ignore.case = TRUE))
-    
+
     if (all(found)) {
       list(status = "SUCCESS", output = list(validation_passed = TRUE))
     } else {
       missing <- must_include[!found]
       list(status = "SUCCESS", output = list(
-        validation_passed = FALSE, 
+        validation_passed = FALSE,
         message = paste("Missing:", paste(missing, collapse = ", "))
       ))
     }
@@ -121,9 +121,9 @@ travel_node_factory <- function(id, label, params) {
       GeminiCLIDriver$new()
     } else {
       # Fallback or other drivers (Claude, OpenAI)
-      NULL 
+      NULL
     }
-    
+
     return(AgentLLMNode$new(
       id = id, label = label,
       role = params$role,
