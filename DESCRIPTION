@@ -47,7 +47,8 @@ Suggests:
     future,
     devtools,
     withr,
-    reticulate
+    reticulate,
+    DiagrammeR
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Collate: 
