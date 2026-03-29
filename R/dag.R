@@ -466,36 +466,86 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
     #' Plot the DAG
     #' @param type String. Currently only "mermaid" is supported.
+    #' @param status Logical. If TRUE, styling is applied to nodes/edges based on results.
     #' @return The mermaid string (invisibly).
-    plot = function(type = "mermaid") {
+    plot = function(type = "mermaid", status = FALSE) {
       if (type != "mermaid") stop("Only 'mermaid' type is currently supported.")
 
-      # Use preallocated character vector for lines
+      # 1. Define Nodes
       node_lines <- purrr::map_chr(names(self$nodes), function(node_id) {
         node <- self$nodes[[node_id]]
         sprintf("  %s[\"%s\"]", node_id, node$label)
       })
 
-      # Efficient edge gathering
+      # 2. Collect All Possible Edges (for consistent indexing)
+      all_edges_list <- list()
+      
+      # Standard edges
       edges_df <- if (is.list(self$edges) && length(self$edges) > 0) do.call(rbind, self$edges) else self$edges
-      edge_lines <- if (!is.null(edges_df) && nrow(edges_df) > 0) {
-        purrr::map_chr(seq_len(nrow(edges_df)), function(i) {
-          sprintf("  %s --> %s", edges_df$from[i], edges_df$to[i])
+      if (!is.null(edges_df) && nrow(edges_df) > 0) {
+        purrr::walk(seq_len(nrow(edges_df)), function(i) {
+          all_edges_list[[length(all_edges_list) + 1]] <<- list(from = edges_df$from[i], to = edges_df$to[i], label = NULL)
         })
-      } else {
-        character()
+      }
+      
+      # Conditional edges
+      # We sort keys to ensure deterministic ordering of indices
+      sorted_cond_from <- sort(names(self$conditional_edges))
+      purrr::walk(sorted_cond_from, function(from) {
+        cond <- self$conditional_edges[[from]]
+        if (!is.null(cond$if_true)) {
+          all_edges_list[[length(all_edges_list) + 1]] <<- list(from = from, to = cond$if_true, label = "Test")
+        }
+        if (!is.null(cond$if_false)) {
+          all_edges_list[[length(all_edges_list) + 1]] <<- list(from = from, to = cond$if_false, label = "Fail")
+        }
+      })
+
+      # Generate edge lines
+      edge_lines <- purrr::map_chr(all_edges_list, function(e) {
+        if (!is.null(e$label)) {
+          sprintf("  %s -- %s --> %s", e$from, e$label, e$to)
+        } else {
+          sprintf("  %s --> %s", e$from, e$to)
+        }
+      })
+
+      extra_lines <- character()
+      if (status && length(self$results) > 0) {
+        # Class Definitions
+        extra_lines <- c(
+          "  classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;",
+          "  classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;",
+          "  classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;",
+          "  classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;"
+        )
+
+        # Node styling
+        purrr::iwalk(self$results, function(res, node_id) {
+          cls <- if (res$status == "success") "success" else if (res$status %in% c("failed", "error")) "failure" else if (res$status == "pause") "pause" else NULL
+          if (!is.null(cls)) extra_lines <<- c(extra_lines, sprintf("  class %s %s", node_id, cls))
+        })
+
+        # Edge highlighting (linkStyle)
+        # Identify traversed pairs from trace_log
+        if (length(self$trace_log) > 1) {
+          traversed_nodes <- purrr::map_chr(purrr::compact(self$trace_log), ~ .x$node)
+          traversed_pairs <- purrr::map(seq_len(length(traversed_nodes) - 1), function(i) {
+            paste(traversed_nodes[i], traversed_nodes[i + 1], sep = "->")
+          }) |> unlist() |> unique()
+
+          # Find indices in all_edges_list
+          purrr::iwalk(all_edges_list, function(e, idx) {
+            pair_key <- paste(e$from, e$to, sep = "->")
+            if (pair_key %in% traversed_pairs) {
+              # linkStyle is 0-indexed
+              extra_lines <<- c(extra_lines, sprintf("  linkStyle %d stroke:#388e3c,stroke-width:4px;", idx - 1))
+            }
+          })
+        }
       }
 
-      # Conditional edges
-      cond_lines <- purrr::imap(self$conditional_edges, function(cond, from) {
-        res <- sprintf("  %s -- Test --> %s", from, cond$if_true)
-        if (!is.null(cond$if_false)) {
-          res <- c(res, sprintf("  %s -- Fail --> %s", from, cond$if_false))
-        }
-        res
-      }) |> unlist()
-
-      lines <- c("```mermaid", "graph TD", node_lines, edge_lines, cond_lines, "```")
+      lines <- c("```mermaid", "graph TD", node_lines, edge_lines, extra_lines, "```")
       res <- paste(lines, collapse = "\n")
       cat(res, "\n")
       invisible(res)
@@ -637,5 +687,16 @@ AgentDAG <- R6::R6Class("AgentDAG",
     }
   )
 )
+
+#' Create AgentDAG from Mermaid
+#' @param mermaid_str String. Mermaid syntax.
+#' @param node_factory Function(id, label) -> AgentNode.
+#' @return The AgentDAG object.
+#' @export
+mermaid_to_dag <- function(mermaid_str, node_factory) {
+  dag <- AgentDAG$new()
+  dag$from_mermaid(mermaid_str, node_factory)
+  return(dag)
+}
 
 #' <!-- APAF Bioinformatics | dag.R | Approved | 2026-03-29 -->

@@ -47,6 +47,36 @@ Learn how to use `HydraR` with these premium examples:
 
 Refer to the [Creating Custom Drivers](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/creating_drivers.Rmd) guide for implementation details.
 
+## 📊 Visualizing Execution
+
+`HydraR` includes a powerful visualization engine that goes beyond static DAGs. You can generate status-colored plots after a run to identify bottlenecks and failures.
+
+### Interactive Rendering in R
+
+We recommend using the [`DiagrammeR`](https://dgritree.github.io/DiagrammeR/) package to render your DAGs directly in the RStudio Viewer:
+
+```r
+library(HydraR)
+library(DiagrammeR)
+
+# Generate a status-colored plot after a run
+# Green = Success, Red = Failure, Blue = Active path
+DiagrammeR::mermaid(dag$plot(status = TRUE))
+```
+
+### Path Highlighting
+
+The `plot(status = TRUE)` method automatically correlates your execution `trace_log` with the graph structure to highlight the **exact path** taken by the agents, including loops and branches.
+
+### Mermaid Round-Trip
+
+You can also define your agentic workflows using pure Mermaid syntax and convert them directly into R objects:
+
+```r
+mermaid <- "graph TD\n  Start --> End"
+dag <- mermaid_to_dag(mermaid, my_node_factory)
+```
+
 ## "Hello World" Example
 
 ```r
