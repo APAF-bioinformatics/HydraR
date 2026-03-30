@@ -24,8 +24,9 @@ GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
     #' @param model String. Optional model.
     #' @param validation_mode String. "warning" or "strict".
     #' @param working_dir String. Optional. Path to isolated Git worktree.
-    initialize = function(id = "gemini_cli", model = "gemini-1.5-pro", validation_mode = "warning", working_dir = NULL) {
-      super$initialize(id, provider = "google", model_name = model, validation_mode = validation_mode, working_dir = working_dir)
+    #' @param repo_root String. Path to the main repository root.
+    initialize = function(id = "gemini_cli", model = "gemini-2.5-flash", validation_mode = "warning", working_dir = NULL, repo_root = NULL) {
+      super$initialize(id, provider = "google", model_name = model, validation_mode = validation_mode, working_dir = working_dir, repo_root = repo_root)
       self$model <- model
       self$supported_opts <- c(
         "model", "sandbox", "yolo", "approval_mode", "policy",
@@ -55,16 +56,53 @@ GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
       writeLines(prompt, tmp_prompt)
       on.exit(unlink(tmp_prompt))
 
-      # Use exec_in_dir to support worktrees
-      res <- self$exec_in_dir("gemini", args = c("-p", "-", formatted_opts), stdin = tmp_prompt, stdout = TRUE, stderr = TRUE)
+      tmp_stdout <- tempfile(pattern = "gemini_stdout_", fileext = ".txt")
+      tmp_stderr <- tempfile(pattern = "gemini_stderr_", fileext = ".txt")
+      on.exit(unlink(c(tmp_stdout, tmp_stderr)), add = TRUE)
 
-      if (length(res) == 0) {
+      # Path Retrieval: check env var then option
+      cmd <- Sys.getenv("HYDRAR_GEMINI_PATH", unset = getOption("HydraR.gemini_path", "gemini"))
+
+      # Root-Locked Execution Strategy
+      exec_dir <- if (!is.null(self$repo_root)) self$repo_root else self$working_dir
+
+      # Add worktree to context if we are running from root
+      if (!is.null(self$repo_root) && !is.null(self$working_dir) && (self$repo_root != self$working_dir)) {
+        cli_opts$include_directories <- unique(c(cli_opts$include_directories, self$working_dir))
+        formatted_opts <- self$format_cli_opts(cli_opts)
+      }
+
+      # Use system2 with explicit stdout/stderr files to avoid interleaving and capture status
+      exit_code <- if (!is.null(exec_dir)) {
+        withr::with_dir(exec_dir, {
+          system2(cmd, args = c("-p", "-", formatted_opts), stdin = tmp_prompt, stdout = tmp_stdout, stderr = tmp_stderr)
+        })
+      } else {
+        system2(cmd, args = c("-p", "-", formatted_opts), stdin = tmp_prompt, stdout = tmp_stdout, stderr = tmp_stderr)
+      }
+
+      # Read results
+      out_lines <- if (file.exists(tmp_stdout)) readLines(tmp_stdout, warn = FALSE) else character(0)
+      err_lines <- if (file.exists(tmp_stderr)) readLines(tmp_stderr, warn = FALSE) else character(0)
+
+      # Handle failure
+      if (exit_code != 0) {
+        err_msg <- paste(err_lines, collapse = "\n")
+        stop(sprintf("[gemini_cli] CLI execution failed (exit code %d): %s", exit_code, substr(err_msg, 1, 1000)))
+      }
+
+      # Even if exit_code is 0, the CLI might output warnings to stdout in some versions.
+      # Filter out the known "Keychain initialization" noise if it leaked into stdout
+      # Also filter "MCP issues detected" which can corrupt generated code outputs
+      clean_lines <- out_lines[!grepl("Keychain initialization|Require stack|Using FileKeychain|Loaded cached credentials|\\[IDEClient\\] Directory mismatch|Scheduling MCP|Executing MCP|MCP context|Registering notification|Server.*supports|Received tool update|Received prompt update|Refreshed context|MCP issues detected|Run /mcp list", out_lines)]
+
+      if (length(clean_lines) == 0) {
         return("")
       }
 
-      cleaned <- paste(res, collapse = "\n")
+      cleaned_text <- paste(clean_lines, collapse = "\n")
       # Use HydraR utility to strip markdown fences if present
-      return(extract_r_code_advanced(trimws(cleaned)))
+      return(extract_r_code_advanced(trimws(cleaned_text)))
     }
   )
 )
@@ -124,7 +162,10 @@ OllamaDriver <- R6::R6Class("OllamaDriver",
       writeLines(prompt, tmp_prompt)
       on.exit(unlink(tmp_prompt))
 
-      res <- self$exec_in_dir("ollama", args = c("run", target_model, formatted_opts), stdin = tmp_prompt, stdout = TRUE, stderr = FALSE)
+      # Respect global path option
+      cmd <- getOption("HydraR.ollama_path", "ollama")
+
+      res <- self$exec_in_dir(cmd, args = c("run", target_model, formatted_opts), stdin = tmp_prompt, stdout = TRUE, stderr = FALSE)
 
       if (length(res) == 0) {
         return("")
@@ -190,8 +231,11 @@ ClaudeCodeDriver <- R6::R6Class("ClaudeCodeDriver",
       writeLines(prompt, tmp_prompt)
       on.exit(unlink(tmp_prompt))
 
+      # Respect global path option
+      cmd <- getOption("HydraR.claude_path", "claude")
+
       # Use exec_in_dir to support worktrees
-      res <- self$exec_in_dir("claude", args = formatted_opts, stdin = tmp_prompt, stdout = TRUE, stderr = TRUE)
+      res <- self$exec_in_dir(cmd, args = formatted_opts, stdin = tmp_prompt, stdout = TRUE, stderr = TRUE)
 
       if (length(res) == 0) {
         return("")

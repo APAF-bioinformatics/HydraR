@@ -94,12 +94,12 @@ AgentLLMNode <- R6::R6Class("AgentLLMNode",
         },
         error = function(e) {
           warning(sprintf("[%s] LLM driver call failed: %s", self$id, e$message))
-          return(NULL)
+          return(list(error = e$message))
         }
       )
 
-      if (is.null(raw_response)) {
-        self$last_result <- list(status = "failed", output = NULL, error = "Driver Error", attempts = 1)
+      if (is.list(raw_response) && !is.null(raw_response$error)) {
+        self$last_result <- list(status = "failed", output = NULL, error = raw_response$error, attempts = 1)
         return(self$last_result)
       }
 
