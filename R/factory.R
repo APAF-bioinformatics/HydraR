@@ -139,7 +139,9 @@ resolve_default_driver <- function(driver_id, driver_registry = NULL) {
   drv_reg <- driver_registry %||% tryCatch(get_driver_registry(), error = function(e) NULL)
   if (!is.null(drv_reg)) {
     registered <- drv_reg$get(driver_id)
-    if (!is.null(registered)) return(registered)
+    if (!is.null(registered)) {
+      return(registered)
+    }
   }
 
   # 2. Auto-construct from shorthand
@@ -189,7 +191,6 @@ auto_node_factory <- function(driver_registry = NULL) {
     node_type <- params[["type"]] %||% "auto"
 
     switch(node_type,
-
       "llm" = {
         # Resolve driver
         driver_id <- params[["driver"]] %||% "gemini"
@@ -230,7 +231,6 @@ auto_node_factory <- function(driver_registry = NULL) {
           model = params[["model"]]
         )
       },
-
       "logic" = {
         logic_id <- params[["logic_id"]]
         if (is.null(logic_id)) {
@@ -242,11 +242,9 @@ auto_node_factory <- function(driver_registry = NULL) {
         }
         AgentLogicNode$new(id = id, logic_fn = logic_fn, label = label, params = params)
       },
-
       "merge" = {
         create_merge_harmonizer(id = id)
       },
-
       "auto" = {
         # Fallback: try logic registry by id, then passthrough
         fn <- get_logic(id)
@@ -270,4 +268,3 @@ auto_node_factory <- function(driver_registry = NULL) {
     )
   }
 }
-

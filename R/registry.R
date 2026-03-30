@@ -134,11 +134,14 @@ resolve_logic_pattern <- function(v) {
 
   # Tier 1: External R File (source(v)$value)
   if (grepl("\\.[rR]$", v_trim) && file.exists(v_trim)) {
-    res <- tryCatch({
-      source(v_trim, local = TRUE)$value
-    }, error = function(e) {
-      stop(sprintf("Failed to source logic file '%s': %s", v_trim, e$message))
-    })
+    res <- tryCatch(
+      {
+        source(v_trim, local = TRUE)$value
+      },
+      error = function(e) {
+        stop(sprintf("Failed to source logic file '%s': %s", v_trim, e$message))
+      }
+    )
     if (!is.function(res)) {
       stop(sprintf("Logic file '%s' did not return a function. Ensure it ends with an anonymous function definition.", v_trim))
     }
@@ -183,4 +186,3 @@ validate_workflow_schema <- function(data) {
 }
 
 # <!-- APAF Bioinformatics | registry.R | Approved | 2026-03-30 -->
-

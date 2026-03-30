@@ -49,7 +49,13 @@ test_that("register_role rejects non-string inputs", {
 # ==================================================================
 test_that("resolve_default_driver constructs Gemini driver from shorthand", {
   skip_if_not(
-    tryCatch({ GeminiCLIDriver$new(); TRUE }, error = function(e) FALSE),
+    tryCatch(
+      {
+        GeminiCLIDriver$new()
+        TRUE
+      },
+      error = function(e) FALSE
+    ),
     "GeminiCLIDriver not available"
   )
   driver <- resolve_default_driver("gemini")
