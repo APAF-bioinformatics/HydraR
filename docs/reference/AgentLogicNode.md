@@ -34,7 +34,7 @@ An \`AgentLogicNode\` R6 object.
 
 #### Usage
 
-    AgentLogicNode$new(id, logic_fn, label = NULL)
+    AgentLogicNode$new(id, logic_fn, label = NULL, params = list())
 
 #### Arguments
 
@@ -48,7 +48,11 @@ An \`AgentLogicNode\` R6 object.
 
 - `label`:
 
-  Optional human-readable name. Run the Logic Node
+  Optional human-readable name.
+
+- `params`:
+
+  Optional list of parameters. Run the Logic Node
 
 ------------------------------------------------------------------------
 

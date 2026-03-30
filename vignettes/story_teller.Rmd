@@ -12,6 +12,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+library(HydraR)
 ```
 
 ## Introduction
@@ -26,7 +27,7 @@ This forms a fundamental **iterative critique-and-revise** loop.
 
 ## Setup
 
-```{r setup}
+```{r library_load}
 library(HydraR)
 ```
 

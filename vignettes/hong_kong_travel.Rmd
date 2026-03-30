@@ -16,127 +16,45 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-This vignette demonstrates how to use `HydraR` to orchestrate a high-fidelity travel planning workflow. Unlike simple mock-based agents, we will use the `GeminiCLIDriver` to drive real-world logic transitions, state management, and persistence for a complex itinerary.
+This vignette demonstrates the **Zero-R-Code** orchestration pattern using `HydraR`. Instead of defining roles, logic, and state in R blocks, we define the entire workflow in a single `workflow.yml` file.
 
-We will plan a trip from **Sydney (SYD)** to **Hong Kong (HKG)** with specific airline and activity constraints.
-
-## Scenario Requirements
-
-- **Route**: Sydney to Hong Kong (Departure: 29th May 2026, Return: 5th June 2026).
-- **Airline**: Qantas (Required).
-- **Activities**: Visit Cheung Chau Island, dine at Spaghetti House, and sample local Cantonese cuisine.
-- **Goal**: Generate a structured 3-day itinerary that respects these constraints.
+The R environment acts purely as an **interpreter/compiler** for the language-independent manifest.
 
 ## Setup
 
-First, load the HydraR library. Since we're using the **Node Factory** pattern with Mermaid, drivers are instantiated on-demand during DAG creation.
+First, load the HydraR library.
 
 ```{r lib_load}
 library(HydraR)
 ```
 
-## Defining the Workflow Components
+## Loading the Workflow (Declarative YAML)
 
-To keep our architecture clean, we store all workflow components—initial configuration, LLM prompts, and deterministic logic—in a central registry.
+We use `load_workflow()` to ingest the entire definition from `hong_kong_travel.yml`. This file contains the:
+1. **Mermaid Graph** (Source of truth for DAG architecture)
+2. **LLM Roles** (System prompts for travel concierges)
+3. **Anonymous Logic** (R snippets for constraints and prompting)
+4. **Initial State** (Pre-configurations for the journey)
 
-```{r logic_registry}
-travel_logic_registry <- list(
-  # 0. Initial State Configuration
-  initial_state = list(
-    origin = "Sydney",
-    destination = "Hong Kong",
-    departure_date = "2026-05-26",
-    return_date = "2026-06-01",
-    airline = "Qantas",
-    must_include = c("Cheung Chau Island", "Spaghetti House", "Local Cuisine"),
-    itinerary_draft = NULL,
-    validation_passed = FALSE
-  ),
-
-  # 1. The itinerary generation prompt
-  plan_itinerary = function(state) {
-    sprintf(
-      "Plan a 3-day trip from %s to %s. Dates: %s to %s. Airline: %s. Must include: %s.",
-      state$get("origin"), state$get("destination"),
-      state$get("departure_date"), state$get("return_date"),
-      state$get("airline"), paste(state$get("must_include"), collapse = ", ")
-    )
-  },
-
-  # 2. The constraint validation logic
-  validate_constraints = function(state) {
-    itinerary <- state$get("Planner") %||% ""
-    must_include <- state$get("must_include")
-    found <- sapply(must_include, function(x) grepl(x, itinerary, ignore.case = TRUE))
-
-    if (all(found)) {
-      list(status = "SUCCESS", output = list(validation_passed = TRUE))
-    } else {
-      missing <- must_include[!found]
-      list(status = "SUCCESS", output = list(
-        validation_passed = FALSE,
-        message = paste("Missing:", paste(missing, collapse = ", "))
-      ))
-    }
-  }
-)
-```
-
-## Defining the Workflow (Mermaid-as-Source)
-
-We define the entire orchestration using Mermaid syntax. Parameters like `role` and `driver` are baked directly into the graph.
-
-```{r mermaid_source}
-mermaid_src <- '
-graph TD
-  Planner["Travel Planner | role=Travel Concierge | driver=gemini | prompt_id=plan_itinerary | workdir=./hkg_trip"]
-  Auditor["Constraint Validator | logic_id=validate_constraints | retries=3"]
-
-  Planner --> Auditor
-  Auditor -- "fail" --> Planner
-'
+```{r load_wf}
+# Load everything from the external declarative source
+# This populates registries and extracts the graph
+wf <- load_workflow("hong_kong_travel.yml")
 ```
 
 ## Instantiating the DAG
 
-We use a **Node Factory** to resolve the IDs in the Mermaid string against our logic registry.
+With the registries populated by the loader, we simply pass the graph and the universal `auto_node_factory()` to `mermaid_to_dag()`.
 
 ```{r dag_creation}
-# The factory maps Mermaid params to HydraR Node objects
-travel_node_factory <- function(id, label, params) {
-  if (id == "Planner") {
-    # Resolve driver from Mermaid params
-    driver_obj <- if (params$driver == "gemini") {
-      GeminiCLIDriver$new()
-    } else {
-      # Fallback or other drivers (Claude, OpenAI)
-      NULL
-    }
-
-    return(AgentLLMNode$new(
-      id = id, label = label,
-      role = params$role,
-      driver = driver_obj,
-      prompt_builder = travel_logic_registry[[params$prompt_id]],
-      params = params
-    ))
-  } else if (id == "Auditor") {
-    return(AgentLogicNode$new(
-      id = id, label = label,
-      logic_fn = travel_logic_registry[[params$logic_id]],
-      params = params
-    ))
-  }
-}
-
-# Create the DAG directly from the visual source
-dag <- mermaid_to_dag(mermaid_src, travel_node_factory)
+# Define the DAG string from the YAML object
+dag <- mermaid_to_dag(wf$graph, auto_node_factory())
 dag$compile()
 ```
 
 ## Visualizing the Workflow
 
-We can view the agent's logic directly using Mermaid.js syntax. By setting `details = TRUE`, we see the embedded configuration parameters.
+We can view the agent's logic directly using Mermaid.js syntax.
 
 ```{r, results = 'asis'}
 cat("```mermaid\n")
@@ -146,15 +64,15 @@ cat("\n```\n")
 
 ## Execution
 
-When we run the DAG, `HydraR` manages the state transitions and LLM calls. The `workdir` and `role` parameters are automatically applied.
+When we run the DAG, we use the `initial_state` extracted from the YAML file. No manual R list creation is required.
 
 ```{r, eval = FALSE}
 # Register a checkpointer for durability
 checkpointer <- DuckDBSaver$new(path = "travel_booking.duckdb")
 dag$set_checkpointer(checkpointer)
 
-# Run the orchestration pulling initial config from our registry
-results <- dag$run(initial_state = travel_logic_registry$initial_state, max_steps = 5)
+# Run the orchestration using the state from YAML
+results <- dag$run(initial_state = wf$initial_state, max_steps = 5)
 
 # Display final itinerary
 cat(results$state$get("Planner"))
@@ -162,10 +80,10 @@ cat(results$state$get("Planner"))
 
 ## Conclusion
 
-This workflow demonstrates how `HydraR` provides:
-1. **Dynamic Prompting**: Injecting complex R state into LLM calls.
-2. **Reliability**: Using logic nodes as "guardrails" for non-deterministic LLM output.
-3. **Persistence**: The ability to checkpoint and resume complex multi-step planning.
+This workflow demonstrates how `HydraR` enables **Truly Zero-R-Code** definitions:
+1. **Language-Independent**: The workflow is defined in YAML and Mermaid, making it portable.
+2. **Reduced Boilerplate**: `load_workflow()` handles all registration and state parsing.
+3. **Maintainable**: Logic and roles are separated from the R execution engine.
 
 ---
-<!-- APAF Bioinformatics | hong_kong_travel.Rmd | Approved | 2026-03-29 -->
+<!-- APAF Bioinformatics | hong_kong_travel.Rmd | Approved | 2026-03-30 -->

@@ -18,87 +18,109 @@ This is a classic “Generate-and-Test” self-healing loop.
 ``` r
 
 library(HydraR)
-
-# Initialize the Gemini CLI driver
-driver <- GeminiCLIDriver$new()
 ```
 
-## Building the DAG
+## Defining the Workflow Components
 
-Initialize the `AgentDAG`.
+To keep our architecture clean, we store all workflow components—initial
+configuration, LLM prompts, agent roles, and deterministic logic—in a
+central registry.
 
 ``` r
 
-dag <- AgentDAG$new()
-```
+bug_logic_registry <- list(
+  # 0. Initial Configuration
+  initial_state = list(
+    bug_report = "Function crashes when 'x' is missing."
+  ),
 
-### 1. The Bug Analyzer Node
+  # 1. Deterministic Logic Functions
+  logic = list(
+    Tester = function(state, params) {
+      patch <- state$get("Analyzer")
 
-This node uses an LLM to digest a bug report and iterative test failures
-to eventually produce a working patch.
-
-``` r
-
-analyzer_node <- AgentLLMNode$new(
-  id = "Analyzer",
-  label = "Debugger Agent",
-  role = "You are a software engineer specializing in fixing R bugs. Review the bug report and any previous test failures, then provide a corrected R code snippet.",
-  driver = driver,
-  prompt_builder = function(state) {
-    feedback_text <- if (!is.null(state$get("Tester"))) sprintf("\nTest Feedback: %s", state$get("Tester")) else ""
-    sprintf("Bug Report: %s%s\nOutput exactly a snippet of R code.", state$get("bug_report"), feedback_text)
-  }
-)
-
-dag$add_node(analyzer_node)
-```
-
-### 2. The Test Runner Node
-
-This node evaluates the patch using deterministic logic (mocked here).
-
-``` r
-
-tester_node <- AgentLogicNode$new(
-  id = "Tester",
-  label = "Test Suite",
-  logic_fn = function(state, memory = NULL) {
-    patch <- state$get("Analyzer")
-
-    # Mock evaluation logic: In our scenario, the fix must use is.null().
-    if (grepl("is.null", patch, fixed = TRUE)) {
-      list(status = "SUCCESS", output = list(
-        tests_passed = TRUE,
-        test_feedback = "All 5 tests passed successfully."
-      ))
-    } else {
-      list(status = "SUCCESS", output = list(
-        tests_passed = FALSE,
-        test_feedback = "Error: object 'NULL' not found. Did you mean to use 'is.null()'?"
-      ))
+      # Mock evaluation logic: In our scenario, the fix must use is.null().
+      if (grepl("is.null", patch, fixed = TRUE)) {
+        list(status = "SUCCESS", output = list(
+          tests_passed = TRUE,
+          test_feedback = "All 5 tests passed successfully."
+        ))
+      } else {
+        list(status = "SUCCESS", output = list(
+          tests_passed = FALSE,
+          test_feedback = "Error: object 'NULL' not found. Did you mean to use 'is.null()'?"
+        ))
+      }
     }
-  }
-)
+  ),
 
-dag$add_node(tester_node)
+  # 2. LLM Agent Roles
+  roles = list(
+    Analyzer = "You are a software engineer specializing in fixing R bugs. Review the bug report and any previous test failures, then provide a corrected R code snippet."
+  ),
+
+  # 3. LLM Prompt Builders
+  prompts = list(
+    Analyzer = function(state) {
+      feedback_text <- if (!is.null(state$get("Tester"))) sprintf("\nTest Feedback: %s", state$get("Tester")) else ""
+      sprintf("Bug Report: %s%s\nOutput exactly a snippet of R code.", state$get("bug_report"), feedback_text)
+    }
+  )
+)
 ```
 
-## Defining Transitions
+## The Node Factory
 
-We structure the loop. `Tester` conditionally loops back to `Analyzer`
-upon test failure.
+We use a factory function to dynamically create nodes based on their
+type and parameters defined in the Mermaid graph.
 
 ``` r
 
-dag$set_start_node("Analyzer")
+bug_node_factory <- function(id, label, params) {
+  # Driver resolution from Mermaid params
+  driver_obj <- if (!is.null(params$driver) && params$driver == "gemini") GeminiCLIDriver$new() else NULL
 
-dag$add_edge("Analyzer", "Tester")
+  if (id %in% names(bug_logic_registry$logic)) {
+    # Create a deterministic Logic Node
+    AgentLogicNode$new(
+      id = id,
+      label = label,
+      logic_fn = bug_logic_registry$logic[[id]]
+    )
+  } else {
+    # Create an agentic LLM Node
+    AgentLLMNode$new(
+      id = id,
+      label = label,
+      role = bug_logic_registry$roles[[id]],
+      driver = driver_obj,
+      prompt_builder = bug_logic_registry$prompts[[id]]
+    )
+  }
+}
+```
 
+## Building the DAG via Mermaid
+
+We define the entire workflow architecture as a Mermaid string. This
+string serves as the single source of truth for both structure and node
+metadata.
+
+``` r
+
+mermaid_graph <- "
+graph TD
+  Analyzer[Debugger Agent | driver=gemini] --> Tester
+  Tester[Test Suite] -- Test Failed --> Analyzer
+"
+
+# Instantiate the DAG
+dag <- AgentDAG$from_mermaid(mermaid_graph, node_factory = bug_node_factory)
+
+# Add conditional logic for the self-healing loop
 dag$add_conditional_edge(
   from = "Tester",
-  test = function(out) {
-    isTRUE(out$tests_passed)
-  },
+  test = function(out) isTRUE(out$tests_passed),
   if_true = NULL, # End execution
   if_false = "Analyzer" # Retry
 )
@@ -127,6 +149,7 @@ graph TD
   Analyzer["Debugger Agent"]
   Tester["Test Suite"]
   Analyzer --> Tester
+  Tester -- Test Failed --> Analyzer
   Tester -- Fail --> Analyzer
 ```
 
@@ -135,6 +158,7 @@ graph TD
   Analyzer["Debugger Agent"]
   Tester["Test Suite"]
   Analyzer --> Tester
+  Tester -- Test Failed --> Analyzer
   Tester -- Fail --> Analyzer
 ```
 
@@ -150,12 +174,12 @@ cat("\n```\n")
 
 
     ``` r
-    initial_state <- list(
-      bug_report = "Function crashes when 'x' is missing."
-    )
-
     cat("Starting Automatic Bug Remediation...\n")
-    result <- compiled_dag$run(initial_state = initial_state, max_steps = 10)
+
+    result <- compiled_dag$run(
+      initial_state = bug_logic_registry$initial_state,
+      max_steps = 10
+    )
 
     cat("\n--- RESOLUTION RESULT ---\n")
     cat("Final Patch Proposed:", result$state$get("Analyzer"), "\n")

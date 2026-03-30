@@ -261,6 +261,8 @@ State persistence and inter-node messaging infrastructure.
   : Memory Message Log R6 Class
 - [`DuckDBMessageLog`](https://github.com/APAF-bioinformatics/HydraR/reference/DuckDBMessageLog.md)
   : DuckDB Message Log R6 Class
+- [`JSONLMessageLog`](https://github.com/APAF-bioinformatics/HydraR/reference/JSONLMessageLog.md)
+  : JSONL Message Log R6 Class
 - [`Checkpointer`](https://github.com/APAF-bioinformatics/HydraR/reference/Checkpointer.md)
   : Checkpointer Interface
 - [`MemorySaver`](https://github.com/APAF-bioinformatics/HydraR/reference/MemorySaver.md)
@@ -302,6 +304,8 @@ Helper functions for mermaid visualization and code extraction.
 
 - [Agentic Travel Planning: Sydney to Hong
   Kong](https://github.com/APAF-bioinformatics/HydraR/articles/hong_kong_travel.md):
+- [Parallel Benchmarking with Git
+  Worktrees](https://github.com/APAF-bioinformatics/HydraR/articles/sorting_benchmark.md):
 
 ### Examples Gallery
 

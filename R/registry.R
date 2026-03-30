@@ -38,4 +38,149 @@ list_logic <- function() {
   ls(envir = .hydra_registry)
 }
 
-# <!-- APAF Bioinformatics | registry.R | Approved | 2026-03-29 -->
+#' Register an LLM Role (System Prompt)
+#' @param name String. Unique identifier for the role.
+#' @param prompt_text String. The system prompt text.
+#' @return The registry environment (invisibly).
+#' @export
+register_role <- function(name, prompt_text) {
+  stopifnot(is.character(name) && length(name) == 1)
+  stopifnot(is.character(prompt_text) && length(prompt_text) == 1)
+  assign(paste0("__role__", name), prompt_text, envir = .hydra_registry)
+  invisible(.hydra_registry)
+}
+
+#' Get an LLM Role (System Prompt)
+#' @param name String. Unique identifier.
+#' @return String prompt text, or NULL if not found.
+#' @export
+get_role <- function(name) {
+  key <- paste0("__role__", name)
+  if (exists(key, envir = .hydra_registry)) {
+    return(get(key, envir = .hydra_registry))
+  }
+  NULL
+}
+
+#' List Registered Roles
+#' @return Character vector of role names.
+#' @export
+list_roles <- function() {
+  all_keys <- ls(envir = .hydra_registry)
+  role_keys <- all_keys[grepl("^__role__", all_keys)]
+  gsub("^__role__", "", role_keys)
+}
+
+#' Load Multi-Agent Workflow from File
+#' @param file_path String. Path to the YAML or JSON workflow definition.
+#' @return A list containing elements: 'graph', 'initial_state', 'roles', 'logic', 'raw'.
+#' @export
+load_workflow <- function(file_path) {
+  stopifnot(is.character(file_path) && length(file_path) == 1)
+  if (!file.exists(file_path)) {
+    stop(sprintf("Workflow file not found: %s", file_path))
+  }
+
+  # Detect format
+  ext <- tolower(tools::file_ext(file_path))
+  raw_data <- if (ext %in% c("yml", "yaml")) {
+    yaml::read_yaml(file_path)
+  } else if (ext == "json") {
+    jsonlite::read_json(file_path, simplifyVector = FALSE)
+  } else {
+    stop("Unsupported workflow format. Use .yml, .yaml, or .json")
+  }
+
+  # 1. Validate Schema
+  validate_workflow_schema(raw_data)
+
+  # 2. Register Roles
+  if (!is.null(raw_data[["roles"]])) {
+    purrr::iwalk(raw_data[["roles"]], function(prompt, name) {
+      register_role(name, prompt)
+    })
+  }
+
+  # 3. Register Logic
+  if (!is.null(raw_data[["logic"]])) {
+    purrr::iwalk(raw_data[["logic"]], function(v, name) {
+      fn <- resolve_logic_pattern(v)
+      register_logic(name, fn)
+    })
+  }
+
+  # 4. Return Workflow Structure
+  list(
+    graph = raw_data[["graph"]] %||% "",
+    initial_state = raw_data[["initial_state"]] %||% list(),
+    roles = raw_data[["roles"]] %||% list(),
+    logic = raw_data[["logic"]] %||% list(),
+    raw = raw_data
+  )
+}
+
+# --- Internal Helpers ---
+
+#' Resolve Logic Pattern (3-Tier)
+#' @param v String. File path, function name, or code snippet.
+#' @return Logic function.
+#' @keywords internal
+resolve_logic_pattern <- function(v) {
+  if (!is.character(v)) {
+    stop("Logic entry must be a character string.")
+  }
+
+  v_trim <- trimws(v)
+
+  # Tier 1: External R File (source(v)$value)
+  if (grepl("\\.[rR]$", v_trim) && file.exists(v_trim)) {
+    res <- tryCatch({
+      source(v_trim, local = TRUE)$value
+    }, error = function(e) {
+      stop(sprintf("Failed to source logic file '%s': %s", v_trim, e$message))
+    })
+    if (!is.function(res)) {
+      stop(sprintf("Logic file '%s' did not return a function. Ensure it ends with an anonymous function definition.", v_trim))
+    }
+    return(res)
+  }
+
+  # Tier 2: Existing Named Function
+  # First check our internal registry
+  existing_fn <- get_logic(v_trim)
+  if (!is.null(existing_fn) && is.function(existing_fn)) {
+    return(existing_fn)
+  }
+  # Then check the search path (globalEnv, packages etc.)
+  if (exists(v_trim, mode = "function")) {
+    return(get(v_trim, mode = "function"))
+  }
+
+  # Tier 3: Anonymous Code Wrapper
+  # If it contains brackets, newlines, or assignment - treat as code
+  function(state) {
+    # Provide 'state' in evaluation environment
+    eval(parse(text = v), envir = list(state = state), enclos = parent.frame())
+  }
+}
+
+#' Simple Workflow Schema Validator
+#' @param data List. Parsed YAML/JSON data.
+#' @keywords internal
+validate_workflow_schema <- function(data) {
+  if (!is.list(data)) {
+    stop("Workflow data must be a top-level list/object.")
+  }
+
+  # Optional but recommended keys
+  valid_keys <- c("graph", "roles", "logic", "initial_state", "metadata")
+  found_keys <- names(data)
+
+  unknown <- setdiff(found_keys, valid_keys)
+  if (length(unknown) > 0) {
+    warning(sprintf("Unknown top-level keys in workflow: %s", paste(unknown, collapse = ", ")))
+  }
+}
+
+# <!-- APAF Bioinformatics | registry.R | Approved | 2026-03-30 -->
+

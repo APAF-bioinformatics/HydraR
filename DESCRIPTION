@@ -37,7 +37,8 @@ Imports:
     igraph,
     jsonlite,
     purrr,
-    R6
+    R6,
+    yaml
 Suggests: 
     testthat (>= 3.0.0),
     duckdb,

@@ -10,7 +10,8 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Gemini CLI Driver Demo">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<meta property="og:title" content="Gemini CLI Driver Demo">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -29,7 +30,6 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../articles/hong_kong_travel.html">Get Started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
@@ -40,6 +40,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
+    <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Examples</h6></li>
     <li><a class="dropdown-item" href="../articles/academic_research.html">Agentic Academic Researcher</a></li>
@@ -53,6 +54,7 @@
     <li><a class="dropdown-item" href="../articles/hello_world_logic.html">Hello World Logic Nodes</a></li>
     <li><a class="dropdown-item" href="../articles/parameterized_mermaid.html">Advanced Mermaid Parameters</a></li>
     <li><a class="dropdown-item" href="../articles/round_trip_demo.html">Mermaid Round-Trip Visualization</a></li>
+    <li><a class="dropdown-item" href="../articles/distributed_communication.html">Distributed Consensus Simulation</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
     <li><a class="dropdown-item" href="../articles/targets_integration.html">Reproducible Agentic Pipelines with targets</a></li>
@@ -92,42 +94,80 @@
 <div class="section level2">
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
-<p>First, we define the <code>GeminiCLIDriver</code>. This driver
-interacts with the <code>gemini</code> command-line tool.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Initialize the Gemini CLI driver</span></span>
-<span><span class="va">driver</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GeminiCLIDriver.html">GeminiCLIDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>model <span class="op">=</span> <span class="st">"gemini-1.5-flash"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="defining-the-agent-node">Defining the Agent Node<a class="anchor" aria-label="anchor" href="#defining-the-agent-node"></a>
+<h2 id="defining-the-workflow-components">Defining the Workflow Components<a class="anchor" aria-label="anchor" href="#defining-the-workflow-components"></a>
 </h2>
-<p>We create an <code>AgentLLMNode</code> that acts as a poetic
-bioinformatician.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">node_agent</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLLMNode.html">AgentLLMNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
-<span>  id <span class="op">=</span> <span class="st">"writer"</span>,</span>
-<span>  role <span class="op">=</span> <span class="st">"You are a poetic assistant specializing in bioinformatics."</span>,</span>
-<span>  driver <span class="op">=</span> <span class="va">driver</span>,</span>
-<span>  prompt_builder <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Write a 2-line poem about: %s"</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"topic"</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="op">}</span></span>
+<p>To keep our architecture clean, we store all workflow
+components—initial configuration, LLM prompts, and agent roles—in a
+central registry.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">gemini_logic_registry</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="co"># 0. Initial Configuration</span></span>
+<span>  initial_state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    topic <span class="op">=</span> <span class="st">"DNA sequencing"</span></span>
+<span>  <span class="op">)</span>,</span>
+<span></span>
+<span>  <span class="co"># 1. Agent Roles</span></span>
+<span>  roles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    writer <span class="op">=</span> <span class="st">"You are a poetic assistant specializing in bioinformatics."</span></span>
+<span>  <span class="op">)</span>,</span>
+<span></span>
+<span>  <span class="co"># 2. Prompt Builders</span></span>
+<span>  prompts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    writer <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Write a 2-line poem about: %s"</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"topic"</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="op">}</span></span>
+<span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="the-node-factory">The Node Factory<a class="anchor" aria-label="anchor" href="#the-node-factory"></a>
+</h2>
+<p>We use a factory function to dynamically resolve nodes and their
+drivers based on parameters defined in the Mermaid graph.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">gemini_node_factory</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">id</span>, <span class="va">label</span>, <span class="va">params</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="co"># Driver resolution from Mermaid params</span></span>
+<span>  <span class="va">driver_obj</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">params</span><span class="op">$</span><span class="va">driver</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="va">params</span><span class="op">$</span><span class="va">driver</span> <span class="op">==</span> <span class="st">"gemini"</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va"><a href="../reference/GeminiCLIDriver.html">GeminiCLIDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>model <span class="op">=</span> <span class="st">"gemini-1.5-flash"</span><span class="op">)</span></span>
+<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>    <span class="cn">NULL</span></span>
+<span>  <span class="op">}</span></span>
+<span></span>
+<span>  <span class="va"><a href="../reference/AgentLLMNode.html">AgentLLMNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>    id <span class="op">=</span> <span class="va">id</span>,</span>
+<span>    label <span class="op">=</span> <span class="va">label</span>,</span>
+<span>    role <span class="op">=</span> <span class="va">gemini_logic_registry</span><span class="op">$</span><span class="va">roles</span><span class="op">[[</span><span class="va">id</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>    driver <span class="op">=</span> <span class="va">driver_obj</span>,</span>
+<span>    prompt_builder <span class="op">=</span> <span class="va">gemini_logic_registry</span><span class="op">$</span><span class="va">prompts</span><span class="op">[[</span><span class="va">id</span><span class="op">]</span><span class="op">]</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="building-the-dag-via-mermaid">Building the DAG via Mermaid<a class="anchor" aria-label="anchor" href="#building-the-dag-via-mermaid"></a>
+</h2>
+<p>We define the entire workflow architecture as a Mermaid string. This
+string serves as the single source of truth for both structure and node
+metadata.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mermaid_graph</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
+<span><span class="st">graph TD</span></span>
+<span><span class="st">  writer[Poetic Bioinformatician | driver=gemini]</span></span>
+<span><span class="st">"</span></span>
+<span></span>
+<span><span class="co"># Instantiate the DAG</span></span>
+<span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="va">AgentDAG</span><span class="op">$</span><span class="fu">from_mermaid</span><span class="op">(</span><span class="va">mermaid_graph</span>, node_factory <span class="op">=</span> <span class="va">gemini_node_factory</span><span class="op">)</span></span>
+<span><span class="va">compiled_dag</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">compile</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="building-and-running-the-dag">Building and Running the DAG<a class="anchor" aria-label="anchor" href="#building-and-running-the-dag"></a>
 </h2>
 <p>We assemble the node into an <code>AgentDAG</code> and execute
 it.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Assemble the DAG</span></span>
-<span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentDAG.html">AgentDAG</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">node_agent</span><span class="op">)</span></span>
-<span><span class="va">dag</span><span class="op">$</span><span class="fu">compile</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Execute with an initial topic</span></span>
-<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>initial_state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>topic <span class="op">=</span> <span class="st">"DNA sequencing"</span><span class="op">)</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Execute with the initial topic from the registry</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="va">compiled_dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>initial_state <span class="op">=</span> <span class="va">gemini_logic_registry</span><span class="op">$</span><span class="va">initial_state</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># View the output</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">writer</span><span class="op">$</span><span class="va">output</span><span class="op">)</span></span></code></pre></div>

@@ -19,6 +19,7 @@
 <url><loc>https://github.com/APAF-bioinformatics/HydraR/articles/personalized_shopping.html</loc></url>
 <url><loc>https://github.com/APAF-bioinformatics/HydraR/articles/round_trip_demo.html</loc></url>
 <url><loc>https://github.com/APAF-bioinformatics/HydraR/articles/software_bug_assistant.html</loc></url>
+<url><loc>https://github.com/APAF-bioinformatics/HydraR/articles/sorting_benchmark.html</loc></url>
 <url><loc>https://github.com/APAF-bioinformatics/HydraR/articles/story_teller.html</loc></url>
 <url><loc>https://github.com/APAF-bioinformatics/HydraR/articles/targets_integration.html</loc></url>
 <url><loc>https://github.com/APAF-bioinformatics/HydraR/articles/travel_booking.html</loc></url>
@@ -44,6 +45,7 @@
 <url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/DuckDBSaver.html</loc></url>
 <url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/GeminiAPIDriver.html</loc></url>
 <url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/GeminiCLIDriver.html</loc></url>
+<url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/JSONLMessageLog.html</loc></url>
 <url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/MemoryMessageLog.html</loc></url>
 <url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/MemorySaver.html</loc></url>
 <url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/MessageLog.html</loc></url>

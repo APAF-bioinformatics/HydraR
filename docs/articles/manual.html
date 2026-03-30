@@ -10,7 +10,8 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="HydraR: The Complete Instruction Manual">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<meta property="og:title" content="HydraR: The Complete Instruction Manual">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -29,7 +30,6 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../articles/hong_kong_travel.html">Get Started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
@@ -40,6 +40,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
+    <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Examples</h6></li>
     <li><a class="dropdown-item" href="../articles/academic_research.html">Agentic Academic Researcher</a></li>
@@ -49,6 +50,11 @@
     <li><a class="dropdown-item" href="../articles/personalized_shopping.html">Agentic Personalized Shopping Assistant</a></li>
     <li><a class="dropdown-item" href="../articles/software_bug_assistant.html">Agentic Software Bug Assistant</a></li>
     <li><a class="dropdown-item" href="../articles/story_teller.html">Agentic Story Teller</a></li>
+    <li><a class="dropdown-item" href="../articles/gemini_cli_demo.html">Gemini CLI Driver Demo</a></li>
+    <li><a class="dropdown-item" href="../articles/hello_world_logic.html">Hello World Logic Nodes</a></li>
+    <li><a class="dropdown-item" href="../articles/parameterized_mermaid.html">Advanced Mermaid Parameters</a></li>
+    <li><a class="dropdown-item" href="../articles/round_trip_demo.html">Mermaid Round-Trip Visualization</a></li>
+    <li><a class="dropdown-item" href="../articles/distributed_communication.html">Distributed Consensus Simulation</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
     <li><a class="dropdown-item" href="../articles/targets_integration.html">Reproducible Agentic Pipelines with targets</a></li>
@@ -103,17 +109,18 @@ environments.</p>
 <ol style="list-style-type: decimal">
 <li>
 <strong><code>AgentDAG</code></strong>: The central orchestrator
-that manages nodes, edges, and execution flow.</li>
+that manages nodes, edges, and execution flow. Usually instantiated via
+<code>AgentDAG$from_mermaid()</code>.</li>
 <li>
 <strong><code>AgentNode</code></strong>: The fundamental unit of
-work.
+work, typically resolved via a <strong>Node Factory</strong>.
 <ul>
 <li>
 <strong><code>AgentLLMNode</code></strong>: Interfaces with Large
 Language Models via Drivers.</li>
 <li>
 <strong><code>AgentLogicNode</code></strong>: Executes deterministic
-R functions.</li>
+R functions from a <strong>Logic Registry</strong>.</li>
 </ul>
 </li>
 <li>
@@ -139,27 +146,32 @@ interface for communicating with LLMs (e.g.,
 <div class="section level3">
 <h3 id="your-first-dag">Your First DAG<a class="anchor" aria-label="anchor" href="#your-first-dag"></a>
 </h3>
-<p>A simple “Hello World” agent involves creating a node, adding it to a
-DAG, and running it.</p>
+<p>The recommended way to build a DAG in <code>HydraR</code> is using
+the <strong>Mermaid-as-Source</strong> pattern. This involves defining a
+visual graph and a “registry” of logic.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 1. Define a logic node</span></span>
-<span><span class="va">hello_node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
-<span>  id <span class="op">=</span> <span class="st">"HelloNode"</span>,</span>
-<span>  logic_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">name</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"user_name"</span>, <span class="st">"Stranger"</span><span class="op">)</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"SUCCESS"</span>, output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>greeting <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Hello,"</span>, <span class="va">name</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="op">}</span></span>
+<span><span class="co"># 1. Define a logic registry</span></span>
+<span><span class="va">logic_registry</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  logic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    Hello <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">params</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="va">name</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"user_name"</span>, <span class="st">"Stranger"</span><span class="op">)</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"SUCCESS"</span>, output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>greeting <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Hello,"</span>, <span class="va">name</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="op">}</span></span>
+<span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 2. Build and compile the DAG</span></span>
-<span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentDAG.html">AgentDAG</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">hello_node</span><span class="op">)</span></span>
-<span><span class="va">dag</span><span class="op">$</span><span class="fu">compile</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co"># 2. Define a node factory</span></span>
+<span><span class="va">node_factory</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">id</span>, <span class="va">label</span>, <span class="va">params</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="va">id</span>, label <span class="op">=</span> <span class="va">label</span>, logic_fn <span class="op">=</span> <span class="va">logic_registry</span><span class="op">$</span><span class="va">logic</span><span class="op">[[</span><span class="va">id</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
 <span></span>
-<span><span class="co"># 3. Run with initial state</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>initial_state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>user_name <span class="op">=</span> <span class="st">"Hydra User"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># 3. Build from Mermaid and run</span></span>
+<span><span class="va">mermaid_graph</span> <span class="op">&lt;-</span> <span class="st">"graph TD; Hello[Greet User]"</span></span>
+<span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="va">AgentDAG</span><span class="op">$</span><span class="fu">from_mermaid</span><span class="op">(</span><span class="va">mermaid_graph</span>, node_factory <span class="op">=</span> <span class="va">node_factory</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">compile</span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>initial_state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>user_name <span class="op">=</span> <span class="st">"Hydra User"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"greeting"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Hello, Hydra User"</span></span></code></pre></div>
 <hr>
@@ -171,30 +183,33 @@ DAG, and running it.</p>
 <div class="section level3">
 <h3 id="iterative-loops">Iterative Loops<a class="anchor" aria-label="anchor" href="#iterative-loops"></a>
 </h3>
-<p>Unlike standard DAGs, <code>HydraR</code> allows for
-<strong>conditional edges</strong> that can loop back to previous nodes.
-This is essential for “self-healing” or “refinement” patterns.</p>
+<p><code>HydraR</code> supports <strong>conditional edges</strong>
+defined in the Mermaid graph or added programmatically. This enables
+complex “self-healing” behaviors.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dag</span><span class="op">$</span><span class="fu">add_conditional_edge</span><span class="op">(</span></span>
-<span>  from <span class="op">=</span> <span class="st">"Validator"</span>,</span>
+<code class="sourceCode R"><span><span class="co"># In your Mermaid graph:</span></span>
+<span><span class="co"># Reviewer -- Needs Revision --&gt; Writer</span></span>
+<span></span>
+<span><span class="co"># Add the logic for the transition</span></span>
+<span><span class="va">dag</span><span class="op">$</span><span class="fu">add_conditional_edge</span><span class="op">(</span></span>
+<span>  from <span class="op">=</span> <span class="st">"Reviewer"</span>,</span>
 <span>  test <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">out</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">valid</span><span class="op">)</span>,</span>
 <span>  if_true <span class="op">=</span> <span class="cn">NULL</span>,         <span class="co"># End execution</span></span>
-<span>  if_false <span class="op">=</span> <span class="st">"Generator"</span>  <span class="co"># Loop back to retry</span></span>
+<span>  if_false <span class="op">=</span> <span class="st">"Writer"</span>     <span class="co"># Loop back</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="parallel-execution">Parallel Execution<a class="anchor" aria-label="anchor" href="#parallel-execution"></a>
+<h3 id="parallel-execution-worktrees">Parallel Execution &amp; Worktrees<a class="anchor" aria-label="anchor" href="#parallel-execution-worktrees"></a>
 </h3>
-<p>By integrating with the <code>furrr</code> package,
-<code>HydraR</code> can execute independent branches of your DAG in
-parallel. This is particularly powerful when combined with <strong>Git
-Worktrees</strong> to isolate file-system modifications.</p>
+<p>By integrating with the <code>furrr</code> package and <strong>Git
+Worktrees</strong>, <code>HydraR</code> can execute independent branches
+of your DAG in parallel isolated environments.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Run the DAG with worktree isolation enabled</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span></span>
 <span>  initial_state <span class="op">=</span> <span class="va">init</span>,</span>
 <span>  use_worktrees <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  repo_root <span class="op">=</span> <span class="st">"/path/to/repo"</span></span>
+<span>  repo_root <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Current repository</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
@@ -238,24 +253,24 @@ High-performance persistent database.</p>
 <div class="section level2">
 <h2 id="working-with-llms">7. Working with LLMs<a class="anchor" aria-label="anchor" href="#working-with-llms"></a>
 </h2>
-<p><code>HydraR</code> is driver-agnostic. You can switch between
-different LLM providers simply by changing the driver assigned to an
-<code>AgentLLMNode</code>.</p>
-<div class="section level3">
-<h3 id="gemini-cli-recommended">Gemini CLI (Recommended)<a class="anchor" aria-label="anchor" href="#gemini-cli-recommended"></a>
-</h3>
+<p><code>HydraR</code> is driver-agnostic. Use the <strong>Node
+Factory</strong> to resolve drivers based on parameters embedded in your
+Mermaid labels.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">driver</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GeminiCLIDriver.html">GeminiCLIDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">node</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLLMNode.html">AgentLLMNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
-<span>  id <span class="op">=</span> <span class="st">"Consultant"</span>,</span>
-<span>  driver <span class="op">=</span> <span class="va">driver</span>,</span>
-<span>  role <span class="op">=</span> <span class="st">"Expert Consultant"</span>,</span>
-<span>  prompt_builder <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Analyze this problem: %s"</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"problem"</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="op">}</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Mermaid: Consultant[Expert | driver=gemini]</span></span>
+<span></span>
+<span><span class="va">node_factory</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">id</span>, <span class="va">label</span>, <span class="va">params</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">driver_obj</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="va">params</span><span class="op">$</span><span class="va">driver</span> <span class="op">==</span> <span class="st">"gemini"</span><span class="op">)</span><span class="op">)</span> <span class="va"><a href="../reference/GeminiCLIDriver.html">GeminiCLIDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span> <span class="kw">else</span> <span class="cn">NULL</span></span>
+<span>  </span>
+<span>  <span class="va"><a href="../reference/AgentLLMNode.html">AgentLLMNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>    id <span class="op">=</span> <span class="va">id</span>,</span>
+<span>    label <span class="op">=</span> <span class="va">label</span>,</span>
+<span>    driver <span class="op">=</span> <span class="va">driver_obj</span>,</span>
+<span>    role <span class="op">=</span> <span class="st">"Expert Consultant"</span>,</span>
+<span>    prompt_builder <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Analyze: %s"</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"problem"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
 <hr>
-</div>
 </div>
 <div class="section level2">
 <h2 id="visualization">8. Visualization<a class="anchor" aria-label="anchor" href="#visualization"></a>
@@ -277,17 +292,16 @@ GitHub, or <code>pkgdown</code>.</p>
 <div class="section level2">
 <h2 id="integration-with-targets">9. Integration with <code>targets</code><a class="anchor" aria-label="anchor" href="#integration-with-targets"></a>
 </h2>
-<p><code>HydraR</code> works seamlessly within a <code>targets</code>
-pipeline. Treat an entire <code>AgentDAG</code> execution as a single
-cached target.</p>
+<p>Treat an entire <code>AgentDAG</code> execution as a unique, cached
+target within your analytical pipeline.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># _targets.R</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="fu">tar_target</span><span class="op">(</span></span>
 <span>    <span class="va">agent_report</span>,</span>
 <span>    <span class="op">{</span></span>
-<span>      <span class="va">dag</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentDAG.html">AgentDAG</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span>
-<span>      <span class="co"># ... define nodes ...</span></span>
+<span>      <span class="va">mermaid_graph</span> <span class="op">&lt;-</span> <span class="st">"graph TD; A[Analysis] --&gt; B[Summary]"</span></span>
+<span>      <span class="va">dag</span> <span class="op">&lt;-</span> <span class="va">AgentDAG</span><span class="op">$</span><span class="fu">from_mermaid</span><span class="op">(</span><span class="va">mermaid_graph</span>, node_factory <span class="op">=</span> <span class="va">my_factory</span><span class="op">)</span></span>
 <span>      <span class="va">dag</span><span class="op">$</span><span class="fu">compile</span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>initial_state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>input <span class="op">=</span> <span class="va">data</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get_all</span><span class="op">(</span><span class="op">)</span></span>
 <span>    <span class="op">}</span>,</span>
 <span>    format <span class="op">=</span> <span class="st">"rds"</span></span>

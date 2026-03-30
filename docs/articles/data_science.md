@@ -22,117 +22,122 @@ re-optimization.
 ``` r
 
 library(HydraR)
-
-# Initialize the Gemini CLI driver
-driver <- GeminiCLIDriver$new()
 ```
 
-## Building the DAG
+## Defining the Workflow Components
 
-Initialize the `AgentDAG`.
+To keep our architecture clean, we store all workflow components—initial
+configuration, LLM prompts, agent roles, and deterministic logic—in a
+central registry.
 
 ``` r
 
-dag <- AgentDAG$new()
-```
+ds_logic_registry <- list(
+  # 0. Initial Configuration
+  initial_state = list(
+    raw_data = "Titanic_Dataset.csv",
+    target_accuracy = 0.85,
+    total_evaluations = 0
+  ),
 
-### 1. The Data Cleaner Node
+  # 1. Deterministic Logic Functions
+  logic = list(
+    DataCleaner = function(state, params) {
+      dataset <- state$get("raw_data")
+      clean_data <- paste("Cleaned", dataset)
+      list(status = "SUCCESS", output = list(clean_data = clean_data))
+    },
+    Evaluator = function(state, params) {
+      config <- state$get("ModelTrainer")
+      target <- state$get("target_accuracy")
+      iteration <- state$get("total_evaluations") + 1
 
-Prepares the data exactly once. This node uses a standard R function for
-deterministic data processing.
+      accuracy <- min(0.60 + (iteration * 0.10), 0.95)
 
-``` r
-
-cleaner_node <- AgentLogicNode$new(
-  id = "DataCleaner",
-  label = "Data Preprocessor",
-  logic_fn = function(state, memory = NULL) {
-    dataset <- state$get("raw_data")
-    # Mock cleaning logic
-    clean_data <- paste("Cleaned", dataset)
-    list(status = "SUCCESS", output = list(clean_data = clean_data))
-  }
-)
-
-dag$add_node(cleaner_node)
-```
-
-### 2. The Model Trainer Node
-
-Trains the model iteratively using LLM-driven parameter recommendations.
-
-``` r
-
-trainer_node <- AgentLLMNode$new(
-  id = "ModelTrainer",
-  label = "AutoML Optimizer",
-  role = "You are an AutoML expert. Given a dataset and previous accuracy logs, recommend a new set of hyperparameters.",
-  driver = driver,
-  prompt_builder = function(state) {
-    feedback_text <- if (!is.null(state$get("Evaluator"))) sprintf("\nFeedback: %s", state$get("Evaluator")) else ""
-    sprintf("Dataset: %s%s\nOutput exactly a model configuration string.", state$get("clean_data"), feedback_text)
-  }
-)
-
-dag$add_node(trainer_node)
-```
-
-### 3. The Evaluator Node
-
-This node uses logic to evaluate the result against a hard constraint.
-
-``` r
-
-evaluator_node <- AgentLogicNode$new(
-  id = "Evaluator",
-  label = "Threshold Guard",
-  logic_fn = function(state, memory = NULL) {
-    # Extract training configuration from the previous LLM node
-    config <- state$get("ModelTrainer")
-    target <- state$get("target_accuracy")
-
-    # Mock evaluation logic: Simulated improvement per iteration
-    iteration <- state$get("total_evaluations")
-    if (is.null(iteration)) iteration <- 0
-    iteration <- iteration + 1
-
-    accuracy <- min(0.60 + (iteration * 0.10), 0.95)
-
-    if (accuracy >= target) {
-      list(status = "SUCCESS", output = list(
-        optimization_complete = TRUE,
-        eval_message = sprintf("Target reached: %.2f >= %.2f using config: %s", accuracy, target, config),
-        total_evaluations = iteration
-      ))
-    } else {
-      list(status = "SUCCESS", output = list(
-        optimization_complete = FALSE,
-        eval_message = sprintf("Accuracy %.2f is below %.2f. Recommending new parameters.", accuracy, target),
-        total_evaluations = iteration
-      ))
+      if (accuracy >= target) {
+        list(status = "SUCCESS", output = list(
+          optimization_complete = TRUE,
+          eval_message = sprintf("Target reached: %.2f >= %.2f using config: %s", accuracy, target, config),
+          total_evaluations = iteration
+        ))
+      } else {
+        list(status = "SUCCESS", output = list(
+          optimization_complete = FALSE,
+          eval_message = sprintf("Accuracy %.2f is below %.2f. Recommending new parameters.", accuracy, target),
+          total_evaluations = iteration
+        ))
+      }
     }
-  }
-)
+  ),
 
-dag$add_node(evaluator_node)
+  # 2. LLM Agent Roles
+  roles = list(
+    ModelTrainer = "You are an AutoML expert. Given a dataset and previous accuracy logs, recommend a new set of hyperparameters."
+  ),
+
+  # 3. LLM Prompt Builders
+  prompts = list(
+    ModelTrainer = function(state) {
+      feedback_text <- if (!is.null(state$get("Evaluator"))) sprintf("\nFeedback: %s", state$get("Evaluator")) else ""
+      sprintf("Dataset: %s%s\nOutput exactly a model configuration string.", state$get("clean_data"), feedback_text)
+    }
+  )
+)
 ```
 
-## Defining Transitions
+## The Node Factory
 
-Configure the linear start and the cyclic optimization loop.
+We use a factory function to dynamically create nodes based on their
+type and parameters defined in the Mermaid graph.
 
 ``` r
 
-dag$set_start_node("DataCleaner")
+ds_node_factory <- function(id, label, params) {
+  # Driver resolution from Mermaid params
+  driver_obj <- if (!is.null(params$driver) && params$driver == "gemini") GeminiCLIDriver$new() else NULL
 
-dag$add_edge("DataCleaner", "ModelTrainer")
-dag$add_edge("ModelTrainer", "Evaluator")
+  if (id %in% names(ds_logic_registry$logic)) {
+    # Create a deterministic Logic Node
+    AgentLogicNode$new(
+      id = id,
+      label = label,
+      logic_fn = ds_logic_registry$logic[[id]]
+    )
+  } else {
+    # Create an agentic LLM Node
+    AgentLLMNode$new(
+      id = id,
+      label = label,
+      role = ds_logic_registry$roles[[id]],
+      driver = driver_obj,
+      prompt_builder = ds_logic_registry$prompts[[id]]
+    )
+  }
+}
+```
 
+## Building the DAG via Mermaid
+
+We define the entire workflow architecture as a Mermaid string. This
+string serves as the single source of truth for both structure and node
+metadata.
+
+``` r
+
+mermaid_graph <- "
+graph TD
+  DataCleaner[Data Preprocessor] --> ModelTrainer
+  ModelTrainer[AutoML Optimizer | driver=gemini] --> Evaluator
+  Evaluator[Threshold Guard] -- Needs Improvement --> ModelTrainer
+"
+
+# Instantiate the DAG
+dag <- AgentDAG$from_mermaid(mermaid_graph, node_factory = ds_node_factory)
+
+# Add conditional logic for the optimization loop
 dag$add_conditional_edge(
   from = "Evaluator",
-  test = function(out) {
-    isTRUE(out$optimization_complete)
-  },
+  test = function(out) isTRUE(out$optimization_complete),
   if_true = NULL, # Done!
   if_false = "ModelTrainer"
 )
@@ -163,6 +168,7 @@ graph TD
   Evaluator["Threshold Guard"]
   DataCleaner --> ModelTrainer
   ModelTrainer --> Evaluator
+  Evaluator -- Needs Improvement --> ModelTrainer
   Evaluator -- Fail --> ModelTrainer
 ```
 
@@ -173,6 +179,7 @@ graph TD
   Evaluator["Threshold Guard"]
   DataCleaner --> ModelTrainer
   ModelTrainer --> Evaluator
+  Evaluator -- Needs Improvement --> ModelTrainer
   Evaluator -- Fail --> ModelTrainer
 ```
 
@@ -186,13 +193,12 @@ cat("\n```\n")
 
 
     ``` r
-    initial_state <- list(
-      raw_data = "Titanic_Dataset.csv",
-      target_accuracy = 0.85
-    )
-
     cat("Starting AutoML Pipeline...\n")
-    result <- compiled_dag$run(initial_state = initial_state, max_steps = 10)
+
+    result <- compiled_dag$run(
+      initial_state = ds_logic_registry$initial_state,
+      max_steps = 10
+    )
 
     cat("\n--- TRAINING PIPELINE COMPLETE ---\n")
     cat("Final Training Config:", result$state$get("ModelTrainer"), "\n")

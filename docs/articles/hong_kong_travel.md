@@ -22,47 +22,36 @@ specific airline and activity constraints.
 
 ## Setup
 
-First, load the library and initialize the `GeminiCLIDriver`.
+First, load the HydraR library. Since we’re using the **Node Factory**
+pattern with Mermaid, drivers are instantiated on-demand during DAG
+creation.
 
 ``` r
 
 library(HydraR)
-
-# Initialize the Gemini CLI driver
-# Note: This assumes the 'gemini' CLI is installed and configured on your system.
-driver <- GeminiCLIDriver$new()
 ```
 
-## Defining the Agent State
+## Defining the Workflow Components
 
-We define the initial state, which includes our hard constraints and
-preferences.
-
-``` r
-
-initial_state <- list(
-  origin = "Sydney",
-  destination = "Hong Kong",
-  departure_date = "2026-05-26",
-  return_date = "2026-06-01",
-  airline = "Qantas",
-  must_include = c("Cheung Chau Island", "Spaghetti House", "Local Cuisine"),
-  itinerary_draft = NULL,
-  validation_passed = FALSE
-)
-
-state <- AgentState$new(initial_state)
-```
-
-## Defining the Logic Registry
-
-To keep our architecture clean, we store complex R functions (like
-prompts and validation logic) in a central registry. This allows the
-Mermaid graph to focus on the structure and metadata.
+To keep our architecture clean, we store all workflow components—initial
+configuration, LLM prompts, and deterministic logic—in a central
+registry.
 
 ``` r
 
 travel_logic_registry <- list(
+  # 0. Initial State Configuration
+  initial_state = list(
+    origin = "Sydney",
+    destination = "Hong Kong",
+    departure_date = "2026-05-26",
+    return_date = "2026-06-01",
+    airline = "Qantas",
+    must_include = c("Cheung Chau Island", "Spaghetti House", "Local Cuisine"),
+    itinerary_draft = NULL,
+    validation_passed = FALSE
+  ),
+
   # 1. The itinerary generation prompt
   plan_itinerary = function(state) {
     sprintf(
@@ -169,10 +158,21 @@ cat("```mermaid\n")
 cat(dag$plot(type = "mermaid", details = TRUE))
 ```
 
-graph TD Planner\[“Travel Planner \| role=Travel Concierge \|
-driver=gemini \| prompt_id=plan_itinerary \| workdir=./hkg_trip”\]
-Auditor\[“Constraint Validator \| logic_id=validate_constraints \|
-retries=3”\] Planner –\> Auditor Auditor – “fail” –\> Planner
+``` mermaid
+graph TD
+  Planner["Travel Planner | role=Travel Concierge | driver=gemini | prompt_id=plan_itinerary | workdir=./hkg_trip"]
+  Auditor["Constraint Validator | logic_id=validate_constraints | retries=3"]
+  Planner --> Auditor
+  Auditor -- "fail" --> Planner
+```
+
+``` mermaid
+graph TD
+  Planner["Travel Planner | role=Travel Concierge | driver=gemini | prompt_id=plan_itinerary | workdir=./hkg_trip"]
+  Auditor["Constraint Validator | logic_id=validate_constraints | retries=3"]
+  Planner --> Auditor
+  Auditor -- "fail" --> Planner
+```
 
 ``` r
 
@@ -190,8 +190,8 @@ cat("\n```\n")
     checkpointer <- DuckDBSaver$new(path = "travel_booking.duckdb")
     dag$set_checkpointer(checkpointer)
 
-    # Run the orchestration
-    results <- dag$run(initial_state = initial_state, max_steps = 5)
+    # Run the orchestration pulling initial config from our registry
+    results <- dag$run(initial_state = travel_logic_registry$initial_state, max_steps = 5)
 
     # Display final itinerary
     cat(results$state$get("Planner"))

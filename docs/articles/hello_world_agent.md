@@ -16,70 +16,103 @@ First, load the library and the Gemini CLI driver.
 ``` r
 
 library(HydraR)
-
-# Initialize the Gemini CLI driver
-driver <- GeminiCLIDriver$new()
 ```
 
-## 2. Initialize the DAG
+## Defining the Workflow Components
 
-We initialize an `AgentDAG` which will orchestrate our nodes.
+To keep our architecture clean, we store all workflow components—initial
+configuration, LLM prompts, agent roles, and deterministic logic—in a
+central registry.
 
 ``` r
 
-dag <- AgentDAG$new()
-```
+hello_logic_registry <- list(
+  # 0. Initial Configuration
+  initial_state = list(),
 
-## 3. Define Nodes
+  # 1. Deterministic Logic Functions
+  logic = list(
+    Validator = function(state, params) {
+      guess <- tolower(trimws(state$get("Guesser")))
+      is_valid <- (guess == "hello")
+      list(status = "SUCCESS", output = list(valid = is_valid))
+    }
+  ),
 
-We use `AgentLLMNode` for the reasoning part and `AgentLogicNode` for
-the deterministic check part.
+  # 2. LLM Agent Roles
+  roles = list(
+    Guesser = "You are an agent trying to guess a specific word. Your task is to output exactly one word in lowercase."
+  ),
 
-``` r
-
-# LLM Guesser Node
-executor_node <- AgentLLMNode$new(
-  id = "Guesser",
-  label = "LLM Guesser",
-  role = "You are an agent trying to guess a specific word. Your task is to output exactly one word in lowercase.",
-  driver = driver,
-  prompt_builder = function(state) {
-    "Guess the secret greeting word."
-  }
+  # 3. LLM Prompt Builders
+  prompts = list(
+    Guesser = function(state) {
+      "Guess the secret greeting word."
+    }
+  )
 )
-
-# Deterministic Validator Node
-validator_node <- AgentLogicNode$new(
-  id = "Validator",
-  label = "Greeting Validator",
-  logic_fn = function(state, memory = NULL) {
-    guess <- tolower(trimws(state$get("Guesser")))
-    is_valid <- (guess == "hello")
-    list(status = "SUCCESS", output = list(valid = is_valid))
-  }
-)
-
-dag$add_node(executor_node)
-dag$add_node(validator_node)
-dag$set_start_node("Guesser")
 ```
 
-## 4. Define Transitions
+## The Node Factory
 
-We create a conditional transition to loop back if the guess is
-incorrect.
+We use a factory function to dynamically create nodes based on their
+type and parameters defined in the Mermaid graph.
 
 ``` r
 
-# Unconditional edge from Guesser to Validator
-dag$add_edge("Guesser", "Validator")
+hello_node_factory <- function(id, label, params) {
+  # Driver resolution from Mermaid params
+  driver_obj <- if (!is.null(params$driver) && params$driver == "gemini") GeminiCLIDriver$new() else NULL
 
-# Conditional edge: if not valid, loop back to Guesser
-dag$add_conditional_edge("Validator",
+  if (id %in% names(hello_logic_registry$logic)) {
+    # Create a deterministic Logic Node
+    AgentLogicNode$new(
+      id = id,
+      label = label,
+      logic_fn = hello_logic_registry$logic[[id]]
+    )
+  } else {
+    # Create an agentic LLM Node
+    AgentLLMNode$new(
+      id = id,
+      label = label,
+      role = hello_logic_registry$roles[[id]],
+      driver = driver_obj,
+      prompt_builder = hello_logic_registry$prompts[[id]]
+    )
+  }
+}
+```
+
+## Building the DAG via Mermaid
+
+We define the entire workflow architecture as a Mermaid string. This
+string serves as the single source of truth for both structure and node
+metadata.
+
+``` r
+
+mermaid_graph <- "
+graph TD
+  Guesser[LLM Guesser | driver=gemini] --> Validator
+  Validator[Greeting Validator] -- Incorrect --> Guesser
+"
+
+# Instantiate the DAG
+dag <- AgentDAG$from_mermaid(mermaid_graph, node_factory = hello_node_factory)
+
+# Add conditional logic for the guess loop
+dag$add_conditional_edge(
+  from = "Validator",
   test = function(out) isTRUE(out$valid),
-  if_true = NULL, # Stop execution on success
-  if_false = "Guesser" # Loop back if not valid
+  if_true = NULL, # Success!
+  if_false = "Guesser" # Incorrect, try again
 )
+
+compiled_dag <- dag$compile()
+#> Warning in dag$compile(): Potential infinite loop detected: graph contains
+#> cycles. Ensure conditional edges have exit conditions.
+#> Graph compiled successfully.
 ```
 
 ## 5. Visualizing the Workflow
@@ -104,6 +137,7 @@ graph TD
   Guesser["LLM Guesser"]
   Validator["Greeting Validator"]
   Guesser --> Validator
+  Validator -- Incorrect --> Guesser
   Validator -- Fail --> Guesser
 ```
 
@@ -112,6 +146,7 @@ graph TD
   Guesser["LLM Guesser"]
   Validator["Greeting Validator"]
   Guesser --> Validator
+  Validator -- Incorrect --> Guesser
   Validator -- Fail --> Guesser
 ```
 
@@ -127,8 +162,10 @@ cat("\n```\n")
 
 
     ``` r
-    compiled_dag <- dag$compile()
-    final_state <- compiled_dag$run(initial_state = list(), max_steps = 10)
+    final_state <- compiled_dag$run(
+      initial_state = hello_logic_registry$initial_state,
+      max_steps = 10
+    )
 
     # View final results
     cat("Final Guess:", final_state$state$get("Guesser"), "\n")

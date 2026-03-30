@@ -367,6 +367,10 @@ AgentDAG <- R6::R6Class("AgentDAG",
             wt_path <- self$worktree_manager$get_path(node_id)
             if (inherits(node, "AgentLLMNode") && !is.null(node$driver)) {
               node$driver$working_dir <- wt_path
+              # Pass the main project root to satisfy IDE-locked CLI checks
+              if (!is.null(self$worktree_manager)) {
+                node$driver$repo_root <- self$worktree_manager$repo_root
+              }
             }
             withr::with_dir(wt_path, {
               restricted_state <- RestrictedState$new(self$state, node_id, self$message_log)

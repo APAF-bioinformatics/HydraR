@@ -1,0 +1,85 @@
+/* APAF Bioinformatics Custom Styling for HydraR pkgdown */
+
+:root {
+  --apaf-primary: #0d3b66; /* Deep Navy */
+  --apaf-secondary: #05668d; /* Deep Teal */
+  --apaf-accent: #00a896; /* Vibrant Teal */
+  --apaf-bg-gradient: linear-gradient(135deg, var(--apaf-primary) 0%, var(--apaf-secondary) 100%);
+}
+
+.navbar {
+  background: var(--apaf-bg-gradient) !important;
+  border-bottom: 2px solid var(--apaf-accent);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #ffffff !important;
+  text-transform: uppercase;
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.85) !important;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--apaf-accent) !important;
+}
+
+.header-section {
+  padding: 4rem 0;
+  background: #f8f9fa;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+h1, h2, h3 {
+  color: var(--apaf-primary);
+  font-weight: 600;
+}
+
+/* Premium Sidebar */
+#sidebar {
+  border-left: 1px solid #eee;
+  padding-left: 2rem;
+}
+
+/* Styled Code Blocks */
+pre {
+  background: #fdfdfd;
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  padding: 1.5rem !important;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.page-header {
+  border-bottom: 2px solid #eee;
+  margin-bottom: 3rem;
+  padding-bottom: 1rem;
+}
+
+/* Watermark Effect */
+body::after {
+  content: "APAF HARDENED";
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  font-size: 10px;
+  color: rgba(0,0,0,0.1);
+  letter-spacing: 2px;
+  pointer-events: none;
+}
+
+/* Mermaid responsiveness */
+.mermaid {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  margin: 2rem 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}

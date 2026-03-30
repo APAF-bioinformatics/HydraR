@@ -18,83 +18,90 @@ This forms a fundamental **iterative critique-and-revise** loop.
 ``` r
 
 library(HydraR)
-
-# Initialize the Gemini CLI driver
-driver <- GeminiCLIDriver$new()
 ```
 
-## Building the Story Teller DAG
+## Defining the Workflow Components
 
-We’ll define an `AgentDAG` and inject two `AgentLLMNode` nodes to
-demonstrate the collaboration.
+To keep our architecture clean, we store all workflow components—initial
+configuration, LLM prompts, and agent roles—in a central registry.
 
 ``` r
 
-dag <- AgentDAG$new()
-```
+story_logic_registry <- list(
+  # 0. Initial Story Prompt
+  initial_state = list(
+    story_prompt = "A story about a robot learning to cook."
+  ),
 
-### 1. The Writer Node
+  # 1. Agent Roles
+  roles = list(
+    Writer = "You are a creative writer. Draft a story based on the initial prompt or update it according to reviewer feedback. Output exactly the story draft.",
+    Reviewer = "You are a literary editor. Critically review the story draft for tone and quality. If it is excellent, say 'Approved'. Otherwise, give specific critique."
+  ),
 
-The `Writer` node drafts or improves the story based on reviewer
-feedback.
-
-``` r
-
-writer_node <- AgentLLMNode$new(
-  id = "Writer",
-  label = "Story Author",
-  role = "You are a creative writer. Draft a story based on the initial prompt or update it according to reviewer feedback. Output exactly the story draft.",
-  driver = driver,
-  prompt_builder = function(state) {
-    feedback_text <- if (!is.null(state$get("Reviewer"))) sprintf("\nFeedback: %s", state$get("Reviewer")) else ""
-    sprintf("Prompt: %s%s\nDraft the story.", state$get("story_prompt"), feedback_text)
-  }
+  # 2. Prompt Builders
+  prompts = list(
+    Writer = function(state) {
+      feedback_text <- if (!is.null(state$get("Reviewer"))) sprintf("\nFeedback: %s", state$get("Reviewer")) else ""
+      sprintf("Prompt: %s%s\nDraft the story.", state$get("story_prompt"), feedback_text)
+    },
+    Reviewer = function(state) {
+      sprintf("Draft: %s\nReview this draft.", state$get("Writer"))
+    }
+  )
 )
-
-dag$add_node(writer_node)
 ```
 
-### 2. The Reviewer Node
+## The Node Factory
 
-The `Reviewer` node checks the `story_draft`. It provides feedback or
-approves it.
+We use a factory function to dynamically create nodes based on
+parameters defined in the Mermaid graph.
 
 ``` r
 
-reviewer_node <- AgentLLMNode$new(
-  id = "Reviewer",
-  label = "Literary Editor",
-  role = "You are a literary editor. Critically review the story draft for tone and quality. If it is excellent, say 'Approved'. Otherwise, give specific critique.",
-  driver = driver,
-  prompt_builder = function(state) {
-    sprintf("Draft: %s\nReview this draft.", state$get("Writer"))
-  }
-)
+story_node_factory <- function(id, label, params) {
+  # Driver resolution from Mermaid params
+  driver_obj <- if (params$driver == "gemini") GeminiCLIDriver$new() else NULL
 
-dag$add_node(reviewer_node)
+  AgentLLMNode$new(
+    id = id,
+    label = label,
+    role = story_logic_registry$roles[[id]],
+    driver = driver_obj,
+    prompt_builder = story_logic_registry$prompts[[id]]
+  )
+}
 ```
 
-## Defining Transitions
+## Building the DAG via Mermaid
 
-We configure the graph to start with the Writer, unconditionally pass to
-the Reviewer, and conditionally loop back or finish.
+We define the entire workflow architecture as a Mermaid string. This
+string serves as the single source of truth for both structure and node
+metadata.
 
 ``` r
 
-dag$set_start_node("Writer")
+mermaid_graph <- "
+graph TD
+  Writer[Story Author | driver=gemini] --> Reviewer
+  Reviewer[Literary Editor | driver=gemini] -- Needs Revision --> Writer
+"
 
-# Unconditional transition from Writer -> Reviewer
-dag$add_edge("Writer", "Reviewer")
+# Instantiate the DAG
+dag <- AgentDAG$from_mermaid(mermaid_graph, node_factory = story_node_factory)
 
-# Conditional transition from Reviewer -> Writer or END
+# Add conditional logic for the revision loop
 dag$add_conditional_edge(
   from = "Reviewer",
-  test = function(out) {
-    grepl("Approved", out, ignore.case = TRUE)
-  },
-  if_true = NULL, # Stop execution
+  test = function(out) grepl("Approved", out, ignore.case = TRUE),
+  if_true = NULL, # Success!
   if_false = "Writer" # Loop back
 )
+
+compiled_dag <- dag$compile()
+#> Warning in dag$compile(): Potential infinite loop detected: graph contains
+#> cycles. Ensure conditional edges have exit conditions.
+#> Graph compiled successfully.
 ```
 
 ## Visualizing the Workflow
@@ -119,6 +126,7 @@ graph TD
   Writer["Story Author"]
   Reviewer["Literary Editor"]
   Writer --> Reviewer
+  Reviewer -- Needs Revision --> Writer
   Reviewer -- Fail --> Writer
 ```
 
@@ -127,6 +135,7 @@ graph TD
   Writer["Story Author"]
   Reviewer["Literary Editor"]
   Writer --> Reviewer
+  Reviewer -- Needs Revision --> Writer
   Reviewer -- Fail --> Writer
 ```
 
@@ -140,10 +149,12 @@ cat("\n```\n")
 
 
     ``` r
-    compiled_dag <- dag$compile()
-
     cat("Starting Collaborative Writing Process...\n")
-    result <- compiled_dag$run(initial_state = list(story_prompt = "A story about a robot learning to cook."), max_steps = 10)
+
+    result <- compiled_dag$run(
+      initial_state = story_logic_registry$initial_state,
+      max_steps = 10
+    )
 
     cat("--- FINAL RESULT ---\n")
     cat("Final Feedback:", result$state$get("Reviewer"), "\n")

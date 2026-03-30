@@ -93,6 +93,8 @@ State persistence and inter-node messaging infrastructure.
   : Memory Message Log R6 Class
 - [`DuckDBMessageLog`](https://github.com/APAF-bioinformatics/HydraR/reference/DuckDBMessageLog.md)
   : DuckDB Message Log R6 Class
+- [`JSONLMessageLog`](https://github.com/APAF-bioinformatics/HydraR/reference/JSONLMessageLog.md)
+  : JSONL Message Log R6 Class
 - [`Checkpointer`](https://github.com/APAF-bioinformatics/HydraR/reference/Checkpointer.md)
   : Checkpointer Interface
 - [`MemorySaver`](https://github.com/APAF-bioinformatics/HydraR/reference/MemorySaver.md)

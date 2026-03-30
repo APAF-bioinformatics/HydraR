@@ -12,6 +12,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+library(HydraR)
 ```
 
 ## Introduction
@@ -26,7 +27,7 @@ In this example, we will create a Directed Acyclic Graph (DAG) with two nodes:
 
 First, load the library and the Gemini CLI driver.
 
-```{r setup}
+```{r library_load}
 library(HydraR)
 ```
 

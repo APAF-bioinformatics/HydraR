@@ -18,35 +18,51 @@ graph TD
 
 ## Setup
 
-First, we define a specialized `NodeFactory` that can handle these
-components and map them to logical objects.
+## Defining the Workflow Components
+
+To keep our architecture clean, we store all deterministic logic
+functions in a central registry.
 
 ``` r
 
-library(HydraR)
-
-# 1. Define a Specialized Node Factory
-node_factory <- function(id, label) {
-  if (id == "Check") {
-    # A logic node that fails the first time but succeeds the second
-    return(AgentLogicNode$new(id, function(state) {
+round_trip_logic_registry <- list(
+  # 1. Deterministic Logic Functions
+  logic = list(
+    Check = function(state, params = NULL) {
+      # A logic node that fails the first time but succeeds the second
       run_count <- state$get("check_runs") %||% 0
       state$set("check_runs", run_count + 1)
 
       if (run_count == 0) {
         cat("Quality check failed. Routing to ReSearch...\n")
-        return(list(status = "success", output = FALSE))
+        return(list(status = "SUCCESS", output = FALSE))
       } else {
         cat("Quality check passed!\n")
-        return(list(status = "success", output = TRUE))
+        return(list(status = "SUCCESS", output = TRUE))
       }
-    }, label = label))
-  }
+    },
+    Default = function(state, params = NULL) {
+      list(status = "SUCCESS", output = paste("Result from", state$node_id))
+    }
+  )
+)
+```
 
-  # Default node type
-  return(AgentLogicNode$new(id, function(state) {
-    list(status = "success", output = paste("Result from", label))
-  }, label = label))
+## The Node Factory
+
+We use a factory function to dynamically resolve nodes. If a specialized
+logic function isn’t found, we fall back to a default processing node.
+
+``` r
+
+round_trip_node_factory <- function(id, label, params) {
+  logic_fn <- round_trip_logic_registry$logic[[id]] %||% round_trip_logic_registry$logic$Default
+
+  AgentLogicNode$new(
+    id = id,
+    label = label,
+    logic_fn = logic_fn
+  )
 }
 ```
 
@@ -67,12 +83,17 @@ graph TD
 "
 
 # Create DAG from Mermaid
-dag <- mermaid_to_dag(mermaid_spec, node_factory)
+dag <- AgentDAG$from_mermaid(mermaid_spec, node_factory = round_trip_node_factory)
 
-# 4. Map the conditional logic
-dag$add_conditional_edge("Check", test = function(out) out == TRUE, if_true = "Publish", if_false = "ReSearch")
+# Add the conditional logic for the quality loop
+dag$add_conditional_edge(
+  from = "Check",
+  test = function(out) out == TRUE,
+  if_true = "Publish",
+  if_false = "ReSearch"
+)
 
-# 5. Run the DAG
+# Run the DAG
 results <- dag$run(initial_state = list(check_runs = 0), max_steps = 10)
 #> Warning in self$compile(): Potential infinite loop detected: graph contains
 #> cycles. Ensure conditional edges have exit conditions.
@@ -104,68 +125,68 @@ the `plot(status = TRUE)` method.
 
 # Export status-colored Mermaid
 mermaid_colored <- dag$plot(status = TRUE)
-#> graph TD
-#>   Start["Initial Search"]
-#>   Summarize["Summarize Findings"]
-#>   Check["Check Quality"]
-#>   Publish["Final Report"]
-#>   ReSearch["Deep Search"]
-#>   Start --> Summarize
-#>   Summarize --> Check
-#>   Check --> Publish
-#>   Check --> ReSearch
-#>   ReSearch --> Summarize
-#>   Check -- Test --> Publish
-#>   Check -- Fail --> ReSearch
-#>   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
-#>   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;
-#>   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;
-#>   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
-#>   class Start success
-#>   class Summarize success
-#>   class Check success
-#>   class Publish success
-#>   class ReSearch success
-#>   linkStyle 0 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 1 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 2 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 3 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 4 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 5 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 6 stroke:#388e3c,stroke-width:4px;
+```
+
+    #> ```mermaid
+    #> graph TD
+    #>   Start["Initial Search (Result from Start)"]
+    #>   Summarize["Summarize Findings (Result from Summarize)"]
+    #>   Check["Check Quality"]
+    #>   Publish["Final Report (Result from Publish)"]
+    #>   ReSearch["Deep Search (Result from ReSearch)"]
+    #>   Start --> Summarize
+    #>   Summarize --> Check
+    #>   Check --> Publish
+    #>   Check --> ReSearch
+    #>   ReSearch --> Summarize
+    #>   Check -- Test --> Publish
+    #>   Check -- Fail --> ReSearch
+    #>   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
+    #>   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;
+    #>   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;
+    #>   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    #>   linkStyle 0 stroke:#388e3c,stroke-width:4px;
+    #>   linkStyle 1 stroke:#388e3c,stroke-width:4px;
+    #>   linkStyle 2 stroke:#388e3c,stroke-width:4px;
+    #>   linkStyle 3 stroke:#388e3c,stroke-width:4px;
+    #>   linkStyle 4 stroke:#388e3c,stroke-width:4px;
+    #>   linkStyle 5 stroke:#388e3c,stroke-width:4px;
+    #>   linkStyle 6 stroke:#388e3c,stroke-width:4px;
+    #> ```
+
+``` r
+
 
 # Show the colored Mermaid syntax
 cat(mermaid_colored)
-#> graph TD
-#>   Start["Initial Search"]
-#>   Summarize["Summarize Findings"]
-#>   Check["Check Quality"]
-#>   Publish["Final Report"]
-#>   ReSearch["Deep Search"]
-#>   Start --> Summarize
-#>   Summarize --> Check
-#>   Check --> Publish
-#>   Check --> ReSearch
-#>   ReSearch --> Summarize
-#>   Check -- Test --> Publish
-#>   Check -- Fail --> ReSearch
-#>   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
-#>   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;
-#>   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;
-#>   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
-#>   class Start success
-#>   class Summarize success
-#>   class Check success
-#>   class Publish success
-#>   class ReSearch success
-#>   linkStyle 0 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 1 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 2 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 3 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 4 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 5 stroke:#388e3c,stroke-width:4px;
-#>   linkStyle 6 stroke:#388e3c,stroke-width:4px;
 ```
+
+    #> ```mermaid
+    #> graph TD
+    #>   Start["Initial Search (Result from Start)"]
+    #>   Summarize["Summarize Findings (Result from Summarize)"]
+    #>   Check["Check Quality"]
+    #>   Publish["Final Report (Result from Publish)"]
+    #>   ReSearch["Deep Search (Result from ReSearch)"]
+    #>   Start --> Summarize
+    #>   Summarize --> Check
+    #>   Check --> Publish
+    #>   Check --> ReSearch
+    #>   ReSearch --> Summarize
+    #>   Check -- Test --> Publish
+    #>   Check -- Fail --> ReSearch
+    #>   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
+    #>   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;
+    #>   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;
+    #>   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    #>   linkStyle 0 stroke:#388e3c,stroke-width:4px;
+    #>   linkStyle 1 stroke:#388e3c,stroke-width:4px;
+    #>   linkStyle 2 stroke:#388e3c,stroke-width:4px;
+    #>   linkStyle 3 stroke:#388e3c,stroke-width:4px;
+    #>   linkStyle 4 stroke:#388e3c,stroke-width:4px;
+    #>   linkStyle 5 stroke:#388e3c,stroke-width:4px;
+    #>   linkStyle 6 stroke:#388e3c,stroke-width:4px;
+    #> ```
 
 > \[!NOTE\] The `plot(status = TRUE)` method uses the internal trace log
 > to color nodes by their outcome: **Green** for success, **Red** for

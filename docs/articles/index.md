@@ -9,6 +9,8 @@
 
 - [Agentic Travel Planning: Sydney to Hong
   Kong](https://github.com/APAF-bioinformatics/HydraR/articles/hong_kong_travel.md):
+- [Parallel Benchmarking with Git
+  Worktrees](https://github.com/APAF-bioinformatics/HydraR/articles/sorting_benchmark.md):
 
 ### Examples Gallery
 

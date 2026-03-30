@@ -168,23 +168,39 @@ exec_in_dir = function(command, args, ...) {
 
 ------------------------------------------------------------------------
 
-## 🚀 Registration & Usage
+## 🚀 Consumption via Mermaid Orchestration
 
-Register your driver with the global registry to make it available to
-any node in the DAG.
+The modern way to integrate your custom driver into a workflow is
+through a **Node Factory** and a **Mermaid Graph**.
 
 ``` r
 
-# 1. Register
-my_driver <- CustomCLIDriver$new(id = "my-bot")
-register_driver(my_driver)
+# 1. Define a factory that resolves your custom driver
+my_node_factory <- function(id, label, params) {
+  # Use parameters from the Mermaid graph to configure the driver
+  driver_obj <- if (params$driver == "custom") {
+    CustomCLIDriver$new(id = "my-bot")
+  } else {
+    NULL
+  }
 
-# 2. Bind to a node
-node <- AgentLLMNode$new(
-  id = "writer",
-  driver_id = "my-bot",
-  prompt_template = "Draft a README for {{project}}"
-)
+  AgentLLMNode$new(
+    id = id,
+    label = label,
+    driver = driver_obj,
+    role = "You are a specialized assistant.",
+    prompt_builder = function(state) sprintf("Process: %s", state$get("input"))
+  )
+}
+
+# 2. Define the workflow as a Mermaid string
+mermaid_graph <- "
+graph TD
+  A[Specialized Agent | driver=custom]
+"
+
+# 3. Instantiate the DAG
+dag <- AgentDAG$from_mermaid(mermaid_graph, node_factory = my_node_factory)
 ```
 
 ------------------------------------------------------------------------

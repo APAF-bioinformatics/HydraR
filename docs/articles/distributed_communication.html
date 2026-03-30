@@ -10,7 +10,8 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Distributed Consensus Simulation">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<meta property="og:title" content="Distributed Consensus Simulation">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -29,7 +30,6 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../articles/hong_kong_travel.html">Get Started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
@@ -40,6 +40,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
+    <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Examples</h6></li>
     <li><a class="dropdown-item" href="../articles/academic_research.html">Agentic Academic Researcher</a></li>
@@ -74,10 +75,8 @@
 
 
 
-<link href="distributed_communication_files/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
-<script src="distributed_communication_files/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="distributed_communication_files/d3-3.3.8/d3.min.js"></script><script src="distributed_communication_files/dagre-0.4.0/dagre-d3.min.js"></script><link href="distributed_communication_files/mermaid-0.3.0/dist/mermaid.css" rel="stylesheet">
-<script src="distributed_communication_files/mermaid-0.3.0/dist/mermaid.slim.min.js"></script><link href="distributed_communication_files/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
-<script src="distributed_communication_files/chromatography-0.1/chromatography.js"></script><script src="distributed_communication_files/DiagrammeR-binding-1.0.11/DiagrammeR.js"></script><div class="row">
+
+<div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Distributed Consensus Simulation</h1>
@@ -122,195 +121,137 @@ sent to them.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Initialize an audit log for our messages</span></span>
-<span><span class="va">message_log</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/MemoryMessageLog.html">MemoryMessageLog</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># Initialize a persistent, parallel-safe audit log</span></span>
+<span><span class="va">log_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"consensus_msgs.jsonl"</span><span class="op">)</span></span>
+<span><span class="va">message_log</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/JSONLMessageLog.html">JSONLMessageLog</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>path <span class="op">=</span> <span class="va">log_path</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="defining-the-voter-agents">Defining the Voter Agents<a class="anchor" aria-label="anchor" href="#defining-the-voter-agents"></a>
+<h2 id="defining-the-workflow-components">Defining the Workflow Components<a class="anchor" aria-label="anchor" href="#defining-the-workflow-components"></a>
 </h2>
-<p>Voters are <code>AgentLogicNode</code> instances that randomly decide
-between “SUCCESS” and “FAILURE”, then send their choice to the
-<code>Leader</code>.</p>
+<p>To keep our architecture clean, we store the deterministic logic for
+both Voters and the Leader in a central registry.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># A reusable logic function for voters</span></span>
-<span><span class="va">voter_logic</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="co"># 1. Decide randomly</span></span>
-<span>  <span class="va">vote</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SUCCESS"</span>, <span class="st">"FAILURE"</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">consensus_logic_registry</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="co"># 1. Deterministic Logic Functions</span></span>
+<span>  logic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    Voter <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">params</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="co"># 1. Decide randomly</span></span>
+<span>      <span class="va">vote</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SUCCESS"</span>, <span class="st">"FAILURE"</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
-<span>  <span class="co"># 2. Send private message to the Leader</span></span>
-<span>  <span class="va">state</span><span class="op">$</span><span class="fu">send_message</span><span class="op">(</span>to <span class="op">=</span> <span class="st">"Leader"</span>, content <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>vote <span class="op">=</span> <span class="va">vote</span><span class="op">)</span><span class="op">)</span></span>
+<span>      <span class="co"># 2. Send private message to the Leader</span></span>
+<span>      <span class="va">state</span><span class="op">$</span><span class="fu">send_message</span><span class="op">(</span>to <span class="op">=</span> <span class="st">"Leader"</span>, content <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>vote <span class="op">=</span> <span class="va">vote</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"   [%s] Voted: %s"</span>, <span class="va">state</span><span class="op">$</span><span class="va">node_id</span>, <span class="va">vote</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"success"</span>, output <span class="op">=</span> <span class="va">vote</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"   [%s] Voted: %s"</span>, <span class="va">state</span><span class="op">$</span><span class="va">node_id</span>, <span class="va">vote</span><span class="op">)</span><span class="op">)</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"SUCCESS"</span>, output <span class="op">=</span> <span class="va">vote</span><span class="op">)</span></span>
+<span>    <span class="op">}</span>,</span>
+<span>    Leader <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">params</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="co"># 1. Retrieve messages from private inbox</span></span>
+<span>      <span class="va">msgs</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">receive_messages</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Create three independent voter nodes</span></span>
-<span><span class="va">node_v1</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"V1"</span>, <span class="va">voter_logic</span>, label <span class="op">=</span> <span class="st">"Voter Alpha"</span><span class="op">)</span></span>
-<span><span class="va">node_v2</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"V2"</span>, <span class="va">voter_logic</span>, label <span class="op">=</span> <span class="st">"Voter Beta"</span><span class="op">)</span></span>
-<span><span class="va">node_v3</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"V3"</span>, <span class="va">voter_logic</span>, label <span class="op">=</span> <span class="st">"Voter Gamma"</span><span class="op">)</span></span></code></pre></div>
+<span>      <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">msgs</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span>        <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"FAILED"</span>, output <span class="op">=</span> <span class="st">"nothing to tabulate"</span><span class="op">)</span><span class="op">)</span></span>
+<span>      <span class="op">}</span></span>
+<span></span>
+<span>      <span class="co"># 2. Extract and count votes</span></span>
+<span>      <span class="va">votes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">msgs</span>, <span class="kw">function</span><span class="op">(</span><span class="va">m</span><span class="op">)</span> <span class="va">m</span><span class="op">$</span><span class="va">content</span><span class="op">$</span><span class="va">vote</span><span class="op">)</span></span>
+<span>      <span class="va">counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">votes</span><span class="op">)</span></span>
+<span></span>
+<span>      <span class="co"># 3. Determine majority</span></span>
+<span>      <span class="va">majority</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.max</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span><span class="op">]</span></span>
+<span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"   [Leader] Received %d votes. Consensus: %s"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">votes</span><span class="op">)</span>, <span class="va">majority</span><span class="op">)</span><span class="op">)</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"SUCCESS"</span>, output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>final_consensus <span class="op">=</span> <span class="va">majority</span>, vote_table <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">as.list</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="op">}</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="defining-the-leader-agent">Defining the Leader Agent<a class="anchor" aria-label="anchor" href="#defining-the-leader-agent"></a>
+<h2 id="the-node-factory">The Node Factory<a class="anchor" aria-label="anchor" href="#the-node-factory"></a>
 </h2>
-<p>The Leader is a <code>AgentLogicNode</code> that waits for all
-messages, counts the votes, and declares a final consensus.</p>
+<p>We use a factory function to dynamically resolve nodes. In this case,
+we use a generic <code>Voter</code> logic for multiple independent nodes
+(<code>V1</code>, <code>V2</code>, <code>V3</code>).</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">leader_logic</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="co"># 1. Retrieve messages from private inbox</span></span>
-<span>  <span class="va">msgs</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">receive_messages</span><span class="op">(</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">consensus_node_factory</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">id</span>, <span class="va">label</span>, <span class="va">params</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="co"># Map V1, V2, V3 to the generic Voter logic</span></span>
+<span>  <span class="va">logic_key</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"^V"</span>, <span class="va">id</span><span class="op">)</span><span class="op">)</span> <span class="st">"Voter"</span> <span class="kw">else</span> <span class="va">id</span></span>
 <span></span>
-<span>  <span class="co"># 2. Extract and count votes</span></span>
-<span>  <span class="va">votes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">msgs</span>, <span class="kw">function</span><span class="op">(</span><span class="va">m</span><span class="op">)</span> <span class="va">m</span><span class="op">$</span><span class="va">content</span><span class="op">$</span><span class="va">vote</span><span class="op">)</span></span>
-<span>  <span class="va">counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">votes</span><span class="op">)</span></span>
+<span>  <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>    id <span class="op">=</span> <span class="va">id</span>,</span>
+<span>    label <span class="op">=</span> <span class="va">label</span>,</span>
+<span>    logic_fn <span class="op">=</span> <span class="va">consensus_logic_registry</span><span class="op">$</span><span class="va">logic</span><span class="op">[[</span><span class="va">logic_key</span><span class="op">]</span><span class="op">]</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="building-the-dag-via-mermaid">Building the DAG via Mermaid<a class="anchor" aria-label="anchor" href="#building-the-dag-via-mermaid"></a>
+</h2>
+<p>We define the entire workflow architecture as a Mermaid string. This
+string serves as the single source of truth for both structure and node
+metadata.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mermaid_graph</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
+<span><span class="st">graph TD</span></span>
+<span><span class="st">  V1[Voter Alpha] --&gt; Leader</span></span>
+<span><span class="st">  V2[Voter Beta] --&gt; Leader</span></span>
+<span><span class="st">  V3[Voter Gamma] --&gt; Leader</span></span>
+<span><span class="st">  Leader[Consensus Leader]</span></span>
+<span><span class="st">"</span></span>
 <span></span>
-<span>  <span class="co"># 3. Determine majority</span></span>
-<span>  <span class="va">majority</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.max</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span><span class="op">]</span></span>
-<span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"   [Leader] Received %d votes. Consensus: %s"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">votes</span><span class="op">)</span>, <span class="va">majority</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"success"</span>, output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>final_consensus <span class="op">=</span> <span class="va">majority</span>, vote_table <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">as.list</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="va">node_leader</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"Leader"</span>, <span class="va">leader_logic</span>, label <span class="op">=</span> <span class="st">"Consensus Leader"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># Instantiate the DAG</span></span>
+<span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="va">AgentDAG</span><span class="op">$</span><span class="fu">from_mermaid</span><span class="op">(</span><span class="va">mermaid_graph</span>, node_factory <span class="op">=</span> <span class="va">consensus_node_factory</span><span class="op">)</span></span>
+<span><span class="va">dag</span><span class="op">$</span><span class="va">message_log</span> <span class="op">&lt;-</span> <span class="va">message_log</span> <span class="co"># Attach the audit log</span></span>
+<span><span class="va">compiled_dag</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">compile</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Graph compiled successfully.</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="building-and-running-the-simulation">Building and Running the Simulation<a class="anchor" aria-label="anchor" href="#building-and-running-the-simulation"></a>
 </h2>
 <p>We assemble the nodes into an <code>AgentDAG</code>. The
 <code>Leader</code> depends on all three <code>Voters</code>.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Create the DAG</span></span>
-<span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/AgentDAG.html">AgentDAG</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">dag</span><span class="op">$</span><span class="va">message_log</span> <span class="op">&lt;-</span> <span class="va">message_log</span> <span class="co"># Attach the audit log</span></span>
-<span></span>
-<span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">node_v1</span><span class="op">)</span></span>
-<span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">node_v2</span><span class="op">)</span></span>
-<span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">node_v3</span><span class="op">)</span></span>
-<span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">node_leader</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Standard DAG dependency: Leader runs after all voters finish</span></span>
-<span><span class="va">dag</span><span class="op">$</span><span class="fu">add_edge</span><span class="op">(</span>from <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"V1"</span>, <span class="st">"V2"</span>, <span class="st">"V3"</span><span class="op">)</span>, to <span class="op">=</span> <span class="st">"Leader"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">dag</span><span class="op">$</span><span class="fu">compile</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Graph compiled successfully.</span></span>
-<span></span>
-<span><span class="co"># Execute the consensus run</span></span>
-<span><span class="va">final_run</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>initial_state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>topic <span class="op">=</span> <span class="st">"simulation"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Graph compiled successfully.</span></span>
-<span><span class="co">#&gt; [Linear] Running Node: V1</span></span>
-<span><span class="co">#&gt;    [V1] Executing R logic...</span></span>
-<span><span class="co">#&gt;    [V1] Voted: SUCCESS</span></span>
-<span><span class="co">#&gt; [Linear] Running Node: V2</span></span>
-<span><span class="co">#&gt;    [V2] Executing R logic...</span></span>
-<span><span class="co">#&gt;    [V2] Voted: SUCCESS</span></span>
-<span><span class="co">#&gt; [Linear] Running Node: V3</span></span>
-<span><span class="co">#&gt;    [V3] Executing R logic...</span></span>
-<span><span class="co">#&gt;    [V3] Voted: FAILURE</span></span>
-<span><span class="co">#&gt; [Linear] Running Node: Leader</span></span>
-<span><span class="co">#&gt;    [Leader] Executing R logic...</span></span>
-<span><span class="co">#&gt;    [Leader] Received 3 votes. Consensus: SUCCESS</span></span>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Execute the consensus run</span></span>
+<span><span class="va">final_run</span> <span class="op">&lt;-</span> <span class="va">compiled_dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>initial_state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>topic <span class="op">=</span> <span class="st">"simulation"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># View final result from the Leader</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">final_run</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">Leader</span><span class="op">$</span><span class="va">output</span><span class="op">$</span><span class="va">final_consensus</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "SUCCESS"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">final_run</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">Leader</span><span class="op">$</span><span class="va">output</span><span class="op">$</span><span class="va">vote_table</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $FAILURE</span></span>
-<span><span class="co">#&gt; [1] 1</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $SUCCESS</span></span>
-<span><span class="co">#&gt; [1] 2</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">final_run</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">Leader</span><span class="op">$</span><span class="va">output</span><span class="op">$</span><span class="va">vote_table</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="auditing-the-communication">Auditing the Communication<a class="anchor" aria-label="anchor" href="#auditing-the-communication"></a>
 </h2>
 <p>Since we attached a <code>MemoryMessageLog</code>, we can inspect the
 raw message transfers that occurred during the simulation.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Retrieve all recorded messages from the audit log</span></span>
 <span><span class="va">all_msgs</span> <span class="op">&lt;-</span> <span class="va">message_log</span><span class="op">$</span><span class="fu">get_all</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Format as a table</span></span>
-<span><span class="va">msg_history</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">all_msgs</span>, <span class="kw">function</span><span class="op">(</span><span class="va">m</span><span class="op">)</span> <span class="op">{</span></span>
+<span><span class="co"># Format as a table using purrr for robustness</span></span>
+<span><span class="va">msg_history</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">all_msgs</span>, <span class="kw">function</span><span class="op">(</span><span class="va">m</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>    From <span class="op">=</span> <span class="va">m</span><span class="op">$</span><span class="va">from</span>,</span>
 <span>    To <span class="op">=</span> <span class="va">m</span><span class="op">$</span><span class="va">to</span>,</span>
 <span>    Time <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="va">m</span><span class="op">$</span><span class="va">timestamp</span>, <span class="st">"%H:%M:%S"</span><span class="op">)</span>,</span>
 <span>    Vote <span class="op">=</span> <span class="va">m</span><span class="op">$</span><span class="va">content</span><span class="op">$</span><span class="va">vote</span></span>
 <span>  <span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, args <span class="op">=</span> <span class="va">_</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/list_c.html" class="external-link">list_rbind</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">msg_history</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   From     To     Time    Vote</span></span>
-<span><span class="co">#&gt; 1   V1 Leader 21:15:43 SUCCESS</span></span>
-<span><span class="co">#&gt; 2   V2 Leader 21:15:43 SUCCESS</span></span>
-<span><span class="co">#&gt; 3   V3 Leader 21:15:43 FAILURE</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">msg_history</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="visualization">Visualization<a class="anchor" aria-label="anchor" href="#visualization"></a>
 </h2>
 <p>The <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method shows the final status of our
 consensus engine.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>status <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; graph TD</span></span>
-<span><span class="co">#&gt;   V1["Voter Alpha"]</span></span>
-<span><span class="co">#&gt;   V2["Voter Beta"]</span></span>
-<span><span class="co">#&gt;   V3["Voter Gamma"]</span></span>
-<span><span class="co">#&gt;   Leader["Consensus Leader"]</span></span>
-<span><span class="co">#&gt;   V1 --&gt; Leader</span></span>
-<span><span class="co">#&gt;   V2 --&gt; Leader</span></span>
-<span><span class="co">#&gt;   V3 --&gt; Leader</span></span>
-<span><span class="co">#&gt;   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   class V1 success</span></span>
-<span><span class="co">#&gt;   class V2 success</span></span>
-<span><span class="co">#&gt;   class V3 success</span></span>
-<span><span class="co">#&gt;   class Leader success</span></span>
-<span><span class="co">#&gt;   linkStyle 2 stroke:#388e3c,stroke-width:4px; </span></span>
-<span><span class="co">#&gt; graph TD</span></span>
-<span><span class="co">#&gt;   V1["Voter Alpha"]</span></span>
-<span><span class="co">#&gt;   V2["Voter Beta"]</span></span>
-<span><span class="co">#&gt;   V3["Voter Gamma"]</span></span>
-<span><span class="co">#&gt;   Leader["Consensus Leader"]</span></span>
-<span><span class="co">#&gt;   V1 --&gt; Leader</span></span>
-<span><span class="co">#&gt;   V2 --&gt; Leader</span></span>
-<span><span class="co">#&gt;   V3 --&gt; Leader</span></span>
-<span><span class="co">#&gt;   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   class V1 success</span></span>
-<span><span class="co">#&gt;   class V2 success</span></span>
-<span><span class="co">#&gt;   class V3 success</span></span>
-<span><span class="co">#&gt;   class Leader success</span></span>
-<span><span class="co">#&gt;   linkStyle 2 stroke:#388e3c,stroke-width:4px;</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("DiagrammeR")</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rich-iannone.github.io/DiagrammeR/" class="external-link">DiagrammeR</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>status <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rich-iannone.github.io/DiagrammeR/" class="external-link">DiagrammeR</a></span><span class="op">)</span></span>
 <span><span class="co"># Get the mermaid syntax from the DAG</span></span>
 <span><span class="va">mermaid_string</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>status <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; graph TD</span></span>
-<span><span class="co">#&gt;   V1["Voter Alpha"]</span></span>
-<span><span class="co">#&gt;   V2["Voter Beta"]</span></span>
-<span><span class="co">#&gt;   V3["Voter Gamma"]</span></span>
-<span><span class="co">#&gt;   Leader["Consensus Leader"]</span></span>
-<span><span class="co">#&gt;   V1 --&gt; Leader</span></span>
-<span><span class="co">#&gt;   V2 --&gt; Leader</span></span>
-<span><span class="co">#&gt;   V3 --&gt; Leader</span></span>
-<span><span class="co">#&gt;   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;</span></span>
-<span><span class="co">#&gt;   class V1 success</span></span>
-<span><span class="co">#&gt;   class V2 success</span></span>
-<span><span class="co">#&gt;   class V3 success</span></span>
-<span><span class="co">#&gt;   class Leader success</span></span>
-<span><span class="co">#&gt;   linkStyle 2 stroke:#388e3c,stroke-width:4px;</span></span>
 <span><span class="co"># Render the interactive plot</span></span>
 <span><span class="fu">DiagrammeR</span><span class="fu">::</span><span class="fu"><a href="https://rich-iannone.github.io/DiagrammeR/reference/mermaid.html" class="external-link">mermaid</a></span><span class="op">(</span><span class="va">mermaid_string</span><span class="op">)</span></span></code></pre></div>
-<div class="DiagrammeR html-widget html-fill-item" id="htmlwidget-ac96cb3ee4656e2e9ec3" style="width:700px;height:432.632880098888px;"></div>
-<script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"diagram":"graph TD\n  V1[\"Voter Alpha\"]\n  V2[\"Voter Beta\"]\n  V3[\"Voter Gamma\"]\n  Leader[\"Consensus Leader\"]\n  V1 --> Leader\n  V2 --> Leader\n  V3 --> Leader\n  classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;\n  classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;\n  classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;\n  classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;\n  class V1 success\n  class V2 success\n  class V3 success\n  class Leader success\n  linkStyle 2 stroke:#388e3c,stroke-width:4px;"},"evals":[],"jsHooks":[]}</script><!-- APAF Bioinformatics | distributed_communication.Rmd | Approved | 2026-03-29 -->
+<!-- APAF Bioinformatics | distributed_communication.Rmd | Approved | 2026-03-29 -->
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

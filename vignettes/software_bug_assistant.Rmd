@@ -12,6 +12,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+library(HydraR)
 ```
 
 ## Introduction
@@ -26,7 +27,7 @@ This is a classic "Generate-and-Test" self-healing loop.
 
 ## Setup
 
-```{r setup}
+```{r library_load}
 library(HydraR)
 ```
 

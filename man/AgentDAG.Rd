@@ -188,6 +188,8 @@ Run the Graph}
 
 \item{\code{fail_if_dirty}}{Logical. Whether to fail if repo has uncommitted changes.}
 
+\item{\code{packages}}{Character vector. Packages to load in parallel workers.}
+
 \item{\code{...}}{Additional arguments passed to node run methods.}
 }
 \if{html}{\out{</div>}}
@@ -267,6 +269,8 @@ Internal: Iterative Execution
 \item{\code{step_count}}{Integer.}
 
 \item{\code{fail_if_dirty}}{Logical.}
+
+\item{\code{packages}}{Character vector. Packages to load in parallel workers.}
 }
 \if{html}{\out{</div>}}
 }

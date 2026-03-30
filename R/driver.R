@@ -33,6 +33,8 @@ AgentDriver <- R6::R6Class("AgentDriver",
     validation_mode = "warning",
     #' @field working_dir String. Optional path to the working directory/worktree.
     working_dir = NULL,
+    #' @field repo_root String. Path to the main repository root (for root-locked CLIs).
+    repo_root = NULL,
 
     #' Initialize AgentDriver
     #' @param id Unique identifier.
@@ -40,8 +42,10 @@ AgentDriver <- R6::R6Class("AgentDriver",
     #' @param model_name String. Model identifier.
     #' @param validation_mode String. "warning" or "strict".
     #' @param working_dir String. Optional working directory.
+    #' @param repo_root String. Path to the main repository root.
     initialize = function(id, provider = "unknown", model_name = "unknown",
-                          validation_mode = "warning", working_dir = NULL) {
+                          validation_mode = "warning", working_dir = NULL,
+                          repo_root = NULL) {
       stopifnot(is.character(id) && length(id) == 1)
       stopifnot(validation_mode %in% c("warning", "strict"))
       self$id <- id
@@ -49,6 +53,7 @@ AgentDriver <- R6::R6Class("AgentDriver",
       self$model_name <- model_name
       self$validation_mode <- validation_mode
       self$working_dir <- working_dir
+      self$repo_root <- repo_root
     },
 
     #' Get Driver Capabilities

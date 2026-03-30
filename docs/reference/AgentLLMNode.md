@@ -67,7 +67,8 @@ An \`AgentLLMNode\` R6 object.
       cli_opts = list(),
       prompt_builder = NULL,
       tools = list(),
-      label = NULL
+      label = NULL,
+      params = list()
     )
 
 #### Arguments
@@ -102,7 +103,11 @@ An \`AgentLLMNode\` R6 object.
 
 - `label`:
 
-  Optional human-readable name. Run the LLM Node
+  Optional human-readable name.
+
+- `params`:
+
+  Optional list of parameters. Run the LLM Node
 
 ------------------------------------------------------------------------
 

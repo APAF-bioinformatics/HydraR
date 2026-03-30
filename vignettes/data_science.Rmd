@@ -27,7 +27,7 @@ The workflow contains an initial data setup phase followed by a cyclic model opt
 
 ## Setup
 
-```{r setup}
+```{r library_load}
 library(HydraR)
 ```
 

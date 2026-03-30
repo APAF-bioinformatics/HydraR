@@ -17,11 +17,14 @@ scientific and software engineering environments.
 The framework is built around four primary R6 classes:
 
 1.  **`AgentDAG`**: The central orchestrator that manages nodes, edges,
-    and execution flow.
-2.  **`AgentNode`**: The fundamental unit of work.
+    and execution flow. Usually instantiated via
+    `AgentDAG$from_mermaid()`.
+2.  **`AgentNode`**: The fundamental unit of work, typically resolved
+    via a **Node Factory**.
     - **`AgentLLMNode`**: Interfaces with Large Language Models via
       Drivers.
-    - **`AgentLogicNode`**: Executes deterministic R functions.
+    - **`AgentLogicNode`**: Executes deterministic R functions from a
+      **Logic Registry**.
 3.  **`AgentState`**: A structured, centrally managed container for all
     data shared between nodes.
 4.  **`AgentDriver`**: A provider-agnostic interface for communicating
@@ -41,29 +44,34 @@ devtools::install_github("apaf-bioinformatics/HydraR")
 
 ### Your First DAG
 
-A simple “Hello World” agent involves creating a node, adding it to a
-DAG, and running it.
+The recommended way to build a DAG in `HydraR` is using the
+**Mermaid-as-Source** pattern. This involves defining a visual graph and
+a “registry” of logic.
 
 ``` r
 
 library(HydraR)
 
-# 1. Define a logic node
-hello_node <- AgentLogicNode$new(
-  id = "HelloNode",
-  logic_fn = function(state) {
-    name <- state$get("user_name", "Stranger")
-    list(status = "SUCCESS", output = list(greeting = paste("Hello,", name)))
-  }
+# 1. Define a logic registry
+logic_registry <- list(
+  logic = list(
+    Hello = function(state, params = NULL) {
+      name <- state$get("user_name", "Stranger")
+      list(status = "SUCCESS", output = list(greeting = paste("Hello,", name)))
+    }
+  )
 )
 
-# 2. Build and compile the DAG
-dag <- AgentDAG$new()
-dag$add_node(hello_node)
-dag$compile()
+# 2. Define a node factory
+node_factory <- function(id, label, params) {
+  AgentLogicNode$new(id = id, label = label, logic_fn = logic_registry$logic[[id]])
+}
 
-# 3. Run with initial state
-result <- dag$run(initial_state = list(user_name = "Hydra User"))
+# 3. Build from Mermaid and run
+mermaid_graph <- "graph TD; Hello[Greet User]"
+dag <- AgentDAG$from_mermaid(mermaid_graph, node_factory = node_factory)
+
+result <- dag$compile()$run(initial_state = list(user_name = "Hydra User"))
 print(result$state$get("greeting"))
 #> [1] "Hello, Hydra User"
 ```
@@ -74,26 +82,28 @@ print(result$state$get("greeting"))
 
 ### Iterative Loops
 
-Unlike standard DAGs, `HydraR` allows for **conditional edges** that can
-loop back to previous nodes. This is essential for “self-healing” or
-“refinement” patterns.
+`HydraR` supports **conditional edges** defined in the Mermaid graph or
+added programmatically. This enables complex “self-healing” behaviors.
 
 ``` r
 
+# In your Mermaid graph:
+# Reviewer -- Needs Revision --> Writer
+
+# Add the logic for the transition
 dag$add_conditional_edge(
-  from = "Validator",
+  from = "Reviewer",
   test = function(out) isTRUE(out$valid),
   if_true = NULL,         # End execution
-  if_false = "Generator"  # Loop back to retry
+  if_false = "Writer"     # Loop back
 )
 ```
 
-### Parallel Execution
+### Parallel Execution & Worktrees
 
-By integrating with the `furrr` package, `HydraR` can execute
-independent branches of your DAG in parallel. This is particularly
-powerful when combined with **Git Worktrees** to isolate file-system
-modifications.
+By integrating with the `furrr` package and **Git Worktrees**, `HydraR`
+can execute independent branches of your DAG in parallel isolated
+environments.
 
 ``` r
 
@@ -101,7 +111,7 @@ modifications.
 result <- dag$run(
   initial_state = init,
   use_worktrees = TRUE,
-  repo_root = "/path/to/repo"
+  repo_root = getwd() # Current repository
 )
 ```
 
@@ -150,22 +160,24 @@ result <- dag$run(
 
 ## 7. Working with LLMs
 
-`HydraR` is driver-agnostic. You can switch between different LLM
-providers simply by changing the driver assigned to an `AgentLLMNode`.
-
-### Gemini CLI (Recommended)
+`HydraR` is driver-agnostic. Use the **Node Factory** to resolve drivers
+based on parameters embedded in your Mermaid labels.
 
 ``` r
 
-driver <- GeminiCLIDriver$new()
-node <- AgentLLMNode$new(
-  id = "Consultant",
-  driver = driver,
-  role = "Expert Consultant",
-  prompt_builder = function(state) {
-    sprintf("Analyze this problem: %s", state$get("problem"))
-  }
-)
+# Mermaid: Consultant[Expert | driver=gemini]
+
+node_factory <- function(id, label, params) {
+  driver_obj <- if (isTRUE(params$driver == "gemini")) GeminiCLIDriver$new() else NULL
+  
+  AgentLLMNode$new(
+    id = id,
+    label = label,
+    driver = driver_obj,
+    role = "Expert Consultant",
+    prompt_builder = function(state) sprintf("Analyze: %s", state$get("problem"))
+  )
+}
 ```
 
 ------------------------------------------------------------------------
@@ -194,8 +206,8 @@ graph TD
 
 ## 9. Integration with `targets`
 
-`HydraR` works seamlessly within a `targets` pipeline. Treat an entire
-`AgentDAG` execution as a single cached target.
+Treat an entire `AgentDAG` execution as a unique, cached target within
+your analytical pipeline.
 
 ``` r
 
@@ -204,8 +216,8 @@ list(
   tar_target(
     agent_report,
     {
-      dag <- AgentDAG$new()
-      # ... define nodes ...
+      mermaid_graph <- "graph TD; A[Analysis] --> B[Summary]"
+      dag <- AgentDAG$from_mermaid(mermaid_graph, node_factory = my_factory)
       dag$compile()$run(initial_state = list(input = data))$state$get_all()
     },
     format = "rds"

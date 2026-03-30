@@ -39,58 +39,94 @@ to audit our simulation.
 
 library(HydraR)
 
-# Initialize an audit log for our messages
-message_log <- MemoryMessageLog$new()
+# Initialize a persistent, parallel-safe audit log
+log_path <- file.path(tempdir(), "consensus_msgs.jsonl")
+message_log <- JSONLMessageLog$new(path = log_path)
 ```
 
-## Defining the Voter Agents
+## Defining the Workflow Components
 
-Voters are `AgentLogicNode` instances that randomly decide between
-“SUCCESS” and “FAILURE”, then send their choice to the `Leader`.
+To keep our architecture clean, we store the deterministic logic for
+both Voters and the Leader in a central registry.
 
 ``` r
 
-# A reusable logic function for voters
-voter_logic <- function(state) {
-  # 1. Decide randomly
-  vote <- sample(c("SUCCESS", "FAILURE"), 1)
+consensus_logic_registry <- list(
+  # 1. Deterministic Logic Functions
+  logic = list(
+    Voter = function(state, params = NULL) {
+      # 1. Decide randomly
+      vote <- sample(c("SUCCESS", "FAILURE"), 1)
 
-  # 2. Send private message to the Leader
-  state$send_message(to = "Leader", content = list(vote = vote))
+      # 2. Send private message to the Leader
+      state$send_message(to = "Leader", content = list(vote = vote))
 
-  message(sprintf("   [%s] Voted: %s", state$node_id, vote))
-  list(status = "success", output = vote)
-}
+      message(sprintf("   [%s] Voted: %s", state$node_id, vote))
+      list(status = "SUCCESS", output = vote)
+    },
+    Leader = function(state, params = NULL) {
+      # 1. Retrieve messages from private inbox
+      msgs <- state$receive_messages()
 
-# Create three independent voter nodes
-node_v1 <- AgentLogicNode$new("V1", voter_logic, label = "Voter Alpha")
-node_v2 <- AgentLogicNode$new("V2", voter_logic, label = "Voter Beta")
-node_v3 <- AgentLogicNode$new("V3", voter_logic, label = "Voter Gamma")
+      if (length(msgs) == 0) {
+        return(list(status = "FAILED", output = "nothing to tabulate"))
+      }
+
+      # 2. Extract and count votes
+      votes <- sapply(msgs, function(m) m$content$vote)
+      counts <- table(votes)
+
+      # 3. Determine majority
+      majority <- names(counts)[which.max(counts)]
+
+      message(sprintf("   [Leader] Received %d votes. Consensus: %s", length(votes), majority))
+      list(status = "SUCCESS", output = list(final_consensus = majority, vote_table = as.list(counts)))
+    }
+  )
+)
 ```
 
-## Defining the Leader Agent
+## The Node Factory
 
-The Leader is a `AgentLogicNode` that waits for all messages, counts the
-votes, and declares a final consensus.
+We use a factory function to dynamically resolve nodes. In this case, we
+use a generic `Voter` logic for multiple independent nodes (`V1`, `V2`,
+`V3`).
 
 ``` r
 
-leader_logic <- function(state) {
-  # 1. Retrieve messages from private inbox
-  msgs <- state$receive_messages()
+consensus_node_factory <- function(id, label, params) {
+  # Map V1, V2, V3 to the generic Voter logic
+  logic_key <- if (grepl("^V", id)) "Voter" else id
 
-  # 2. Extract and count votes
-  votes <- sapply(msgs, function(m) m$content$vote)
-  counts <- table(votes)
-
-  # 3. Determine majority
-  majority <- names(counts)[which.max(counts)]
-
-  message(sprintf("   [Leader] Received %d votes. Consensus: %s", length(votes), majority))
-  list(status = "success", output = list(final_consensus = majority, vote_table = as.list(counts)))
+  AgentLogicNode$new(
+    id = id,
+    label = label,
+    logic_fn = consensus_logic_registry$logic[[logic_key]]
+  )
 }
+```
 
-node_leader <- AgentLogicNode$new("Leader", leader_logic, label = "Consensus Leader")
+## Building the DAG via Mermaid
+
+We define the entire workflow architecture as a Mermaid string. This
+string serves as the single source of truth for both structure and node
+metadata.
+
+``` r
+
+mermaid_graph <- "
+graph TD
+  V1[Voter Alpha] --> Leader
+  V2[Voter Beta] --> Leader
+  V3[Voter Gamma] --> Leader
+  Leader[Consensus Leader]
+"
+
+# Instantiate the DAG
+dag <- AgentDAG$from_mermaid(mermaid_graph, node_factory = consensus_node_factory)
+dag$message_log <- message_log # Attach the audit log
+compiled_dag <- dag$compile()
+#> Graph compiled successfully.
 ```
 
 ## Building and Running the Simulation
@@ -100,46 +136,12 @@ three `Voters`.
 
 ``` r
 
-# Create the DAG
-dag <- AgentDAG$new()
-dag$message_log <- message_log # Attach the audit log
-
-dag$add_node(node_v1)
-dag$add_node(node_v2)
-dag$add_node(node_v3)
-dag$add_node(node_leader)
-
-# Standard DAG dependency: Leader runs after all voters finish
-dag$add_edge(from = c("V1", "V2", "V3"), to = "Leader")
-
-dag$compile()
-#> Graph compiled successfully.
-
 # Execute the consensus run
-final_run <- dag$run(initial_state = list(topic = "simulation"))
-#> Graph compiled successfully.
-#> [Linear] Running Node: V1
-#>    [V1] Executing R logic...
-#>    [V1] Voted: SUCCESS
-#> [Linear] Running Node: V2
-#>    [V2] Executing R logic...
-#>    [V2] Voted: SUCCESS
-#> [Linear] Running Node: V3
-#>    [V3] Executing R logic...
-#>    [V3] Voted: FAILURE
-#> [Linear] Running Node: Leader
-#>    [Leader] Executing R logic...
-#>    [Leader] Received 3 votes. Consensus: SUCCESS
+final_run <- compiled_dag$run(initial_state = list(topic = "simulation"))
 
 # View final result from the Leader
 print(final_run$results$Leader$output$final_consensus)
-#> [1] "SUCCESS"
 print(final_run$results$Leader$output$vote_table)
-#> $FAILURE
-#> [1] 1
-#> 
-#> $SUCCESS
-#> [1] 2
 ```
 
 ## Auditing the Communication
@@ -152,21 +154,17 @@ transfers that occurred during the simulation.
 # Retrieve all recorded messages from the audit log
 all_msgs <- message_log$get_all()
 
-# Format as a table
-msg_history <- lapply(all_msgs, function(m) {
+# Format as a table using purrr for robustness
+msg_history <- purrr::map(all_msgs, function(m) {
   data.frame(
     From = m$from,
     To = m$to,
     Time = format(m$timestamp, "%H:%M:%S"),
     Vote = m$content$vote
   )
-}) |> do.call(rbind, args = _)
+}) |> purrr::list_rbind()
 
 print(msg_history)
-#>   From     To     Time    Vote
-#> 1   V1 Leader 21:15:43 SUCCESS
-#> 2   V2 Leader 21:15:43 SUCCESS
-#> 3   V3 Leader 21:15:43 FAILURE
 ```
 
 ## Visualization
@@ -177,65 +175,13 @@ shows the final status of our consensus engine.
 ``` r
 
 cat(dag$plot(status = TRUE))
-#> graph TD
-#>   V1["Voter Alpha"]
-#>   V2["Voter Beta"]
-#>   V3["Voter Gamma"]
-#>   Leader["Consensus Leader"]
-#>   V1 --> Leader
-#>   V2 --> Leader
-#>   V3 --> Leader
-#>   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
-#>   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;
-#>   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;
-#>   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
-#>   class V1 success
-#>   class V2 success
-#>   class V3 success
-#>   class Leader success
-#>   linkStyle 2 stroke:#388e3c,stroke-width:4px; 
-#> graph TD
-#>   V1["Voter Alpha"]
-#>   V2["Voter Beta"]
-#>   V3["Voter Gamma"]
-#>   Leader["Consensus Leader"]
-#>   V1 --> Leader
-#>   V2 --> Leader
-#>   V3 --> Leader
-#>   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
-#>   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;
-#>   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;
-#>   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
-#>   class V1 success
-#>   class V2 success
-#>   class V3 success
-#>   class Leader success
-#>   linkStyle 2 stroke:#388e3c,stroke-width:4px;
 ```
 
 ``` r
 
-# install.packages("DiagrammeR")
 library(DiagrammeR)
 # Get the mermaid syntax from the DAG
 mermaid_string <- dag$plot(status = TRUE)
-#> graph TD
-#>   V1["Voter Alpha"]
-#>   V2["Voter Beta"]
-#>   V3["Voter Gamma"]
-#>   Leader["Consensus Leader"]
-#>   V1 --> Leader
-#>   V2 --> Leader
-#>   V3 --> Leader
-#>   classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
-#>   classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;
-#>   classDef active fill:#bbdefb,stroke:#0d47a1,stroke-width:2px;
-#>   classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
-#>   class V1 success
-#>   class V2 success
-#>   class V3 success
-#>   class Leader success
-#>   linkStyle 2 stroke:#388e3c,stroke-width:4px;
 # Render the interactive plot
 DiagrammeR::mermaid(mermaid_string)
 ```

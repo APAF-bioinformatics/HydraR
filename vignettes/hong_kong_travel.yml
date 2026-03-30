@@ -1,0 +1,57 @@
+# APAF-Agentic-Standard Workflow Definition: Sydney to Hong Kong
+# File: hong_kong_travel.yml
+# Purpose: Declarative definition of travel planning agents
+
+graph: |
+  graph TD
+    Planner["Travel Planner | type=llm | role_id=travel_concierge | driver=gemini | prompt_id=plan_prompt"]
+    Validator["Constraint Auditor | type=logic | logic_id=validate_constraints | retries=3"]
+    
+    Planner --> Validator
+    Validator -- "fail" --> Planner
+
+roles:
+  travel_concierge: >
+    You are a professional travel concierge. Create detailed, day-by-day itineraries 
+    with specific restaurant recommendations, transport options, and timing.
+
+logic:
+  # Pattern 1: Inline logic (anonymous)
+  # Uses the 3-tier resolution strategy in HydraR
+  plan_prompt: >
+    sprintf(
+      "Plan a 3-day trip from %s to %s. Dates: %s to %s. Airline: %s. Must include: %s.",
+      state$get("origin"), state$get("destination"),
+      state$get("departure_date"), state$get("return_date"),
+      state$get("airline"), paste(state$get("must_include"), collapse = ", ")
+    )
+
+  validate_constraints: >
+    {
+      itinerary <- state$get("Planner") %||% ""
+      must_include <- state$get("must_include")
+      found <- sapply(must_include, function(x) grepl(x, itinerary, ignore.case = TRUE))
+
+      if (all(found)) {
+        list(status = "SUCCESS", output = list(validation_passed = TRUE))
+      } else {
+        missing <- must_include[!found]
+        list(status = "SUCCESS", output = list(
+          validation_passed = FALSE,
+          message = paste("Missing:", paste(missing, collapse = ", "))
+        ))
+      }
+    }
+
+initial_state:
+  origin: "Sydney"
+  destination: "Hong Kong"
+  departure_date: "2026-05-26"
+  return_date: "2026-06-01"
+  airline: "Qantas"
+  must_include:
+    - "Cheung Chau Island"
+    - "Spaghetti House"
+    - "Local Cuisine"
+  itinerary_draft: null
+  validation_passed: false

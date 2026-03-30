@@ -16,27 +16,46 @@ graph TD
 
 ## Setup
 
-First, we define a specialized `NodeFactory` that can handle these
-parameters and inject them into a custom node class.
+## Defining the Workflow Components
+
+To keep our architecture clean, we store the logic for our custom nodes
+in a central registry.
 
 ``` r
 
-library(HydraR)
+param_logic_registry <- list(
+  # 1. Custom Node Logic
+  logic = list(
+    Default = function(state, params = list()) {
+      # This function will be called by our CustomNode class
+      param_str <- if (length(params) > 0) {
+        paste(names(params), params, sep = "=", collapse = ", ")
+      } else {
+        "none"
+      }
+      message(sprintf("   [%s] Executing logic... (Params: %s)", state$node_id, param_str))
+      list(status = "SUCCESS", output = paste("Result from", state$node_id))
+    }
+  )
+)
+```
+
+## The Node Factory
+
+We use a factory function to dynamically resolve nodes and inject
+parameters parsed from the Mermaid graph.
+
+``` r
 
 # 1. Define a Specialized Node Factory
-node_factory <- function(id, label, params = list()) {
+param_node_factory <- function(id, label, params = list()) {
   # Create a custom node class for this example
   CustomNode <- R6::R6Class("CustomNode",
     inherit = AgentNode,
     public = list(
       run = function(state) {
-        param_str <- if (length(self$params) > 0) {
-          paste(names(self$params), self$params, sep = "=", collapse = ", ")
-        } else {
-          "none"
-        }
-        message(sprintf("   [%s] Executing logic... (Params: %s)", self$id, param_str))
-        list(status = "success", output = paste("Result from", self$id))
+        # Delegate to our registry logic
+        param_logic_registry$logic$Default(state, self$params)
       }
     )
   )
@@ -56,8 +75,8 @@ graph TD
   B --> C[\"Report | workdir=./output\"]
 "
 
-# Create DAG from Mermaid
-dag <- mermaid_to_dag(mermaid_spec, node_factory)
+# Create DAG from Mermaid using the standard method
+dag <- AgentDAG$from_mermaid(mermaid_spec, node_factory = param_node_factory)
 
 # Verify Parameter Injection
 print(dag$nodes$A$params)
@@ -82,7 +101,7 @@ dag$run(initial_state = list(input = "test data"))
 #> $results
 #> $results$A
 #> $results$A$status
-#> [1] "success"
+#> [1] "SUCCESS"
 #> 
 #> $results$A$output
 #> [1] "Result from A"
@@ -90,7 +109,7 @@ dag$run(initial_state = list(input = "test data"))
 #> 
 #> $results$B
 #> $results$B$status
-#> [1] "success"
+#> [1] "SUCCESS"
 #> 
 #> $results$B$output
 #> [1] "Result from B"
@@ -98,7 +117,7 @@ dag$run(initial_state = list(input = "test data"))
 #> 
 #> $results$C
 #> $results$C$status
-#> [1] "success"
+#> [1] "SUCCESS"
 #> 
 #> $results$C$output
 #> [1] "Result from C"
@@ -133,31 +152,45 @@ back to Mermaid with the parameters preserved or filtered.
 
 # Show all parameters
 cat(dag$plot(details = TRUE))
-#> graph TD
-#>   A["Initial Research | retries=3 | workdir=./w1"]
-#>   B["Analysis | verbose=TRUE"]
-#>   C["Report | workdir=./output"]
-#>   A --> B
-#>   B --> C 
-#> graph TD
-#>   A["Initial Research | retries=3 | workdir=./w1"]
-#>   B["Analysis | verbose=TRUE"]
-#>   C["Report | workdir=./output"]
-#>   A --> B
-#>   B --> C
+```
+
+    #> ```mermaid
+    #> graph TD
+    #>   A["Initial Research | retries=3 | workdir=./w1"]
+    #>   B["Analysis | verbose=TRUE"]
+    #>   C["Report | workdir=./output"]
+    #>   A --> B
+    #>   B --> C
+    #> ``` 
+    #> ```mermaid
+    #> graph TD
+    #>   A["Initial Research | retries=3 | workdir=./w1"]
+    #>   B["Analysis | verbose=TRUE"]
+    #>   C["Report | workdir=./output"]
+    #>   A --> B
+    #>   B --> C
+    #> ```
+
+``` r
+
 
 # Filter to specific parameters
 cat(dag$plot(details = TRUE, include_params = "retries"))
-#> graph TD
-#>   A["Initial Research | retries=3"]
-#>   B["Analysis"]
-#>   C["Report"]
-#>   A --> B
-#>   B --> C 
-#> graph TD
-#>   A["Initial Research | retries=3"]
-#>   B["Analysis"]
-#>   C["Report"]
-#>   A --> B
-#>   B --> C
 ```
+
+    #> ```mermaid
+    #> graph TD
+    #>   A["Initial Research | retries=3"]
+    #>   B["Analysis"]
+    #>   C["Report"]
+    #>   A --> B
+    #>   B --> C
+    #> ``` 
+    #> ```mermaid
+    #> graph TD
+    #>   A["Initial Research | retries=3"]
+    #>   B["Analysis"]
+    #>   C["Report"]
+    #>   A --> B
+    #>   B --> C
+    #> ```

@@ -2,16 +2,15 @@ url: https://github.com/APAF-bioinformatics/HydraR
 template:
   bootstrap: 5
   params:
-    bootswatch: flatly
+    bootswatch: zephyr
 
 navbar:
   structure:
     left:  [intro, reference, articles, news]
     right: [github]
   components:
-    intro:
       text: Get Started
-      href: articles/hong_kong_travel.html
+      href: articles/manual.html
 
 reference:
   - title: Core Orchestration
@@ -64,6 +63,7 @@ reference:
       - MessageLog
       - MemoryMessageLog
       - DuckDBMessageLog
+      - JSONLMessageLog
       - Checkpointer
       - MemorySaver
       - DuckDBSaver
@@ -89,6 +89,7 @@ articles:
     navbar: Case Studies
     contents:
       - hong_kong_travel
+      - sorting_benchmark
   - title: Examples Gallery
     navbar: Examples
     contents:

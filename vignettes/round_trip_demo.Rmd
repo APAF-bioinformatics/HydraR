@@ -13,6 +13,7 @@ knitr::opts_chunk$set(
   comment = "#>",
   eval = TRUE
 )
+library(HydraR)
 ```
 
 This vignette demonstrates how to define an `AgentDAG` using Mermaid syntax and later generate a status-colored visualization after a run.

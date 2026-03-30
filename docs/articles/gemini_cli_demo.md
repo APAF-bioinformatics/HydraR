@@ -5,31 +5,74 @@ agentic node in `HydraR`.
 
 ## Setup
 
-First, we define the `GeminiCLIDriver`. This driver interacts with the
-`gemini` command-line tool.
+## Defining the Workflow Components
+
+To keep our architecture clean, we store all workflow components—initial
+configuration, LLM prompts, and agent roles—in a central registry.
 
 ``` r
 
-library(HydraR)
+gemini_logic_registry <- list(
+  # 0. Initial Configuration
+  initial_state = list(
+    topic = "DNA sequencing"
+  ),
 
-# Initialize the Gemini CLI driver
-driver <- GeminiCLIDriver$new(model = "gemini-1.5-flash")
+  # 1. Agent Roles
+  roles = list(
+    writer = "You are a poetic assistant specializing in bioinformatics."
+  ),
+
+  # 2. Prompt Builders
+  prompts = list(
+    writer = function(state) {
+      sprintf("Write a 2-line poem about: %s", state$get("topic"))
+    }
+  )
+)
 ```
 
-## Defining the Agent Node
+## The Node Factory
 
-We create an `AgentLLMNode` that acts as a poetic bioinformatician.
+We use a factory function to dynamically resolve nodes and their drivers
+based on parameters defined in the Mermaid graph.
 
 ``` r
 
-node_agent <- AgentLLMNode$new(
-  id = "writer",
-  role = "You are a poetic assistant specializing in bioinformatics.",
-  driver = driver,
-  prompt_builder = function(state) {
-    sprintf("Write a 2-line poem about: %s", state$get("topic"))
+gemini_node_factory <- function(id, label, params) {
+  # Driver resolution from Mermaid params
+  driver_obj <- if (!is.null(params$driver) && params$driver == "gemini") {
+    GeminiCLIDriver$new(model = "gemini-1.5-flash")
+  } else {
+    NULL
   }
-)
+
+  AgentLLMNode$new(
+    id = id,
+    label = label,
+    role = gemini_logic_registry$roles[[id]],
+    driver = driver_obj,
+    prompt_builder = gemini_logic_registry$prompts[[id]]
+  )
+}
+```
+
+## Building the DAG via Mermaid
+
+We define the entire workflow architecture as a Mermaid string. This
+string serves as the single source of truth for both structure and node
+metadata.
+
+``` r
+
+mermaid_graph <- "
+graph TD
+  writer[Poetic Bioinformatician | driver=gemini]
+"
+
+# Instantiate the DAG
+dag <- AgentDAG$from_mermaid(mermaid_graph, node_factory = gemini_node_factory)
+compiled_dag <- dag$compile()
 ```
 
 ## Building and Running the DAG
@@ -38,13 +81,8 @@ We assemble the node into an `AgentDAG` and execute it.
 
 ``` r
 
-# Assemble the DAG
-dag <- AgentDAG$new()
-dag$add_node(node_agent)
-dag$compile()
-
-# Execute with an initial topic
-res <- dag$run(initial_state = list(topic = "DNA sequencing"))
+# Execute with the initial topic from the registry
+res <- compiled_dag$run(initial_state = gemini_logic_registry$initial_state)
 
 # View the output
 cat(res$results$writer$output)

@@ -13,6 +13,7 @@ knitr::opts_chunk$set(
   comment = "#>",
   eval = TRUE
 )
+library(HydraR)
 ```
 
 This vignette demonstrates how to use the `HydraR` messaging API to simulate a **Distributed Consensus** algorithm. In this scenario, multiple "Voter" agents independently decide on a value and send their decision to a "Leader" agent, who determines the final outcome based on a majority.
@@ -41,7 +42,7 @@ devtools::load_all() # Quickly loads all local changes into your session
 
 First, we load the `HydraR` package and initialize a `MemoryMessageLog` to audit our simulation.
 
-```r setup
+```{r setup_consensus}
 library(HydraR)
 
 # Initialize a persistent, parallel-safe audit log
@@ -129,7 +130,7 @@ compiled_dag <- dag$compile()
 
 We assemble the nodes into an `AgentDAG`. The `Leader` depends on all three `Voters`.
 
-```{r execution}
+```{r execution, eval = FALSE}
 # Execute the consensus run
 final_run <- compiled_dag$run(initial_state = list(topic = "simulation"))
 
@@ -142,7 +143,7 @@ print(final_run$results$Leader$output$vote_table)
 
 Since we attached a `MemoryMessageLog`, we can inspect the raw message transfers that occurred during the simulation.
 
-```{r audit}
+```{r audit, eval = FALSE}
 # Retrieve all recorded messages from the audit log
 all_msgs <- message_log$get_all()
 
@@ -163,12 +164,12 @@ print(msg_history)
 
 The `plot()` method shows the final status of our consensus engine.
 
-```{r plot}
+```{r plot, eval = FALSE}
 cat(dag$plot(status = TRUE))
 ```
 
 
-```{r plot_interactive, eval = requireNamespace("DiagrammeR", quietly = TRUE)}
+```{r plot_interactive, eval = FALSE}
 library(DiagrammeR)
 # Get the mermaid syntax from the DAG
 mermaid_string <- dag$plot(status = TRUE)
