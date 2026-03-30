@@ -39,7 +39,7 @@ We use `load_workflow()` to ingest the entire definition from `hong_kong_travel.
 ```{r load_wf}
 # Load everything from the external declarative source
 # This populates registries and extracts the graph
-wf <- load_workflow("hong_kong_travel.yml")
+wf <- load_workflow("vignettes/hong_kong_travel.yml")
 ```
 
 ## Instantiating the DAG
@@ -49,6 +49,7 @@ With the registries populated by the loader, we simply pass the graph and the un
 ```{r dag_creation}
 # Define the DAG string from the YAML object
 dag <- mermaid_to_dag(wf$graph, auto_node_factory())
+dag$set_start_node("Planner")
 dag$compile()
 ```
 
