@@ -91,10 +91,8 @@ GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
         stop(sprintf("[gemini_cli] CLI execution failed (exit code %d): %s", exit_code, substr(err_msg, 1, 1000)))
       }
 
-      # Even if exit_code is 0, the CLI might output warnings to stdout in some versions.
-      # Filter out the known "Keychain initialization" noise if it leaked into stdout
-      # Also filter "MCP issues detected" which can corrupt generated code outputs
-      clean_lines <- out_lines[!grepl("Keychain initialization|Require stack|Using FileKeychain|Loaded cached credentials|\\[IDEClient\\] Directory mismatch|Scheduling MCP|Executing MCP|MCP context|Registering notification|Server.*supports|Received tool update|Received prompt update|Refreshed context|MCP issues detected|Run /mcp list", out_lines)]
+      # Sanitize output from CLI noise (Keychain, MCP, etc.)
+      clean_lines <- self$filter_llm_noise(out_lines)
 
       if (length(clean_lines) == 0) {
         return("")
@@ -167,11 +165,14 @@ OllamaDriver <- R6::R6Class("OllamaDriver",
 
       res <- self$exec_in_dir(cmd, args = c("run", target_model, formatted_opts), stdin = tmp_prompt, stdout = TRUE, stderr = FALSE)
 
-      if (length(res) == 0) {
+      # Sanitize output from CLI noise
+      clean_lines <- self$filter_llm_noise(res)
+
+      if (length(clean_lines) == 0) {
         return("")
       }
 
-      cleaned <- paste(res, collapse = "\n")
+      cleaned <- paste(clean_lines, collapse = "\n")
       return(extract_r_code_advanced(cleaned))
     }
   )
@@ -237,11 +238,14 @@ ClaudeCodeDriver <- R6::R6Class("ClaudeCodeDriver",
       # Use exec_in_dir to support worktrees
       res <- self$exec_in_dir(cmd, args = formatted_opts, stdin = tmp_prompt, stdout = TRUE, stderr = TRUE)
 
-      if (length(res) == 0) {
+      # Sanitize output from CLI noise
+      clean_lines <- self$filter_llm_noise(res)
+
+      if (length(clean_lines) == 0) {
         return("")
       }
 
-      cleaned <- paste(res, collapse = "\n")
+      cleaned <- paste(clean_lines, collapse = "\n")
       return(extract_r_code_advanced(cleaned))
     }
   )
@@ -294,11 +298,14 @@ CopilotCLIDriver <- R6::R6Class("CopilotCLIDriver",
       # Implementation: gh copilot suggest -t <type> [opts]
       res <- self$exec_in_dir("gh", args = c("copilot", "suggest", "-t", target_type, formatted_opts), stdout = TRUE, stderr = TRUE)
 
-      if (length(res) == 0) {
+      # Sanitize output from CLI noise
+      clean_lines <- self$filter_llm_noise(res)
+
+      if (length(clean_lines) == 0) {
         return("")
       }
 
-      cleaned <- paste(res, collapse = "\n")
+      cleaned <- paste(clean_lines, collapse = "\n")
       return(extract_r_code_advanced(cleaned))
     }
   )

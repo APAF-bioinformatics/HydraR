@@ -48,9 +48,11 @@ With the registries populated by the loader, we simply pass the graph and the un
 
 ```{r dag_creation}
 # Define the DAG string from the YAML object
-dag <- mermaid_to_dag(wf$graph, auto_node_factory())
-dag$set_start_node("Planner")
-dag$compile()
+# dag <- mermaid_to_dag(wf$graph, auto_node_factory())
+# dag$set_start_node("Planner")
+# dag$compile()
+
+dag <- spawn_dag(wf, auto_node_factory())
 ```
 
 ## Visualizing the Workflow

@@ -43,6 +43,8 @@ logic:
       }
     }
 
+start_node: Planner
+
 initial_state:
   origin: "Sydney"
   destination: "Hong Kong"

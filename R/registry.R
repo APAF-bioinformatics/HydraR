@@ -115,8 +115,38 @@ load_workflow <- function(file_path) {
     initial_state = raw_data[["initial_state"]] %||% list(),
     roles = raw_data[["roles"]] %||% list(),
     logic = raw_data[["logic"]] %||% list(),
+    start_node = raw_data[["start_node"]] %||% NULL,
     raw = raw_data
   )
+}
+
+#' Spawn an AgentDAG from a Workflow Object
+#'
+#' @description
+#' High-level 'Low Code' helper that instantiates, configures, and compiles
+#' an AgentDAG based on a workflow list (from `load_workflow`).
+#'
+#' @param wf List. The workflow object.
+#' @param node_factory Function. Defaults to `auto_node_factory()`.
+#' @return A compiled `AgentDAG` object.
+#' @export
+spawn_dag <- function(wf, node_factory = auto_node_factory()) {
+  if (!is.list(wf) || is.null(wf$graph)) {
+    stop("wf must be a workflow list object with a 'graph' element.")
+  }
+
+  # 1. Instantiate from Mermaid
+  dag <- mermaid_to_dag(wf$graph, node_factory)
+
+  # 2. Apply Declarative Start Node
+  if (!is.null(wf$start_node)) {
+    dag$set_start_node(wf$start_node)
+  }
+
+  # 3. Compile
+  dag$compile()
+
+  return(dag)
 }
 
 # --- Internal Helpers ---
@@ -176,7 +206,7 @@ validate_workflow_schema <- function(data) {
   }
 
   # Optional but recommended keys
-  valid_keys <- c("graph", "roles", "logic", "initial_state", "metadata")
+  valid_keys <- c("graph", "roles", "logic", "initial_state", "start_node", "metadata")
   found_keys <- names(data)
 
   unknown <- setdiff(found_keys, valid_keys)

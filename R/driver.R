@@ -94,6 +94,40 @@ AgentDriver <- R6::R6Class("AgentDriver",
       return(res)
     },
 
+    #' Filter CLI Noise from LLM Output
+    #' @description
+    #' Removes common CLI-injected headers, keychain warnings, or MCP status messages
+    #' that can corrupt the generated model content.
+    #' @param text String or Character Vector. Raw output from the CLI.
+    #' @return Character vector of cleaned lines.
+    filter_llm_noise = function(text) {
+      if (length(text) == 0) {
+        return(character(0))
+      }
+
+      # Ensure we have lines
+      lines <- if (length(text) == 1) strsplit(text, "\n")[[1]] else text
+
+      # Blacklist of known noise patterns
+      # Includes Keychain warnings, MCP status, and internal CLI logs
+      noise_patterns <- c(
+        "Keychain initialization", "Require stack", "Using FileKeychain",
+        "Loaded cached credentials", "\\[IDEClient\\] Directory mismatch",
+        "Scheduling MCP", "Executing MCP", "MCP context",
+        "Registering notification", "Server.*supports", "Received tool update",
+        "Received prompt update", "Refreshed context", "MCP issues detected",
+        "Run /mcp list"
+      )
+
+      # Combined regex for pattern matching
+      pattern <- paste(noise_patterns, collapse = "|")
+
+      # Filter lines that DO NOT match any noise pattern
+      clean_lines <- lines[!grepl(pattern, lines)]
+
+      return(clean_lines)
+    },
+
     #' Call the LLM
     #' @param prompt String. The prompt to send.
     #' @param model String. Optional model override.
