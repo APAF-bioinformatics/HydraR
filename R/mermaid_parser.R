@@ -225,7 +225,7 @@ parse_mermaid <- function(mermaid_str) {
   edges_df <- build_edges_df(all_edges_list)
 
   if (nrow(edges_df) > 0) {
-      edges_df$label[edges_df$label == ""] <- NA_character_
+    edges_df$label[edges_df$label == ""] <- NA_character_
   }
 
   return(list(nodes = nodes_df, edges = edges_df))
