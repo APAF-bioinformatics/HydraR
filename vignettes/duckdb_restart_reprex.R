@@ -46,15 +46,18 @@ dag$add_edge("Data_Prep", "Analysis")
 dag$compile()
 
 # First Run: Catching the Failure
-tryCatch({
-  dag$run(
-    initial_state = list(input = "Start"),
-    checkpointer = checkpointer,
-    thread_id = thread_id
-  )
-}, error = function(e) {
-  message("DAG execution failed as expected: ", e$message)
-})
+tryCatch(
+  {
+    dag$run(
+      initial_state = list(input = "Start"),
+      checkpointer = checkpointer,
+      thread_id = thread_id
+    )
+  },
+  error = function(e) {
+    message("DAG execution failed as expected: ", e$message)
+  }
+)
 
 # At this point, the state after `Data_Prep` is safely stored in DuckDB.
 # We can retrieve it to inspect the context at the time of failure.
