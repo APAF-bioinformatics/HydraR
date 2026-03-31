@@ -6,9 +6,17 @@ graph: |
   graph TD
     Planner["Travel Planner | type=llm | role_id=travel_concierge | driver=gemini | prompt_id=plan_prompt"]
     Validator["Constraint Auditor | type=logic | logic_id=validate_constraints | retries=3"]
-    
+    Finalizer["Itinerary Saver | type=logic | logic_id=save_itinerary"]
+
     Planner --> Validator
     Validator -- "fail" --> Planner
+    Validator -- "pass" --> Finalizer
+
+conditional_edges:
+  Validator:
+    test: "isTRUE(out$validation_passed)"
+    if_true: "Finalizer"
+    if_false: "Planner"
 
 roles:
   travel_concierge: >
@@ -30,7 +38,7 @@ logic:
     {
       itinerary <- state$get("Planner") %||% ""
       must_include <- state$get("must_include")
-      found <- sapply(must_include, function(x) grepl(x, itinerary, ignore.case = TRUE))
+      found <- purrr::map_lgl(must_include, \(x){ grepl(x, itinerary, ignore.case = TRUE)} )
 
       if (all(found)) {
         list(status = "SUCCESS", output = list(validation_passed = TRUE))
@@ -40,6 +48,17 @@ logic:
           validation_passed = FALSE,
           message = paste("Missing:", paste(missing, collapse = ", "))
         ))
+      }
+    }
+
+  save_itinerary: |
+    {
+      itinerary <- state$get("Planner")
+      if (!is.null(itinerary)) {
+        writeLines(as.character(itinerary), "hong_kong_itinerary.md")
+        list(status = "SUCCESS", output = "Itinerary saved to hong_kong_itinerary.md")
+      } else {
+        list(status = "FAILED", output = "No itinerary found in state to save.")
       }
     }
 

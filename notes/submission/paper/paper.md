@@ -109,9 +109,49 @@ dag <- spawn_dag(wf, auto_node_factory())
 results <- dag$run(initial_state = wf$initial_state, use_worktrees = TRUE)
 ```
 
+## Fault-Tolerant Pipelines with DuckDB Persistence
+Long-running scientific workflows are susceptible to transient failures—API timeouts, resource exhaustion, or intermediate data validation errors. `HydraR` addresses this with a checkpoint-and-resume architecture backed by DuckDB [@duckdb]. In this minimal example, a 3-step pipeline encounters a recoverable failure at `Step2`, which **pauses** execution and persists the full `AgentState` to a DuckDB database. After a human operator corrects the state (setting a `fixed` flag to `TRUE`), execution resumes from the paused node using the same `thread_id`. The checkpointer merges the operator's fix into the restored state, ensuring that previously completed steps (e.g., `Step1`) are not re-executed.
+
+### Inline Workflow Definition
+```r
+library(HydraR)
+register_logic("check_fixed", function(state) {
+  if (!isTRUE(state$get("fixed")))
+    return(list(status = "pause", output = "Waiting for manual fix."))
+  list(status = "success", output = "System recovered!")
+})
+
+dag <- mermaid_to_dag('
+  graph TD
+    Step1["Initialization | type=logic | logic_id=init_proc"]
+    Step2["Risky Logic | type=logic | logic_id=check_fixed"]
+    Step3["Conclusion | type=logic | logic_id=finalize_proc"]
+    Step1 --> Step2
+    Step2 --> Step3
+')
+```
+
+### Checkpoint and Resume
+```r
+saver <- DuckDBSaver$new(db_path = tempfile(fileext = ".duckdb"))
+tid   <- "reprex-session-001"
+
+# Run 1: Pauses at Step2 — state saved to DuckDB
+res1 <- dag$run(thread_id = tid, checkpointer = saver,
+                initial_state = list(fixed = FALSE))
+
+# Run 2: Fix applied, resume from Step2
+res2 <- dag$run(thread_id = tid, checkpointer = saver,
+                initial_state = list(fixed = TRUE),
+                resume_from = "Step2")
+# res2$results$Step3$output => "All steps finished."
+```
+
+This pattern is particularly valuable for bioinformatics pipelines where individual LLM calls or database queries may cost minutes to complete, making full re-execution prohibitively expensive.
+
 # Research Impact Statement
 
-`HydraR` is currently being used at the **Australian Proteome Analysis Facility (APAF)** to automate complex bioinformatics data-cleaning tasks and literature summarization. Its ability to provide a "Zero-R-Code" declarative definition (via YAML) allows bioinformaticians to define logic that can be audited by domain experts who may not be proficient in R. By lowering the barrier to entry for robust agentic workflows, `HydraR` enables a new class of LLM-assisted scientific research that is both scalable and reproducible.
+`HydraR` is currently being used at the **Australian Proteome Analysis Facility (APAF)** to automate complex bioinformatics software development, agenting workflow development and testing. Its ability to provide a "Zero-R-Code" declarative definition (via YAML) allows bioinformaticians to define logic that can be audited by domain experts who may not be proficient in R. By lowering the barrier to entry for robust agentic workflows, `HydraR` enables a new class of LLM-assisted scientific research that is both scalable and reproducible.
 
 # AI Usage Disclosure
 

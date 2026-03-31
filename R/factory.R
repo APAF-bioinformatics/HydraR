@@ -253,6 +253,40 @@ auto_node_factory <- function(driver_registry = NULL) {
       "merge" = {
         create_merge_harmonizer(id = id)
       },
+      "router" = {
+        logic_id <- params[["logic_id"]]
+        if (is.null(logic_id)) {
+          stop(sprintf("Node '%s' (type=router): 'logic_id' parameter is required.", id))
+        }
+        router_fn <- get_logic(logic_id)
+        if (is.null(router_fn)) {
+          stop(sprintf("Node '%s' (type=router): logic_id '%s' not found in registry.", id, logic_id))
+        }
+        AgentRouterNode$new(id = id, router_fn = router_fn, label = label, params = params)
+      },
+      "map" = {
+        logic_id <- params[["logic_id"]]
+        map_key <- params[["map_key"]]
+        if (is.null(logic_id) || is.null(map_key)) {
+          stop(sprintf("Node '%s' (type=map): 'logic_id' and 'map_key' parameters are required.", id))
+        }
+        logic_fn <- get_logic(logic_id)
+        if (is.null(logic_fn)) {
+          stop(sprintf("Node '%s' (type=map): logic_id '%s' not found in registry.", id, logic_id))
+        }
+        AgentMapNode$new(id = id, map_key = map_key, logic_fn = logic_fn, label = label, params = params)
+      },
+      "observer" = {
+        logic_id <- params[["logic_id"]]
+        if (is.null(logic_id)) {
+          stop(sprintf("Node '%s' (type=observer): 'logic_id' parameter is required.", id))
+        }
+        observe_fn <- get_logic(logic_id)
+        if (is.null(observe_fn)) {
+          stop(sprintf("Node '%s' (type=observer): logic_id '%s' not found in registry.", id, logic_id))
+        }
+        AgentObserverNode$new(id = id, observe_fn = observe_fn, label = label, params = params)
+      },
       "auto" = {
         # Fallback: try logic registry by id, then passthrough
         fn <- get_logic(id)

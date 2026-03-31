@@ -14,11 +14,14 @@ To ensure consistent behavior across nodes and drivers, the following keys are r
 | `isolation` | Boolean | If `true`, runs in an isolated git worktree. |
 | `priority` | Integer | Execution priority for parallel branches (higher = sooner). |
 | `checkpoint` | Boolean | If `false`, disables state persistence for this node. |
+| `type` | String | Node specialty: `logic` (default), `router`, `map`, `observer`. |
+| `logic_id` | String | ID of the logic/function registered in `HydraR`. |
+| `map_key` | String | (For `type=map`) The state key containing the list to map over. |
 
 ### 2. LLM / Driver Parameters (`AgentLLMNode`)
 | Keyword | Type | Description |
 | :--- | :--- | :--- |
-| `model` | String | LLM model identifier (e.g., `gemini-1.5-pro`). |
+| `model` | String | LLM model identifier (e.g., `gemini-2.5-flash`). |
 | `role` | String | System prompt or persona (e.g., `Expert Researcher`). |
 | `temp` | Float | Temperature (0.0 to 2.0). |
 | `max_tokens`| Integer | Maximum response length. |
@@ -74,13 +77,33 @@ graph TD
   BranchB --> Merge
 ```
 
-### 2. Conditional Routing (Conceptual)
-Edge labels are preserved but logic must be bound in R.
+### 2. Conditional Routing & Dynamic Mapping
+Edge labels like `Test` (success) and `Fail` (failure) can be used for built-in conditional logic.
+
 ```mermaid
 graph TD
-  Check["Verify Result"]
-  Check -- "test:is_valid" --> Success["Process"]
-  Check -- "fail" --> Fix["Retry Logic | retries=5"]
+  M["List Processor | type=map | map_key=items | logic_id=process_fn"]
+  R["Router | type=router | logic_id=voter_logic"]
+  R --> NodeA
+  R --> NodeB
+```
+
+### 3. Resilient Failover (Error Edges)
+Standard edges represent the happy path. Error edges define the failover path if a node fails.
+
+| Syntax | Interpretation | Visual |
+| :--- | :--- | :--- |
+| `A --> B` | Standard Transition | Green/Solid |
+| `A -- "Test" --> B` | Success Path (Conditional) | Green/Solid |
+| `A -- "Fail" --> C` | Failure Path (Conditional) | Yellow/Solid |
+| `A -- "error" --> D` | Failover / Error Path | Red/Dashed |
+
+```mermaid
+graph TD
+  Check["Verify | type=logic | logic_id=check_val"]
+  Check -- "Test" --> Success
+  Check -- "Fail" --> Retry
+  Check -- "error" --> Halt["Emergency Stop"]
 ```
 
 > [!IMPORTANT]

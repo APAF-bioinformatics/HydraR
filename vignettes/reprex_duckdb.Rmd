@@ -1,0 +1,132 @@
+---
+title: "DuckDB Restart Reprex: Automated Workflow Persistence"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{DuckDB Restart Reprex: Automated Workflow Persistence}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+This vignette demonstrates a **Minimal Reproducible Example (Reprex)** for the `HydraR` core feature: **Automated State Persistence & Restart**. 
+
+In high-complexity multi-agent workflows, code can fail due to environmental factors, API timeouts, or logic errors. `HydraR` allows you to:
+1.  **Checkpoint** every step of a DAG to a `DuckDB` database.
+2.  **Pause** execution when a step encounters a problem.
+3.  **Resume** exactly from the paused node after the state has been "fixed."
+
+## Setup
+
+Load the library and define a temporary DuckDB path.
+
+```{r lib_load}
+library(HydraR)
+db_path <- tempfile(fileext = ".duckdb")
+```
+
+## 1. Defining the Logic
+
+We register three logic functions globally. Note how `check_fixed` inspects the state for a `fixed` flag — if it's not `TRUE`, the node **pauses** execution instead of crashing.
+
+```{r register_logic}
+register_logic("init_proc", function(state) {
+  list(status = "success", output = "Initialization complete.")
+})
+
+register_logic("check_fixed", function(state) {
+  if (!isTRUE(state$get("fixed"))) {
+    # Return "pause" status — HydraR saves state and stops cleanly
+    return(list(status = "pause", output = "Waiting for manual fix."))
+  }
+  list(status = "success", output = "System recovered!")
+})
+
+register_logic("finalize_proc", function(state) {
+  list(status = "success", output = "All steps finished.")
+})
+```
+
+## 2. Building the DAG Inline
+
+We define a simple 3-step pipeline using Mermaid syntax.
+
+```{r build_dag}
+mermaid_src <- '
+graph TD
+  Step1["Initialization | type=logic | logic_id=init_proc"]
+  Step2["Risky Logic | type=logic | logic_id=check_fixed"]
+  Step3["Conclusion | type=logic | logic_id=finalize_proc"]
+  Step1 --> Step2
+  Step2 --> Step3
+'
+
+dag <- mermaid_to_dag(mermaid_src)
+dag$set_start_node("Step1")
+```
+
+## 3. Initial Run (The Pause)
+
+We run the DAG with `fixed = FALSE`. Step2 will **pause** the pipeline and the checkpointer saves the state to DuckDB.
+
+```{r run_1}
+# Configure DuckDB Persistence
+saver <- DuckDBSaver$new(db_path = db_path)
+tid <- "reprex-session-001"
+
+# Run 1: Expected to pause at Step2
+res1 <- dag$run(
+  thread_id = tid,
+  checkpointer = saver,
+  initial_state = list(fixed = FALSE, counter = 0)
+)
+
+cat("Execution Status:", res1$status, "\n")
+cat("Paused at:", res1$paused_at, "\n")
+```
+
+## 4. Inspecting the Checkpoint
+
+Even though the execution paused, the `thread_id` and the state (including Step1's result) are safely stored in DuckDB.
+
+```{r inspect}
+con <- DBI::dbConnect(duckdb::duckdb(), db_path)
+DBI::dbGetQuery(con, "SELECT thread_id, updated_at FROM agent_checkpoints")
+DBI::dbDisconnect(con, shutdown = TRUE)
+```
+
+## 5. The Restart (The Success)
+
+Now we "fix" the state and restart from `Step2`. `HydraR` detects the existing checkpoint, merges our fix (`fixed = TRUE`) into the restored state, and re-executes from `Step2` onwards — **skipping** `Step1` entirely.
+
+```{r run_2}
+# Fixing the state: Set 'fixed' to TRUE
+new_state <- list(fixed = TRUE)
+
+# Run 2: Resume from Step2 using the SAME thread_id
+final_results <- dag$run(
+  thread_id = tid,
+  checkpointer = saver,
+  initial_state = new_state,
+  resume_from = "Step2"
+)
+
+# Verify results
+cat("Final Status:", final_results$status, "\n")
+cat("Step2 Output:", final_results$results$Step2$output, "\n")
+cat("Step3 Output:", final_results$results$Step3$output, "\n")
+```
+
+## Summary
+
+The `DuckDB` checkpointer ensures that no computational progress is lost. This is critical for agentic workflows involving expensive LLM calls or long-running bioinformatics pipelines.
+
+---
+<!-- APAF Bioinformatics | reprex_duckdb.Rmd | Approved | 2026-04-01 -->

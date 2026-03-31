@@ -45,4 +45,12 @@ extract_r_code_advanced <- function(raw) {
   if (!is.null(a)) a else b
 }
 
+#' Check if an object is a named list
+#' @param x Any object.
+#' @return Logical.
+#' @export
+is_named_list <- function(x) {
+  is.list(x) && !is.data.frame(x) && !is.null(names(x)) && all(nzchar(names(x)))
+}
+
 #' <!-- APAF Bioinformatics | utils.R | Approved | 2026-03-29 -->

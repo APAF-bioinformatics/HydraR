@@ -20,6 +20,8 @@ RestrictedState <- R6::R6Class("RestrictedState",
     state = NULL,
     #' @field node_id String. The ID of the currently executing node.
     node_id = NULL,
+    #' @field read_only Logical. If TRUE, set() and update() are blocked.
+    read_only = FALSE,
     #' @field logger MessageLog. Audit log for communication.
     logger = NULL,
 
@@ -27,11 +29,13 @@ RestrictedState <- R6::R6Class("RestrictedState",
     #' @param state AgentState object.
     #' @param node_id String node ID.
     #' @param logger Optional MessageLog object.
-    initialize = function(state, node_id, logger = NULL) {
+    #' @param read_only Logical. If TRUE, blocks all write operations.
+    initialize = function(state, node_id, logger = NULL, read_only = FALSE) {
       stopifnot(inherits(state, "AgentState"))
       self$state <- state
       self$node_id <- node_id
       self$logger <- logger
+      self$read_only <- read_only
     },
 
     #' Restricted Get
@@ -48,6 +52,9 @@ RestrictedState <- R6::R6Class("RestrictedState",
     #' @param key String.
     #' @param value Any.
     set = function(key, value) {
+      if (self$read_only) {
+        stop(sprintf("[%s] Read-Only: Cannot write key '%s' in read-only mode.", self$node_id, key))
+      }
       if (private$.is_forbidden(key)) {
         stop(sprintf("[%s] Access Denied: Cannot write private key '%s'", self$node_id, key))
       }
@@ -58,6 +65,9 @@ RestrictedState <- R6::R6Class("RestrictedState",
     #' Forward Update
     #' @param updates List.
     update = function(updates) {
+      if (self$read_only) {
+        stop(sprintf("[%s] Read-Only: Cannot update state in read-only mode.", self$node_id))
+      }
       forbidden_keys <- Filter(private$.is_forbidden, names(updates))
       if (length(forbidden_keys) > 0) {
         stop(sprintf("[%s] Access Denied: Cannot update private keys: %s", self$node_id, paste(forbidden_keys, collapse = ", ")))

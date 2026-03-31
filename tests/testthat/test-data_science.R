@@ -69,7 +69,7 @@ test_that("Data Science AutoML loop works", {
 
   dag$add_conditional_edge(
     from = "Evaluator",
-    test = function(out) isTRUE(out$optimization_complete),
+    test = function(out) isTRUE(out$output$optimization_complete),
     if_true = NULL,
     if_false = "ModelTrainer"
   )

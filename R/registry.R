@@ -116,6 +116,8 @@ load_workflow <- function(file_path) {
     roles = raw_data[["roles"]] %||% list(),
     logic = raw_data[["logic"]] %||% list(),
     start_node = raw_data[["start_node"]] %||% NULL,
+    conditional_edges = raw_data[["conditional_edges"]] %||% list(),
+    error_edges = raw_data[["error_edges"]] %||% list(),
     raw = raw_data
   )
 }
@@ -141,6 +143,26 @@ spawn_dag <- function(wf, node_factory = auto_node_factory()) {
   # 2. Apply Declarative Start Node
   if (!is.null(wf$start_node)) {
     dag$set_start_node(wf$start_node)
+  }
+
+  # 2.5 Apply Declarative Conditional Edges
+  if (!is.null(wf$conditional_edges) && length(wf$conditional_edges) > 0) {
+    purrr::iwalk(wf$conditional_edges, function(cfg, from) {
+      test_fn <- resolve_test_pattern(cfg$test)
+      dag$add_conditional_edge(
+        from = from,
+        test = test_fn,
+        if_true = cfg$if_true %||% NULL,
+        if_false = cfg$if_false %||% NULL
+      )
+    })
+  }
+
+  # 2.6 Apply Declarative Error Edges
+  if (!is.null(wf$error_edges) && length(wf$error_edges) > 0) {
+    purrr::iwalk(wf$error_edges, function(to, from) {
+      dag$add_error_edge(from = from, to = to)
+    })
   }
 
   # 3. Compile
@@ -206,12 +228,33 @@ validate_workflow_schema <- function(data) {
   }
 
   # Optional but recommended keys
-  valid_keys <- c("graph", "roles", "logic", "initial_state", "start_node", "metadata")
+  valid_keys <- c("graph", "roles", "logic", "initial_state", "start_node", "conditional_edges", "metadata")
   found_keys <- names(data)
 
   unknown <- setdiff(found_keys, valid_keys)
   if (length(unknown) > 0) {
     warning(sprintf("Unknown top-level keys in workflow: %s", paste(unknown, collapse = ", ")))
+  }
+}
+
+#' Resolve Test Pattern (for Conditional Edges)
+#' @param v String or function.
+#' @return A function(out) -> Logical.
+#' @keywords internal
+resolve_test_pattern <- function(v) {
+  if (is.function(v)) return(v)
+  if (!is.character(v)) stop("Test pattern must be a function or string.")
+  
+  v_trim <- trimws(v)
+
+  # Check logic registry or search path for named function
+  existing_fn <- get_logic(v_trim)
+  if (!is.null(existing_fn) && is.function(existing_fn)) return(existing_fn)
+  if (exists(v_trim, mode = "function")) return(get(v_trim, mode = "function"))
+
+  # Anonymous Code Wrapper (expects 'out')
+  function(out) {
+    eval(parse(text = v), envir = list(out = out), enclos = parent.frame())
   }
 }
 

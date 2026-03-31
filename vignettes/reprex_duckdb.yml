@@ -1,0 +1,22 @@
+name: DuckDB Restart Reprex
+version: 1.0.0
+description: "Demonstrates automated state persistence and recovery using DuckDB."
+
+# 1. Define the Network
+graph: |
+  graph TD
+    Step1["Initialization | type=logic | logic_id=init_proc"]
+    Step2["Risky Logic | type=logic | logic_id=check_fixed"]
+    Step3["Conclusion | type=logic | logic_id=finalize_proc"]
+    Step1 --> Step2
+    Step2 --> Step3
+
+# 2. Register Global Parameters
+initial_state:
+  fixed: false
+  counter: 0
+
+# 3. Define Entry and Exit Logic
+start_node: Step1
+
+# <!-- APAF Bioinformatics | reprex_duckdb.yml | Approved | 2026-03-31 -->

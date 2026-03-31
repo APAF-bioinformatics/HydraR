@@ -20,111 +20,26 @@
 #' @importFrom purrr walk map map_chr compact flatten
 #' @export
 parse_mermaid <- function(mermaid_str) {
-  if (is.null(mermaid_str) || mermaid_str == "") {
-    return(list(nodes = data.frame(), edges = data.frame()))
+  lines <- clean_mermaid_lines(mermaid_str)
+  if (length(lines) == 0) {
+    return(list(nodes = build_nodes_df(NULL), edges = build_edges_df(NULL)))
   }
 
-  # Clean up input - remove line numbers if present, trim, and skip header/guards
-  lines <- strsplit(mermaid_str, "\\n")[[1]]
-  lines <- trimws(lines)
-  # Remove lines that are empty, code block guards, or start with graph/flowchart
-  lines <- lines[nzchar(lines) & !grepl("^```", lines) & !grepl("^(graph|flowchart)", lines, ignore.case = TRUE)]
-
-  # Node pattern matching various bracket styles: [], (), {}, >]
-  # We split this into two cases: quoted and unquoted labels
-  node_pattern <- "^([A-Za-z0-9_]+)(?:\n?(\\[+|\\(+|\\{+|\\>+))?(?:\"(.*?)\"|(.*?))?(?:\\]+|\\)+|\\}+)?$"
-
-  # 1. Normalize line: replace arrows with highly distinct unique markers
   raw_results <- purrr::map(lines, function(line) {
-    # 1. Identify arrows using control character guards to prevent overlap
-    # We use [^>-] to avoid accidental ASCII range interpretation.
-    line_work <- line
-    line_work <- gsub("--\\s*([^>-]+?)\\s*-->", "\001\\1\002", line_work)
-    line_work <- gsub("-->\\s*\\|(.*?)\\|", "\001\\1\002", line_work)
-    line_work <- gsub("-->", "\001\002", line_work)
-    # cat(sprintf("DEBUG LINE_WORK: '%s'\n", encodeString(line_work)))
+    extracted <- extract_edge_and_node_strings(line)
+    node_strings <- extracted$node_strings
+    edge_labels <- extracted$edge_labels
 
-    # 2. Extract edge labels and nodes using regmatches (canonical split)
-    m <- gregexpr("\001[^\002]*\002", line_work, perl = TRUE)
-    if (m[[1]][1] == -1) {
-      parts <- line
-      edge_labels <- character(0)
-    } else {
-      # Extract labels
-      all_match_strs <- regmatches(line_work, m)[[1]]
-      edge_labels <- purrr::map_chr(all_match_strs, function(match_str) {
-        gsub("^\001|\002$", "", match_str)
-      })
-
-      # Extract nodes (parts between arrows)
-      parts <- regmatches(line_work, m, invert = TRUE)[[1]]
-      parts <- trimws(parts)
-      parts <- parts[nzchar(parts)]
-    }
-
-    # Process parts as node definitions
-    line_nodes_raw <- purrr::map(parts, function(p) {
-      if (!nzchar(p)) {
-        return(NULL)
-      }
-
-      # Heuristic for ID and Label
-      # Cases: ID[Label], ID(Label), ID{Label}, ID>Label], or just ID
-      bracket_info <- regexpr("[\\[\\(\\{\\>]", p)
-      if (bracket_info != -1) {
-        id <- trimws(substr(p, 1, bracket_info - 1))
-        open_b <- substr(p, bracket_info, bracket_info)
-        close_b <- if (open_b == "[") "]" else if (open_b == "(") ")" else if (open_b == "{") "}" else if (open_b == ">") "]" else ""
-        remainder <- substr(p, bracket_info + 1, nchar(p))
-
-        # Strip trailing brackets and quotes from remainder
-        clean_remainder <- gsub(paste0("\\", close_b, "[[:space:]]*$"), "", remainder)
-        label_text <- trimws(gsub("^\"|\"$", "", clean_remainder))
-      } else {
-        id <- p
-        label_text <- id
-      }
-
-      # Parameter Extraction (Pipe Delimiter: "Label | key=value")
-      params <- list()
-      label <- label_text
-      if (grepl("\\|", label_text)) {
-        bits <- strsplit(label_text, "\\|")[[1]]
-        label <- trimws(bits[1])
-        param_strings <- trimws(bits[-1])
-
-        purrr::walk(param_strings, function(ps) {
-          # Clean up any leftover brackets in param values
-          ps <- gsub("[\\]\\)\\}\\>[:space:]]+$", "", ps)
-          if (grepl("=", ps)) {
-            kv <- strsplit(ps, "=")[[1]]
-            key <- trimws(kv[1])
-            val <- trimws(paste(kv[-1], collapse = "="))
-            val_lower <- tolower(val)
-            coerced_val <- if (val_lower == "null") {
-              NULL
-            } else if (val_lower %in% c("na", "nan")) {
-              NA
-            } else if (grepl("^-?\\d+(\\.\\d+)?$", val)) {
-              as.numeric(val)
-            } else if (val_lower == "true") {
-              TRUE
-            } else if (val_lower == "false") {
-              FALSE
-            } else {
-              val
-            }
-            params[[key]] <<- coerced_val
-          }
-        })
-      }
-
-      list(id = id, label = label, params = params)
+    line_nodes_raw <- purrr::map(node_strings, function(ns) {
+      node_info <- parse_node_string(ns)
+      if (is.null(node_info)) return(NULL)
+      
+      params_info <- extract_params(node_info$label_text)
+      list(id = node_info$id, label = params_info$label, params = params_info$params)
     })
     line_nodes <- purrr::compact(line_nodes_raw)
-    if (length(line_nodes) == 0) {
-      return(list(nodes = list(), edges = list()))
-    }
+    
+    if (length(line_nodes) == 0) return(list(nodes = list(), edges = list()))
 
     line_node_ids <- purrr::map_chr(line_nodes, ~ .x$id)
     line_edges <- list()
@@ -141,7 +56,105 @@ parse_mermaid <- function(mermaid_str) {
   all_nodes_raw <- purrr::list_flatten(purrr::map(raw_results, ~ .x$nodes))
   all_edges_list <- purrr::list_flatten(purrr::map(raw_results, ~ .x$edges))
 
-  # Process Nodes: Deduplicate and prioritize explicit labels/params
+  nodes_df <- build_nodes_df(all_nodes_raw)
+  edges_df <- build_edges_df(all_edges_list)
+
+  return(list(nodes = nodes_df, edges = edges_df))
+}
+
+# --- Internal Helpers ---
+
+clean_mermaid_lines <- function(mermaid_str) {
+  if (is.null(mermaid_str) || mermaid_str == "") return(character(0))
+  lines <- strsplit(mermaid_str, "\\n")[[1]]
+  lines <- trimws(lines)
+  # Remove lines that are empty, code block guards, or start with graph/flowchart
+  lines[nzchar(lines) & !grepl("^```", lines) & !grepl("^(graph|flowchart)", lines, ignore.case = TRUE)]
+}
+
+extract_edge_and_node_strings <- function(line) {
+  # Normalize line: replace arrows with highly distinct unique markers
+  # 1. Identify arrows using control character guards to prevent overlap
+  line_work <- line
+  line_work <- gsub("--\\s*([^>-]+?)\\s*-->", "\001\\1\002", line_work)
+  line_work <- gsub("-->\\s*\\|(.*?)\\|", "\001\\1\002", line_work)
+  line_work <- gsub("-->", "\001\002", line_work)
+
+  # 2. Extract edge labels and nodes
+  m <- gregexpr("\001[^\002]*\002", line_work, perl = TRUE)
+  if (m[[1]][1] == -1) {
+    return(list(node_strings = line, edge_labels = character(0)))
+  }
+  
+  # Extract labels
+  all_match_strs <- regmatches(line_work, m)[[1]]
+  edge_labels <- purrr::map_chr(all_match_strs, function(match_str) {
+    clean_label <- gsub("^\001|\002$", "", match_str)
+    # Strip quotes and trim whitespace
+    trimws(gsub("^\"|\"$", "", clean_label))
+  })
+
+  # Extract nodes (parts between arrows)
+  node_strings <- regmatches(line_work, m, invert = TRUE)[[1]]
+  node_strings <- trimws(node_strings)
+  node_strings <- node_strings[nzchar(node_strings)]
+  
+  list(node_strings = node_strings, edge_labels = edge_labels)
+}
+
+parse_node_string <- function(node_str) {
+  if (!nzchar(node_str)) return(NULL)
+  
+  # Cases: ID[Label], ID(Label), ID{Label}, ID>Label], or just ID
+  bracket_info <- regexpr("[\\[\\(\\{\\>]", node_str)
+  if (bracket_info != -1) {
+    id <- trimws(substr(node_str, 1, bracket_info - 1))
+    open_b <- substr(node_str, bracket_info, bracket_info)
+    close_b <- if (open_b == "[") "]" else if (open_b == "(") ")" else if (open_b == "{") "}" else if (open_b == ">") "]" else ""
+    remainder <- substr(node_str, bracket_info + 1, nchar(node_str))
+    
+    # Strip trailing brackets and quotes from remainder
+    clean_remainder <- gsub(paste0("\\", close_b, "[[:space:]]*$"), "", remainder)
+    label_text <- trimws(gsub("^\"|\"$", "", clean_remainder))
+  } else {
+    id <- node_str
+    label_text <- id
+  }
+  
+  list(id = id, label_text = label_text)
+}
+
+extract_params <- function(label_text) {
+  params <- list()
+  label <- label_text
+  if (grepl("\\|", label_text)) {
+    bits <- strsplit(label_text, "\\|")[[1]]
+    label <- trimws(bits[1])
+    param_strings <- trimws(bits[-1])
+
+    purrr::walk(param_strings, function(ps) {
+      # Clean up any leftover brackets in param values
+      ps <- gsub("[\\]\\)\\}\\>[:space:]]+$", "", ps)
+      if (grepl("=", ps)) {
+        kv <- strsplit(ps, "=")[[1]]
+        key <- trimws(kv[1])
+        val <- trimws(paste(kv[-1], collapse = "="))
+        val_lower <- tolower(val)
+        coerced_val <- if (val_lower == "null") NULL 
+                       else if (val_lower %in% c("na", "nan")) NA 
+                       else if (grepl("^-?\\d+(\\.\\d+)?$", val)) as.numeric(val)
+                       else if (val_lower == "true") TRUE
+                       else if (val_lower == "false") FALSE
+                       else val
+        params[[key]] <<- coerced_val
+      }
+    })
+  }
+  list(label = label, params = params)
+}
+
+build_nodes_df <- function(all_nodes_raw) {
+  # Deduplicate and prioritize explicit labels/params
   node_map <- list()
   purrr::walk(all_nodes_raw, function(node) {
     id <- node$id
@@ -150,7 +163,7 @@ parse_mermaid <- function(mermaid_str) {
     }
   })
 
-  nodes_df <- if (length(node_map) > 0) {
+  if (length(node_map) > 0) {
     df <- data.frame(
       id = names(node_map),
       label = purrr::map_chr(node_map, "label"),
@@ -163,15 +176,14 @@ parse_mermaid <- function(mermaid_str) {
     df$params <- list()
     df
   }
+}
 
-  # Process Edges: Convert to dataframe
-  edges_df <- if (length(all_edges_list) > 0) {
+build_edges_df <- function(all_edges_list) {
+  if (length(all_edges_list) > 0) {
     do.call(rbind, lapply(all_edges_list, as.data.frame, stringsAsFactors = FALSE))
   } else {
     data.frame(from = character(), to = character(), label = character(), stringsAsFactors = FALSE)
   }
-
-  return(list(nodes = nodes_df, edges = edges_df))
 }
 
 #' <!-- APAF Bioinformatics | mermaid_parser.R | Approved | 2026-03-29 -->
