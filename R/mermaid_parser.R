@@ -210,9 +210,10 @@ parse_mermaid <- function(mermaid_str) {
     line_node_ids <- purrr::map_chr(line_nodes, ~ .x$id)
     line_edges <- list()
     if (length(line_node_ids) >= 2) {
-      n_edge_slots <- min(length(line_node_ids) - 1, length(extraction$edge_labels))
+      n_edge_slots <- length(line_node_ids) - 1
       line_edges <- purrr::map(seq_len(n_edge_slots), function(i) {
-        list(from = line_node_ids[i], to = line_node_ids[i + 1], label = extraction$edge_labels[i])
+        edge_label <- if (i <= length(extraction$edge_labels)) extraction$edge_labels[i] else ""
+        list(from = line_node_ids[i], to = line_node_ids[i + 1], label = edge_label)
       })
     }
 
@@ -224,6 +225,10 @@ parse_mermaid <- function(mermaid_str) {
 
   nodes_df <- build_nodes_df(all_nodes_raw)
   edges_df <- build_edges_df(all_edges_list)
+
+  if (nrow(edges_df) > 0) {
+      edges_df$label[edges_df$label == ""] <- NA_character_
+  }
 
   return(list(nodes = nodes_df, edges = edges_df))
 }
