@@ -24,35 +24,35 @@ bibliography: paper.bib
 
 # Summary
 
-`HydraR` is a lightweight, state-managed framework for orchestrating complex "agentic" workflows—multi-step processes driven by Large Language Models (LLMs)—directly within R. While mainstream tools such as LangChain [@langchain] and CrewAI [@crewai] are Python-native, `HydraR` addresses the R community's needs for reproducibility, auditability, and integration with existing statistical pipelines.
+`HydraR` is a lightweight, state-managed framework designed to orchestrate complex "agentic" workflows—autonomous, multi-step processes driven by Large Language Models (LLMs)—natively within R. While mainstream orchestration tools such as LangChain [@langchain] and CrewAI [@crewai] are predominantly Python-based, `HydraR` fulfills the R community's critical requirements for rigorous reproducibility, auditability, and seamless integration with established statistical pipelines.
 
-Researchers design workflows as Directed Acyclic Graphs (DAGs) or iterative state machines, where each node is an LLM-driven prompt, an R function, or an autonomous auditor. `HydraR` supports both cloud APIs (Gemini, Claude, OpenAI) and local CLI tools (Ollama, Gemini CLI).
+Researchers can architect workflows as Directed Acyclic Graphs (DAGs) or iterative state machines, wherein each node represents an LLM-prompted task, a deterministic R function, or an autonomous auditor. `HydraR` ensures broad compatibility by supporting both complex cloud APIs (Gemini, Claude, OpenAI) and local CLI models (Ollama, Gemini CLI).
 
 # Statement of Need
 
-The R ecosystem lacks a unified framework providing both high-level agentic orchestration and low-level filesystem safety. Existing packages like `ellmer` [@ellmer] focus on chat interfaces, while `mall` [@mall] maps LLM calls over data frames. Neither manages long-running, multi-agent collaborations requiring state persistence or isolated execution.
+The contemporary R ecosystem currently lacks a unified framework that provides both high-level agentic orchestration and robust, low-level filesystem safety. Existing packages, such as `ellmer` [@ellmer], primarily focus on conversational interfaces, while `mall` [@mall] excels at mapping LLM inferences over data frames. Neither is structurally equipped to manage long-running, multi-agent collaborations that demand complex state persistence or isolated execution environments.
 
-`HydraR` solves three critical problems:
-1. **Auditability**: A centralized `AgentState` with persistent checkpointing (DuckDB [@duckdb]) provides a full audit trail of every LLM interaction and state mutation.
-2. **Filesystem Safety**: **Git Worktrees** isolate each parallel agent's execution into a temporary branch, preventing race conditions during multi-agent collaboration.
-3. **Reproducible Orchestration**: Workflows defined via **Mermaid.js** syntax and **YAML** manifests decouple logic from R code, enabling portable, shareable agentic protocols without multi-language environment management.
+`HydraR` addresses three fundamental challenges in this domain:
+1. **Auditability**: It implements a centralized `AgentState` with persistent checkpointing (via DuckDB [@duckdb]), yielding a complete, verifiable audit trail of all LLM interactions and state mutations.
+2. **Filesystem Safety**: Leveraging **Git Worktrees**, `HydraR` isolates parallel agent executions into temporary branches, virtually eliminating data corruption and race conditions during concurrent operations.
+3. **Reproducible Orchestration**: By defining workflows via **Mermaid.js** syntax and **YAML** manifests, `HydraR` decouples orchestration logic from the underlying execution framework. This declarative approach creates portable, shareable agentic protocols, effortlessly bypassing the fragility typical of multi-language environments.
 
 # State of the Field
 
-While `reticulate` [@reticulate] allows R users to access Python frameworks like LangChain, this introduces impedance mismatch when serializing complex R data structures across the language boundary. `HydraR` is built natively on R6 [@R6], preserving full fidelity of statistical objects and R's integrated debugging tools. Unlike `ellmer` [@ellmer] (chat-centric, no DAG orchestration) and `gptstudio` [@gptstudio] (IDE-centric coding assistance), `HydraR` manages the full lifecycle of headless, multi-agent collaborations with persistent checkpointing.
+Although `reticulate` [@reticulate] enables R users to interface with Python frameworks like LangChain, doing so introduces a structural impedance mismatch when serializing complex R data objects across language boundaries. `HydraR` avoids this by building natively on the R6 object-oriented system [@R6], preserving the fidelity of statistical objects while allowing direct compatibility with R's integrated debugging tool chains. Furthermore, unlike `ellmer` [@ellmer] (which offers chat-centric workflows without DAG orchestration), and `gptstudio` [@gptstudio] (which serves as an IDE-centric coding assistant), `HydraR` is specifically engineered to manage the complete lifecycle of headless, parallel, multi-agent collaborations replete with robust state retention.
 
 # Software Design
 
-`HydraR` follows a modular R6 architecture:
-- **AgentLLMNode / AgentLogicNode**: LLM-driven prompts and pure R logic steps, respectively, with pluggable `AgentDriver` backends for provider-agnostic communication.
-- **AgentDAG**: Core orchestrator managing node dependencies, validation via `igraph` [@igraph], and parallel execution via `furrr` [@furrr].
-- **AgentState**: Centralized state with versioned history and reducers to harmonize multi-agent outputs.
-- **WorktreeManager**: Spawns isolated Git worktrees per parallel task, with a **ConflictResolver** for automated or human-in-the-loop merge reconciliation.
+`HydraR` employs a highly modular R6 architecture spanning several key components:
+- **AgentLLMNode / AgentLogicNode**: Encapsulate LLM-driven prompts and deterministic pure-R logic steps, respectively. They utilize pluggable `AgentDriver` backends for provider-agnostic model communication.
+- **AgentDAG**: The core orchestration engine that manages node dependencies, validates network topology (via `igraph` [@igraph]), and executes logic in parallel (via `furrr` [@furrr]).
+- **AgentState**: A centralized state repository employing versioned history and custom reducers to systematically coordinate multi-agent outputs.
+- **WorktreeManager**: An engine that provisions isolated Git worktrees for parallel execution tasks, paired with an extensible **ConflictResolver** handling automated semantic resolution alongside human-in-the-loop task reconciliation.
 
 # Research Applications
 
 ## Travel Itinerary Planner
-A `Planner` LLM agent generates an itinerary while a `Validator` logic node audits it against user-defined constraints. **Conditional looping** between the two nodes forces iterative refinement until all constraints are satisfied, demonstrating self-correcting state machines.
+In this example, an LLM `Planner` agent intelligently generates a draft itinerary, while a deterministic `Validator` logic node actively audits the output against user-defined constraints. Crucially, **conditional looping** between these entities enforces an iterative refinement cycle until all strict parameters are met, thereby operationalizing the concept of a self-correcting state machine within R.
 
 ### Declarative Workflow Excerpt
 ```yaml
@@ -78,7 +78,7 @@ results <- dag$run(initial_state = wf$initial_state)
 ```
 
 ## Parallel Sorting Algorithm Comparison
-Three LLM agents simultaneously implement sorting algorithms in isolated Git worktrees, preventing filesystem conflicts. A **Merge Harmonizer** reconciles the branches, and a benchmarker evaluates performance over 5 trials (\autoref{fig:sorting}).
+This benchmarking example tasks three distinct LLM agents with simultaneously implementing different sorting algorithms. `HydraR` executes each task within an isolated Git worktree to aggressively uncouple filesystem side-effects and prevent merge conflicts. Following execution, a **Merge Harmonizer** systematically reconciles the independent branches back to the main state, preceding a terminal logic node that empirically benchmarks the aggregated algorithms across five continuous trials (\autoref{fig:sorting}).
 
 ![Sorting Algorithm Performance Benchmark (1,000 elements over 5 trials).](sorting_benchmark.pdf){#fig:sorting}
 
@@ -107,7 +107,7 @@ results <- dag$run(initial_state = wf$initial_state, use_worktrees = TRUE)
 ```
 
 ## Fault-Tolerant Pipelines with DuckDB Persistence
-`HydraR` provides checkpoint-and-resume via DuckDB [@duckdb]. A paused pipeline persists its full `AgentState`; on restart, the operator's fix is merged into the restored state and execution resumes from the paused node, skipping completed steps.
+To mitigate transient failures inherent to long-running scientific workflows, `HydraR` integrates advanced checkpoint-and-resume functionality powered by DuckDB [@duckdb]. Whenever a pipeline pauses mid-execution, it automatically persists its complete `AgentState`. Upon restart, any operator-applied programmatic interventions are seamlessly merged, actively preventing redundant evaluations by allowing execution to jump directly back to the paused node.
 
 ### Inline Workflow Definition
 ```r
@@ -144,15 +144,15 @@ res2 <- dag$run(thread_id = tid, checkpointer = saver,
 # res2$results$Step3$output => "All steps finished."
 ```
 
-This pattern avoids costly re-execution in pipelines with expensive LLM calls or long-running queries.
+By safeguarding computational progress autonomously, this pattern effectively circumvents prohibitively costly re-execution in bioinformatics pipelines reliant on voluminous LLM invocations or laborious large-scale database queries.
 
 # Research Impact Statement
 
-`HydraR` is used at the **Australian Proteome Analysis Facility (APAF)** to automate bioinformatics workflow development. Its declarative YAML definitions allow domain experts to audit logic without R proficiency, enabling scalable and reproducible LLM-assisted research.
+`HydraR` is actively deployed at the **Australian Proteome Analysis Facility (APAF)** to architect and automate resilient bioinformatics tooling. Its declarative YAML schemas empower non-programming domain experts to routinely govern advanced LLM logic pipelines without any R coding proficiency, thereby democratizing the scale and reproducibility of model-assisted scientific research.
 
 # AI Usage Disclosure
 
-A significant portion of `HydraR` was developed using **Antigravity**, an agentic AI coding assistant, following a strict "Human-in-the-loop" pattern. Human authors designed the architecture; AI implemented logic blocks, tests, and documentation. All AI-generated code was manually reviewed and tested.
+Transparency and accountability are core tenets of the `HydraR` paradigm. A substantial portion of the implementation was co-developed utilizing **Antigravity**, an agentic AI coding assistant, supervised by a rigorous "human-in-the-loop" review protocol. Specifically, the original authors independently conceptualized the underlying system architecture, while the AI generated specialized logic, unit tests, and software documentation with every resultant commit sequentially tested and manually verified.
 
 # Acknowledgements
 
