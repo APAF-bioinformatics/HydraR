@@ -10,9 +10,14 @@ test_that("Git Worktree Parallel Integration works", {
   tmp_repo <- withr::local_tempdir()
   withr::with_dir(tmp_repo, {
     system2("git", c("init"))
+<<<<<<< HEAD
     system2("git", c("config", "user.name", "\"APAF tester\""))
     system2("git", c("config", "user.email", "\"apaf@example.com\""))
     system2("git", c("config", "commit.gpgsign", "false"))
+=======
+    system2("git", c("config", "user.name", "Test User"))
+    system2("git", c("config", "user.email", "test@example.com"))
+>>>>>>> a6c01db (Fix git init --initial-branch argument in tests failing on older git)
     writeLines("Initial content", "README.md")
     system2("git", c("add", "README.md"))
     system2("git", c("commit", "-m", "\"Initial commit\""))
@@ -86,6 +91,7 @@ test_that("Merge Conflict detection works", {
   tmp_repo <- withr::local_tempdir()
   withr::with_dir(tmp_repo, {
 <<<<<<< HEAD
+<<<<<<< HEAD
     system2("git", c("init"))
     system2("git", c("config", "user.name", "\"APAF tester\""))
     system2("git", c("config", "user.email", "\"apaf@example.com\""))
@@ -95,6 +101,9 @@ test_that("Merge Conflict detection works", {
     system2("git", c("commit", "-m", "\"Initial\""))
 =======
     system2("git", c("init", "--initial-branch=main"))
+=======
+    system2("git", c("init"))
+>>>>>>> a6c01db (Fix git init --initial-branch argument in tests failing on older git)
     system2("git", c("config", "user.name", "Test User"))
     system2("git", c("config", "user.email", "test@example.com"))
     writeLines("Initial", "conflict.txt")
