@@ -8,7 +8,7 @@ test_that("Unified Execution: run() defaults to .run_iterative when use_worktree
   # 1. Setup Mock Repo
   tmp_repo <- withr::local_tempdir()
   withr::with_dir(tmp_repo, {
-    system2("git", c("init", "--initial-branch=main"))
+    system2("git", c("init"))
     system2("git", c("config", "user.name", "Test User"))
     system2("git", c("config", "user.email", "test@example.com"))
     writeLines("Initial content", "README.md")
