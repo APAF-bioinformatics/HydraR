@@ -19,7 +19,7 @@
 # Global Variable Bindings for R CMD check
 # ==============================================================
 utils::globalVariables(c(
-  "ClaudeCodeDriver", "OpenAIDriver", "GeminiCLIDriver", 
+  "ClaudeCodeDriver", "OpenAIDriver", "GeminiCLIDriver",
   "OllamaDriver", "CopilotCLIDriver", "ClaudeCLIDriver"
 ))
 

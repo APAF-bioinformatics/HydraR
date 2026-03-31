@@ -64,8 +64,10 @@ parse_mermaid <- function(mermaid_str) {
 
     # Process parts as node definitions
     line_nodes_raw <- purrr::map(parts, function(p) {
-      if (!nzchar(p)) return(NULL)
-      
+      if (!nzchar(p)) {
+        return(NULL)
+      }
+
       # Heuristic for ID and Label
       # Cases: ID[Label], ID(Label), ID{Label}, ID>Label], or just ID
       bracket_info <- regexpr("[\\[\\(\\{\\>]", p)
@@ -74,7 +76,7 @@ parse_mermaid <- function(mermaid_str) {
         open_b <- substr(p, bracket_info, bracket_info)
         close_b <- if (open_b == "[") "]" else if (open_b == "(") ")" else if (open_b == "{") "}" else if (open_b == ">") "]" else ""
         remainder <- substr(p, bracket_info + 1, nchar(p))
-        
+
         # Strip trailing brackets and quotes from remainder
         clean_remainder <- gsub(paste0("\\", close_b, "[[:space:]]*$"), "", remainder)
         label_text <- trimws(gsub("^\"|\"$", "", clean_remainder))
@@ -82,7 +84,7 @@ parse_mermaid <- function(mermaid_str) {
         id <- p
         label_text <- id
       }
-      
+
       # Parameter Extraction (Pipe Delimiter: "Label | key=value")
       params <- list()
       label <- label_text
@@ -99,12 +101,19 @@ parse_mermaid <- function(mermaid_str) {
             key <- trimws(kv[1])
             val <- trimws(paste(kv[-1], collapse = "="))
             val_lower <- tolower(val)
-            coerced_val <- if (val_lower == "null") NULL 
-                           else if (val_lower %in% c("na", "nan")) NA 
-                           else if (grepl("^-?\\d+(\\.\\d+)?$", val)) as.numeric(val)
-                           else if (val_lower == "true") TRUE
-                           else if (val_lower == "false") FALSE
-                           else val
+            coerced_val <- if (val_lower == "null") {
+              NULL
+            } else if (val_lower %in% c("na", "nan")) {
+              NA
+            } else if (grepl("^-?\\d+(\\.\\d+)?$", val)) {
+              as.numeric(val)
+            } else if (val_lower == "true") {
+              TRUE
+            } else if (val_lower == "false") {
+              FALSE
+            } else {
+              val
+            }
             params[[key]] <<- coerced_val
           }
         })
