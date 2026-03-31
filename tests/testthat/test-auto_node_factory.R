@@ -1,4 +1,5 @@
 library(testthat)
+library(HydraR)
 
 # ==================================================================
 # Tests for auto_node_factory(), register_role(), resolve_default_driver()
