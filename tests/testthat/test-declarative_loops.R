@@ -32,17 +32,17 @@ logic:
   # Mock a file since load_workflow needs a path
   tmp_file <- tempfile(fileext = ".yml")
   writeLines(wf_yml, tmp_file)
-  
+
   # Use load_workflow which SHOULD register the logic
   wf <- load_workflow(tmp_file)
-  
+
   # Verify registration
   expect_true("logic_a" %in% list_logic())
-  
+
   dag <- spawn_dag(wf)
-  
+
   res <- dag$run(initial_state = list(), max_steps = 10)
-  
+
   expect_equal(res$status, "completed")
   expect_true(dag$state$get("count") >= 2)
 })
@@ -51,8 +51,8 @@ test_that("Declarative conditional edges handle named functions", {
   # Manually register for this test
   register_logic("my_test_fn", function(out) isTRUE(out$output$pass))
   register_logic("la", function(s) list())
-  register_logic("lb", function(s) list(output=list(pass=TRUE)))
-  
+  register_logic("lb", function(s) list(output = list(pass = TRUE)))
+
   wf <- list(
     graph = "graph TD\nA[A|type=logic|logic_id=la] --> B[B|type=logic|logic_id=lb]",
     start_node = "A",
@@ -60,7 +60,7 @@ test_that("Declarative conditional edges handle named functions", {
       B = list(test = "my_test_fn", if_true = NULL, if_false = "A")
     )
   )
-  
+
   dag <- spawn_dag(wf)
   res <- dag$run(initial_state = list())
   expect_equal(res$status, "completed")
