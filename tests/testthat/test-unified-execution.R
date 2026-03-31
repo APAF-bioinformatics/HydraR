@@ -9,13 +9,13 @@ test_that("Unified Execution: run() defaults to .run_iterative when use_worktree
   tmp_repo <- withr::local_tempdir()
   withr::with_dir(tmp_repo, {
     system2("git", c("init"))
-    system2("git", c("config", "user.email", "'apaf@example.com'"))
-    system2("git", c("config", "user.name", "'APAF tester'"))
+    system2("git", c("config", "user.name", "\"APAF tester\""))
+    system2("git", c("config", "user.email", "\"apaf@example.com\""))
+    system2("git", c("config", "commit.gpgsign", "false"))
     writeLines("Initial content", "README.md")
     system2("git", c("add", "README.md"))
-    system2("git", c("commit", "-m", "'Initial commit'"))
+    system2("git", c("commit", "-m", "\"Initial commit\""))
     system2("git", c("branch", "-M", "main"))
-
   })
 
   # 2. Define a simple linear DAG (A -> B)

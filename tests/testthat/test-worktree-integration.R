@@ -85,6 +85,7 @@ test_that("Git Worktree Parallel Integration works", {
 test_that("Merge Conflict detection works", {
   tmp_repo <- withr::local_tempdir()
   withr::with_dir(tmp_repo, {
+<<<<<<< HEAD
     system2("git", c("init"))
     system2("git", c("config", "user.name", "\"APAF tester\""))
     system2("git", c("config", "user.email", "\"apaf@example.com\""))
@@ -92,6 +93,14 @@ test_that("Merge Conflict detection works", {
     writeLines("Initial", "conflict.txt")
     system2("git", c("add", "conflict.txt"))
     system2("git", c("commit", "-m", "\"Initial\""))
+=======
+    system2("git", c("init", "--initial-branch=main"))
+    system2("git", c("config", "user.name", "Test User"))
+    system2("git", c("config", "user.email", "test@example.com"))
+    writeLines("Initial", "conflict.txt")
+    system2("git", c("add", "conflict.txt"))
+    system2("git", c("commit", "-m", "Initial"))
+>>>>>>> d17ec56 (Fix CI test failures caused by git config and orphaned submodule)
     system2("git", c("branch", "-M", "main"))
   })
 
@@ -99,14 +108,22 @@ test_that("Merge Conflict detection works", {
   node_a <- AgentLogicNode$new(id = "node_A", logic_fn = function(state) {
     writeLines("Node A edit", "conflict.txt")
     system2("git", c("add", "conflict.txt"))
+<<<<<<< HEAD
     system2("git", c("commit", "-m", "\"Conflicting commit A\""))
+=======
+    system2("git", c("commit", "-m", "Conflicting commit A"))
+>>>>>>> d17ec56 (Fix CI test failures caused by git config and orphaned submodule)
     list(status = "success", output = "A")
   })
 
   node_b <- AgentLogicNode$new(id = "node_B", logic_fn = function(state) {
     writeLines("Node B edit", "conflict.txt")
     system2("git", c("add", "conflict.txt"))
+<<<<<<< HEAD
     system2("git", c("commit", "-m", "\"Conflicting commit B\""))
+=======
+    system2("git", c("commit", "-m", "Conflicting commit B"))
+>>>>>>> d17ec56 (Fix CI test failures caused by git config and orphaned submodule)
     list(status = "success", output = "B")
   })
 
