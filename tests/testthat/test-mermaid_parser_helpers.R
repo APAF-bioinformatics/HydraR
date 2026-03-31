@@ -116,8 +116,8 @@ test_that("build_nodes_df handles deduplication and prioritization", {
   all_nodes <- list(
     list(id = "A", label = "A", params = list()),
     list(id = "A", label = "Explicit A", params = list()), # Should prioritize explicit label
-    list(id = "B", label = "B", params = list(k = 1)), # Has params
-    list(id = "B", label = "B", params = list()) # Should prioritize the one with params
+    list(id = "B", label = "B", params = list(k = 1)),     # Has params
+    list(id = "B", label = "B", params = list())           # Should prioritize the one with params
   )
 
   df <- build_nodes_df(all_nodes)

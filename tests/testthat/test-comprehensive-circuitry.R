@@ -163,7 +163,7 @@ test_that("Scenario 5: Parallel/Worktree Mock Integration", {
   # No single string set_start_node allowed here for multi-roots
   dag$nodes$A$logic_fn <- get_logic("parallel_task")
   dag$nodes$B$logic_fn <- get_logic("parallel_task")
-  dag$nodes$Merge$logic_fn <- function(s) list(status = "success")
+  dag$nodes$Merge$logic_fn <- function(s) list(status="success")
 
   res <- dag$run(initial_state = list())
   expect_true("Merge" %in% names(res$results))

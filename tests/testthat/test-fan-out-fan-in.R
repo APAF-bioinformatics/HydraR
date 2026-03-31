@@ -15,15 +15,15 @@ MockFanOutDriver <- R6::R6Class("MockFanOutDriver",
   public = list(
     call = function(prompt, ...) {
       if (grepl("creative director", prompt)) {
-        return("The cybernetic cat enters the hidden city.")
+         return("The cybernetic cat enters the hidden city.")
       } else if (grepl("action-thriller", prompt)) {
-        return("Explosions in the neon alleyway!")
+         return("Explosions in the neon alleyway!")
       } else if (grepl("mystery writer", prompt)) {
-        return("Who left this cryptic holodisk?")
+         return("Who left this cryptic holodisk?")
       } else if (grepl("romance writer", prompt)) {
-        return("The cat shared a tender moment with a drone.")
+         return("The cat shared a tender moment with a drone.")
       } else if (grepl("master editor", prompt)) {
-        return("The final story: Action, Mystery, and Romance combined.")
+         return("The final story: Action, Mystery, and Romance combined.")
       }
       return("Default mock response")
     }
@@ -31,20 +31,63 @@ MockFanOutDriver <- R6::R6Class("MockFanOutDriver",
 )
 
 test_that("Fan-Out Fan-In YAML workflow loads and executes correctly", {
-  # 1. We read the actual vignette yaml to ensure it's valid
-  yaml_path <- file.path("..", "..", "vignettes", "fan_out_fan_in.yml")
 
-  # Fallback for devtools::test() vs R CMD check paths
-  if (!file.exists(yaml_path)) {
-    yaml_path <- file.path("..", "vignettes", "fan_out_fan_in.yml")
-  }
-  if (!file.exists(yaml_path)) {
-    yaml_path <- file.path(Sys.getenv("R_PACKAGE_SOURCE", "."), "vignettes", "fan_out_fan_in.yml")
-  }
+  # Inline definition of the YAML to ensure robustness across R CMD check environments
+  yaml_content <- "
+graph: |
+  graph TD
+    director[\"Director | type=llm | role_id=director | driver=gemini | prompt_id=prompt_director\"]
+    writer_action[\"Action Writer | type=llm | role_id=writer_action | driver=gemini | prompt_id=prompt_action\"]
+    writer_mystery[\"Mystery Writer | type=llm | role_id=writer_mystery | driver=gemini | prompt_id=prompt_mystery\"]
+    writer_romance[\"Romance Writer | type=llm | role_id=writer_romance | driver=gemini | prompt_id=prompt_romance\"]
+    editor[\"Master Editor | type=llm | role_id=editor | driver=gemini | prompt_id=prompt_editor\"]
 
-  skip_if_not(file.exists(yaml_path), "fan_out_fan_in.yml not found. Skipping test.")
+    director --> writer_action
+    director --> writer_mystery
+    director --> writer_romance
 
-  # Load the workflow
+    writer_action --> editor
+    writer_mystery --> editor
+    writer_romance --> editor
+
+roles:
+  director: \"You are the creative director setting the stage.\"
+  writer_action: \"You are an action-thriller writer. Write a short, fast-paced scene.\"
+  writer_mystery: \"You are a mystery writer. Write a short, suspenseful scene.\"
+  writer_romance: \"You are a romance writer. Write a short, emotional scene.\"
+  editor: \"You are the master editor. Combine the scenes into a cohesive short story.\"
+
+logic:
+  prompt_director: >
+    sprintf(\"Expand slightly on this premise: %s\", state$get(\"premise\"))
+
+  prompt_action: >
+    sprintf(\"Based on the director's vision: %s\\nWrite an action scene.\", state$get(\"director\"))
+
+  prompt_mystery: >
+    sprintf(\"Based on the director's vision: %s\\nWrite a mystery scene.\", state$get(\"director\"))
+
+  prompt_romance: >
+    sprintf(\"Based on the director's vision: %s\\nWrite a romantic or emotional scene.\", state$get(\"director\"))
+
+  prompt_editor: >
+    sprintf(
+      \"Synthesize these three scenes into one short story:\\n\\nAction: %s\\n\\nMystery: %s\\n\\nRomance: %s\",
+      state$get(\"writer_action\"),
+      state$get(\"writer_mystery\"),
+      state$get(\"writer_romance\")
+    )
+
+start_node: director
+
+initial_state:
+  premise: \"A cybernetic cat discovers a hidden underground city.\"
+"
+
+  yaml_path <- tempfile(fileext = ".yml")
+  writeLines(yaml_content, yaml_path)
+
+  # Load the workflow from the temp file
   wf <- load_workflow(yaml_path)
 
   # Validate the structure of the loaded workflow
@@ -52,11 +95,11 @@ test_that("Fan-Out Fan-In YAML workflow loads and executes correctly", {
   expect_true(is.list(wf$initial_state))
   expect_equal(wf$initial_state$premise, "A cybernetic cat discovers a hidden underground city.")
 
-  # 2. Inject Mock Driver into the registry so the factory picks it up
+  # Inject Mock Driver into the registry so the factory picks it up
   drv_registry <- get_driver_registry()
   drv_registry$register("gemini", MockFanOutDriver$new())
 
-  # 3. Create and compile DAG using the standard auto_node_factory
+  # Create and compile DAG using the standard auto_node_factory
   dag <- spawn_dag(wf, auto_node_factory(driver_registry = drv_registry))
   expect_silent(dag$compile())
 
@@ -65,13 +108,13 @@ test_that("Fan-Out Fan-In YAML workflow loads and executes correctly", {
   expect_equal(length(dag$nodes), 5)
   expect_equal(length(igraph::E(dag$graph)), 6) # 3 fan-out + 3 fan-in edges
 
-  # 4. Run DAG
+  # Run DAG
   # Suppressing print messages from DAG execution
   capture.output({
     result <- dag$run(initial_state = wf$initial_state)
   })
 
-  # 5. Assertions
+  # Assertions
   expect_equal(result$status, "completed")
   expect_equal(result$state$get("director"), "The cybernetic cat enters the hidden city.")
   expect_equal(result$state$get("writer_action"), "Explosions in the neon alleyway!")
@@ -87,6 +130,8 @@ test_that("Fan-Out Fan-In YAML workflow loads and executes correctly", {
   executed_nodes <- purrr::map_chr(traces, ~ .x$node)
   expect_equal(tail(executed_nodes, 1), "editor")
   expect_equal(head(executed_nodes, 1), "director")
+
+  unlink(yaml_path)
 })
 
 # <!-- APAF Bioinformatics | test-fan-out-fan-in.R | Approved | 2026-03-31 -->
