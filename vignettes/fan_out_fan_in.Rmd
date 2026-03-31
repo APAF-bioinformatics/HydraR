@@ -17,6 +17,8 @@ knitr::opts_chunk$set(
 
 This vignette demonstrates how to implement a **Fan-Out / Fan-In** pattern using the `GeminiCLIDriver` to power agentic nodes in `HydraR`.
 
+Instead of writing R code to manually configure each node, we will use `HydraR`'s declarative YAML syntax. This makes defining complex multi-agent network topologies clean and portable.
+
 ## The Scenario
 
 Imagine we are writing a collaborative story. The process requires a **Fan-Out** to multiple specialized writers (e.g., Action, Mystery, Romance) who independently generate distinct plot lines based on a central premise. Afterward, a **Fan-In** occurs where a Master Editor synthesizes these independent plots into a single, cohesive narrative.
@@ -31,111 +33,99 @@ This pattern is highly useful when:
 library(HydraR)
 ```
 
-## Defining the Workflow Components
+## The Declarative Definition (`fan_out_fan_in.yml`)
 
-To keep our architecture clean, we store all workflow components—initial configuration, LLM prompts, and agent roles—in a central registry.
+We define the entire orchestration architecture in a separate `fan_out_fan_in.yml` file. This file contains:
+1.  **Graph**: The Mermaid string dictating the connections and node parameters (`type=llm`).
+2.  **Roles**: The system prompts for the LLM models.
+3.  **Logic**: Inline R snippets for building prompts dynamically from state.
+4.  **Initial State**: The starting variables for our workflow.
 
-```{r logic_registry}
-story_logic_registry <- list(
-  # 0. Initial Configuration
-  initial_state = list(
-    premise = "A cybernetic cat discovers a hidden underground city."
-  ),
+Here is the content of `fan_out_fan_in.yml`:
 
-  # 1. Agent Roles
-  roles = list(
-    director = "You are the creative director setting the stage.",
-    writer_action = "You are an action-thriller writer. Write a short, fast-paced scene.",
-    writer_mystery = "You are a mystery writer. Write a short, suspenseful scene.",
-    writer_romance = "You are a romance writer. Write a short, emotional scene.",
-    editor = "You are the master editor. Combine the scenes into a cohesive short story."
-  ),
+```yaml
+graph: |
+  graph TD
+    director["Director | type=llm | role_id=director | driver=gemini | prompt_id=prompt_director"]
+    writer_action["Action Writer | type=llm | role_id=writer_action | driver=gemini | prompt_id=prompt_action"]
+    writer_mystery["Mystery Writer | type=llm | role_id=writer_mystery | driver=gemini | prompt_id=prompt_mystery"]
+    writer_romance["Romance Writer | type=llm | role_id=writer_romance | driver=gemini | prompt_id=prompt_romance"]
+    editor["Master Editor | type=llm | role_id=editor | driver=gemini | prompt_id=prompt_editor"]
 
-  # 2. Prompt Builders
-  prompts = list(
-    director = function(state) {
-      sprintf("Expand slightly on this premise: %s", state$get("premise"))
-    },
-    writer_action = function(state) {
-      sprintf("Based on the director's vision: %s\nWrite an action scene.", state$get("director"))
-    },
-    writer_mystery = function(state) {
-      sprintf("Based on the director's vision: %s\nWrite a mystery scene.", state$get("director"))
-    },
-    writer_romance = function(state) {
-      sprintf("Based on the director's vision: %s\nWrite a romantic or emotional scene.", state$get("director"))
-    },
-    editor = function(state) {
-      # The editor accesses the outputs of all three writers
-      sprintf(
-        "Synthesize these three scenes into one short story:\n\nAction: %s\n\nMystery: %s\n\nRomance: %s",
-        state$get("writer_action"),
-        state$get("writer_mystery"),
-        state$get("writer_romance")
-      )
-    }
-  )
-)
+    director --> writer_action
+    director --> writer_mystery
+    director --> writer_romance
+
+    writer_action --> editor
+    writer_mystery --> editor
+    writer_romance --> editor
+
+roles:
+  director: "You are the creative director setting the stage."
+  writer_action: "You are an action-thriller writer. Write a short, fast-paced scene."
+  writer_mystery: "You are a mystery writer. Write a short, suspenseful scene."
+  writer_romance: "You are a romance writer. Write a short, emotional scene."
+  editor: "You are the master editor. Combine the scenes into a cohesive short story."
+
+logic:
+  prompt_director: >
+    sprintf("Expand slightly on this premise: %s", state$get("premise"))
+  prompt_action: >
+    sprintf("Based on the director's vision: %s\nWrite an action scene.", state$get("director"))
+  prompt_mystery: >
+    sprintf("Based on the director's vision: %s\nWrite a mystery scene.", state$get("director"))
+  prompt_romance: >
+    sprintf("Based on the director's vision: %s\nWrite a romantic or emotional scene.", state$get("director"))
+  prompt_editor: >
+    sprintf(
+      "Synthesize these three scenes into one short story:\n\nAction: %s\n\nMystery: %s\n\nRomance: %s",
+      state$get("writer_action"),
+      state$get("writer_mystery"),
+      state$get("writer_romance")
+    )
+
+start_node: director
+
+initial_state:
+  premise: "A cybernetic cat discovers a hidden underground city."
 ```
 
-## The Node Factory
+## Loading and Compiling the DAG
 
-We use a factory function to dynamically resolve nodes and their drivers based on parameters defined in the Mermaid graph.
+We load the YAML file and spawn the DAG using the automatic node factory, which automatically resolves `type=llm` annotations and retrieves logic/roles from the registries.
 
-```{r factory}
-story_node_factory <- function(id, label, params) {
-  # Driver resolution from Mermaid params
-  driver_obj <- if (!is.null(params$driver) && params$driver == "gemini") {
-    GeminiCLIDriver$new(model = "gemini-1.5-flash")
-  } else {
-    NULL
-  }
+```{r load_wf}
+# 1. Load the workflow definitions into the registries
+wf <- load_workflow("fan_out_fan_in.yml")
 
-  AgentLLMNode$new(
-    id = id,
-    label = label,
-    role = story_logic_registry$roles[[id]],
-    driver = driver_obj,
-    prompt_builder = story_logic_registry$prompts[[id]]
-  )
-}
+# 2. Compile the Directed Acyclic Graph
+dag <- spawn_dag(wf, auto_node_factory())
 ```
 
-## Building the DAG via Mermaid
+## Executing the DAG
 
-We define the entire workflow architecture as a Mermaid string. This string demonstrates the **Fan-Out** from the `director` to the three writers, and the **Fan-In** from the writers to the `editor`.
-
-```{r mermaid_source}
-mermaid_graph <- "
-graph TD
-  director[Director | driver=gemini] --> writer_action[Action Writer | driver=gemini]
-  director --> writer_mystery[Mystery Writer | driver=gemini]
-  director --> writer_romance[Romance Writer | driver=gemini]
-
-  writer_action --> editor[Master Editor | driver=gemini]
-  writer_mystery --> editor
-  writer_romance --> editor
-"
-
-# Instantiate the DAG
-dag <- AgentDAG$from_mermaid(mermaid_graph, node_factory = story_node_factory)
-compiled_dag <- dag$compile()
-```
-
-## Building and Running the DAG
-
-We assemble the node into an `AgentDAG` and execute it.
+Running the DAG will automatically follow the Mermaid structure. The `director` node will execute first. Then, depending on execution context, the three writer nodes will execute. Finally, the `editor` node will run, using the output accumulated in the state from the writers.
 
 ```{r running}
-# Execute with the initial premise from the registry
-res <- compiled_dag$run(initial_state = story_logic_registry$initial_state)
+# Execute with the initial premise extracted from the YAML file
+res <- dag$run(initial_state = wf$initial_state)
 
 # View the final synthesized story
 cat(res$results$editor$output)
 ```
 
+## Visualizing the Flow
+
+We can inspect the execution path and configuration right from R.
+
+```{r, results='asis'}
+cat("```mermaid\n")
+cat(dag$plot(type = "mermaid", details = TRUE))
+cat("\n```\n")
+```
+
 ## Conclusion
 
-The Fan-Out / Fan-In pattern is a robust way to generate diverse perspectives or sub-components of a task in parallel before synthesizing them. Using `HydraR`'s native DAG execution, these complex multi-agent flows are simple to define and orchestrate.
+The Fan-Out / Fan-In pattern is a robust way to generate diverse perspectives or sub-components of a task in parallel before synthesizing them. Using `HydraR`'s declarative YAML framework, complex multi-agent topologies become easily portable and readable configuration files instead of lengthy boilerplate code.
 
 <!-- APAF Bioinformatics | fan_out_fan_in.Rmd | Approved | 2026-03-31 -->

@@ -15,78 +15,49 @@ MockFanOutDriver <- R6::R6Class("MockFanOutDriver",
   public = list(
     call = function(prompt, ...) {
       if (grepl("creative director", prompt)) {
-        return("The cybernetic cat enters the hidden city.")
+         return("The cybernetic cat enters the hidden city.")
       } else if (grepl("action-thriller", prompt)) {
-        return("Explosions in the neon alleyway!")
+         return("Explosions in the neon alleyway!")
       } else if (grepl("mystery writer", prompt)) {
-        return("Who left this cryptic holodisk?")
+         return("Who left this cryptic holodisk?")
       } else if (grepl("romance writer", prompt)) {
-        return("The cat shared a tender moment with a drone.")
+         return("The cat shared a tender moment with a drone.")
       } else if (grepl("master editor", prompt)) {
-        return("The final story: Action, Mystery, and Romance combined.")
+         return("The final story: Action, Mystery, and Romance combined.")
       }
       return("Default mock response")
     }
   )
 )
 
-test_that("Fan-Out Fan-In DAG executes correctly", {
-  story_logic_registry <- list(
-    roles = list(
-      director = "You are the creative director setting the stage.",
-      writer_action = "You are an action-thriller writer. Write a short, fast-paced scene.",
-      writer_mystery = "You are a mystery writer. Write a short, suspenseful scene.",
-      writer_romance = "You are a romance writer. Write a short, emotional scene.",
-      editor = "You are the master editor. Combine the scenes into a cohesive short story."
-    ),
-    prompts = list(
-      director = function(state) {
-        sprintf("Expand slightly on this premise: %s", state$get("premise"))
-      },
-      writer_action = function(state) {
-        sprintf("Based on the director's vision: %s\nWrite an action scene.", state$get("director"))
-      },
-      writer_mystery = function(state) {
-        sprintf("Based on the director's vision: %s\nWrite a mystery scene.", state$get("director"))
-      },
-      writer_romance = function(state) {
-        sprintf("Based on the director's vision: %s\nWrite a romantic or emotional scene.", state$get("director"))
-      },
-      editor = function(state) {
-        sprintf(
-          "Synthesize these three scenes into one short story:\n\nAction: %s\n\nMystery: %s\n\nRomance: %s",
-          state$get("writer_action"),
-          state$get("writer_mystery"),
-          state$get("writer_romance")
-        )
-      }
-    )
-  )
+test_that("Fan-Out Fan-In YAML workflow loads and executes correctly", {
+  # 1. We read the actual vignette yaml to ensure it's valid
+  yaml_path <- file.path("..", "..", "vignettes", "fan_out_fan_in.yml")
 
-  # Factory
-  story_node_factory <- function(id, label, params) {
-    AgentLLMNode$new(
-      id = id,
-      label = label,
-      role = story_logic_registry$roles[[id]],
-      driver = MockFanOutDriver$new(),
-      prompt_builder = story_logic_registry$prompts[[id]]
-    )
+  # Fallback for devtools::test() vs R CMD check paths
+  if (!file.exists(yaml_path)) {
+    yaml_path <- file.path("..", "vignettes", "fan_out_fan_in.yml")
+  }
+  if (!file.exists(yaml_path)) {
+    yaml_path <- file.path(Sys.getenv("R_PACKAGE_SOURCE", "."), "vignettes", "fan_out_fan_in.yml")
   }
 
-  mermaid_graph <- "
-  graph TD
-    director[Director] --> writer_action[Action Writer]
-    director --> writer_mystery[Mystery Writer]
-    director --> writer_romance[Romance Writer]
+  skip_if_not(file.exists(yaml_path), "fan_out_fan_in.yml not found. Skipping test.")
 
-    writer_action --> editor[Master Editor]
-    writer_mystery --> editor
-    writer_romance --> editor
-  "
+  # Load the workflow
+  wf <- load_workflow(yaml_path)
 
-  # Create and compile DAG
-  dag <- AgentDAG$from_mermaid(mermaid_graph, node_factory = story_node_factory)
+  # Validate the structure of the loaded workflow
+  expect_true(is.character(wf$graph))
+  expect_true(is.list(wf$initial_state))
+  expect_equal(wf$initial_state$premise, "A cybernetic cat discovers a hidden underground city.")
+
+  # 2. Inject Mock Driver into the registry so the factory picks it up
+  drv_registry <- get_driver_registry()
+  drv_registry$register("gemini", MockFanOutDriver$new())
+
+  # 3. Create and compile DAG using the standard auto_node_factory
+  dag <- spawn_dag(wf, auto_node_factory(driver_registry = drv_registry))
   expect_silent(dag$compile())
 
   # Ensure the graph has the right structure
@@ -94,15 +65,13 @@ test_that("Fan-Out Fan-In DAG executes correctly", {
   expect_equal(length(dag$nodes), 5)
   expect_equal(length(igraph::E(dag$graph)), 6) # 3 fan-out + 3 fan-in edges
 
-  # Run DAG
-  initial_state <- list(premise = "A cybernetic cat discovers a hidden underground city.")
-
+  # 4. Run DAG
   # Suppressing print messages from DAG execution
   capture.output({
-    result <- dag$run(initial_state = initial_state)
+    result <- dag$run(initial_state = wf$initial_state)
   })
 
-  # Assertions
+  # 5. Assertions
   expect_equal(result$status, "completed")
   expect_equal(result$state$get("director"), "The cybernetic cat enters the hidden city.")
   expect_equal(result$state$get("writer_action"), "Explosions in the neon alleyway!")
