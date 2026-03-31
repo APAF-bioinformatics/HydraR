@@ -8,7 +8,6 @@ graph: |
     Validator["Constraint Auditor | type=logic | logic_id=validate_constraints | retries=3"]
     
     Planner --> Validator
-    Validator -- "fail" --> Planner
 
 roles:
   travel_concierge: >
