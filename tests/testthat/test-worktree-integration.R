@@ -10,9 +10,12 @@ test_that("Git Worktree Parallel Integration works", {
   tmp_repo <- withr::local_tempdir()
   withr::with_dir(tmp_repo, {
     system2("git", c("init", "--initial-branch=main"))
+    system2("git", c("config", "user.name", "Test User"))
+    system2("git", c("config", "user.email", "test@example.com"))
     writeLines("Initial content", "README.md")
     system2("git", c("add", "README.md"))
-    system2("git", c("commit", "-m", "'Initial commit'"))
+    system2("git", c("commit", "-m", "Initial commit"))
+    system2("git", c("branch", "-M", "main"))
   })
 
   # 2. Define Parallel Nodes
@@ -26,7 +29,7 @@ test_that("Git Worktree Parallel Integration works", {
 
     writeLines("Node A content", "file_a.txt")
     system2("git", c("add", "file_a.txt"))
-    system2("git", c("commit", "-m", "'Node A commit'"))
+    system2("git", c("commit", "-m", "Node A commit"))
     list(status = "success", output = "Node A done")
   })
 
@@ -38,7 +41,7 @@ test_that("Git Worktree Parallel Integration works", {
 
     writeLines("Node B content", "file_b.txt")
     system2("git", c("add", "file_b.txt"))
-    system2("git", c("commit", "-m", "'Node B commit'"))
+    system2("git", c("commit", "-m", "Node B commit"))
     list(status = "success", output = "Node B done")
   })
 
@@ -82,23 +85,26 @@ test_that("Merge Conflict detection works", {
   tmp_repo <- withr::local_tempdir()
   withr::with_dir(tmp_repo, {
     system2("git", c("init", "--initial-branch=main"))
+    system2("git", c("config", "user.name", "Test User"))
+    system2("git", c("config", "user.email", "test@example.com"))
     writeLines("Initial", "conflict.txt")
     system2("git", c("add", "conflict.txt"))
-    system2("git", c("commit", "-m", "'Initial'"))
+    system2("git", c("commit", "-m", "Initial"))
+    system2("git", c("branch", "-M", "main"))
   })
 
   # Both nodes modify the same file
   node_a <- AgentLogicNode$new(id = "node_A", logic_fn = function(state) {
     writeLines("Node A edit", "conflict.txt")
     system2("git", c("add", "conflict.txt"))
-    system2("git", c("commit", "-m", "'Conflicting commit A'"))
+    system2("git", c("commit", "-m", "Conflicting commit A"))
     list(status = "success", output = "A")
   })
 
   node_b <- AgentLogicNode$new(id = "node_B", logic_fn = function(state) {
     writeLines("Node B edit", "conflict.txt")
     system2("git", c("add", "conflict.txt"))
-    system2("git", c("commit", "-m", "'Conflicting commit B'"))
+    system2("git", c("commit", "-m", "Conflicting commit B"))
     list(status = "success", output = "B")
   })
 
