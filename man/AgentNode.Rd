@@ -2,10 +2,15 @@
 % Please edit documentation in R/node.R
 \name{AgentNode}
 \alias{AgentNode}
-\title{Agent Node R6 Class}
+\title{Agent Node Base Class}
+\value{
+An `AgentNode` object.
+}
 \description{
-Represents a single execution unit within an orchestration DAG.
-This is an abstract base class.
+The base R6 class for all nodes in an AgentDAG.
+}
+\examples{
+node <- AgentNode$new("my_node", label = "Custom Node")
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

@@ -3,9 +3,9 @@
     "step": 1,
     "node": "bubble",
     "mode": "parallel",
-    "start_time": "2026-03-31 01:20:04.3528",
-    "end_time": "2026-03-31 01:20:15.744867",
-    "duration_secs": 11.3921,
+    "start_time": "2026-03-31 15:28:10.784464",
+    "end_time": "2026-03-31 15:28:10.846826",
+    "duration_secs": 0.0624,
     "status": "success",
     "error": {}
   },
@@ -13,9 +13,9 @@
     "step": 2,
     "node": "quick",
     "mode": "parallel",
-    "start_time": "2026-03-31 01:20:04.350141",
-    "end_time": "2026-03-31 01:20:13.046432",
-    "duration_secs": 8.6963,
+    "start_time": "2026-03-31 15:28:10.934788",
+    "end_time": "2026-03-31 15:28:11.007961",
+    "duration_secs": 0.0732,
     "status": "success",
     "error": {}
   },
@@ -23,9 +23,9 @@
     "step": 3,
     "node": "merge",
     "mode": "parallel",
-    "start_time": "2026-03-31 01:20:04.354295",
-    "end_time": "2026-03-31 01:20:13.764212",
-    "duration_secs": 9.4099,
+    "start_time": "2026-03-31 15:28:11.013059",
+    "end_time": "2026-03-31 15:28:11.083378",
+    "duration_secs": 0.0703,
     "status": "success",
     "error": {}
   },
@@ -33,9 +33,9 @@
     "step": 4,
     "node": "merger",
     "mode": "parallel",
-    "start_time": "2026-03-31 01:20:15.86391",
-    "end_time": "2026-03-31 01:20:16.252866",
-    "duration_secs": 0.389,
+    "start_time": "2026-03-31 15:28:11.213076",
+    "end_time": "2026-03-31 15:28:11.608657",
+    "duration_secs": 0.3956,
     "status": "success",
     "error": {}
   },
@@ -43,20 +43,20 @@
     "step": 5,
     "node": "benchmark",
     "mode": "parallel",
-    "start_time": "2026-03-31 01:20:16.332268",
-    "end_time": "2026-03-31 01:20:16.382652",
-    "duration_secs": 0.0504,
-    "status": "failed",
-    "error": "In index: 1."
+    "start_time": "2026-03-31 15:28:11.662182",
+    "end_time": "2026-03-31 15:28:11.692868",
+    "duration_secs": 0.0307,
+    "status": "success",
+    "error": {}
   },
   {
     "step": 6,
     "node": "plot",
     "mode": "parallel",
-    "start_time": "2026-03-31 01:20:16.464109",
-    "end_time": "2026-03-31 01:20:16.464215",
-    "duration_secs": 0.0001,
-    "status": "failed",
-    "error": "No benchmark data found."
+    "start_time": "2026-03-31 15:28:11.756911",
+    "end_time": "2026-03-31 15:28:11.888517",
+    "duration_secs": 0.1316,
+    "status": "success",
+    "error": {}
   }
 ]

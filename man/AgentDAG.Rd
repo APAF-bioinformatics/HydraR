@@ -14,6 +14,14 @@ Supports both pure DAG execution (parallel) and iterative loops via conditional 
 dag <- AgentDAG$new()
 node <- AgentLogicNode$new("start", function(state) list(status = "success"))
 dag$add_node(node)
+\dontrun{
+dag <- AgentDAG$new()
+dag$add_node(AgentNode$new("A"))
+dag$add_node(AgentNode$new("B"))
+dag$add_edge("A", "B")
+dag$set_start_node("A")
+dag$compile()
+}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -52,6 +60,8 @@ dag$add_node(node)
 \item \href{#method-AgentDAG-.run_linear}{\code{AgentDAG$.run_linear()}}
 \item \href{#method-AgentDAG-.run_iterative}{\code{AgentDAG$.run_iterative()}}
 \item \href{#method-AgentDAG-plot}{\code{AgentDAG$plot()}}
+\item \href{#method-AgentDAG-get_terminal_nodes}{\code{AgentDAG$get_terminal_nodes()}}
+\item \href{#method-AgentDAG-get_start_nodes}{\code{AgentDAG$get_start_nodes()}}
 \item \href{#method-AgentDAG-compile}{\code{AgentDAG$compile()}}
 \item \href{#method-AgentDAG-save_trace}{\code{AgentDAG$save_trace()}}
 \item \href{#method-AgentDAG-from_mermaid}{\code{AgentDAG$from_mermaid()}}
@@ -80,10 +90,13 @@ Set Start Node
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{node_id}}{String node ID.
-Add a Node}
+\item{\code{node_id}}{String node ID.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The AgentDAG object (invisibly).
+Add a Node
 }
 }
 \if{html}{\out{<hr>}}
@@ -97,10 +110,13 @@ Add a Node}
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{node}}{AgentNode object.
-Add an Edge}
+\item{\code{node}}{AgentNode object.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The AgentDAG object (invisibly).
+Add an Edge
 }
 }
 \if{html}{\out{<hr>}}
@@ -118,10 +134,13 @@ Add an Edge}
 
 \item{\code{to}}{String node ID.}
 
-\item{\code{label}}{Optional string label for the edge.
-Add a Conditional Edge (Loop Support)}
+\item{\code{label}}{Optional string label for the edge.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The AgentDAG object (invisibly).
+Add a Conditional Edge (Loop Support)
 }
 }
 \if{html}{\out{<hr>}}
@@ -306,6 +325,34 @@ Internal: Iterative Execution
 }
 \subsection{Returns}{
 The mermaid string (invisibly).
+Get Terminal Nodes
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AgentDAG-get_terminal_nodes"></a>}}
+\if{latex}{\out{\hypertarget{method-AgentDAG-get_terminal_nodes}{}}}
+\subsection{Method \code{get_terminal_nodes()}}{
+Identifies nodes with no outgoing edges.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{AgentDAG$get_terminal_nodes()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Character vector of node IDs.
+Get Start Nodes (Roots)
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AgentDAG-get_start_nodes"></a>}}
+\if{latex}{\out{\hypertarget{method-AgentDAG-get_start_nodes}{}}}
+\subsection{Method \code{get_start_nodes()}}{
+Identifies nodes with no incoming edges.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{AgentDAG$get_start_nodes()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Character vector of node IDs.
 Compile the Graph
 }
 }

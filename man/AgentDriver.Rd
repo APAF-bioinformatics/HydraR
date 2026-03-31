@@ -27,7 +27,9 @@ driver <- AgentDriver$new(id = "test", provider = "mock")
 
 \item{\code{validation_mode}}{String. Either "warning" or "strict".}
 
-\item{\code{working_dir}}{String. Optional path to the working directory/worktree.
+\item{\code{working_dir}}{String. Optional path to the working directory/worktree.}
+
+\item{\code{repo_root}}{String. Path to the main repository root (for root-locked CLIs).
 Initialize AgentDriver}
 }
 \if{html}{\out{</div>}}
@@ -38,6 +40,7 @@ Initialize AgentDriver}
 \item \href{#method-AgentDriver-new}{\code{AgentDriver$new()}}
 \item \href{#method-AgentDriver-get_capabilities}{\code{AgentDriver$get_capabilities()}}
 \item \href{#method-AgentDriver-exec_in_dir}{\code{AgentDriver$exec_in_dir()}}
+\item \href{#method-AgentDriver-filter_llm_noise}{\code{AgentDriver$filter_llm_noise()}}
 \item \href{#method-AgentDriver-call}{\code{AgentDriver$call()}}
 \item \href{#method-AgentDriver-validate_cli_opts}{\code{AgentDriver$validate_cli_opts()}}
 \item \href{#method-AgentDriver-format_cli_opts}{\code{AgentDriver$format_cli_opts()}}
@@ -54,7 +57,8 @@ Initialize AgentDriver}
   provider = "unknown",
   model_name = "unknown",
   validation_mode = "warning",
-  working_dir = NULL
+  working_dir = NULL,
+  repo_root = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -69,7 +73,9 @@ Initialize AgentDriver}
 
 \item{\code{validation_mode}}{String. "warning" or "strict".}
 
-\item{\code{working_dir}}{String. Optional working directory.
+\item{\code{working_dir}}{String. Optional working directory.}
+
+\item{\code{repo_root}}{String. Path to the main repository root.
 Get Driver Capabilities}
 }
 \if{html}{\out{</div>}}
@@ -111,6 +117,28 @@ using 'withr::with_dir' to ensure the original CWD is restored.
 }
 \subsection{Returns}{
 Result of system2 call.
+Filter CLI Noise from LLM Output
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AgentDriver-filter_llm_noise"></a>}}
+\if{latex}{\out{\hypertarget{method-AgentDriver-filter_llm_noise}{}}}
+\subsection{Method \code{filter_llm_noise()}}{
+Removes common CLI-injected headers, keychain warnings, or MCP status messages
+that can corrupt the generated model content.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{AgentDriver$filter_llm_noise(text)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{text}}{String or Character Vector. Raw output from the CLI.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character vector of cleaned lines.
 Call the LLM
 }
 }

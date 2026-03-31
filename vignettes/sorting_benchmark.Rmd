@@ -73,7 +73,7 @@ Zero-R-Code definitions.
 
 ```{r load_wf, eval = FALSE}
 # 1. Load the workflow manifest
-wf <- load_workflow("vignettes/sorting_benchmark.yml")
+wf <- load_workflow("sorting_benchmark.yml")
 
 # 2. Extract components
 mermaid_graph <- wf$graph

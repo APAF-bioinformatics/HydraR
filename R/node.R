@@ -6,13 +6,14 @@
 # License:     LGPL (>= 3) (see LICENSE)
 # ==============================================================
 
-#' Agent Node R6 Class
+#' Agent Node Base Class
 #'
 #' @description
-#' Represents a single execution unit within an orchestration DAG.
-#' This is an abstract base class.
+#' The base R6 class for all nodes in an AgentDAG.
 #'
-#' @importFrom R6 R6Class
+#' @return An `AgentNode` object.
+#' @examples
+#' node <- AgentNode$new("my_node", label = "Custom Node")
 #' @export
 AgentNode <- R6::R6Class("AgentNode",
   public = list(

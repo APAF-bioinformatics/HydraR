@@ -64,8 +64,8 @@ DriverRegistry <- R6::R6Class("DriverRegistry",
 
       data.frame(
         id = names(self$drivers),
-        provider = sapply(self$drivers, function(d) d$provider),
-        model = sapply(self$drivers, function(d) d$model_name),
+        provider = purrr::map_chr(self$drivers, ~ .x$provider),
+        model = purrr::map_chr(self$drivers, ~ .x$model_name),
         stringsAsFactors = FALSE
       )
     },

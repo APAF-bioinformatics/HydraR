@@ -9,13 +9,11 @@
 #' Agent Logic Node R6 Class
 #'
 #' @description
-#' A specialized AgentNode that executes a pure R function instead of an LLM call.
+#' A node that executes a synchronous R function.
 #'
-#' @return An `AgentLogicNode` R6 object.
+#' @return An `AgentLogicNode` object.
 #' @examples
-#' node <- AgentLogicNode$new("calculate", function(state) {
-#'   list(status = "success", output = list(result = 42))
-#' })
+#' node <- AgentLogicNode$new("start", function(state) list(status = "success"))
 #' @importFrom R6 R6Class
 #' @export
 AgentLogicNode <- R6::R6Class("AgentLogicNode",

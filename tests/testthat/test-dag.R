@@ -33,11 +33,8 @@ test_that("AgentDAG compile detects unreachable nodes and cycles", {
   # node1 is a start node, node2 and node3 are unreachable from start node
   dag$set_start_node("node1")
 
-  # Compile should warn about unreachable nodes and potential infinite loop
-  warnings <- capture_warnings(dag$compile())
-
-  expect_true(any(grepl("unreachable from start node", warnings)))
-  expect_true(any(grepl("Potential infinite loop detected", warnings)))
+  # Compile should throw an error about the cycle
+  expect_error(dag$compile(), "Circular dependency detected")
 })
 
 test_that("AgentDAG logic node captures error context", {

@@ -33,7 +33,7 @@ test_that("get_role returns NULL for missing roles", {
 
 test_that("list_roles returns registered role names", {
   register_role("test_role_beta", "You are a scientist.")
-  roles <- list_roles()
+  roles <- get_agent_roles()
   expect_true("test_role_beta" %in% roles)
   expect_true("test_role_alpha" %in% roles)
 })

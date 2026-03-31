@@ -9,13 +9,12 @@
 #' Agent LLM Node R6 Class
 #'
 #' @description
-#' A specialized AgentNode that executes LLM calls via a Driver.
+#' A node that uses an LLM driver for execution.
 #'
-#' @return An `AgentLLMNode` R6 object.
+#' @return An `AgentLLMNode` object.
 #' @examples
 #' \dontrun{
-#' driver <- GeminiCLIDriver$new()
-#' node <- AgentLLMNode$new("research", role = "Researcher", driver = driver)
+#' node <- AgentLLMNode$new("chat", role = "helpful assistant")
 #' }
 #' @importFrom R6 R6Class
 #' @export

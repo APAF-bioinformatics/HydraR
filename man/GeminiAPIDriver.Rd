@@ -33,6 +33,7 @@ Initialize GeminiAPIDriver}
 <details open><summary>Inherited methods</summary>
 <ul>
 <li><span class="pkg-link" data-pkg="HydraR" data-topic="AgentDriver" data-id="exec_in_dir"><a href='../../HydraR/html/AgentDriver.html#method-AgentDriver-exec_in_dir'><code>HydraR::AgentDriver$exec_in_dir()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="HydraR" data-topic="AgentDriver" data-id="filter_llm_noise"><a href='../../HydraR/html/AgentDriver.html#method-AgentDriver-filter_llm_noise'><code>HydraR::AgentDriver$filter_llm_noise()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="HydraR" data-topic="AgentDriver" data-id="format_cli_opts"><a href='../../HydraR/html/AgentDriver.html#method-AgentDriver-format_cli_opts'><code>HydraR::AgentDriver$format_cli_opts()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="HydraR" data-topic="AgentDriver" data-id="validate_cli_opts"><a href='../../HydraR/html/AgentDriver.html#method-AgentDriver-validate_cli_opts'><code>HydraR::AgentDriver$validate_cli_opts()</code></a></span></li>
 </ul>

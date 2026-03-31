@@ -4,12 +4,12 @@
 \alias{mermaid_to_dag}
 \title{Create AgentDAG from Mermaid}
 \usage{
-mermaid_to_dag(mermaid_str, node_factory)
+mermaid_to_dag(mermaid_str, node_factory = auto_node_factory())
 }
 \arguments{
 \item{mermaid_str}{String. Mermaid syntax.}
 
-\item{node_factory}{Function(id, label) -> AgentNode.}
+\item{node_factory}{Function(id, label) -> AgentNode. Defaults to `auto_node_factory()`.}
 }
 \value{
 The AgentDAG object.

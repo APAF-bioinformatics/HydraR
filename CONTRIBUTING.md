@@ -22,6 +22,13 @@ Thank you for your interest in contributing to `HydraR`! We welcome contribution
 - Ensure `devtools::check()` passes without errors or warnings.
 - Run `styler::style_pkg()` before submitting.
 
+## Use of Generative AI in Contributions
+
+We welcome contributions involving the use of Generative AI tools. However, to maintain the integrity and quality of the scientific software, all contributors must:
+- **Disclose**: Mention in the Pull Request if AI tools (e.g., GitHub Copilot, ChatGPT, Antigravity) were used to generate any part of the contribution.
+- **Verify**: Affirm that all AI-generated code, documentation, and tests have been manually reviewed, tested, and verified for correctness.
+- **Responsibility**: The human contributor takes full responsibility for the code submitted.
+
 ## Style Guidelines
 We follow the Tidyverse style guide. Please run `styler::style_pkg()` on your changes to ensure consistency with the rest of the package.
 

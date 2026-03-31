@@ -24,6 +24,15 @@
 #' @importFrom igraph graph_from_data_frame is_dag topo_sort edge V vcount make_empty_graph degree is_connected components bfs
 #' @importFrom furrr future_map
 #' @importFrom purrr map set_names iwalk walk
+#' @examples
+#' \dontrun{
+#' dag <- AgentDAG$new()
+#' dag$add_node(AgentNode$new("A"))
+#' dag$add_node(AgentNode$new("B"))
+#' dag$add_edge("A", "B")
+#' dag$set_start_node("A")
+#' dag$compile()
+#' }
 #' @export
 AgentDAG <- R6::R6Class("AgentDAG",
   public = list(
@@ -65,6 +74,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
     #' Set Start Node
     #' @param node_id String node ID.
+    #' @return The AgentDAG object (invisibly).
     set_start_node = function(node_id) {
       if (!is.character(node_id) || length(node_id) != 1) {
         stop("node_id must be a single string.")
@@ -78,6 +88,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
     #' Add a Node
     #' @param node AgentNode object.
+    #' @return The AgentDAG object (invisibly).
     add_node = function(node) {
       if (!inherits(node, "AgentNode")) {
         stop(sprintf("node must be an AgentNode object (received: %s).", class(node)[1]))
@@ -93,6 +104,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
     #' @param from String or character vector of node IDs.
     #' @param to String node ID.
     #' @param label Optional string label for the edge.
+    #' @return The AgentDAG object (invisibly).
     add_edge = function(from, to, label = NULL) {
       if (!is.character(from)) stop("from must be a character vector of node IDs.")
       if (!is.character(to) || length(to) != 1) stop("to must be a single string node ID.")
@@ -598,6 +610,22 @@ AgentDAG <- R6::R6Class("AgentDAG",
       return(invisible(res))
     },
 
+    #' Get Terminal Nodes
+    #' @description Identifies nodes with no outgoing edges.
+    #' @return Character vector of node IDs.
+    get_terminal_nodes = function() {
+      private$.rebuild_graph()
+      names(igraph::V(self$graph)[igraph::degree(self$graph, mode = "out") == 0])
+    },
+
+    #' Get Start Nodes (Roots)
+    #' @description Identifies nodes with no incoming edges.
+    #' @return Character vector of node IDs.
+    get_start_nodes = function() {
+      private$.rebuild_graph()
+      names(igraph::V(self$graph)[igraph::degree(self$graph, mode = "in") == 0])
+    },
+
     #' Compile the Graph
     #' @description
     #' Rebuilds the internal graph representation and performs validation checks.
@@ -609,7 +637,17 @@ AgentDAG <- R6::R6Class("AgentDAG",
       # Validation: Cycle Detection for pure DAGs
       if (length(self$conditional_edges) == 0) {
         if (!igraph::is_dag(self$graph)) {
-          warning("The graph contains cycles and no conditional edges are defined. Linear execution may fail.")
+          stop("Circular dependency detected in pure DAG. Ensure edges do not form cycles or use add_conditional_edge() for loops.")
+        }
+      }
+
+      # Validation: Ambiguous Start Nodes
+      if (is.null(self$start_node)) {
+        roots <- self$get_start_nodes()
+        if (length(roots) > 1) {
+          warning(sprintf("Multiple potential start nodes found (%s). Use set_start_node() to disambiguate.", paste(roots, collapse = ", ")))
+        } else if (length(roots) == 0 && length(self$nodes) > 0) {
+          warning("Graph contains cycles but no start node is explicitly set. Execution may fail.")
         }
       }
 
@@ -744,10 +782,10 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
 #' Create AgentDAG from Mermaid
 #' @param mermaid_str String. Mermaid syntax.
-#' @param node_factory Function(id, label) -> AgentNode.
+#' @param node_factory Function(id, label) -> AgentNode. Defaults to `auto_node_factory()`.
 #' @return The AgentDAG object.
 #' @export
-mermaid_to_dag <- function(mermaid_str, node_factory) {
+mermaid_to_dag <- function(mermaid_str, node_factory = auto_node_factory()) {
   dag <- AgentDAG$new()
   dag$from_mermaid(mermaid_str, node_factory)
   return(dag)

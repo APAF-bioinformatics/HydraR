@@ -15,4 +15,12 @@
   invisible(NULL)
 }
 
-# <!-- APAF Bioinformatics | zzz.R | Approved | 2026-03-29 -->
+# ==============================================================
+# Global Variable Bindings for R CMD check
+# ==============================================================
+utils::globalVariables(c(
+  "ClaudeCodeDriver", "OpenAIDriver", "GeminiCLIDriver", 
+  "OllamaDriver", "CopilotCLIDriver", "ClaudeCLIDriver"
+))
+
+# <!-- APAF Bioinformatics | zzz.R | Approved | 2026-03-31 -->

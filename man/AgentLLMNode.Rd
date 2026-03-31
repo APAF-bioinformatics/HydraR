@@ -4,15 +4,14 @@
 \alias{AgentLLMNode}
 \title{Agent LLM Node R6 Class}
 \value{
-An `AgentLLMNode` R6 object.
+An `AgentLLMNode` object.
 }
 \description{
-A specialized AgentNode that executes LLM calls via a Driver.
+A node that uses an LLM driver for execution.
 }
 \examples{
 \dontrun{
-driver <- GeminiCLIDriver$new()
-node <- AgentLLMNode$new("research", role = "Researcher", driver = driver)
+node <- AgentLLMNode$new("chat", role = "helpful assistant")
 }
 }
 \section{Super class}{

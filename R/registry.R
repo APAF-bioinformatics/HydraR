@@ -65,7 +65,7 @@ get_role <- function(name) {
 #' List Registered Roles
 #' @return Character vector of role names.
 #' @export
-list_roles <- function() {
+get_agent_roles <- function() {
   all_keys <- ls(envir = .hydra_registry)
   role_keys <- all_keys[grepl("^__role__", all_keys)]
   gsub("^__role__", "", role_keys)

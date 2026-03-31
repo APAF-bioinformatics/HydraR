@@ -121,6 +121,14 @@ standard_node_factory <- function(id, label, driver = NULL) {
   }))
 }
 
+# ==============================================================
+# Global Variable Bindings for R CMD check
+# ==============================================================
+utils::globalVariables(c(
+  "ClaudeCLIDriver", "OpenAIDriver", "GeminiCLIDriver", 
+  "OllamaDriver", "CopilotCLIDriver"
+))
+
 #' <!-- APAF Bioinformatics | factory.R | Approved | 2026-03-30 -->
 
 #' Resolve a Default Driver from Shorthand ID
@@ -147,8 +155,8 @@ resolve_default_driver <- function(driver_id, driver_registry = NULL) {
   # 2. Auto-construct from shorthand
   switch(driver_id,
     "gemini"  = GeminiCLIDriver$new(),
-    "claude"  = ClaudeCLIDriver$new(),
-    "openai"  = OpenAICLIDriver$new(),
+    "claude"  = ClaudeCodeDriver$new(),
+    "openai"  = OpenAIDriver$new(),
     stop(sprintf("Unknown driver shorthand: '%s'. Register it first or use a known ID (gemini, claude, openai).", driver_id))
   )
 }
@@ -162,11 +170,11 @@ resolve_default_driver <- function(driver_id, driver_registry = NULL) {
 #'
 #' Supported `type=` values:
 #' \itemize{
-#'   \item `"llm"` — Creates an \code{AgentLLMNode}. Requires `role` or `role_id`.
+#'   \item `"llm"` -- Creates an \code{AgentLLMNode}. Requires `role` or `role_id`.
 #'     Optional: `driver`, `model`, `prompt_id`, `output_format`, `output_path`.
-#'   \item `"logic"` — Creates an \code{AgentLogicNode}. Requires `logic_id`.
-#'   \item `"merge"` — Creates a Merge Harmonizer via \code{create_merge_harmonizer()}.
-#'   \item `"auto"` (default if omitted) — Looks up `id` in the logic registry.
+#'   \item `"logic"` -- Creates an \code{AgentLogicNode}. Requires `logic_id`.
+#'   \item `"merge"` -- Creates a Merge Harmonizer via \code{create_merge_harmonizer()}.
+#'   \item `"auto"` (default if omitted) -- Looks up `id` in the logic registry.
 #' }
 #'
 #' @param driver_registry Optional DriverRegistry object. Defaults to global.
