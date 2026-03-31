@@ -1,8 +1,6 @@
 library(testthat)
 library(HydraR)
 
-context("Mermaid Parser")
-
 # Testing Modular Functions
 
 test_that("clean_mermaid_lines cleans properly", {
@@ -96,7 +94,7 @@ test_that("build_nodes_df and build_edges_df work correctly", {
 
   raw_nodes <- list(
     list(id = "A", label = "A", params = list()),
-    list(id = "A", label = "Node A", params = list(k = 1)),
+    list(id = "A", label = "Node A", params = list(k=1)),
     list(id = "B", label = "Node B", params = list())
   )
 
