@@ -466,7 +466,6 @@ AgentDAG <- R6::R6Class("AgentDAG",
               status = res$status,
               error = if (!is.null(res$error)) as.character(res$error) else if (res$status == "failed" && !is.null(p_res$error)) as.character(p_res$error) else NULL
             )
-            # if (!is.null(self$worktree_manager)) self$worktree_manager$remove_worktree(node_id)
             if (!is.null(res$status) && tolower(res$status) == "pause") {
               paused_at <<- node_id
               completed <<- TRUE
