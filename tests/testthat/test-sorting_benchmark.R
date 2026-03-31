@@ -57,7 +57,6 @@ test_that("Parallel Sorting Benchmark workflow executes successfully", {
     writeLines("# Sorting Test", "README.md")
     system("git add README.md")
     system("git commit -m \"Initial commit\"", ignore.stdout = TRUE)
-
     system("git branch -M main", ignore.stdout = TRUE)
   })
 
