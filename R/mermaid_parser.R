@@ -17,7 +17,7 @@
 #' @examples
 #' mermaid <- "graph TD\n  A --> B"
 #' parse_mermaid(mermaid)
-#' @importFrom purrr walk map map_chr compact flatten
+#' @importFrom purrr walk map map_chr compact flatten list_rbind
 #' @export
 parse_mermaid <- function(mermaid_str) {
   lines <- clean_mermaid_lines(mermaid_str)
@@ -180,7 +180,7 @@ build_nodes_df <- function(all_nodes_raw) {
 
 build_edges_df <- function(all_edges_list) {
   if (length(all_edges_list) > 0) {
-    do.call(rbind, lapply(all_edges_list, as.data.frame, stringsAsFactors = FALSE))
+    purrr::list_rbind(all_edges_list)
   } else {
     data.frame(from = character(), to = character(), label = character(), stringsAsFactors = FALSE)
   }
