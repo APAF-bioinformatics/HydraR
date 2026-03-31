@@ -144,7 +144,7 @@ res2 <- dag$run(thread_id = tid, checkpointer = saver,
 # res2$results$Step3$output => "All steps finished."
 ```
 
-By safeguarding computational progress autonomously, this pattern effectively circumvents prohibitively costly re-execution in bioinformatics pipelines reliant on voluminous LLM invocations or laborious large-scale database queries.
+By safeguarding computational progress autonomously, this pattern effectively circumvents prohibitively costly re-execution in data science pipelines reliant on voluminous LLM invocations or laborious large-scale database queries.
 
 # Research Impact Statement
 
