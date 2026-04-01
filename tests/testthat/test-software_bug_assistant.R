@@ -27,7 +27,7 @@ MockDriver <- R6::R6Class("MockDriver",
 )
 
 test_that("Software Bug Assistant loop works", {
-  # Driver returns invalid fix then valid fix
+  # Driver returns invalid patch then valid patch
   driver <- MockDriver$new(response = "Fix A")
 
   dag <- AgentDAG$new()
