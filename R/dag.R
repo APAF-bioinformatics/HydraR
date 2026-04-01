@@ -130,7 +130,9 @@ AgentDAG <- R6::R6Class("AgentDAG",
           test_id <- gsub("^test:", "", l_clean)
           # We use a lazy resolver since we are during build/parsing
           # resolve_test_pattern is in registry.R
-          test_fn <- resolve_test_pattern(test_id)
+          test_fn <- function(v) {
+            resolve_test_pattern(test_id)(v)
+          }
         }
 
         purrr::walk(from, function(f) {
@@ -248,7 +250,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
             loaded_state
           } else {
             # Start from checkpoint, then overlay user-provided initial_state
-            # This ensures user fixes (e.g., fixed=TRUE) override stale checkpoint values
+            # This ensures user-provided overrides take precedence over stale checkpoint values
             s <- loaded_state
             new_data <- if (inherits(initial_state, "AgentState")) initial_state$get_all() else initial_state
             purrr::iwalk(new_data, ~ s$set(.y, .x))
@@ -441,9 +443,8 @@ AgentDAG <- R6::R6Class("AgentDAG",
             withr::with_dir(wt_path, {
               restricted_state <- RestrictedState$new(self$state, node_id, self$message_log)
               st <- Sys.time()
-              # Pass stored arguments via do.call
               run_call <- list(state = restricted_state)
-              run_call <- utils::modifyList(run_call, self$.__enclos_env__$private$.run_args)
+              run_call <- utils::modifyList(run_call, self$.__enclos_env__$private$.run_args %||% list())
               res <- do.call(node$run, run_call)
               et <- Sys.time()
               list(id = node_id, res = res, start = st, end = et)
@@ -502,9 +503,6 @@ AgentDAG <- R6::R6Class("AgentDAG",
               next_queue <<- unique(c(next_queue, target))
             }
           })
-
-          # UPDATE QUEUE FOR NEXT STEP
-          queue <- unique(next_queue)
         } else {
           # Sequential Execution Block - Using purrr::walk instead of for()
           purrr::walk(current_nodes, function(node_id) {
@@ -519,7 +517,9 @@ AgentDAG <- R6::R6Class("AgentDAG",
             cat(sprintf("[DEBUG] Queue: %s | Running: %s\n", paste(current_nodes, collapse = ", "), node_id))
             restricted_state <- RestrictedState$new(self$state, node_id, self$message_log)
             start_time <- Sys.time()
-            res <- self$nodes[[node_id]]$run(restricted_state)
+            run_call <- list(state = restricted_state)
+            run_call <- utils::modifyList(run_call, self$.__enclos_env__$private$.run_args %||% list())
+            res <- do.call(self$nodes[[node_id]]$run, run_call)
             end_time <- Sys.time()
 
             self$results[[node_id]] <<- res
@@ -865,6 +865,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
             return(NULL)
           }
           do.call(rbind, df_list)
+
         }) |>
           purrr::compact() |>
           purrr::list_rbind()
@@ -911,13 +912,6 @@ AgentDAG <- R6::R6Class("AgentDAG",
 #' @return The AgentDAG object.
 #' @export
 mermaid_to_dag <- function(mermaid_str, node_factory = auto_node_factory()) {
-  dag <- AgentDAG$new()
-  dag$from_mermaid(mermaid_str, node_factory)
-  return(dag)
-}
-
-# static method for factory instantiation
-AgentDAG$from_mermaid <- function(mermaid_str, node_factory) {
   dag <- AgentDAG$new()
   dag$from_mermaid(mermaid_str, node_factory)
   return(dag)

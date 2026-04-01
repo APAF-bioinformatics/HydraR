@@ -16,7 +16,8 @@ test_that("DuckDBSaver uses BLOB storage and Registry re-hydration", {
   # 2. Register a test reducer
   test_val <- 100
   register_logic("test_reducer", function(current, new) {
-    (current %||% 0) + new + test_val
+    if (is.null(current)) current <- 0
+    current + new + test_val
   })
 
   # 3. Create state with the registered reducer
@@ -56,14 +57,17 @@ test_that("AgentDAG runs iteratively and handles pauses", {
 
   # Node A: Just increments a counter
   node_a <- AgentLogicNode$new("A", function(state) {
-    count <- (state$get("count") %||% 0) + 1
+    count <- state$get("count")
+    if (is.null(count)) count <- 0
+    count <- count + 1
     state$set("count", count)
     list(output = list(count = count), status = "success")
   })
 
   # Node B: Pauses on first visit
   node_b <- AgentLogicNode$new("B", function(state) {
-    visited <- state$get("visited_b") %||% FALSE
+    visited <- state$get("visited_b")
+    if (is.null(visited)) visited <- FALSE
     if (!visited) {
       state$set("visited_b", TRUE)
       return(list(output = NULL, status = "pause"))
