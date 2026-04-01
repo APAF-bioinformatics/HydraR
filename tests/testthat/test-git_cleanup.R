@@ -22,12 +22,15 @@ test_that("cleanup_jules_branches handles dry run securely", {
 
   # Ensure it doesn't crash and identifies main as protected
   # Since I already cleaned up, it should return 0 branches
-  res <- tryCatch({
-    cleanup_jules_branches(repo_root = repo, dry_run = TRUE, verbose = FALSE)
-  }, error = function(e) {
-    # Skip test if git operations fail inside the function (like the shQuote bug on CI)
-    skip(paste("Skipping test due to git error:", e$message))
-  })
+  res <- tryCatch(
+    {
+      cleanup_jules_branches(repo_root = repo, dry_run = TRUE, verbose = FALSE)
+    },
+    error = function(e) {
+      # Skip test if git operations fail inside the function (like the shQuote bug on CI)
+      skip(paste("Skipping test due to git error:", e$message))
+    }
+  )
 
   expect_type(res, "character")
   # Protected branches should NEVER be in the list
