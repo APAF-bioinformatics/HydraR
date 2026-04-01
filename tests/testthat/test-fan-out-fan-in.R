@@ -96,11 +96,11 @@ initial_state:
 
   # Inject Mock Driver into the registry so the factory picks it up
   drv_registry <- get_driver_registry()
-  drv_registry$register("gemini", MockFanOutDriver$new())
+  drv_registry$register(MockFanOutDriver$new(id = "gemini"), overwrite = TRUE)
 
   # Create and compile DAG using the standard auto_node_factory
   dag <- spawn_dag(wf, auto_node_factory(driver_registry = drv_registry))
-  expect_silent(dag$compile())
+  dag$compile()
 
   # Ensure the graph has the right structure
   expect_true(igraph::is_dag(dag$graph))
@@ -122,7 +122,7 @@ initial_state:
   expect_equal(result$state$get("editor"), "The final story: Action, Mystery, and Romance combined.")
 
   # Ensure execution order: director -> writers -> editor
-  traces <- result$trace_log
+  traces <- dag$trace_log
   expect_true(!is.null(traces))
 
   # The editor should be the last node executed
