@@ -72,20 +72,20 @@ test_that("extract_params handles pipeline parameters", {
   # Single parameter
   res2 <- extract_params("Task | priority=high")
   expect_equal(res2$label, "Task")
-  expect_equal(res2$params$priority, "high")
+  expect_equal(res2$params[["priority"]], "high")
 
   # Multiple parameters and coercion
   res3 <- extract_params("Node | count=10 | active=true | meta=null | flag=na")
   expect_equal(res3$label, "Node")
-  expect_equal(res3$params$count, 10)
-  expect_equal(res3$params$active, TRUE)
-  expect_null(res3$params$meta)
-  expect_true(is.na(res3$params$flag))
+  expect_equal(res3$params[["count"]], 10)
+  expect_equal(res3$params[["active"]], TRUE)
+  expect_null(res3$params[["meta"]])
+  expect_true(is.na(res3$params[["flag"]]))
 
   # Case insensitivity for bools/null
   res4 <- extract_params("Node | bit=FALSE | ref=NULL")
-  expect_equal(res4$params$bit, FALSE)
-  expect_null(res4$params$ref)
+  expect_equal(res4$params[["bit"]], FALSE)
+  expect_null(res4$params[["ref"]])
 })
 
 test_that("parse_node_string handles bracket types and quotes", {

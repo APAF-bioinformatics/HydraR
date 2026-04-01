@@ -8,7 +8,7 @@ knitr::opts_chunk$set(
 # # 1. Define a factory that resolves your custom driver
 # my_node_factory <- function(id, label, params) {
 #   # Use parameters from the Mermaid graph to configure the driver
-#   driver_obj <- if (params$driver == "custom") {
+#   driver_obj <- if (params[["driver"]] == "custom") {
 #     CustomCLIDriver$new(id = "my-bot")
 #   } else {
 #     NULL

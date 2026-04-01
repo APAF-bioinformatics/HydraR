@@ -63,7 +63,7 @@ ds_logic_registry <- list(
 ## ----factory------------------------------------------------------------------
 ds_node_factory <- function(id, label, params) {
   # Driver resolution from Mermaid params
-  driver_obj <- if (!is.null(params$driver) && params$driver == "gemini") GeminiCLIDriver$new() else NULL
+  driver_obj <- if (!is.null(params[["driver"]]) && params[["driver"]] == "gemini") GeminiCLIDriver$new() else NULL
 
   if (id %in% names(ds_logic_registry$logic)) {
     # Create a deterministic Logic Node

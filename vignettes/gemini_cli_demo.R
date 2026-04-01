@@ -28,7 +28,7 @@ knitr::opts_chunk$set(
 ## ----factory------------------------------------------------------------------
 # gemini_node_factory <- function(id, label, params) {
 #   # Driver resolution from Mermaid params
-#   driver_obj <- if (!is.null(params$driver) && params$driver == "gemini") {
+#   driver_obj <- if (!is.null(params[["driver"]]) && params[["driver"]] == "gemini") {
 #     GeminiCLIDriver$new(model = "gemini-1.5-flash")
 #   } else {
 #     NULL

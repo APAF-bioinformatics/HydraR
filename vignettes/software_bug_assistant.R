@@ -52,7 +52,7 @@ bug_logic_registry <- list(
 ## ----factory------------------------------------------------------------------
 bug_node_factory <- function(id, label, params) {
   # Driver resolution from Mermaid params
-  driver_obj <- if (!is.null(params$driver) && params$driver == "gemini") GeminiCLIDriver$new() else NULL
+  driver_obj <- if (!is.null(params[["driver"]]) && params[["driver"]] == "gemini") GeminiCLIDriver$new() else NULL
 
   if (id %in% names(bug_logic_registry$logic)) {
     # Create a deterministic Logic Node

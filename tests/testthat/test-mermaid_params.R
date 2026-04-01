@@ -49,8 +49,8 @@ test_that("Bidirectional parameter round-trip works", {
   mermaid_in <- "graph TD\n  A[\"Start | retries=5\"] --> B[\"End | status=final \"]"
   dag$from_mermaid(mermaid_in, factory)
 
-  expect_equal(dag$nodes$A$params$retries, 5)
-  expect_equal(dag$nodes$B$params$status, "final")
+  expect_equal(dag$nodes$A$params[["retries"]], 5)
+  expect_equal(dag$nodes$B$params[["status"]], "final")
 
   # Plot with details
   mermaid_out <- dag$plot(details = TRUE)
