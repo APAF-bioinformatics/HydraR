@@ -46,13 +46,14 @@ test_that("Parallel Sorting Benchmark workflow executes successfully", {
   on.exit(unlink(repo_root, recursive = TRUE), add = TRUE)
 
   withr::with_dir(repo_root, {
-    system("git init -b main", ignore.stdout = TRUE)
+    system("git init", ignore.stdout = TRUE)
     system("git config user.email 'apaf@example.com'")
     system("git config user.name 'APAF tester'")
     system("git config commit.gpgsign false")
     writeLines("# Sorting Test", "README.md")
     system("git add README.md")
     system("git commit -m 'Initial commit'", ignore.stdout = TRUE)
+    system("git branch -M main", ignore.stdout = TRUE)
   })
 
   # Node Factory
