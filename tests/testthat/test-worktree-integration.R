@@ -116,3 +116,52 @@ test_that("Merge Conflict detection works", {
   expect_equal(results$status, "paused")
   expect_equal(results$paused_at, "merge")
 })
+
+test_that("WorktreeManager cleanup handles busy directory failures gracefully", {
+  # Create a mock subclass to simulate a failure when removing a specific worktree
+  MockWorktreeManager <- R6::R6Class("MockWorktreeManager",
+    inherit = WorktreeManager,
+    public = list(
+      remove_calls = character(0),
+      remove_worktree = function(node_id, force = TRUE) {
+        self$remove_calls <- c(self$remove_calls, node_id)
+        if (node_id == "busy_node") {
+          stop(sprintf("Failed to remove git worktree for node '%s': directory is busy", node_id))
+        }
+
+        # For non-busy nodes, normally we'd do the git remove, but here we just detach it
+        wt <- self$worktrees[[node_id]]
+        if (!is.null(wt)) {
+          wt$path <- NULL
+          self$worktrees[[node_id]] <- wt
+        }
+        invisible(TRUE)
+      }
+    )
+  )
+
+  wm <- MockWorktreeManager$new(repo_root = getwd())
+
+  # Register three worktrees: one busy, two normal
+  wm$worktrees <- list(
+    node_a = list(path = "path/a", branch = "branch_a"),
+    busy_node = list(path = "path/busy", branch = "branch_busy"),
+    node_b = list(path = "path/b", branch = "branch_b")
+  )
+
+  # When cleanup runs, it should emit a warning for busy_node but continue with node_b
+  expect_warning(
+    wm$cleanup(),
+    "Failed to clean up worktree for node 'busy_node': Failed to remove git worktree"
+  )
+
+  # Check that all nodes were attempted
+  expect_equal(wm$remove_calls, c("node_a", "busy_node", "node_b"))
+
+  # Check that non-busy nodes had their paths removed (detached)
+  expect_null(wm$worktrees[["node_a"]]$path)
+  expect_null(wm$worktrees[["node_b"]]$path)
+
+  # Check that the busy node still has its path
+  expect_equal(wm$worktrees[["busy_node"]]$path, "path/busy")
+})

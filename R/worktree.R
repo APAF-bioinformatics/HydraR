@@ -206,7 +206,11 @@ WorktreeManager <- R6::R6Class("WorktreeManager",
       if (length(self$worktrees) > 0) {
         # Only remove worktrees that still have a path (haven't been removed yet)
         purrr::walk(names(self$worktrees), function(node_id) {
-          self$remove_worktree(node_id)
+          tryCatch({
+            self$remove_worktree(node_id)
+          }, error = function(e) {
+            warning(sprintf("Failed to clean up worktree for node '%s': %s", node_id, e$message))
+          })
         })
       }
 
