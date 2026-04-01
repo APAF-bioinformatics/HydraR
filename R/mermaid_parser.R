@@ -180,7 +180,7 @@ build_nodes_df <- function(all_nodes_raw) {
 
 build_edges_df <- function(all_edges_list) {
   if (length(all_edges_list) > 0) {
-    purrr::list_rbind(all_edges_list)
+    purrr::map_dfr(all_edges_list, ~ as.data.frame(.x, stringsAsFactors = FALSE))
   } else {
     data.frame(from = character(), to = character(), label = character(), stringsAsFactors = FALSE)
   }
