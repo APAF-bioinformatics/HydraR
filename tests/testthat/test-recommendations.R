@@ -5,6 +5,8 @@ library(DBI)
 context("Technical Recommendations Verification")
 
 test_that("DuckDBSaver uses BLOB storage and Registry re-hydration", {
+  skip_if_not_installed("duckdb")
+
   # 1. Setup DuckDB
   db_path <- tempfile(fileext = ".duckdb")
   on.exit(unlink(db_path), add = TRUE)
