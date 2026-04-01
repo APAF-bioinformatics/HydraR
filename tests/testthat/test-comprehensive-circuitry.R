@@ -52,14 +52,11 @@ test_that("Scenario 2: Fault-Tolerant Circular Routing (Loop + ErrorEdge)", {
     fails <- state$get("fail_count") %||% 0
     if (fails < 1) {
       .GlobalEnv$fail_count <- .GlobalEnv$fail_count + 1
-      # Update the state so the next iteration knows it failed
-      state$set("fail_count", fails + 1)
       return(list(status = "failed", output = "Mock Failure"))
     }
     return(list(status = "success", output = "Mock Success"))
   })
 
-  # Set fail count to 0 in the environment we will use
   .GlobalEnv$fail_count <- 0
 
   mermaid_src <- '
@@ -73,11 +70,6 @@ test_that("Scenario 2: Fault-Tolerant Circular Routing (Loop + ErrorEdge)", {
   '
 
   dag <- mermaid_to_dag(mermaid_src)
-
-  # Register logic again because previously it might not have taken it properly in the correct environment
-  dag$nodes$A$logic_fn <- get_logic("A")
-  dag$nodes$B$logic_fn <- get_logic("B")
-
   # A and B are roots, so no need to set start node specifically to run both
   # or set A to start the loop
   dag$set_start_node("A")
@@ -86,26 +78,10 @@ test_that("Scenario 2: Fault-Tolerant Circular Routing (Loop + ErrorEdge)", {
   # Wait! B -- error --> C only triggers if B has status "failed" and AN ERROR EDGE exists.
   # add_edge recognizes "error" label.
 
-  # In testing context with multiple files, `.GlobalEnv$fail_count` might be reset or masked.
-  # Use an environment we control or `assign` securely.
-  my_env <- new.env()
-  assign("fail_count", 0, envir = my_env)
-
-  register_logic("B_isolated", function(state) {
-    fails <- my_env$fail_count
-    if (fails < 1) {
-      assign("fail_count", fails + 1, envir = my_env)
-      state$set("fail_count", fails + 1)
-      return(list(status = "failed", output = "Mock Failure"))
-    }
-    return(list(status = "success", output = "Mock Success"))
-  })
-  dag$nodes$B$logic_fn <- get_logic("B_isolated")
-
   res <- dag$run(initial_state = list())
 
   expect_true("C" %in% names(res$results))
-  expect_equal(my_env$fail_count, 1) # First failure takes error edge immediately if it exists
+  expect_equal(.GlobalEnv$fail_count, 1) # First failure takes error edge immediately if it exists
   # Wait! Error edge takes priority over Test/Fail labels in .run_iterative!
 })
 
