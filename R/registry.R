@@ -242,15 +242,21 @@ validate_workflow_schema <- function(data) {
 #' @return A function(out) -> Logical.
 #' @keywords internal
 resolve_test_pattern <- function(v) {
-  if (is.function(v)) return(v)
+  if (is.function(v)) {
+    return(v)
+  }
   if (!is.character(v)) stop("Test pattern must be a function or string.")
 
   v_trim <- trimws(v)
 
   # Check logic registry or search path for named function
   existing_fn <- get_logic(v_trim)
-  if (!is.null(existing_fn) && is.function(existing_fn)) return(existing_fn)
-  if (exists(v_trim, mode = "function")) return(get(v_trim, mode = "function"))
+  if (!is.null(existing_fn) && is.function(existing_fn)) {
+    return(existing_fn)
+  }
+  if (exists(v_trim, mode = "function")) {
+    return(get(v_trim, mode = "function"))
+  }
 
   # Anonymous Code Wrapper (expects 'out')
   function(out) {
