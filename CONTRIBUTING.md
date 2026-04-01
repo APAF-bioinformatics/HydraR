@@ -4,7 +4,7 @@ Thank you for your interest in contributing to `HydraR`! We welcome contribution
 
 ## How to Contribute
 
-### Reporting Bugs
+### Reporting Issues
 - Please check the [existing issues](https://github.com/APAF-bioinformatics/HydraR/issues) before opening a new one.
 - Use a clear and descriptive title.
 - Provide a minimal reproducible example (reprex) if possible.

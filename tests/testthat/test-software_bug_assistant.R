@@ -27,7 +27,7 @@ MockDriver <- R6::R6Class("MockDriver",
 )
 
 test_that("Software Bug Assistant loop works", {
-  # Driver returns invalid fix then valid fix
+  # Driver returns invalid patch then valid patch
   driver <- MockDriver$new(response = "Fix A")
 
   dag <- AgentDAG$new()
@@ -76,5 +76,3 @@ test_that("Software Bug Assistant loop works", {
   # Assertions
   expect_equal(result$state$get("Analyzer"), "Use is.null(x)")
 })
-
-# <!-- APAF Bioinformatics | test-software_bug_assistant.R | Approved | 2026-03-29 -->

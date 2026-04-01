@@ -1,9 +1,10 @@
 library(testthat)
+library(HydraR)
 
 test_that("AgentDAG Mermaid plotting works", {
   dag <- AgentDAG$new()
-  dag_add_logic_node(dag, "node1", function(state) list(status = "success"))
-  dag_add_logic_node(dag, "node2", function(state) list(status = "success"))
+  dag$add_node(AgentLogicNode$new("node1", function(state) list(status = "success")))
+  dag$add_node(AgentLogicNode$new("node2", function(state) list(status = "success")))
   dag$add_edge("node1", "node2")
 
   # Capture Mermaid output
@@ -22,9 +23,9 @@ test_that("AgentDAG Mermaid plotting works", {
 
 test_that("AgentDAG compile detects unreachable nodes and cycles", {
   dag <- AgentDAG$new()
-  dag_add_logic_node(dag, "node1", function(state) list(status = "success"))
-  dag_add_logic_node(dag, "node2", function(state) list(status = "success"))
-  dag_add_logic_node(dag, "node3", function(state) list(status = "success"))
+  dag$add_node(AgentLogicNode$new("node1", function(state) list(status = "success")))
+  dag$add_node(AgentLogicNode$new("node2", function(state) list(status = "success")))
+  dag$add_node(AgentLogicNode$new("node3", function(state) list(status = "success")))
 
   # node2 -> node3 -> node2 (cycle)
   dag$add_edge("node2", "node3")
@@ -41,9 +42,9 @@ test_that("AgentDAG logic node captures error context", {
   dag <- AgentDAG$new()
   # In HydraR, AgentLogicNode doesn't yet have the stack trace capture
   # of the RforRobot version, but we can test basic error handling.
-  dag_add_logic_node(dag, "fail_node", function(state) {
+  dag$add_node(AgentLogicNode$new("fail_node", function(state) {
     stop("Deep logic failure")
-  })
+  }))
 
   state <- AgentState$new(list(input = "test"))
   dag$run(state)
@@ -73,7 +74,7 @@ test_that("AgentDAG Mermaid plotting uses labels", {
 
 test_that("AgentDAG compile detects undefined nodes", {
   dag <- AgentDAG$new()
-  dag_add_logic_node(dag, "node1", function(state) list())
+  dag$add_node(AgentLogicNode$new("node1", function(state) list()))
 
   # Reference an undefined node 'node2' in an edge
   dag$add_edge("node1", "node2")

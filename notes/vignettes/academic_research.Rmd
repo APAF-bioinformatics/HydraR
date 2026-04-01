@@ -1,0 +1,168 @@
+---
+title: "Agentic Academic Researcher"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Agentic Academic Researcher}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(HydraR)
+```
+
+## Introduction
+
+This vignette demonstrates the **Academic Research** pattern using `HydraR`. 
+We define a linear, multi-stage agentic workflow designed to synthesize academic literature into a final report using the **Gemini CLI**.
+
+The pipeline comprises three agents:
+1. **Searcher Node**: Given a research topic, finds relevant academic papers.
+2. **Summarizer Node**: Ingests the raw papers and extracts key findings.
+3. **Compiler Node**: Takes the extracted findings and formats them into a comprehensive literature review.
+
+## Setup
+
+```{r library_load}
+library(HydraR)
+```
+
+## Checkpointer Configuration
+
+HydraR supports optional state checkpointing after each node execution.
+Choose from four modes:
+
+- **`"none"`** -- Ephemeral run, no persistence (default).
+- **`"memory"`** -- In-memory via `MemorySaver` (lost on session exit).
+- **`"rds"`** -- File-based via `RDSSaver` (lightweight, base R only).
+- **`"duckdb"`** -- Database-backed via `DuckDBSaver` (requires `duckdb` package).
+
+```{r}
+# ── USER CONFIGURATION ──────────────────────────────────────────
+CHECKPOINTER_MODE <- "none" # "none" | "memory" | "rds" | "duckdb"
+RDS_DIR <- "checkpoints"
+DUCKDB_PATH <- "checkpoints/academic_research.duckdb"
+THREAD_ID <- "academic_research_run_1"
+# ────────────────────────────────────────────────────────────────
+
+checkpointer <- switch(CHECKPOINTER_MODE,
+  "memory" = MemorySaver$new(),
+  "rds" = RDSSaver$new(dir = RDS_DIR),
+  "duckdb" = {
+    if (requireNamespace("duckdb", quietly = TRUE)) {
+      if (!dir.exists(dirname(DUCKDB_PATH))) dir.create(dirname(DUCKDB_PATH), recursive = TRUE)
+      DuckDBSaver$new(db_path = DUCKDB_PATH)
+    } else {
+      warning("duckdb package is required but not installed. Falling back to none.")
+      NULL
+    }
+  },
+  "none" = NULL,
+  stop(sprintf("Invalid CHECKPOINTER_MODE: '%s'", CHECKPOINTER_MODE))
+)
+
+thread_id <- if (!is.null(checkpointer)) THREAD_ID else NULL
+```
+
+## Defining the Workflow Components
+
+To keep our architecture clean, we store all workflow components—initial configuration, LLM prompts, and agent roles—in a central registry.
+
+```{r logic_registry}
+research_logic_registry <- list(
+  # 0. Initial Research Topic
+  initial_state = list(
+    research_topic = "CRISPR Gene Editing"
+  ),
+
+  # 1. Agent Roles
+  roles = list(
+    Searcher = "You are an academic research assistant. Identify 2-3 key hypothetical papers for the given topic. Output the result as a simple list.",
+    Summarizer = "You are a scientific editor. Summarize the following paper list into key highlights.",
+    Compiler = "You are a technical writer. Format the following summaries into a professional markdown report with headers."
+  ),
+
+  # 2. Prompt Builders
+  prompts = list(
+    Searcher = function(state) {
+      sprintf("Research Topic: %s\nProvide a list of 2-3 paper titles and brief descriptions.", state$get("research_topic"))
+    },
+    Summarizer = function(state) {
+      sprintf("Paper List: %s", state$get("Searcher"))
+    },
+    Compiler = function(state) {
+      sprintf("Topic: %s\nSummaries: %s", state$get("research_topic"), state$get("Summarizer"))
+    }
+  )
+)
+```
+
+## The Node Factory
+
+We use a factory function to dynamically create nodes based on parameters defined in the Mermaid graph.
+
+```{r factory}
+research_node_factory <- function(id, label, params) {
+  # Driver resolution from Mermaid params
+  driver_obj <- if (params[["driver"]] == "gemini") GeminiCLIDriver$new() else NULL
+
+  AgentLLMNode$new(
+    id = id,
+    label = label,
+    role = research_logic_registry$roles[[id]],
+    driver = driver_obj,
+    prompt_builder = research_logic_registry$prompts[[id]]
+  )
+}
+```
+
+## Building the DAG via Mermaid
+
+We define the entire workflow architecture as a Mermaid string. This string serves as the single source of truth for both structure and node metadata.
+
+```{r mermaid_source}
+mermaid_graph <- "
+graph TD
+  Searcher[Literature Searcher | driver=gemini] --> Summarizer
+  Summarizer[Content Summarizer | driver=gemini] --> Compiler
+  Compiler[Report Compiler | driver=gemini]
+"
+
+# Instantiate the DAG
+dag <- AgentDAG$from_mermaid(mermaid_graph, node_factory = research_node_factory)
+compiled_dag <- dag$compile()
+```
+
+## Visualizing the Workflow
+
+```{r, results = 'asis'}
+cat("```mermaid\n")
+cat(compiled_dag$plot(type = "mermaid"))
+cat("\n```\n")
+```
+
+## Running the Scenario
+
+Provide the topic and run the pipeline.
+
+```{r, eval = FALSE}
+cat(sprintf("Starting Literature Pipeline (checkpointer: %s)...\n", CHECKPOINTER_MODE))
+
+result <- compiled_dag$run(
+  initial_state = research_logic_registry$initial_state,
+  max_steps = 5,
+  checkpointer = checkpointer,
+  thread_id = thread_id
+)
+
+cat("\n--- PIPELINE EXECUTION COMPLETE ---\n")
+cat(result$state$get("Compiler"), "\n")
+```
+
+The system successfully routed the data through all three agents to build a consolidated report!
+
+<!-- APAF Bioinformatics | academic_research.Rmd | Approved | 2026-03-29 -->
