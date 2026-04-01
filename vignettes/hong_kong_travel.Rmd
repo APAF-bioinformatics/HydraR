@@ -63,15 +63,14 @@ cat("\n```\n")
 
 When we run the DAG, we use the `initial_state` extracted from the YAML file. No manual R list creation is required.
 
-```{r}
+```{r eval=TRUE}
 # Register a checkpointer for durability
 checkpointer <- DuckDBSaver$new(db_path = "travel_booking.duckdb")
-dag$set_checkpointer(checkpointer)
 
 # Run the orchestration using the state from YAML
-results <- dag$run(initial_state = wf$initial_state, max_steps = 5)
+results <- dag$run(initial_state = wf$initial_state, max_steps = 5, checkpointer = checkpointer)
 
-# Display final itinerary
+# Display final itinerary (will be NULL if run without API keys)
 cat(results$state$get("Planner"))
 ```
 

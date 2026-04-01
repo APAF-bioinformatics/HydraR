@@ -60,6 +60,7 @@ test_that("RDSSaver checkpointer works and creates files", {
 })
 
 test_that("DuckDBSaver checkpointer works and creates db file", {
+  skip_if_not_installed("duckdb")
   tmp_db <- tempfile(fileext = ".db")
   saver <- DuckDBSaver$new(db_path = tmp_db)
 
@@ -91,4 +92,4 @@ test_that("DuckDBSaver checkpointer works and creates db file", {
   DBI::dbDisconnect(saver$con, shutdown = TRUE)
 })
 
-# <!-- APAF Bioinformatics | test-checkpointer.R | Approved | 2026-03-29 -->
+# <!-- APAF Bioinformatics | test-checkpointer.R | Approved | 2026-03-31 -->

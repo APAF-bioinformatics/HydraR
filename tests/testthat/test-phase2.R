@@ -1,3 +1,6 @@
+library(testthat)
+library(HydraR)
+
 # ==============================================================
 # APAF Bioinformatics | Macquarie University
 # File:        test-phase2.R
@@ -83,7 +86,8 @@ test_that("MessageLog captures communication", {
 })
 
 test_that("AgentDAG uses RestrictedState during execution", {
-  dag <- dag_create(message_log = MemoryMessageLog$new())
+  dag <- AgentDAG$new()
+  dag$message_log <- MemoryMessageLog$new()
 
   # Node A sends a message
   node_a <- AgentLogicNode$new("node_a", logic_fn = function(state) {

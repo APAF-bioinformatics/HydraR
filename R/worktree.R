@@ -37,12 +37,12 @@ WorktreeManager <- R6::R6Class("WorktreeManager",
     #' @field thread_id String. Optional identifier for the current DAG execution.
     thread_id = NULL,
 
-    #' Initialize WorktreeManager
-    #' @param repo_root Path to the main repository. Defaults to getwd().
+    #' Initialize the WorktreeManager.
+    #' @param repo_root Path to the main git repository. Defaults to `getwd()`.
     #' @param base_branch Branch to branch from. Defaults to "main".
     #' @param branch_prefix Prefix for new branches.
     #' @param cleanup_policy Cleanup strategy.
-    #' @param thread_id Optional execution identifier.
+    #' @param thread_id Optional string to group worktrees. Defaults to random UUID.
     #' @return A new `WorktreeManager` object.
     initialize = function(repo_root = getwd(),
                           base_branch = "main",
@@ -53,7 +53,12 @@ WorktreeManager <- R6::R6Class("WorktreeManager",
       self$base_branch <- base_branch
       self$branch_prefix <- branch_prefix
       self$cleanup_policy <- cleanup_policy
-      self$thread_id <- thread_id
+
+      if (is.null(thread_id)) {
+        self$thread_id <- uuid::UUIDgenerate()
+      } else {
+        self$thread_id <- thread_id
+      }
     },
 
     #' Create an Isolated Worktree
