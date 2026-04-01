@@ -223,7 +223,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
                    repo_root = getwd(),
                    cleanup_policy = "auto",
                    fail_if_dirty = TRUE,
-                   packages = c("withr", "HydraR"),
+                   packages = c("withr"),
                    ...) {
       self$compile()
       private$.fail_if_dirty <- fail_if_dirty
@@ -253,6 +253,23 @@ AgentDAG <- R6::R6Class("AgentDAG",
             new_data <- if (inherits(initial_state, "AgentState")) initial_state$get_all() else initial_state
             purrr::iwalk(new_data, ~ s$set(.y, .x))
             s
+          }
+
+          # Restore results and trace_log if they exist
+          saved_results <- self$state$get("__results__")
+          if (!is.null(saved_results)) {
+            # Merge saved results into current self$results
+            purrr::iwalk(saved_results, function(val, nm) {
+              if (!is.null(val)) self$results[[nm]] <<- val
+            })
+          }
+          saved_trace <- self$state$get("__trace_log__")
+          if (!is.null(saved_trace)) {
+            # Prepend saved_trace to self$trace_log
+            len <- length(saved_trace)
+            if (len > 0) {
+              self$trace_log[1:len] <- saved_trace
+            }
           }
         } else {
           if (is.null(initial_state)) stop("initial_state cannot be NULL if no checkpoint exists.")
@@ -290,14 +307,17 @@ AgentDAG <- R6::R6Class("AgentDAG",
       # Check for Router Nodes
       has_router <- any(purrr::map_lgl(self$nodes, ~ inherits(.x, "AgentRouterNode")))
 
+      # Calculate initial step count from restored trace log
+      initial_step_count <- if (!is.null(self$state$get("__trace_log__"))) length(self$state$get("__trace_log__")) else 0
+
       # Default to linear if pure DAG and no complex features requested
       # complex features = conditional edges, error edges, or router nodes
       if (length(self$conditional_edges) == 0 && length(self$error_edges) == 0 && !has_router && igraph::is_dag(self$graph)) {
-        return(self$.run_linear(max_steps, checkpointer, thread_id, resume_from, fail_if_dirty = fail_if_dirty))
+        return(self$.run_linear(max_steps, checkpointer, thread_id, resume_from, step_count = initial_step_count, fail_if_dirty = fail_if_dirty))
       }
 
       # Fallback to iterative for cycles, conditional logic, and dynamic routing
-      return(self$.run_iterative(max_steps, checkpointer, thread_id, resume_from, fail_if_dirty = fail_if_dirty))
+      return(self$.run_iterative(max_steps, checkpointer, thread_id, resume_from, step_count = initial_step_count, fail_if_dirty = fail_if_dirty))
     },
 
     #' Internal: Linear DAG Execution
@@ -364,6 +384,8 @@ AgentDAG <- R6::R6Class("AgentDAG",
           status = res$status, error = res$error
         )
 
+        self$state$set("__results__", self$results)
+        self$state$set("__trace_log__", self$trace_log[seq_len(step_count)])
         if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
 
         if (!is.null(res$status) && res$status == "pause") {
@@ -374,12 +396,16 @@ AgentDAG <- R6::R6Class("AgentDAG",
       if (!is.null(paused_at)) {
         self$trace_log <- self$trace_log[seq_len(step_count)]
         self$state$set("__next_nodes__", if (length(node_ids) > 0) node_ids else NULL)
+        self$state$set("__results__", self$results)
+        self$state$set("__trace_log__", self$trace_log)
         if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
         return(list(results = self$results, state = self$state, status = "paused", paused_at = paused_at))
       }
 
       self$trace_log <- self$trace_log[seq_len(step_count)]
       self$state$set("__next_nodes__", NULL)
+      self$state$set("__results__", self$results)
+      self$state$set("__trace_log__", self$trace_log)
       if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
       return(list(results = self$results, state = self$state, status = "completed"))
     },
@@ -392,7 +418,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
     #' @param step_count Integer.
     #' @param fail_if_dirty Logical.
     #' @param packages Character vector. Packages to load in parallel workers.
-    .run_iterative = function(max_steps, checkpointer = NULL, thread_id = NULL, resume_from = NULL, step_count = 0, fail_if_dirty = TRUE, packages = c("withr", "HydraR")) {
+    .run_iterative = function(max_steps, checkpointer = NULL, thread_id = NULL, resume_from = NULL, step_count = 0, fail_if_dirty = TRUE, packages = c("withr")) {
       current_nodes <- if (!is.null(resume_from)) {
         cat(sprintf("[Resuming] Resuming Iterative DAG Execution from node(s): %s\n", paste(resume_from, collapse = ", ")))
         resume_from
@@ -465,6 +491,8 @@ AgentDAG <- R6::R6Class("AgentDAG",
               status = res$status,
               error = if (!is.null(res$error)) as.character(res$error) else if (res$status == "failed" && !is.null(p_res$error)) as.character(p_res$error) else NULL
             )
+            self$state$set("__results__", self$results)
+            self$state$set("__trace_log__", self$trace_log[seq_len(step_count)])
             if (!is.null(res$status) && tolower(res$status) == "pause") {
               paused_at <<- node_id
               completed <<- TRUE
@@ -501,6 +529,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
               next_queue <<- unique(c(next_queue, target))
             }
           })
+          if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
         } else {
           # Sequential Execution Block - Using purrr::walk instead of for()
           purrr::walk(current_nodes, function(node_id) {
@@ -532,10 +561,14 @@ AgentDAG <- R6::R6Class("AgentDAG",
             )
             step_count <<- step_idx_inner
 
+            self$state$set("__results__", self$results)
+            self$state$set("__trace_log__", self$trace_log[seq_len(step_count)])
+
             if (!is.null(res$status) && tolower(res$status) == "pause") {
               paused_at <<- node_id
               completed <<- TRUE
               next_queue <<- character(0) # Clear the queue to ensure we stop immediately
+              if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
               return()
             }
             if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
@@ -579,6 +612,8 @@ AgentDAG <- R6::R6Class("AgentDAG",
       if (step_count >= max_steps) warning("Reached max_steps.")
       self$trace_log <- self$trace_log[seq_len(step_count)]
       self$state$set("__next_nodes__", if (length(current_nodes) > 0) current_nodes else NULL)
+      self$state$set("__results__", self$results)
+      self$state$set("__trace_log__", self$trace_log)
       if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
       return(list(results = self$results, state = self$state, status = if (!is.null(paused_at) || length(current_nodes) > 0) "paused" else "completed", paused_at = paused_at))
     },
@@ -835,7 +870,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
   private = list(
     .fail_if_dirty = TRUE,
     .run_args = list(),
-    .packages = c("withr", "HydraR"),
+    .packages = c("withr"),
     .rebuild_graph = function() {
       if (!is.null(self$graph)) {
         return(invisible(self))
