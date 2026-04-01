@@ -58,6 +58,9 @@ Suggests:
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Collate: 
+    'map_node.R'
+    'observer_node.R'
+    'router_node.R'
     'checkpointer.R'
     'dag.R'
     'driver.R'
