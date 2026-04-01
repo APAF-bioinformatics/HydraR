@@ -18,8 +18,8 @@ clean_mermaid_lines <- function(mermaid_str) {
 
   lines <- strsplit(mermaid_str, "\\n")[[1]]
   lines <- trimws(lines)
-  # Remove lines that are empty, code block guards, or start with graph/flowchart
-  lines <- lines[nzchar(lines) & !grepl("^```", lines) & !grepl("^(graph|flowchart)", lines, ignore.case = TRUE)]
+  # Remove lines that are empty, code block guards, comments, or start with graph/flowchart
+  lines <- lines[nzchar(lines) & !grepl("^```", lines) & !grepl("^%%", lines) & !grepl("^(graph|flowchart)", lines, ignore.case = TRUE)]
 
   return(lines)
 }
@@ -46,7 +46,9 @@ extract_edge_and_node_strings <- function(line) {
     # Extract labels
     all_match_strs <- regmatches(line_work, m)[[1]]
     edge_labels <- purrr::map_chr(all_match_strs, function(match_str) {
-      gsub("^\001|\002$", "", match_str)
+      lbl <- gsub("^\001|\002$", "", match_str)
+      # Also strip leading/trailing quotes from the label
+      gsub("^\"|\"$", "", trimws(lbl))
     })
 
     # Extract nodes (parts between arrows)
@@ -142,8 +144,14 @@ build_nodes_df <- function(all_nodes_raw) {
   node_map <- list()
   purrr::walk(all_nodes_raw, function(node) {
     id <- node$id
-    if (is.null(node_map[[id]]) || (node_map[[id]]$label == id && node$label != id) || length(node$params) > 0) {
+    if (is.null(node_map[[id]])) {
       node_map[[id]] <<- list(label = node$label, params = node$params)
+    } else {
+      # Merge params and update label if more descriptive
+      current <- node_map[[id]]
+      new_label <- if (current$label == id && node$label != id) node$label else current$label
+      new_params <- utils::modifyList(current$params, node$params)
+      node_map[[id]] <<- list(label = new_label, params = new_params)
     }
   })
 
