@@ -46,7 +46,8 @@ extract_edge_and_node_strings <- function(line) {
     # Extract labels
     all_match_strs <- regmatches(line_work, m)[[1]]
     edge_labels <- purrr::map_chr(all_match_strs, function(match_str) {
-      gsub("^\001|\002$", "", match_str)
+      clean_label <- gsub("^\001|\002$", "", match_str)
+      trimws(gsub("^\"|\"$", "", clean_label))
     })
 
     # Extract nodes (parts between arrows)

@@ -37,27 +37,27 @@ test_that("extract_edge_and_node_strings handles arrow variations", {
 
   # Standard -->
   res1 <- extract_edge_and_node_strings("A --> B")
-  expect_equal(res1$node_strings, c("A", "B"))
+  expect_equal(res1$parts, c("A", "B"))
   expect_equal(res1$edge_labels, "")
 
   # Arrow with label in pipes
   res2 <- extract_edge_and_node_strings("A -->|test| B")
-  expect_equal(res2$node_strings, c("A", "B"))
+  expect_equal(res2$parts, c("A", "B"))
   expect_equal(res2$edge_labels, "test")
 
   # Arrow with label in dashes
   res3 <- extract_edge_and_node_strings("A -- label --> B")
-  expect_equal(res3$node_strings, c("A", "B"))
+  expect_equal(res3$parts, c("A", "B"))
   expect_equal(res3$edge_labels, "label")
 
   # Multiple arrows
   res4 <- extract_edge_and_node_strings("A -->|1| B -- 2 --> C")
-  expect_equal(res4$node_strings, c("A", "B", "C"))
+  expect_equal(res4$parts, c("A", "B", "C"))
   expect_equal(res4$edge_labels, c("1", "2"))
 
   # No arrows
   res5 <- extract_edge_and_node_strings("A[Only Node]")
-  expect_equal(res5$node_strings, "A[Only Node]")
+  expect_equal(res5$parts, "A[Only Node]")
   expect_equal(res5$edge_labels, character(0))
 })
 
@@ -93,22 +93,22 @@ test_that("parse_node_string handles bracket types and quotes", {
   parse_node_string <- hp("parse_node_string")
 
   # Standard brackets
-  expect_equal(parse_node_string("A[Label]"), list(id = "A", label_text = "Label"))
+  expect_equal(parse_node_string("A[Label]"), list(id = "A", label = "Label", params = list()))
 
   # Parentheses/Circles
-  expect_equal(parse_node_string("B(Round)"), list(id = "B", label_text = "Round"))
+  expect_equal(parse_node_string("B(Round)"), list(id = "B", label = "Round", params = list()))
 
   # Braces/Rhombus
-  expect_equal(parse_node_string("C{Decision}"), list(id = "C", label_text = "Decision"))
+  expect_equal(parse_node_string("C{Decision}"), list(id = "C", label = "Decision", params = list()))
 
   # Flag
-  expect_equal(parse_node_string("D>Flag]"), list(id = "D", label_text = "Flag"))
+  expect_equal(parse_node_string("D>Flag]"), list(id = "D", label = "Flag", params = list()))
 
   # Quoted labels
-  expect_equal(parse_node_string("E[\"Complex Label\"]"), list(id = "E", label_text = "Complex Label"))
+  expect_equal(parse_node_string("E[\"Complex Label\"]"), list(id = "E", label = "Complex Label", params = list()))
 
   # Simple ID
-  expect_equal(parse_node_string("SimpleID"), list(id = "SimpleID", label_text = "SimpleID"))
+  expect_equal(parse_node_string("SimpleID"), list(id = "SimpleID", label = "SimpleID", params = list()))
 })
 
 test_that("build_nodes_df handles deduplication and prioritization", {
