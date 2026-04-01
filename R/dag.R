@@ -633,7 +633,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
       # Standard edges
       edges_df <- if (is.list(self$edges) && length(self$edges) > 0) do.call(rbind, self$edges) else self$edges
-      if (!is.null(edges_df) && nrow(edges_df) > 0) {
+      if (inherits(edges_df, "data.frame") && nrow(edges_df) > 0) {
         purrr::walk(seq_len(nrow(edges_df)), function(i) {
           lbl <- if (is.na(edges_df$label[i])) NULL else edges_df$label[i]
           all_edges_list[[length(all_edges_list) + 1]] <<- list(from = edges_df$from[i], to = edges_df$to[i], label = lbl)
@@ -903,6 +903,17 @@ AgentDAG <- R6::R6Class("AgentDAG",
     }
   )
 )
+
+#' Create AgentDAG from Mermaid (Static Method)
+#' @param mermaid_str String. Mermaid syntax.
+#' @param node_factory Function(id, label, params) -> AgentNode.
+#' @return The AgentDAG object.
+#' @export
+AgentDAG$from_mermaid <- function(mermaid_str, node_factory = auto_node_factory()) {
+  dag <- AgentDAG$new()
+  dag$from_mermaid(mermaid_str, node_factory)
+  return(dag)
+}
 
 #' Create AgentDAG from Mermaid
 #' @param mermaid_str String. Mermaid syntax.
