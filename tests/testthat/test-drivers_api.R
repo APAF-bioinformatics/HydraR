@@ -80,6 +80,67 @@ test_that("GeminiAPIDriver correctly formats requests and parses response", {
 })
 
 
+test_that("OpenAIDriver correctly handles API errors", {
+  withr::with_envvar(list(OPENAI_API_KEY = "test_key"), {
+    drv <- OpenAIDriver$new()
+
+    # Mock error response
+    mock_err <- function(req) {
+      httr2::response(status_code = 500)
+    }
+
+    httr2::with_mocked_responses(
+      mock_err,
+      {
+        expect_error(
+          drv$call("Hello"),
+          "OpenAI API request failed:"
+        )
+      }
+    )
+  })
+})
+
+test_that("AnthropicDriver correctly handles API errors", {
+  withr::with_envvar(list(ANTHROPIC_API_KEY = "test_key"), {
+    drv <- AnthropicDriver$new()
+
+    mock_err <- function(req) {
+      httr2::response(status_code = 500)
+    }
+
+    httr2::with_mocked_responses(
+      mock_err,
+      {
+        expect_error(
+          drv$call("Hello"),
+          "Anthropic API request failed:"
+        )
+      }
+    )
+  })
+})
+
+test_that("GeminiAPIDriver correctly handles API errors", {
+  withr::with_envvar(list(GOOGLE_API_KEY = "test_key"), {
+    drv <- GeminiAPIDriver$new()
+
+    mock_err <- function(req) {
+      httr2::response(status_code = 500)
+    }
+
+    httr2::with_mocked_responses(
+      mock_err,
+      {
+        expect_error(
+          drv$call("Hello"),
+          "Gemini API request failed:"
+        )
+      }
+    )
+  })
+})
+
 test_that("API Drivers report correct capabilities", {
   drv <- OpenAIDriver$new()
   caps <- drv$get_capabilities()
