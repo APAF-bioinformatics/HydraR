@@ -73,12 +73,14 @@ GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
       }
 
       # Use system2 with explicit stdout/stderr files to avoid interleaving and capture status
+      gemini_args <- c("-p", "-", formatted_opts)
+      gemini_args <- shQuote(gemini_args)
       exit_code <- if (!is.null(exec_dir)) {
         withr::with_dir(exec_dir, {
-          system2(cmd, args = c("-p", "-", formatted_opts), stdin = tmp_prompt, stdout = tmp_stdout, stderr = tmp_stderr)
+          system2(cmd, args = gemini_args, stdin = tmp_prompt, stdout = tmp_stdout, stderr = tmp_stderr)
         })
       } else {
-        system2(cmd, args = c("-p", "-", formatted_opts), stdin = tmp_prompt, stdout = tmp_stdout, stderr = tmp_stderr)
+        system2(cmd, args = gemini_args, stdin = tmp_prompt, stdout = tmp_stdout, stderr = tmp_stderr)
       }
 
       # Read results

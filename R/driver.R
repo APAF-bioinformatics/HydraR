@@ -75,6 +75,7 @@ AgentDriver <- R6::R6Class("AgentDriver",
     #' @param ... Additional arguments passed to system2.
     #' @return Result of system2 call.
     exec_in_dir = function(command, args, ...) {
+      args <- shQuote(args)
       res <- if (!is.null(self$working_dir)) {
         withr::with_dir(self$working_dir, {
           system2(command, args, ...)
