@@ -126,7 +126,7 @@ standard_node_factory <- function(id, label, driver = NULL) {
 # ==============================================================
 utils::globalVariables(c(
   "ClaudeCLIDriver", "OpenAIDriver", "GeminiCLIDriver",
-  "OllamaDriver", "CopilotCLIDriver"
+  "OllamaDriver", "CopilotCLIDriver", "AgentJulesNode"
 ))
 
 #' <!-- APAF Bioinformatics | factory.R | Approved | 2026-03-30 -->
@@ -286,6 +286,23 @@ auto_node_factory <- function(driver_registry = NULL) {
           stop(sprintf("Node '%s' (type=observer): logic_id '%s' not found in registry.", id, logic_id))
         }
         AgentObserverNode$new(id = id, observe_fn = observe_fn, label = label, params = params)
+      },
+      "jules" = {
+        prompt <- params[["prompt"]]
+        if (is.null(prompt)) {
+          # Fallback: use label or id as prompt if prompt parameter is missing
+          prompt <- label %||% id
+        }
+        
+        AgentJulesNode$new(
+          id = id,
+          prompt = prompt,
+          source = params[["source"]],
+          branch = params[["branch"]],
+          timeout = as.numeric(params[["timeout"]] %||% 1800),
+          label = label,
+          params = params
+        )
       },
       "auto" = {
         # Fallback: try logic registry by id, then passthrough
