@@ -92,4 +92,4 @@ test_that("DuckDBSaver checkpointer works and creates db file", {
   DBI::dbDisconnect(saver$con, shutdown = TRUE)
 })
 
-# <!-- APAF Bioinformatics | test-checkpointer.R | Approved | 2026-03-29 -->
+# <!-- APAF Bioinformatics | test-checkpointer.R | Approved | 2026-03-31 -->

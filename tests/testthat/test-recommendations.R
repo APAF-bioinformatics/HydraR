@@ -4,7 +4,7 @@ library(DBI)
 
 context("Technical Recommendations Verification")
 
-test_that("DuckDBSaver uses JSON storage and Registry re-hydration", {
+test_that("DuckDBSaver uses BLOB storage and Registry re-hydration", {
   skip_if_not_installed("duckdb")
   # 1. Setup DuckDB
   db_path <- tempfile(fileext = ".duckdb")
@@ -15,7 +15,8 @@ test_that("DuckDBSaver uses JSON storage and Registry re-hydration", {
   # 2. Register a test reducer
   test_val <- 100
   register_logic("test_reducer", function(current, new) {
-    (current %||% 0) + new + test_val
+    if (is.null(current)) current <- 0
+    current + new + test_val
   })
 
   # 3. Create state with the registered reducer
@@ -25,18 +26,20 @@ test_that("DuckDBSaver uses JSON storage and Registry re-hydration", {
   thread_id <- "json-test-thread"
   saver$put(thread_id, state)
 
-  # 5. Verify JSON storage in DB (Human Readability)
+  # 5. Verify BLOB storage in DB
   con <- DBI::dbConnect(duckdb::duckdb(), db_path)
   on.exit(DBI::dbDisconnect(con), add = TRUE)
 
   # Check columns
   cols <- DBI::dbGetQuery(con, sprintf("PRAGMA table_info('%s')", saver$table_name))
-  expect_true("state_json" %in% cols$name)
+  expect_true("state_data" %in% cols$name)
 
-  df <- DBI::dbGetQuery(con, sprintf("SELECT state_json FROM %s WHERE thread_id = ?", saver$table_name), params = list(thread_id))
-  json_str <- df$state_json[[1]]
-  expect_match(json_str, "\"score\": 10")
-  expect_match(json_str, "\"test_reducer\"")
+  df <- DBI::dbGetQuery(con, sprintf("SELECT state_data FROM %s WHERE thread_id = ?", saver$table_name), params = list(thread_id))
+  blob <- df$state_data[[1]]
+  expect_true(is.raw(blob))
+  unserialized_state <- base::unserialize(blob)
+  expect_equal(unserialized_state$data$score, 10)
+  expect_true(is.function(unserialized_state$reducers$score))
 
   # 6. Restore and Verify Logic hydration
   restored <- saver$get(thread_id)
@@ -53,14 +56,17 @@ test_that("AgentDAG runs iteratively and handles pauses", {
 
   # Node A: Just increments a counter
   node_a <- AgentLogicNode$new("A", function(state) {
-    count <- (state$get("count") %||% 0) + 1
+    count <- state$get("count")
+    if (is.null(count)) count <- 0
+    count <- count + 1
     state$set("count", count)
     list(output = list(count = count), status = "success")
   })
 
   # Node B: Pauses on first visit
   node_b <- AgentLogicNode$new("B", function(state) {
-    visited <- state$get("visited_b") %||% FALSE
+    visited <- state$get("visited_b")
+    if (is.null(visited)) visited <- FALSE
     if (!visited) {
       state$set("visited_b", TRUE)
       return(list(output = NULL, status = "pause"))
