@@ -124,13 +124,15 @@ AgentDAG <- R6::R6Class("AgentDAG",
       if (!is.null(l_clean) && (l_clean %in% c("Test", "Fail") || grepl("^test:", l_clean))) {
         # Default test: status == "success"
         test_fn <- function(v) isTRUE(v$status == "success")
-        
+
         # If test: prefix is used, resolve it
         if (grepl("^test:", l_clean)) {
-           test_id <- gsub("^test:", "", l_clean)
-           # We use a lazy resolver since we are during build/parsing
-           # resolve_test_pattern is in registry.R
-           test_fn <- resolve_test_pattern(test_id)
+          test_id <- gsub("^test:", "", l_clean)
+          # We use a lazy resolver since we are during build/parsing
+          # resolve_test_pattern is in registry.R
+          test_fn <- function(v) {
+            resolve_test_pattern(test_id)(v)
+          }
         }
 
         purrr::walk(from, function(f) {
@@ -248,7 +250,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
             loaded_state
           } else {
             # Start from checkpoint, then overlay user-provided initial_state
-            # This ensures user fixes (e.g., fixed=TRUE) override stale checkpoint values
+            # This ensures user-provided overrides take precedence over stale checkpoint values
             s <- loaded_state
             new_data <- if (inherits(initial_state, "AgentState")) initial_state$get_all() else initial_state
             purrr::iwalk(new_data, ~ s$set(.y, .x))
@@ -441,9 +443,8 @@ AgentDAG <- R6::R6Class("AgentDAG",
             withr::with_dir(wt_path, {
               restricted_state <- RestrictedState$new(self$state, node_id, self$message_log)
               st <- Sys.time()
-              # Pass stored arguments via do.call
               run_call <- list(state = restricted_state)
-              run_call <- utils::modifyList(run_call, self$.__enclos_env__$private$.run_args)
+              run_call <- utils::modifyList(run_call, self$.__enclos_env__$private$.run_args %||% list())
               res <- do.call(node$run, run_call)
               et <- Sys.time()
               list(id = node_id, res = res, start = st, end = et)
@@ -466,7 +467,6 @@ AgentDAG <- R6::R6Class("AgentDAG",
               status = res$status,
               error = if (!is.null(res$error)) as.character(res$error) else if (res$status == "failed" && !is.null(p_res$error)) as.character(p_res$error) else NULL
             )
-            # if (!is.null(self$worktree_manager)) self$worktree_manager$remove_worktree(node_id)
             if (!is.null(res$status) && tolower(res$status) == "pause") {
               paused_at <<- node_id
               completed <<- TRUE
@@ -474,12 +474,12 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
             # Successors Logic (Unified Routing)
             target <- NULL
-            
+
             # 1. Error Edge (Highest priority if failed)
             if (!is.null(res$status) && res$status %in% c("failed", "error") && node_id %in% names(self$error_edges)) {
               cat(sprintf("   [%s] Node failed (Parallel). Following error edge to: %s\n", node_id, self$error_edges[[node_id]]))
               target <- self$error_edges[[node_id]]
-            } 
+            }
             # 2. Dynamic Router Output
             else if (!is.null(res$target_node)) {
               cat(sprintf("   [%s] Router (Parallel) selected next node: %s\n", node_id, res$target_node))
@@ -490,7 +490,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
               cond <- self$conditional_edges[[node_id]]
               test_passed <- tryCatch(cond$test(res), error = function(e) FALSE)
               target <- if (test_passed) cond$if_true else cond$if_false
-            } 
+            }
             # 4. Standard Edges (Multi-branch)
             else {
               children <- names(igraph::adjacent_vertices(self$graph, node_id, mode = "out")[[1]])
@@ -503,9 +503,6 @@ AgentDAG <- R6::R6Class("AgentDAG",
               next_queue <<- unique(c(next_queue, target))
             }
           })
-
-          # UPDATE QUEUE FOR NEXT STEP
-          queue <- unique(next_queue)
         } else {
           # Sequential Execution Block - Using purrr::walk instead of for()
           purrr::walk(current_nodes, function(node_id) {
@@ -517,10 +514,12 @@ AgentDAG <- R6::R6Class("AgentDAG",
               return()
             }
 
-            cat(sprintf("[DEBUG] Queue: %s | Running: %s\n", paste(current_nodes, collapse=", "), node_id))
+            cat(sprintf("[DEBUG] Queue: %s | Running: %s\n", paste(current_nodes, collapse = ", "), node_id))
             restricted_state <- RestrictedState$new(self$state, node_id, self$message_log)
             start_time <- Sys.time()
-            res <- self$nodes[[node_id]]$run(restricted_state)
+            run_call <- list(state = restricted_state)
+            run_call <- utils::modifyList(run_call, self$.__enclos_env__$private$.run_args %||% list())
+            res <- do.call(self$nodes[[node_id]]$run, run_call)
             end_time <- Sys.time()
 
             self$results[[node_id]] <<- res
@@ -545,12 +544,12 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
             # Successors Logic (Unified Routing)
             target <- NULL
-            
+
             # 1. Error Edge (Highest priority if failed)
             if (!is.null(res$status) && res$status %in% c("failed", "error") && node_id %in% names(self$error_edges)) {
               cat(sprintf("   [%s] Node failed. Following error edge to: %s\n", node_id, self$error_edges[[node_id]]))
               target <- self$error_edges[[node_id]]
-            } 
+            }
             # 2. Dynamic Router Output
             else if (!is.null(res$target_node)) {
               cat(sprintf("   [%s] Router selected next node: %s\n", node_id, res$target_node))
@@ -561,7 +560,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
               cond <- self$conditional_edges[[node_id]]
               test_passed <- tryCatch(cond$test(res), error = function(e) FALSE)
               target <- if (test_passed) cond$if_true else cond$if_false
-            } 
+            }
             # 4. Standard Edges (Multi-branch)
             else {
               children <- names(igraph::adjacent_vertices(self$graph, node_id, mode = "out")[[1]])
@@ -684,7 +683,8 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
         # Node styling
         purrr::iwalk(self$results, function(res, node_id) {
-          cls <- if (res$status == "success") "success" else if (res$status %in% c("failed", "error")) "failure" else if (res$status == "pause") "pause" else NULL
+          status_val <- res$status %||% ""
+          cls <- if (identical(status_val, "success")) "success" else if (status_val %in% c("failed", "error")) "failure" else if (identical(status_val, "pause")) "pause" else NULL
           if (!is.null(cls)) extra_lines <<- c(extra_lines, sprintf("  class %s %s", node_id, cls))
         })
 
@@ -698,7 +698,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
             if (identical(e$type, "error")) {
               extra_lines <<- c(extra_lines, sprintf("  linkStyle %d stroke:#e53935,stroke-width:2px,stroke-dasharray: 5 5;", idx - 1))
             }
-            
+
             # Highlight as TRAVERSED (Success sequence)
             if (e$from %in% executed_nodes && e$to %in% executed_nodes) {
               # If it's a successful error path, we still make it green but keep it dashed maybe?
@@ -708,12 +708,12 @@ AgentDAG <- R6::R6Class("AgentDAG",
             }
           })
         } else {
-           # Even without results, style the error edges as red/dashed
-           purrr::iwalk(all_edges_list, function(e, idx) {
-             if (identical(e$type, "error")) {
-               extra_lines <<- c(extra_lines, sprintf("  linkStyle %d stroke:#e53935,stroke-width:2px,stroke-dasharray: 5 5;", idx - 1))
-             }
-           })
+          # Even without results, style the error edges as red/dashed
+          purrr::iwalk(all_edges_list, function(e, idx) {
+            if (identical(e$type, "error")) {
+              extra_lines <<- c(extra_lines, sprintf("  linkStyle %d stroke:#e53935,stroke-width:2px,stroke-dasharray: 5 5;", idx - 1))
+            }
+          })
         }
       }
 
@@ -865,6 +865,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
             return(NULL)
           }
           do.call(rbind, df_list)
+
         }) |>
           purrr::compact() |>
           purrr::list_rbind()
@@ -911,13 +912,6 @@ AgentDAG <- R6::R6Class("AgentDAG",
 #' @return The AgentDAG object.
 #' @export
 mermaid_to_dag <- function(mermaid_str, node_factory = auto_node_factory()) {
-  dag <- AgentDAG$new()
-  dag$from_mermaid(mermaid_str, node_factory)
-  return(dag)
-}
-
-# static method for factory instantiation
-AgentDAG$from_mermaid <- function(mermaid_str, node_factory) {
   dag <- AgentDAG$new()
   dag$from_mermaid(mermaid_str, node_factory)
   return(dag)

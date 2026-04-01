@@ -1,6 +1,7 @@
 library(testthat)
 
 test_that("AgentBashNode computes correctly", {
+  skip_on_os("windows")
   node <- AgentBashNode$new("bash_node", script = "echo 'Hello World'")
   res <- node$run(state = AgentState$new())
   expect_true(res$success)
@@ -8,6 +9,7 @@ test_that("AgentBashNode computes correctly", {
 })
 
 test_that("AgentBashNode handles failure correctly", {
+  skip_on_os("windows")
   node <- AgentBashNode$new("fail_bash", script = "exit 1")
   res <- node$run(state = AgentState$new())
   expect_false(res$success)
@@ -15,6 +17,7 @@ test_that("AgentBashNode handles failure correctly", {
 })
 
 test_that("AgentBashNode isolates to working_dir", {
+  skip_on_os("windows")
   dir <- tempdir()
   node <- AgentBashNode$new("pwd_node", script = "pwd")
   res <- node$run(state = AgentState$new(), working_dir = dir)

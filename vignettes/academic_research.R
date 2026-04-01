@@ -60,7 +60,7 @@ research_logic_registry <- list(
 ## ----factory------------------------------------------------------------------
 research_node_factory <- function(id, label, params) {
   # Driver resolution from Mermaid params
-  driver_obj <- if (params$driver == "gemini") GeminiCLIDriver$new() else NULL
+  driver_obj <- if (params[["driver"]] == "gemini") GeminiCLIDriver$new() else NULL
 
   AgentLLMNode$new(
     id = id,

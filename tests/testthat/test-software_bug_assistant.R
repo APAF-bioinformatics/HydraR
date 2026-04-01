@@ -76,5 +76,3 @@ test_that("Software Bug Assistant loop works", {
   # Assertions
   expect_equal(result$state$get("Analyzer"), "Use is.null(x)")
 })
-
-# <!-- APAF Bioinformatics | test-software_bug_assistant.R | Approved | 2026-03-29 -->
