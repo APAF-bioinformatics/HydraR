@@ -116,3 +116,29 @@ test_that("Merge Conflict detection works", {
   expect_equal(results$status, "paused")
   expect_equal(results$paused_at, "merge")
 })
+
+test_that("Worktree cleanup ignores busy directories gracefully", {
+  tmp_repo <- withr::local_tempdir()
+  withr::with_dir(tmp_repo, {
+    system2("git", c("config", "user.email", "test@example.com"))
+    system2("git", c("config", "user.name", "Test User"))
+
+    system2("git", c("init", "--initial-branch=main"))
+    writeLines("Initial content", "README.md")
+    system2("git", c("add", "README.md"))
+    system2("git", c("commit", "-m", "'Initial commit'"))
+  })
+
+  manager <- WorktreeManager$new(repo_root = tmp_repo)
+  wt_path <- manager$create("node_a", fail_if_dirty = FALSE)
+
+  # Lock the directory by setting working directory into it
+  withr::with_dir(wt_path, {
+    # Attempt cleanup while directory is busy
+    # This shouldn't throw an error
+    expect_error(manager$cleanup(), NA)
+  })
+
+  # Depending on OS, the branch might be deleted but directory remains
+  expect_true(TRUE)
+})

@@ -32,14 +32,18 @@ parse_mermaid <- function(mermaid_str) {
 
     line_nodes_raw <- purrr::map(node_strings, function(ns) {
       node_info <- parse_node_string(ns)
-      if (is.null(node_info)) return(NULL)
-      
+      if (is.null(node_info)) {
+        return(NULL)
+      }
+
       params_info <- extract_params(node_info$label_text)
       list(id = node_info$id, label = params_info$label, params = params_info$params)
     })
     line_nodes <- purrr::compact(line_nodes_raw)
-    
-    if (length(line_nodes) == 0) return(list(nodes = list(), edges = list()))
+
+    if (length(line_nodes) == 0) {
+      return(list(nodes = list(), edges = list()))
+    }
 
     line_node_ids <- purrr::map_chr(line_nodes, ~ .x$id)
     line_edges <- list()
@@ -65,7 +69,9 @@ parse_mermaid <- function(mermaid_str) {
 # --- Internal Helpers ---
 
 clean_mermaid_lines <- function(mermaid_str) {
-  if (is.null(mermaid_str) || mermaid_str == "") return(character(0))
+  if (is.null(mermaid_str) || mermaid_str == "") {
+    return(character(0))
+  }
   lines <- strsplit(mermaid_str, "\\n")[[1]]
   lines <- trimws(lines)
   # Remove lines that are empty, code block guards, or start with graph/flowchart
@@ -85,7 +91,7 @@ extract_edge_and_node_strings <- function(line) {
   if (m[[1]][1] == -1) {
     return(list(node_strings = line, edge_labels = character(0)))
   }
-  
+
   # Extract labels
   all_match_strs <- regmatches(line_work, m)[[1]]
   edge_labels <- purrr::map_chr(all_match_strs, function(match_str) {
@@ -98,13 +104,15 @@ extract_edge_and_node_strings <- function(line) {
   node_strings <- regmatches(line_work, m, invert = TRUE)[[1]]
   node_strings <- trimws(node_strings)
   node_strings <- node_strings[nzchar(node_strings)]
-  
+
   list(node_strings = node_strings, edge_labels = edge_labels)
 }
 
 parse_node_string <- function(node_str) {
-  if (!nzchar(node_str)) return(NULL)
-  
+  if (!nzchar(node_str)) {
+    return(NULL)
+  }
+
   # Cases: ID[Label], ID(Label), ID{Label}, ID>Label], or just ID
   bracket_info <- regexpr("[\\[\\(\\{\\>]", node_str)
   if (bracket_info != -1) {
@@ -112,7 +120,7 @@ parse_node_string <- function(node_str) {
     open_b <- substr(node_str, bracket_info, bracket_info)
     close_b <- if (open_b == "[") "]" else if (open_b == "(") ")" else if (open_b == "{") "}" else if (open_b == ">") "]" else ""
     remainder <- substr(node_str, bracket_info + 1, nchar(node_str))
-    
+
     # Strip trailing brackets and quotes from remainder
     clean_remainder <- gsub(paste0("\\", close_b, "[[:space:]]*$"), "", remainder)
     label_text <- trimws(gsub("^\"|\"$", "", clean_remainder))
@@ -120,7 +128,7 @@ parse_node_string <- function(node_str) {
     id <- node_str
     label_text <- id
   }
-  
+
   list(id = id, label_text = label_text)
 }
 
@@ -140,12 +148,19 @@ extract_params <- function(label_text) {
         key <- trimws(kv[1])
         val <- trimws(paste(kv[-1], collapse = "="))
         val_lower <- tolower(val)
-        coerced_val <- if (val_lower == "null") NULL 
-                       else if (val_lower %in% c("na", "nan")) NA 
-                       else if (grepl("^-?\\d+(\\.\\d+)?$", val)) as.numeric(val)
-                       else if (val_lower == "true") TRUE
-                       else if (val_lower == "false") FALSE
-                       else val
+        coerced_val <- if (val_lower == "null") {
+          NULL
+        } else if (val_lower %in% c("na", "nan")) {
+          NA
+        } else if (grepl("^-?\\d+(\\.\\d+)?$", val)) {
+          as.numeric(val)
+        } else if (val_lower == "true") {
+          TRUE
+        } else if (val_lower == "false") {
+          FALSE
+        } else {
+          val
+        }
         params[[key]] <<- coerced_val
       }
     })

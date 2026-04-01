@@ -124,13 +124,13 @@ AgentDAG <- R6::R6Class("AgentDAG",
       if (!is.null(l_clean) && (l_clean %in% c("Test", "Fail") || grepl("^test:", l_clean))) {
         # Default test: status == "success"
         test_fn <- function(v) isTRUE(v$status == "success")
-        
+
         # If test: prefix is used, resolve it
         if (grepl("^test:", l_clean)) {
-           test_id <- gsub("^test:", "", l_clean)
-           # We use a lazy resolver since we are during build/parsing
-           # resolve_test_pattern is in registry.R
-           test_fn <- resolve_test_pattern(test_id)
+          test_id <- gsub("^test:", "", l_clean)
+          # We use a lazy resolver since we are during build/parsing
+          # resolve_test_pattern is in registry.R
+          test_fn <- resolve_test_pattern(test_id)
         }
 
         purrr::walk(from, function(f) {
@@ -474,12 +474,12 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
             # Successors Logic (Unified Routing)
             target <- NULL
-            
+
             # 1. Error Edge (Highest priority if failed)
             if (!is.null(res$status) && res$status %in% c("failed", "error") && node_id %in% names(self$error_edges)) {
               cat(sprintf("   [%s] Node failed (Parallel). Following error edge to: %s\n", node_id, self$error_edges[[node_id]]))
               target <- self$error_edges[[node_id]]
-            } 
+            }
             # 2. Dynamic Router Output
             else if (!is.null(res$target_node)) {
               cat(sprintf("   [%s] Router (Parallel) selected next node: %s\n", node_id, res$target_node))
@@ -490,7 +490,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
               cond <- self$conditional_edges[[node_id]]
               test_passed <- tryCatch(cond$test(res), error = function(e) FALSE)
               target <- if (test_passed) cond$if_true else cond$if_false
-            } 
+            }
             # 4. Standard Edges (Multi-branch)
             else {
               children <- names(igraph::adjacent_vertices(self$graph, node_id, mode = "out")[[1]])
@@ -517,7 +517,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
               return()
             }
 
-            cat(sprintf("[DEBUG] Queue: %s | Running: %s\n", paste(current_nodes, collapse=", "), node_id))
+            cat(sprintf("[DEBUG] Queue: %s | Running: %s\n", paste(current_nodes, collapse = ", "), node_id))
             restricted_state <- RestrictedState$new(self$state, node_id, self$message_log)
             start_time <- Sys.time()
             res <- self$nodes[[node_id]]$run(restricted_state)
@@ -545,12 +545,12 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
             # Successors Logic (Unified Routing)
             target <- NULL
-            
+
             # 1. Error Edge (Highest priority if failed)
             if (!is.null(res$status) && res$status %in% c("failed", "error") && node_id %in% names(self$error_edges)) {
               cat(sprintf("   [%s] Node failed. Following error edge to: %s\n", node_id, self$error_edges[[node_id]]))
               target <- self$error_edges[[node_id]]
-            } 
+            }
             # 2. Dynamic Router Output
             else if (!is.null(res$target_node)) {
               cat(sprintf("   [%s] Router selected next node: %s\n", node_id, res$target_node))
@@ -561,7 +561,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
               cond <- self$conditional_edges[[node_id]]
               test_passed <- tryCatch(cond$test(res), error = function(e) FALSE)
               target <- if (test_passed) cond$if_true else cond$if_false
-            } 
+            }
             # 4. Standard Edges (Multi-branch)
             else {
               children <- names(igraph::adjacent_vertices(self$graph, node_id, mode = "out")[[1]])
@@ -698,7 +698,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
             if (identical(e$type, "error")) {
               extra_lines <<- c(extra_lines, sprintf("  linkStyle %d stroke:#e53935,stroke-width:2px,stroke-dasharray: 5 5;", idx - 1))
             }
-            
+
             # Highlight as TRAVERSED (Success sequence)
             if (e$from %in% executed_nodes && e$to %in% executed_nodes) {
               # If it's a successful error path, we still make it green but keep it dashed maybe?
@@ -708,12 +708,12 @@ AgentDAG <- R6::R6Class("AgentDAG",
             }
           })
         } else {
-           # Even without results, style the error edges as red/dashed
-           purrr::iwalk(all_edges_list, function(e, idx) {
-             if (identical(e$type, "error")) {
-               extra_lines <<- c(extra_lines, sprintf("  linkStyle %d stroke:#e53935,stroke-width:2px,stroke-dasharray: 5 5;", idx - 1))
-             }
-           })
+          # Even without results, style the error edges as red/dashed
+          purrr::iwalk(all_edges_list, function(e, idx) {
+            if (identical(e$type, "error")) {
+              extra_lines <<- c(extra_lines, sprintf("  linkStyle %d stroke:#e53935,stroke-width:2px,stroke-dasharray: 5 5;", idx - 1))
+            }
+          })
         }
       }
 
