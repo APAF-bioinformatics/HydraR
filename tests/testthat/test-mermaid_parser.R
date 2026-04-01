@@ -134,15 +134,16 @@ test_that("Regex Flowchart Parser extracts nodes and edges", {
 
   # Check labels
   get_label <- function(nodes_df, target_id) {
-    if (nrow(nodes_df[nodes_df$id == target_id, ]) == 0) return(NULL)
+    if (nrow(nodes_df[nodes_df$id == target_id, ]) == 0) {
+      return(NULL)
+    }
     nodes_df[nodes_df$id == target_id, "label"]
   }
   expect_equal(get_label(parsed$nodes, "A"), "Node A")
   expect_equal(get_label(parsed$nodes, "B"), "Node B")
   expect_equal(get_label(parsed$nodes, "C"), "Node C")
   expect_equal(get_label(parsed$nodes, "D"), "D")
-});
-
+})
 test_that("Conditional edges are parsed", {
   mermaid <- "
     graph TD
