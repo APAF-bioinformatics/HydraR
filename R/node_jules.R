@@ -67,18 +67,21 @@ AgentJulesNode <- R6::R6Class("AgentJulesNode",
 
       # 2. Create Session
       message(sprintf("[%s] Creating Jules session for source '%s' on branch '%s'...", self$id, source, branch))
-      session <- tryCatch({
-        self$client$create_session(
-          prompt = self$prompt,
-          source = source,
-          starting_branch = branch,
-          title = self$label,
-          automation_mode = self$params$automation_mode %||% "AUTO_CREATE_PR",
-          require_plan_approval = self$params$require_plan_approval %||% FALSE
-        )
-      }, error = function(e) {
-        return(list(error = e$message))
-      })
+      session <- tryCatch(
+        {
+          self$client$create_session(
+            prompt = self$prompt,
+            source = source,
+            starting_branch = branch,
+            title = self$label,
+            automation_mode = self$params$automation_mode %||% "AUTO_CREATE_PR",
+            require_plan_approval = self$params$require_plan_approval %||% FALSE
+          )
+        },
+        error = function(e) {
+          return(list(error = e$message))
+        }
+      )
 
       if (!is.null(session$error)) {
         self$last_result <- list(status = "failed", error = session$error)
@@ -91,7 +94,7 @@ AgentJulesNode <- R6::R6Class("AgentJulesNode",
       # 3. Polling Loop
       start_time <- Sys.time()
       terminal_states <- c("COMPLETED", "FAILED", "CANCELLED")
-      
+
       while (TRUE) {
         elapsed <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
         if (elapsed > self$timeout) {
@@ -114,11 +117,11 @@ AgentJulesNode <- R6::R6Class("AgentJulesNode",
           self$last_result <- list(status = "success", output = current_session$outputs, session = current_session)
           return(self$last_result)
         }
-        
+
         # If no outputs yet, but maybe it's in progress
         # we'll wait. Real API likely has a state field.
         # I'll check 'sessionCompleted' activity if needed, but polling GetSession is standard.
-        
+
         Sys.sleep(self$poll_interval)
       }
     },
@@ -131,24 +134,30 @@ AgentJulesNode <- R6::R6Class("AgentJulesNode",
       branch <- NULL
 
       # Try to get branch from system
-      try({
-        branch <- system2("git", c("rev-parse", "--abbrev-ref", "HEAD"), stdout = TRUE, stderr = FALSE)
-        if (length(branch) == 0 || branch == "") branch <- NULL
-      }, silent = TRUE)
+      try(
+        {
+          branch <- system2("git", c("rev-parse", "--abbrev-ref", "HEAD"), stdout = TRUE, stderr = FALSE)
+          if (length(branch) == 0 || branch == "") branch <- NULL
+        },
+        silent = TRUE
+      )
 
       # Try to get source from remote URL
-      try({
-        remote_url <- system2("git", c("remote", "get-url", "origin"), stdout = TRUE, stderr = FALSE)
-        if (length(remote_url) > 0 && remote_url != "") {
-          # Format: https://github.com/owner/repo.git or git@github.com:owner/repo.git
-          # We want "sources/github/owner/repo"
-          if (grepl("github\\.com", remote_url)) {
-            clean_url <- gsub(".*github\\.com[:/]", "", remote_url)
-            clean_url <- gsub("\\.git$", "", clean_url)
-            source <- sprintf("sources/github/%s", clean_url)
+      try(
+        {
+          remote_url <- system2("git", c("remote", "get-url", "origin"), stdout = TRUE, stderr = FALSE)
+          if (length(remote_url) > 0 && remote_url != "") {
+            # Format: https://github.com/owner/repo.git or git@github.com:owner/repo.git
+            # We want "sources/github/owner/repo"
+            if (grepl("github\\.com", remote_url)) {
+              clean_url <- gsub(".*github\\.com[:/]", "", remote_url)
+              clean_url <- gsub("\\.git$", "", clean_url)
+              source <- sprintf("sources/github/%s", clean_url)
+            }
           }
-        }
-      }, silent = TRUE)
+        },
+        silent = TRUE
+      )
 
       list(source = source, branch = branch)
     }

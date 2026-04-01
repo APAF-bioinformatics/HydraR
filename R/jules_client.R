@@ -23,8 +23,7 @@ JulesClient <- R6::R6Class("JulesClient",
 
     #' Initialize JulesClient
     #' @return A new `JulesClient` object.
-    initialize = function() {
-    },
+    initialize = function() {},
 
     #' List Available Sources
     #' @return List of sources.
