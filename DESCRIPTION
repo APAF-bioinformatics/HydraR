@@ -42,13 +42,13 @@ Imports:
     jsonlite,
     purrr,
     R6,
-    yaml
+    yaml,
+    httr2
 Suggests: 
     testthat (>= 3.0.0),
     duckdb,
     knitr,
     rmarkdown,
-    httr2,
     future,
     devtools,
     withr,
