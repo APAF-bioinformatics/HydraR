@@ -247,8 +247,6 @@ AgentDAG <- R6::R6Class("AgentDAG",
           self$state <- if (is.null(initial_state)) {
             loaded_state
           } else {
-            # Start from checkpoint, then overlay user-provided initial_state
-            # This ensures user fixes (e.g., fixed=TRUE) override stale checkpoint values
             s <- loaded_state
             new_data <- if (inherits(initial_state, "AgentState")) initial_state$get_all() else initial_state
             purrr::iwalk(new_data, ~ s$set(.y, .x))
