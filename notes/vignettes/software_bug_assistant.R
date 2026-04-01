@@ -1,41 +1,14 @@
----
-title: "Agentic Software Bug Assistant"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Agentic Software Bug Assistant}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
-
-```{r setup, include = FALSE}
+## ----setup, include = FALSE---------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 library(HydraR)
-```
 
-## Introduction
-
-This vignette demonstrates the **Software Bug Assistant** pattern using `HydraR` and the **Gemini CLI**.
-
-In this scenario, two agent nodes work together to resolve a software bug:
-1. **Bug Analyzer Node**: Reviews the error message and current code, then proposes a patch.
-2. **Test Runner Node**: Simulates running a test suite against the proposed patch. If the test fails, it provides error traces back to the Bug Analyzer.
-
-This is a classic "Generate-and-Test" self-healing loop.
-
-## Setup
-
-```{r library_load}
+## ----library_load-------------------------------------------------------------
 library(HydraR)
-```
 
-## Defining the Workflow Components
-
-To keep our architecture clean, we store all workflow components—initial configuration, LLM prompts, agent roles, and deterministic logic—in a central registry.
-
-```{r logic_registry}
+## ----logic_registry-----------------------------------------------------------
 bug_logic_registry <- list(
   # 0. Initial Configuration
   initial_state = list(
@@ -46,6 +19,15 @@ bug_logic_registry <- list(
   logic = list(
     Tester = function(state, params) {
       patch <- state$get("Analyzer")
+
+      # 2. Extract code block
+      if (grepl("```r", patch, ignore.case = TRUE)) {
+        patch <- strsplit(patch, "```[rR]\n")[[1]][2]
+        patch <- strsplit(patch, "\n```")[[1]][1]
+      } else if (grepl("```", patch)) {
+        patch <- strsplit(patch, "```\n")[[1]][2]
+        patch <- strsplit(patch, "\n```")[[1]][1]
+      }
 
       # Mock evaluation logic: In our scenario, the fix must use is.null().
       if (grepl("is.null", patch, fixed = TRUE)) {
@@ -75,13 +57,8 @@ bug_logic_registry <- list(
     }
   )
 )
-```
 
-## The Node Factory
-
-We use a factory function to dynamically create nodes based on their type and parameters defined in the Mermaid graph.
-
-```{r factory}
+## ----factory------------------------------------------------------------------
 bug_node_factory <- function(id, label, params) {
   # Driver resolution from Mermaid params
   driver_obj <- if (!is.null(params[["driver"]]) && params[["driver"]] == "gemini") GeminiCLIDriver$new() else NULL
@@ -104,13 +81,8 @@ bug_node_factory <- function(id, label, params) {
     )
   }
 }
-```
 
-## Building the DAG via Mermaid
-
-We define the entire workflow architecture as a Mermaid string. This string serves as the single source of truth for both structure and node metadata.
-
-```{r mermaid_source}
+## ----mermaid_source-----------------------------------------------------------
 mermaid_graph <- "
 graph TD
   Analyzer[Debugger Agent | driver=gemini] --> Tester
@@ -129,33 +101,21 @@ dag$add_conditional_edge(
 )
 
 compiled_dag <- dag$compile()
-```
 
-## Visualizing the Workflow
-
-```{r, results = 'asis'}
+## ----results = 'asis'---------------------------------------------------------
 cat("```mermaid\n")
 cat(compiled_dag$plot(type = "mermaid"))
 cat("\n```\n")
-```
 
-## Running the Scenario
+## ----eval = FALSE-------------------------------------------------------------
+# cat("Starting Automatic Bug Remediation...\n")
+# 
+# result <- compiled_dag$run(
+#   initial_state = bug_logic_registry$initial_state,
+#   max_steps = 10
+# )
+# 
+# cat("\n--- RESOLUTION RESULT ---\n")
+# cat("Final Patch Proposed:", result$state$get("Analyzer"), "\n")
+# cat("Test Results:", result$state$get("test_feedback"), "\n")
 
-Provide the initial bug report and start the DAG.
-
-```{r, eval = FALSE}
-cat("Starting Automatic Bug Remediation...\n")
-
-result <- compiled_dag$run(
-  initial_state = bug_logic_registry$initial_state,
-  max_steps = 10
-)
-
-cat("\n--- RESOLUTION RESULT ---\n")
-cat("Final Patch Proposed:", result$state$get("Analyzer"), "\n")
-cat("Test Results:", result$state$get("test_feedback"), "\n")
-```
-
-The DAG correctly detected the test failure, routed the detailed feedback back to the analyzer, and produced a successful patch!
-
-<!-- APAF Bioinformatics | software_bug_assistant.Rmd | Approved | 2026-03-29 -->

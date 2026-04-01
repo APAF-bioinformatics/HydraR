@@ -21,6 +21,9 @@ This task list outlines the remaining steps to achieve **rOpenSci** software rev
 - [ ] Ensure all exported functions have `@examples`.
 - [ ] Ensure all exported functions have `@return` values.
 
+## 📝 Phase 3.5: Publications & Vignettes
+- [ ] Add a vignette example that tests restart functionality using duckdb. Option to create reprex using duckdb, fix code and restart. Keep it simple to fit into the Journal of Open Source Software (JOSS) word limit, but highlight the use of duckdb to restart.
+
 ## 🛠️ Phase 4: CI/CD & Final Checks
 - [ ] Initialize `pkgdown` website configuration.
 - [ ] Set up GitHub Actions for:

@@ -53,8 +53,13 @@ checkpointer <- switch(CHECKPOINTER_MODE,
   "memory" = MemorySaver$new(),
   "rds" = RDSSaver$new(dir = RDS_DIR),
   "duckdb" = {
-    if (!dir.exists(dirname(DUCKDB_PATH))) dir.create(dirname(DUCKDB_PATH), recursive = TRUE)
-    DuckDBSaver$new(db_path = DUCKDB_PATH)
+    if (requireNamespace("duckdb", quietly = TRUE)) {
+      if (!dir.exists(dirname(DUCKDB_PATH))) dir.create(dirname(DUCKDB_PATH), recursive = TRUE)
+      DuckDBSaver$new(db_path = DUCKDB_PATH)
+    } else {
+      warning("duckdb package is required but not installed. Falling back to none.")
+      NULL
+    }
   },
   "none" = NULL,
   stop(sprintf("Invalid CHECKPOINTER_MODE: '%s'", CHECKPOINTER_MODE))

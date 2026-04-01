@@ -68,6 +68,7 @@ This document translates the state-of-the-art gap analysis from `notes/agent_dag
 
 ## 7. Comprehensive Feature Testing
 - [ ] **Tutorial Vignettes**: Create comprehensive, executable tutorials inspired by ADK (e.g., Story Teller, Travel Booking, Software Bug Assistant, Personalized Shopping, Academic Research, Data Science, Blog Writer).
+- [ ] **DuckDB Restart Reprex Vignette**: Add a simple vignette example that tests restart functionality using DuckDB. Should demonstrate a reprex where code is fixed and execution restarted, fitting within JOSS word limits.
 - [ ] **Integration Testing**: Add `testthat` coverage mirroring the vignette workflows to ensure robust DAG operations.
 
 <!-- APAF Bioinformatics | agent_dag_todo.md | Pending Roadmap -->
