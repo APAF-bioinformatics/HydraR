@@ -87,4 +87,55 @@ test_that("API Drivers report correct capabilities", {
   expect_true(caps$tools)
 })
 
+test_that("OpenAIDriver handles network failures gracefully", {
+  withr::with_envvar(list(OPENAI_API_KEY = "test_key"), {
+    drv <- OpenAIDriver$new()
+
+    mock_error <- function(req) {
+      stop("Could not resolve host: api.openai.com")
+    }
+
+    httr2::with_mocked_responses(
+      mock_error,
+      {
+        expect_error(drv$call("Hello"), "OpenAI API request failed: Could not resolve host")
+      }
+    )
+  })
+})
+
+test_that("AnthropicDriver handles network failures gracefully", {
+  withr::with_envvar(list(ANTHROPIC_API_KEY = "test_key"), {
+    drv <- AnthropicDriver$new()
+
+    mock_error <- function(req) {
+      stop("Could not resolve host: api.anthropic.com")
+    }
+
+    httr2::with_mocked_responses(
+      mock_error,
+      {
+        expect_error(drv$call("Hello"), "Anthropic API request failed: Could not resolve host")
+      }
+    )
+  })
+})
+
+test_that("GeminiAPIDriver handles network failures gracefully", {
+  withr::with_envvar(list(GOOGLE_API_KEY = "test_key"), {
+    drv <- GeminiAPIDriver$new()
+
+    mock_error <- function(req) {
+      stop("Could not resolve host: generativelanguage.googleapis.com")
+    }
+
+    httr2::with_mocked_responses(
+      mock_error,
+      {
+        expect_error(drv$call("Hello"), "Gemini API request failed: Could not resolve host")
+      }
+    )
+  })
+})
+
 # <!-- APAF Bioinformatics | test-drivers_api.R | Approved | 2026-03-29 -->
