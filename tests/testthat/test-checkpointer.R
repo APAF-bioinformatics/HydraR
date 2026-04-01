@@ -60,6 +60,8 @@ test_that("RDSSaver checkpointer works and creates files", {
 })
 
 test_that("DuckDBSaver checkpointer works and creates db file", {
+  skip_if_not_installed("duckdb")
+
   tmp_db <- tempfile(fileext = ".db")
   saver <- DuckDBSaver$new(db_path = tmp_db)
 
