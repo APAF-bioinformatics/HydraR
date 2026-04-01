@@ -53,9 +53,11 @@ test_that("Gemini CLI: 2-node fruit translation pipeline", {
   fruit <- res$state$get("fruit_name")
   french <- res$state$get("french_name")
   expect_true(is.character(fruit) && nzchar(fruit),
-              info = sprintf("fruit_name was: '%s'", paste(fruit, collapse = "")))
+    info = sprintf("fruit_name was: '%s'", paste(fruit, collapse = ""))
+  )
   expect_true(is.character(french) && nzchar(french),
-              info = sprintf("french_name was: '%s'", paste(french, collapse = "")))
+    info = sprintf("french_name was: '%s'", paste(french, collapse = ""))
+  )
 
   cat(sprintf("[Real-world] %s -> %s\n", fruit, french))
 })
