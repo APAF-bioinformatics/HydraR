@@ -20,6 +20,15 @@ bug_logic_registry <- list(
     Tester = function(state, params) {
       patch <- state$get("Analyzer")
 
+      # 2. Extract code block
+      if (grepl("```r", patch, ignore.case = TRUE)) {
+        patch <- strsplit(patch, "```[rR]\n")[[1]][2]
+        patch <- strsplit(patch, "\n```")[[1]][1]
+      } else if (grepl("```", patch)) {
+        patch <- strsplit(patch, "```\n")[[1]][2]
+        patch <- strsplit(patch, "\n```")[[1]][1]
+      }
+
       # Mock evaluation logic: In our scenario, the fix must use is.null().
       if (grepl("is.null", patch, fixed = TRUE)) {
         list(status = "SUCCESS", output = list(
