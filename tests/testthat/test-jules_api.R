@@ -153,6 +153,7 @@ test_that("AgentJulesNode correctly polls and returns result", {
 
 test_that("AgentJulesNode fails gracefully if no API key", {
   withr::with_envvar(list(GOOGLE_API_KEY = "", JULES_API_KEY = ""), {
+    # Check if we need required arguments or if dummy ones suffice
     node <- AgentJulesNode$new(id = "jules_fail", prompt = "Fix", timeout = 1, source = "sources/dummy", branch = "main")
     res <- node$run(AgentState$new())
     expect_equal(res$status, "failed")
