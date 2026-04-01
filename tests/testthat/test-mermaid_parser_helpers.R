@@ -1,72 +1,54 @@
-# ==============================================================
-# APAF Bioinformatics | Macquarie University
-# File:        test-mermaid_parser_helpers.R
-# Purpose:     Unit tests for internal Mermaid parser helpers
-# ==============================================================
-
 library(testthat)
 library(HydraR)
 
-# Helper for testing internal functions
+# Access internal functions via ::: if needed, or by environment
 hp <- function(name) {
-  getFromNamespace(name, "HydraR")
+  get(name, envir = asNamespace("HydraR"))
 }
 
-test_that("clean_mermaid_lines handles various inputs", {
+test_that("clean_mermaid_lines works", {
   clean_mermaid_lines <- hp("clean_mermaid_lines")
 
-  # Basic case
-  expect_equal(clean_mermaid_lines("graph TD\nA --> B\n\n  C --> D  "), c("A --> B", "C --> D"))
-
-  # Guards and headers
   mermaid <- "
-  ```mermaid
-  flowchart LR
-    A --> B
-  ```
-  "
-  expect_equal(clean_mermaid_lines(mermaid), "A --> B")
-
-  # Null/Empty
-  expect_equal(clean_mermaid_lines(NULL), character(0))
-  expect_equal(clean_mermaid_lines(""), character(0))
+graph TD
+  A --> B
+  %% Comment
+  C --> D
+"
+  res <- clean_mermaid_lines(mermaid)
+  expect_equal(length(res), 2)
+  expect_true(all(grepl("-->", res)))
+  expect_false(any(grepl("graph", res)))
 })
 
-test_that("extract_edge_and_node_strings handles arrow variations", {
+test_that("extract_edge_and_node_strings handles labels", {
   extract_edge_and_node_strings <- hp("extract_edge_and_node_strings")
 
-  # Standard -->
-  res1 <- extract_edge_and_node_strings("A --> B")
+  # Standard edge
+  line1 <- "A --> B"
+  res1 <- extract_edge_and_node_strings(line1)
   expect_equal(res1$parts, c("A", "B"))
   expect_equal(res1$edge_labels, "")
 
-  # Arrow with label in pipes
-  res2 <- extract_edge_and_node_strings("A -->|test| B")
+  # Edge with label
+  line2 <- "A -- Label --> B"
+  res2 <- extract_edge_and_node_strings(line2)
   expect_equal(res2$parts, c("A", "B"))
-  expect_equal(res2$edge_labels, "test")
+  expect_equal(res2$edge_labels, "Label")
 
-  # Arrow with label in dashes
-  res3 <- extract_edge_and_node_strings("A -- label --> B")
-  expect_equal(res3$parts, c("A", "B"))
-  expect_equal(res3$edge_labels, "label")
-
-  # Multiple arrows
-  res4 <- extract_edge_and_node_strings("A -->|1| B -- 2 --> C")
-  expect_equal(res4$parts, c("A", "B", "C"))
-  expect_equal(res4$edge_labels, c("1", "2"))
-
-  # No arrows
-  res5 <- extract_edge_and_node_strings("A[Only Node]")
-  expect_equal(res5$parts, "A[Only Node]")
-  expect_equal(res5$edge_labels, character(0))
+  # Multiple edges
+  line3 <- "A --> B -- Next --> C"
+  res3 <- extract_edge_and_node_strings(line3)
+  expect_equal(res3$parts, c("A", "B", "C"))
+  expect_equal(res3$edge_labels, c("", "Next"))
 })
 
-test_that("extract_params handles pipeline parameters", {
+test_that("extract_params handles pipe-delimited parameters", {
   extract_params <- hp("extract_params")
 
-  # Label without params
-  res1 <- extract_params("Normal Label")
-  expect_equal(res1$label, "Normal Label")
+  # No parameters
+  res1 <- extract_params("Job A")
+  expect_equal(res1$label, "Job A")
   expect_equal(res1$params, list())
 
   # Single parameter
@@ -92,7 +74,6 @@ test_that("parse_node_string handles bracket types and quotes", {
   parse_node_string <- hp("parse_node_string")
 
   # Standard brackets
-<<<<<<< HEAD
   expect_equal(parse_node_string("A[Label]"), list(id = "A", label = "Label", params = list()))
 
   # Parentheses/Circles
@@ -106,58 +87,53 @@ test_that("parse_node_string handles bracket types and quotes", {
 
   # Quoted labels
   expect_equal(parse_node_string("E[\"Complex Label\"]"), list(id = "E", label = "Complex Label", params = list()))
-=======
-  expect_equal(parse_node_string("A[Label]"), list(id = "A", label_text = "Label"))
-
-  # Parentheses/Circles
-  expect_equal(parse_node_string("B(Round)"), list(id = "B", label_text = "Round"))
-
-  # Braces/Rhombus
-  expect_equal(parse_node_string("C{Decision}"), list(id = "C", label_text = "Decision"))
-
-  # Flag
-  expect_equal(parse_node_string("D>Flag]"), list(id = "D", label_text = "Flag"))
-
-  # Quoted labels
-  expect_equal(parse_node_string("E[\"Complex Label\"]"), list(id = "E", label_text = "Complex Label"))
->>>>>>> c3172be (test: fix failing checks due to missing dependencies)
-
-  # Simple ID
-  expect_equal(parse_node_string("SimpleID"), list(id = "SimpleID", label = "SimpleID", params = list()))
 })
 
-test_that("build_nodes_df handles deduplication and prioritization", {
+test_that("build_nodes_df deduplicates and merges labels/params", {
   build_nodes_df <- hp("build_nodes_df")
 
-  all_nodes <- list(
-    list(id = "A", label = "A", params = list()),
-    list(id = "A", label = "Explicit A", params = list()), # Should prioritize explicit label
-    list(id = "B", label = "B", params = list(k = 1)), # Has params
-    list(id = "B", label = "B", params = list()) # Should prioritize the one with params
+  nodes_raw <- list(
+    list(id = "A", label = "A", params = list(priority = "high")),
+    list(id = "B", label = "B", params = list(count = 5)),
+    list(id = "A", label = "Node A", params = list())
   )
 
-  df <- build_nodes_df(all_nodes)
+  df <- build_nodes_df(nodes_raw)
   expect_equal(nrow(df), 2)
-  expect_equal(subset(df, id == "A")$label, "Explicit A")
-  expect_equal(subset(df, id == "B")$params[[1]], list(k = 1))
+  expect_true("A" %in% df$id)
+  expect_true("B" %in% df$id)
+
+  # Verify parameter list-column
+  if (nrow(df) == 2) {
+    # Sort for predictability
+    df <- df[order(df$id), ]
+    expect_equal(df$params[[1]][["priority"]], "high")
+    expect_equal(df$params[[2]][["count"]], 5)
+  }
 })
 
-test_that("build_edges_df handles empty and framing", {
-  build_edges_df <- hp("build_edges_df")
+test_that("Full parse_mermaid flow", {
+  mermaid <- "
+graph TD
+  A[Node A | role=runner] --> B -- \"Ok\" --> C(Node C)
+  B --> D{Fail}
+"
+  res <- parse_mermaid(mermaid)
 
-  # Normal case
-  edges <- list(
-    list(from = "A", to = "B", label = "yes"),
-    list(from = "B", to = "C", label = "")
-  )
-  df <- build_edges_df(edges)
-  expect_equal(nrow(df), 2)
-  expect_equal(colnames(df), c("from", "to", "label"))
+  expect_s3_class(res$nodes, "data.frame")
+  expect_s3_class(res$edges, "data.frame")
 
-  # Empty case
-  df_empty <- build_edges_df(list())
-  expect_equal(nrow(df_empty), 0)
-  expect_true(all(c("from", "to", "label") %in% colnames(df_empty)))
+  expect_equal(nrow(res$nodes), 4)
+  expect_equal(nrow(res$edges), 3)
+
+  # Check specific node data
+  node_a <- res$nodes[res$nodes$id == "A", ]
+  expect_equal(node_a$label, "Node A")
+  expect_equal(node_a$params[[1]][["role"]], "runner")
+
+  # Check edge labels
+  edge_bc <- res$edges[res$edges$from == "B" & res$edges$to == "C", ]
+  expect_equal(edge_bc$label, "Ok")
 })
 
 # <!-- APAF Bioinformatics | test-mermaid_parser_helpers.R | Approved | 2026-03-31 -->

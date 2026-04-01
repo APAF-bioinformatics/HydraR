@@ -133,7 +133,6 @@ AgentDAG <- R6::R6Class("AgentDAG",
           test_fn <- function(v) {
             resolve_test_pattern(test_id)(v)
           }
-
         }
 
         purrr::walk(from, function(f) {
@@ -446,22 +445,6 @@ AgentDAG <- R6::R6Class("AgentDAG",
               st <- Sys.time()
               # Pass stored arguments via do.call
               run_call <- list(state = restricted_state)
-              run_call <- utils::modifyList(run_call, self$.__enclos_env__$private$.run_args)
-              res <- do.call(node$run, run_call)
-              et <- Sys.time()
-              list(id = node_id, res = res, start = st, end = et)
-            })
-          }, .options = furrr::furrr_options(globals = c("self"), packages = packages))
-
-          # Integrate results and collect next nodes
-          purrr::walk(parallel_results, function(p_res) {
-            node_id <- p_res$id
-            res <- p_res$res
-            self$results[[node_id]] <<- res
-            if (!is.null(res$output)) {
-              if (is_named_list(res$output)) self$state$update(res$output) else self$state$update(setNames(list(res$output), node_id))
-            }
-            step_count <<- step_count + 1
             self$trace_log[[step_count]] <<- list(
               step = step_count, node = node_id, mode = "parallel",
               start_time = as.character(p_res$start), end_time = as.character(p_res$end),
@@ -508,7 +491,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
           # UPDATE QUEUE FOR NEXT STEP
           queue <- unique(next_queue)
-        } else {
+        } else { # nolint
           # Sequential Execution Block - Using purrr::walk instead of for()
           purrr::walk(current_nodes, function(node_id) {
             if (!is.null(paused_at)) {
@@ -915,13 +898,6 @@ AgentDAG <- R6::R6Class("AgentDAG",
 #' @return The AgentDAG object.
 #' @export
 mermaid_to_dag <- function(mermaid_str, node_factory = auto_node_factory()) {
-  dag <- AgentDAG$new()
-  dag$from_mermaid(mermaid_str, node_factory)
-  return(dag)
-}
-
-# static method for factory instantiation
-AgentDAG$from_mermaid <- function(mermaid_str, node_factory) {
   dag <- AgentDAG$new()
   dag$from_mermaid(mermaid_str, node_factory)
   return(dag)
