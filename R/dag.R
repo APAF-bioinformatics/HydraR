@@ -863,7 +863,6 @@ AgentDAG <- R6::R6Class("AgentDAG",
             return(NULL)
           }
           do.call(rbind, df_list)
-
         }) |>
           purrr::compact() |>
           purrr::list_rbind()

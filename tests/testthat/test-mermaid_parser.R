@@ -135,7 +135,9 @@ test_that("Regex Flowchart Parser extracts nodes and edges", {
   # Check labels
   get_label <- function(nodes, target_id) {
     for (n in nodes) {
-      if (identical(n$id, target_id)) return(n$label)
+      if (identical(n$id, target_id)) {
+        return(n$label)
+      }
     }
     return(NULL)
   }
