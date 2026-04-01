@@ -130,7 +130,10 @@ AgentDAG <- R6::R6Class("AgentDAG",
           test_id <- gsub("^test:", "", l_clean)
           # We use a lazy resolver since we are during build/parsing
           # resolve_test_pattern is in registry.R
-          test_fn <- resolve_test_pattern(test_id)
+          test_fn <- function(v) {
+            resolve_test_pattern(test_id)(v)
+          }
+
         }
 
         purrr::walk(from, function(f) {
