@@ -83,7 +83,10 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
           DBI::dbExecute(con, "INSTALL json")
           DBI::dbExecute(con, "LOAD json")
         },
-        error = function(e) NULL
+        error = function(e) {
+          # Silently ignore autoload failures in offline environments; duckdb might have it built-in or fall back safely
+          NULL
+        }
       )
 
       DBI::dbExecute(con, "

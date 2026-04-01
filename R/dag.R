@@ -611,7 +611,19 @@ AgentDAG <- R6::R6Class("AgentDAG",
       self$state$set("__results__", self$results)
       self$state$set("__trace_log__", self$trace_log)
       if (!is.null(checkpointer)) checkpointer$put(thread_id, self$state)
-      return(list(results = self$results, state = self$state, status = if (!is.null(paused_at) || length(current_nodes) > 0) "paused" else "completed", paused_at = paused_at))
+
+      final_status <- if (!is.null(paused_at) || length(current_nodes) > 0) {
+        "paused"
+      } else {
+        "completed"
+      }
+
+      return(list(
+        results = self$results,
+        state = self$state,
+        status = final_status,
+        paused_at = paused_at
+      ))
     },
 
     #' @param type String. Type of plot (currently only "mermaid").
