@@ -82,6 +82,7 @@ test_that("extract_params handles pipeline parameters", {
   expect_null(res3$params[["meta"]])
   expect_true(is.na(res3$params[["flag"]]))
 
+
   # Case insensitivity for bools/null
   res4 <- extract_params("Node | bit=FALSE | ref=NULL")
   expect_equal(res4$params[["bit"]], FALSE)
