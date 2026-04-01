@@ -39,6 +39,12 @@ test_that("MemoryMessageLog works as a volatile fallback", {
 test_that("DuckDBMessageLog schema initialization works", {
   # Mock DuckDB test
   skip_if_not_installed("duckdb")
+  # DuckDB json extension might not be available in CI environments
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = ":memory:")
+  res <- tryCatch(DBI::dbExecute(con, "INSTALL json"), error = function(e) FALSE)
+  DBI::dbDisconnect(con, shutdown = TRUE)
+  skip_if(isFALSE(res), "DuckDB json extension could not be installed/loaded")
+
   db_path <- tempfile(fileext = ".duckdb")
   on.exit(if (file.exists(db_path)) unlink(db_path))
 
