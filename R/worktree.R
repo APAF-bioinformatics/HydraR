@@ -61,6 +61,24 @@ WorktreeManager <- R6::R6Class("WorktreeManager",
       }
     },
 
+    #' Validate a branch name
+    #' @param branch String. The branch name to validate.
+    #' @return Logical or error.
+    validate_branch_name = function(branch) {
+      # Basic git branch name safety
+      # Must not start with '-' to prevent flag injection
+      if (grepl("^-", branch)) {
+        stop(sprintf("Invalid branch name '%s': Cannot start with a hyphen.", branch))
+      }
+
+      # Restrict to safe characters (alphanumeric, -, _, /, .)
+      if (!grepl("^[A-Za-z0-9_./-]+$", branch)) {
+        stop(sprintf("Invalid branch name '%s': Contains illegal characters.", branch))
+      }
+
+      return(TRUE)
+    },
+
     #' Create an Isolated Worktree
     #' @param node_id String. Identifier for the DAG node.
     #' @param branch_name Optional specific branch name.
@@ -79,6 +97,9 @@ WorktreeManager <- R6::R6Class("WorktreeManager",
         tid <- self$thread_id %||% "default"
         branch <- paste0(self$branch_prefix, "/", tid, "/", node_id, "-", hash)
       }
+
+      # Security check on the branch name
+      self$validate_branch_name(branch)
 
       wt_path <- file.path(self$repo_root, ".hydra_worktrees", gsub("/", "_", branch))
 
@@ -132,6 +153,15 @@ WorktreeManager <- R6::R6Class("WorktreeManager",
         return(invisible(FALSE))
       }
 
+      # Extract the branch name or relative path to validate
+      # Normally wt$branch is present, but let's be safe.
+      if (!is.null(wt$branch)) {
+        self$validate_branch_name(wt$branch)
+      } else {
+        # Fallback to validating the last segment of the path just in case
+        self$validate_branch_name(basename(wt$path))
+      }
+
       args <- c("worktree", "remove")
       if (force) args <- c(args, "--force")
       args <- c(args, shQuote(wt$path))
@@ -161,6 +191,8 @@ WorktreeManager <- R6::R6Class("WorktreeManager",
       if (is.null(wt)) {
         return(invisible(FALSE))
       }
+
+      self$validate_branch_name(wt$branch)
 
       # Attempt to delete the branch (cleanup)
       system2("git", c("-C", shQuote(self$repo_root), "branch", "-D", shQuote(wt$branch)),
@@ -230,6 +262,7 @@ WorktreeManager <- R6::R6Class("WorktreeManager",
     #' @param branch String.
     #' @return Logical.
     branch_exists = function(branch) {
+      self$validate_branch_name(branch)
       res <- system2("git", c(
         "-C", shQuote(self$repo_root),
         "rev-parse", "--verify", shQuote(branch)
