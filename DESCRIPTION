@@ -66,6 +66,7 @@ Collate:
     'drivers_api.R'
     'drivers_cli.R'
     'factory.R'
+    'git_cleanup.R'
     'jules_client.R'
     'logic_node.R'
     'map_node.R'
