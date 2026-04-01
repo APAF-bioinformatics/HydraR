@@ -146,7 +146,7 @@ test_that("Worktree cleanup ignores busy directories gracefully", {
   withr::with_dir(wt_path, {
     con <- file("lock.txt", "w")
     on.exit(close(con), add = TRUE)
-    
+
     # Attempt cleanup while directory is busy
     # This shouldn't throw an error
     expect_error(manager$cleanup(), NA)
