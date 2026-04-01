@@ -18,6 +18,7 @@ test_that("extract_r_code_advanced correctly extracts R code blocks", {
 })
 
 test_that("GeminiCLIDriver invokes gemini CLI and captures output", {
+  skip_on_os("windows")
   withr::with_tempdir({
     # Create fake gemini executable
     fake_cli <- file.path(getwd(), "gemini")
@@ -45,6 +46,7 @@ test_that("GeminiCLIDriver invokes gemini CLI and captures output", {
 })
 
 test_that("OllamaDriver invokes ollama CLI via stdin", {
+  skip_on_os("windows")
   withr::with_tempdir({
     fake_cli <- file.path(getwd(), "ollama")
     cli_script <- c(

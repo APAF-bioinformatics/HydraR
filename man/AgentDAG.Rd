@@ -32,6 +32,8 @@ dag$compile()
 
 \item{\code{conditional_edges}}{List. Conditional transition logic.}
 
+\item{\code{error_edges}}{List. Failover transition logic.}
+
 \item{\code{results}}{List. Execution results for each node.}
 
 \item{\code{trace_log}}{List. Execution telemetry and tracing.}
@@ -56,6 +58,7 @@ dag$compile()
 \item \href{#method-AgentDAG-add_node}{\code{AgentDAG$add_node()}}
 \item \href{#method-AgentDAG-add_edge}{\code{AgentDAG$add_edge()}}
 \item \href{#method-AgentDAG-add_conditional_edge}{\code{AgentDAG$add_conditional_edge()}}
+\item \href{#method-AgentDAG-add_error_edge}{\code{AgentDAG$add_error_edge()}}
 \item \href{#method-AgentDAG-run}{\code{AgentDAG$run()}}
 \item \href{#method-AgentDAG-.run_linear}{\code{AgentDAG$.run_linear()}}
 \item \href{#method-AgentDAG-.run_iterative}{\code{AgentDAG$.run_iterative()}}
@@ -148,7 +151,12 @@ Add a Conditional Edge (Loop Support)
 \if{latex}{\out{\hypertarget{method-AgentDAG-add_conditional_edge}{}}}
 \subsection{Method \code{add_conditional_edge()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AgentDAG$add_conditional_edge(from, test, if_true, if_false = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{AgentDAG$add_conditional_edge(
+  from,
+  test = NULL,
+  if_true = NULL,
+  if_false = NULL
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -158,12 +166,34 @@ Add a Conditional Edge (Loop Support)
 
 \item{\code{test}}{Function(output) -> Logical.}
 
-\item{\code{if_true}}{String node ID (next node if test is TRUE) or NULL to stop.}
+\item{\code{if_true}}{String node ID (next node if test is TRUE) or NULL.}
 
-\item{\code{if_false}}{String node ID (next node if test is FALSE) or NULL to stop.
-Run the Graph}
+\item{\code{if_false}}{String node ID (next node if test is FALSE) or NULL.
+Add an Error Edge (Failover Support)}
 }
 \if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AgentDAG-add_error_edge"></a>}}
+\if{latex}{\out{\hypertarget{method-AgentDAG-add_error_edge}{}}}
+\subsection{Method \code{add_error_edge()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{AgentDAG$add_error_edge(from, to)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{from}}{String node ID.}
+
+\item{\code{to}}{String node ID.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The AgentDAG object (invisibly).
+Run the Graph
 }
 }
 \if{html}{\out{<hr>}}

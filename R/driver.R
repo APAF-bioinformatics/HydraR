@@ -75,6 +75,7 @@ AgentDriver <- R6::R6Class("AgentDriver",
     #' @param ... Additional arguments passed to system2.
     #' @return Result of system2 call.
     exec_in_dir = function(command, args, ...) {
+      args <- shQuote(args)
       res <- if (!is.null(self$working_dir)) {
         withr::with_dir(self$working_dir, {
           system2(command, args, ...)
@@ -138,6 +139,19 @@ AgentDriver <- R6::R6Class("AgentDriver",
       stop("Abstract Method: call() must be implemented by subclass.")
     },
 
+    #' Validate No Command Injection
+    #' @description Portably prevents command injection by rejecting inputs
+    #' with shell metacharacters.
+    #' @param x String or character vector.
+    #' @return The original string invisibly, or throws an error.
+    validate_no_injection = function(x) {
+      # Match shell metacharacters: ; & | < > $ ` ( ) \n
+      if (any(grepl("[;&|<>$`()\n]", x))) {
+        stop(sprintf("[%s] Potential command injection detected in argument: %s", self$id, paste(x, collapse = " ")))
+      }
+      invisible(x)
+    },
+
     #' Validate CLI Options
     #' @param cli_opts List. Named list to validate.
     #' @return Invisible TRUE if valid.
@@ -155,6 +169,16 @@ AgentDriver <- R6::R6Class("AgentDriver",
         if (self$validation_mode == "strict") stop(msg)
         warning(msg)
       }
+
+      # Security check: Ensure no shell metacharacters in CLI values
+      # Note: We don't check 'prompt' here because prompt is often passed
+      # via stdin, but if Copilot passes it via CLI arg, it needs careful handling.
+      purrr::walk(names(cli_opts), function(key) {
+        if (key != "prompt") {
+          self$validate_no_injection(cli_opts[[key]])
+        }
+      })
+
       invisible(TRUE)
     },
 
@@ -179,7 +203,7 @@ AgentDriver <- R6::R6Class("AgentDriver",
         # Multi-value flags: repeat the flag name for each value
         if (length(val) > 1) {
           # Return nested list and unlist later
-          return(as.character(rbind(flag, val)))
+          return(as.character(rbind(flag, as.character(val))))
         }
         # Standard key-value pairs
         return(c(flag, as.character(val)))
