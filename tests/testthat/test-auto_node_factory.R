@@ -312,9 +312,9 @@ test_that("Full Mermaid-to-DAG pipeline with auto_node_factory works", {
   expect_true(inherits(dag$nodes$validator, "AgentLogicNode"))
 
   # Verify params are preserved
-  expect_equal(dag$nodes$agent$params$type, "llm")
-  expect_equal(dag$nodes$agent$params$role_id, "e2e_role")
-  expect_equal(dag$nodes$validator$params$logic_id, "e2e_logic")
+  expect_equal(dag$nodes$agent$params[["type"]], "llm")
+  expect_equal(dag$nodes$agent$params[["role_id"]], "e2e_role")
+  expect_equal(dag$nodes$validator$params[["logic_id"]], "e2e_logic")
 
   # Compilation should succeed
   expect_no_error(dag$compile())
@@ -368,8 +368,8 @@ test_that("Mermaid params like output_format and output_path are preserved", {
   dag <- mermaid_to_dag(mermaid_src, factory_fn)
 
   node <- dag$nodes$coder
-  expect_equal(node$params$output_format, "r")
-  expect_equal(node$params$output_path, "output.R")
+  expect_equal(node$params[["output_format"]], "r")
+  expect_equal(node$params[["output_path"]], "output.R")
 })
 
 # ==================================================================

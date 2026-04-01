@@ -153,7 +153,7 @@ result <- dag$run(
 # Mermaid: Consultant[Expert | driver=gemini]
 
 node_factory <- function(id, label, params) {
-  driver_obj <- if (isTRUE(params$driver == "gemini")) GeminiCLIDriver$new() else NULL
+  driver_obj <- if (isTRUE(params[["driver"]] == "gemini")) GeminiCLIDriver$new() else NULL
   
   AgentLLMNode$new(
     id = id,

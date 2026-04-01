@@ -45,7 +45,7 @@ knitr::opts_chunk$set(
 #     create_merge_harmonizer(id = id)
 #   } else {
 #     # Resolve standard LLM nodes
-#     driver_obj <- if (!is.null(params$driver) && params$driver == "gemini") GeminiCLIDriver$new() else NULL
+#     driver_obj <- if (!is.null(params[["driver"]]) && params[["driver"]] == "gemini") GeminiCLIDriver$new() else NULL
 # 
 #     AgentLLMNode$new(
 #       id = id,
