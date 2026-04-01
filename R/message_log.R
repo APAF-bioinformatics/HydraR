@@ -78,12 +78,17 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
       con <- DBI::dbConnect(duckdb::duckdb(), self$db_path)
       on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
 
+      tryCatch({
+        DBI::dbExecute(con, "INSTALL json")
+        DBI::dbExecute(con, "LOAD json")
+      }, error = function(e) NULL)
+
       DBI::dbExecute(con, "
         CREATE TABLE IF NOT EXISTS agent_messages (
           sender VARCHAR,
           recipient VARCHAR,
           timestamp TIMESTAMP,
-          content_json JSON
+          content_json VARCHAR
         )
       ")
 
@@ -106,6 +111,11 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
       }
       con <- DBI::dbConnect(duckdb::duckdb(), self$db_path, read_only = TRUE)
       on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
+
+      tryCatch({
+        DBI::dbExecute(con, "INSTALL json")
+        DBI::dbExecute(con, "LOAD json")
+      }, error = function(e) NULL)
 
       if (!DBI::dbExistsTable(con, "agent_messages")) {
         return(list())

@@ -7,11 +7,11 @@ test_that("cleanup_jules_branches handles dry run securely", {
 
   # Skip if not in a git repo (e.g. during devtools::check())
   repo <- getwd()
-  is_git <- system2("git", c("-C", shQuote(repo), "rev-parse", "--is-inside-work-tree"), stdout = FALSE, stderr = FALSE) == 0
+  is_git <- system2("git", c("-C", repo, "rev-parse", "--is-inside-work-tree"), stdout = FALSE, stderr = FALSE) == 0
   skip_if_not(is_git, "Not in a git repository")
 
   # Also skip if git fetch fails (e.g. R CMD check inside a sub-folder where remote is not accessible)
-  can_fetch <- system2("git", c("-C", shQuote(repo), "fetch", "--all", "--prune"), stdout = FALSE, stderr = FALSE) == 0
+  can_fetch <- system2("git", c("-C", repo, "fetch", "--all", "--prune"), stdout = FALSE, stderr = FALSE) == 0
   skip_if_not(can_fetch, "Cannot fetch from remote repository")
 
   # Ensure it doesn't crash and identifies main as protected
