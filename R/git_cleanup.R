@@ -56,7 +56,16 @@ cleanup_jules_branches <- function(repo_root = getwd(),
 
   to_delete <- purrr::map_lgl(branches, function(b) {
     # Get last commit details: author email and timestamp (Unix)
-    log_info <- system2("git", c("-C", shQuote(repo_root), "log", "-n", "1", "--format=%ae|%ct", shQuote(paste0("origin/", b))), stdout = TRUE)
+    # Avoid % in arguments for cross-platform compatibility by using separate fields or git show
+    author_email <- system2("git", c("-C", shQuote(repo_root), "log", "-1", "--format=%ae", shQuote(paste0("origin/", b))), stdout = TRUE)
+    last_commit_ts <- system2("git", c("-C", shQuote(repo_root), "log", "-1", "--format=%ct", shQuote(paste0("origin/", b))), stdout = TRUE)
+
+    if (length(author_email) == 0 || length(last_commit_ts) == 0) {
+      return(FALSE)
+    }
+
+    # We combine them back to keep logic same
+    log_info <- paste0(author_email, "|", last_commit_ts)
 
     if (length(log_info) == 0) {
       return(FALSE)
