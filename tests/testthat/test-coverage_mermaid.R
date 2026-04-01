@@ -35,8 +35,8 @@ test_that("parse_mermaid extracts parameters from labels", {
   "
   res <- parse_mermaid(mermaid)
   params <- res$nodes$params[[1]]
-  expect_equal(params$role, "planner")
-  expect_equal(params$model, "gpt4")
+  expect_equal(params[["role"]], "planner")
+  expect_equal(params[["model"]], "gpt4")
   expect_equal(res$nodes$label[1], "My Agent")
 })
 

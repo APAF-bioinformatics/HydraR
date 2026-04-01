@@ -69,7 +69,6 @@ OpenAIDriver <- R6::R6Class("OpenAIDriver",
             stop(sprintf("OpenAI API request failed: %s", e$message))
           }
         )
-
         cont <- httr2::resp_body_json(resp)
 
         return(extract_r_code_advanced(cont$choices[[1]]$message$content))
@@ -146,7 +145,6 @@ AnthropicDriver <- R6::R6Class("AnthropicDriver",
             stop(sprintf("Anthropic API request failed: %s", e$message))
           }
         )
-
         cont <- httr2::resp_body_json(resp)
 
         return(extract_r_code_advanced(cont$content[[1]]$text))
@@ -218,7 +216,6 @@ GeminiAPIDriver <- R6::R6Class("GeminiAPIDriver",
             stop(sprintf("Gemini API request failed: %s", e$message))
           }
         )
-
         cont <- httr2::resp_body_json(resp)
 
         return(extract_r_code_advanced(cont$candidates[[1]]$content$parts[[1]]$text))

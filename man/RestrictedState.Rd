@@ -14,6 +14,8 @@ Implements "True Privacy" for inter-agent communication.
 
 \item{\code{node_id}}{String. The ID of the currently executing node.}
 
+\item{\code{read_only}}{Logical. If TRUE, set() and update() are blocked.}
+
 \item{\code{logger}}{MessageLog. Audit log for communication.
 Initialize RestrictedState}
 }
@@ -38,7 +40,7 @@ Initialize RestrictedState}
 \if{latex}{\out{\hypertarget{method-RestrictedState-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{RestrictedState$new(state, node_id, logger = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{RestrictedState$new(state, node_id, logger = NULL, read_only = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -48,7 +50,9 @@ Initialize RestrictedState}
 
 \item{\code{node_id}}{String node ID.}
 
-\item{\code{logger}}{Optional MessageLog object.
+\item{\code{logger}}{Optional MessageLog object.}
+
+\item{\code{read_only}}{Logical. If TRUE, blocks all write operations.
 Restricted Get}
 }
 \if{html}{\out{</div>}}

@@ -44,6 +44,9 @@ GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
     #' @return String. Cleaned result.
     call = function(prompt, model = NULL, cli_opts = list(), ...) {
       target_model <- if (!is.null(model)) model else self$model
+      if (!is.null(target_model)) {
+        self$validate_no_injection(target_model)
+      }
 
       # Ensure model is in cli_opts if provided
       if (!is.null(target_model) && !"model" %in% names(cli_opts)) {
@@ -73,12 +76,14 @@ GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
       }
 
       # Use system2 with explicit stdout/stderr files to avoid interleaving and capture status
+      gemini_args <- c("-p", "-", formatted_opts)
+      gemini_args <- shQuote(gemini_args)
       exit_code <- if (!is.null(exec_dir)) {
         withr::with_dir(exec_dir, {
-          system2(cmd, args = c("-p", "-", formatted_opts), stdin = tmp_prompt, stdout = tmp_stdout, stderr = tmp_stderr)
+          system2(cmd, args = gemini_args, stdin = tmp_prompt, stdout = tmp_stdout, stderr = tmp_stderr)
         })
       } else {
-        system2(cmd, args = c("-p", "-", formatted_opts), stdin = tmp_prompt, stdout = tmp_stdout, stderr = tmp_stderr)
+        system2(cmd, args = gemini_args, stdin = tmp_prompt, stdout = tmp_stdout, stderr = tmp_stderr)
       }
 
       # Read results
@@ -154,6 +159,9 @@ OllamaDriver <- R6::R6Class("OllamaDriver",
     #' @return String. Cleaned result.
     call = function(prompt, model = NULL, cli_opts = list(), ...) {
       target_model <- if (!is.null(model)) model else self$model
+      if (!is.null(target_model)) {
+        self$validate_no_injection(target_model)
+      }
       formatted_opts <- self$format_cli_opts(cli_opts)
 
       tmp_prompt <- tempfile(pattern = "ollama_prompt_", fileext = ".txt")
@@ -216,6 +224,9 @@ ClaudeCodeDriver <- R6::R6Class("ClaudeCodeDriver",
     #' @return String. Cleaned result.
     call = function(prompt, model = NULL, cli_opts = list(), ...) {
       target_model <- if (!is.null(model)) model else self$model
+      if (!is.null(target_model)) {
+        self$validate_no_injection(target_model)
+      }
 
       if (!is.null(target_model) && !"model" %in% names(cli_opts)) {
         cli_opts$model <- target_model
@@ -287,10 +298,17 @@ CopilotCLIDriver <- R6::R6Class("CopilotCLIDriver",
     #' @return String. Cleaned result.
     call = function(prompt, type = NULL, cli_opts = list(), ...) {
       target_type <- if (!is.null(type)) type else self$type
+      if (!is.null(target_type)) {
+        self$validate_no_injection(target_type)
+      }
 
       # Copilot CLI often uses --prompt for non-interactive
       if (!"prompt" %in% names(cli_opts)) {
         cli_opts$prompt <- prompt
+      }
+
+      if ("prompt" %in% names(cli_opts)) {
+        cli_opts$prompt <- shQuote(cli_opts$prompt)
       }
 
       formatted_opts <- self$format_cli_opts(cli_opts)
