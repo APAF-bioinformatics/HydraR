@@ -82,7 +82,6 @@ test_that("extract_params handles pipeline parameters", {
   expect_null(res3$params[["meta"]])
   expect_true(is.na(res3$params[["flag"]]))
 
-
   # Case insensitivity for bools/null
   res4 <- extract_params("Node | bit=FALSE | ref=NULL")
   expect_equal(res4$params[["bit"]], FALSE)
@@ -93,6 +92,7 @@ test_that("parse_node_string handles bracket types and quotes", {
   parse_node_string <- hp("parse_node_string")
 
   # Standard brackets
+<<<<<<< HEAD
   expect_equal(parse_node_string("A[Label]"), list(id = "A", label = "Label", params = list()))
 
   # Parentheses/Circles
@@ -106,6 +106,21 @@ test_that("parse_node_string handles bracket types and quotes", {
 
   # Quoted labels
   expect_equal(parse_node_string("E[\"Complex Label\"]"), list(id = "E", label = "Complex Label", params = list()))
+=======
+  expect_equal(parse_node_string("A[Label]"), list(id = "A", label_text = "Label"))
+
+  # Parentheses/Circles
+  expect_equal(parse_node_string("B(Round)"), list(id = "B", label_text = "Round"))
+
+  # Braces/Rhombus
+  expect_equal(parse_node_string("C{Decision}"), list(id = "C", label_text = "Decision"))
+
+  # Flag
+  expect_equal(parse_node_string("D>Flag]"), list(id = "D", label_text = "Flag"))
+
+  # Quoted labels
+  expect_equal(parse_node_string("E[\"Complex Label\"]"), list(id = "E", label_text = "Complex Label"))
+>>>>>>> c3172be (test: fix failing checks due to missing dependencies)
 
   # Simple ID
   expect_equal(parse_node_string("SimpleID"), list(id = "SimpleID", label = "SimpleID", params = list()))
