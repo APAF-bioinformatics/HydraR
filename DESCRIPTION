@@ -69,7 +69,6 @@ Collate:
     'jules_client.R'
     'logic_node.R'
     'map_node.R'
-
     'merge_harmonizer.R'
     'mermaid_parser.R'
     'message_log.R'
