@@ -79,15 +79,12 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
       on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
 
       # Use tryCatch for JSON extension loading which might fail on restricted environments like CI
-      tryCatch(
-        {
-          DBI::dbExecute(con, "INSTALL json")
-          DBI::dbExecute(con, "LOAD json")
-        },
-        error = function(e) {
-          warning(sprintf("Could not install/load DuckDB json extension. It may not be available: %s", e$message))
-        }
-      )
+      tryCatch({
+        DBI::dbExecute(con, "INSTALL json")
+        DBI::dbExecute(con, "LOAD json")
+      }, error = function(e) {
+        warning(sprintf("Could not install/load DuckDB json extension. It may not be available: %s", e$message))
+      })
 
       DBI::dbExecute(con, "
         CREATE TABLE IF NOT EXISTS agent_messages (
