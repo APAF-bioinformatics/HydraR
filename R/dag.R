@@ -938,11 +938,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
   )
 )
 
-#' Create AgentDAG from Mermaid (Static Method)
-#' @param mermaid_str String. Mermaid syntax.
-#' @param node_factory Function(id, label, params) -> AgentNode.
-#' @return The AgentDAG object.
-#' @export
+# Create AgentDAG from Mermaid (Static Method for backward compatibility)
 AgentDAG$from_mermaid <- function(mermaid_str, node_factory = auto_node_factory()) {
   dag <- AgentDAG$new()
   dag$from_mermaid(mermaid_str, node_factory)

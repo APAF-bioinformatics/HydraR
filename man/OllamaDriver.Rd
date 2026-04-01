@@ -33,6 +33,7 @@ Initialize OllamaDriver}
 <li><span class="pkg-link" data-pkg="HydraR" data-topic="AgentDriver" data-id="filter_llm_noise"><a href='../../HydraR/html/AgentDriver.html#method-AgentDriver-filter_llm_noise'><code>HydraR::AgentDriver$filter_llm_noise()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="HydraR" data-topic="AgentDriver" data-id="get_capabilities"><a href='../../HydraR/html/AgentDriver.html#method-AgentDriver-get_capabilities'><code>HydraR::AgentDriver$get_capabilities()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="HydraR" data-topic="AgentDriver" data-id="validate_cli_opts"><a href='../../HydraR/html/AgentDriver.html#method-AgentDriver-validate_cli_opts'><code>HydraR::AgentDriver$validate_cli_opts()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="HydraR" data-topic="AgentDriver" data-id="validate_no_injection"><a href='../../HydraR/html/AgentDriver.html#method-AgentDriver-validate_no_injection'><code>HydraR::AgentDriver$validate_no_injection()</code></a></span></li>
 </ul>
 </details>
 }}

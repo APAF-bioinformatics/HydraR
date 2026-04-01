@@ -61,8 +61,8 @@ Config/testthat/edition: 3
 Collate: 
     'checkpointer.R'
     'dag.R'
-    'driver_registry.R'
     'driver.R'
+    'driver_registry.R'
     'drivers_api.R'
     'drivers_cli.R'
     'factory.R'

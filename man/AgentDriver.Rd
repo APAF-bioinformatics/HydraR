@@ -42,6 +42,7 @@ Initialize AgentDriver}
 \item \href{#method-AgentDriver-exec_in_dir}{\code{AgentDriver$exec_in_dir()}}
 \item \href{#method-AgentDriver-filter_llm_noise}{\code{AgentDriver$filter_llm_noise()}}
 \item \href{#method-AgentDriver-call}{\code{AgentDriver$call()}}
+\item \href{#method-AgentDriver-validate_no_injection}{\code{AgentDriver$validate_no_injection()}}
 \item \href{#method-AgentDriver-validate_cli_opts}{\code{AgentDriver$validate_cli_opts()}}
 \item \href{#method-AgentDriver-format_cli_opts}{\code{AgentDriver$format_cli_opts()}}
 \item \href{#method-AgentDriver-clone}{\code{AgentDriver$clone()}}
@@ -165,6 +166,28 @@ Call the LLM
 }
 \subsection{Returns}{
 String. Cleaned response from the LLM.
+Validate No Command Injection
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AgentDriver-validate_no_injection"></a>}}
+\if{latex}{\out{\hypertarget{method-AgentDriver-validate_no_injection}{}}}
+\subsection{Method \code{validate_no_injection()}}{
+Portably prevents command injection by rejecting inputs
+with shell metacharacters.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{AgentDriver$validate_no_injection(x)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{String or character vector.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The original string invisibly, or throws an error.
 Validate CLI Options
 }
 }

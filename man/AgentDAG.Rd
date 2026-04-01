@@ -211,7 +211,7 @@ Run the Graph
   repo_root = getwd(),
   cleanup_policy = "auto",
   fail_if_dirty = TRUE,
-  packages = c("withr", "HydraR"),
+  packages = c("withr"),
   ...
 )}\if{html}{\out{</div>}}
 }
@@ -300,7 +300,7 @@ Internal: Iterative Execution
   resume_from = NULL,
   step_count = 0,
   fail_if_dirty = TRUE,
-  packages = c("withr", "HydraR")
+  packages = c("withr")
 )}\if{html}{\out{</div>}}
 }
 

@@ -141,10 +141,16 @@ WorktreeManager <- R6::R6Class("WorktreeManager",
         stdout = TRUE, stderr = TRUE
       )
 
-      # Mark as detached (directory gone, but branch/metadata preserved)
-      wt$path <- NULL
-      self$worktrees[[node_id]] <- wt
-      invisible(TRUE)
+      exit_code <- attr(res, "status") %||% 0L
+      if (exit_code == 0L) {
+        # Mark as detached (directory gone, but branch/metadata preserved)
+        wt$path <- NULL
+        self$worktrees[[node_id]] <- wt
+        return(invisible(TRUE))
+      } else {
+        # Keep path preserved as removal failed
+        return(invisible(FALSE))
+      }
     },
 
     #' Delete the branch and unregister node

@@ -30,7 +30,7 @@ wt_manager <- WorktreeManager$new(repo_root = getwd())
 \item{\code{cleanup_policy}}{String. "auto", "none", or "aggressive".}
 
 \item{\code{thread_id}}{String. Optional identifier for the current DAG execution.
-Initialize WorktreeManager}
+Initialize the WorktreeManager.}
 }
 \if{html}{\out{</div>}}
 }
@@ -68,7 +68,7 @@ Initialize WorktreeManager}
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{repo_root}}{Path to the main repository. Defaults to getwd().}
+\item{\code{repo_root}}{Path to the main git repository. Defaults to `getwd()`.}
 
 \item{\code{base_branch}}{Branch to branch from. Defaults to "main".}
 
@@ -76,7 +76,7 @@ Initialize WorktreeManager}
 
 \item{\code{cleanup_policy}}{Cleanup strategy.}
 
-\item{\code{thread_id}}{Optional execution identifier.}
+\item{\code{thread_id}}{Optional string to group worktrees. Defaults to random UUID.}
 }
 \if{html}{\out{</div>}}
 }
