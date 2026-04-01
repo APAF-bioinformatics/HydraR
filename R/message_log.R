@@ -78,6 +78,16 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
       con <- DBI::dbConnect(duckdb::duckdb(), self$db_path)
       on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
 
+      tryCatch(
+        {
+          DBI::dbExecute(con, "INSTALL json")
+          DBI::dbExecute(con, "LOAD json")
+        },
+        error = function(e) {
+          # Silently ignore autoload failures in offline environments; duckdb might have it built-in or fall back safely
+        }
+      )
+
       DBI::dbExecute(con, "
         CREATE TABLE IF NOT EXISTS agent_messages (
           sender VARCHAR,
