@@ -65,7 +65,7 @@ When we run the DAG, we use the `initial_state` extracted from the YAML file. No
 
 ```{r}
 # Register a checkpointer for durability
-checkpointer <- DuckDBSaver$new(path = "travel_booking.duckdb")
+checkpointer <- DuckDBSaver$new(db_path = "travel_booking.duckdb")
 dag$set_checkpointer(checkpointer)
 
 # Run the orchestration using the state from YAML
