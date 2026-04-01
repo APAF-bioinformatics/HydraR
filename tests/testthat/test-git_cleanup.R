@@ -2,10 +2,17 @@ library(testthat)
 library(HydraR)
 
 test_that("cleanup_jules_branches handles dry run securely", {
-  # Skip if not in a git repo (e.g. during devtools::check())
-  repo <- getwd()
-  is_git <- system2("git", c("-C", shQuote(repo), "rev-parse", "--is-inside-work-tree"), stdout = FALSE, stderr = FALSE) == 0
-  skip_if_not(is_git, "Not in a git repository")
+  # Initialize a temporary git repo to ensure the test has a valid git env
+  repo <- withr::local_tempdir()
+  system2("git", c("-C", shQuote(repo), "init"), stdout = FALSE, stderr = FALSE)
+  system2("git", c("-C", shQuote(repo), "config", "user.name", "'Test User'"), stdout = FALSE, stderr = FALSE)
+  system2("git", c("-C", shQuote(repo), "config", "user.email", "'test@example.com'"), stdout = FALSE, stderr = FALSE)
+
+  # Create an initial commit to avoid "unknown revision" errors
+  writeLines("test", file.path(repo, "README.md"))
+  system2("git", c("-C", shQuote(repo), "add", "README.md"), stdout = FALSE, stderr = FALSE)
+  system2("git", c("-C", shQuote(repo), "commit", "-m", "'Initial commit'"), stdout = FALSE, stderr = FALSE)
+  system2("git", c("-C", shQuote(repo), "branch", "-M", "main"), stdout = FALSE, stderr = FALSE)
 
   # Ensure it doesn't crash and identifies main as protected
   # Since I already cleaned up, it should return 0 branches
