@@ -197,7 +197,7 @@ DuckDBSaver <- R6::R6Class("DuckDBSaver",
         DBI::dbExecute(self$con, sprintf("
                     CREATE TABLE IF NOT EXISTS %s (
                         thread_id VARCHAR PRIMARY KEY,
-                        state_json TEXT,
+                        state_data BLOB,
                         updated_at TIMESTAMP DEFAULT current_timestamp
                     )
                 ", self$table_name))
@@ -215,17 +215,21 @@ DuckDBSaver <- R6::R6Class("DuckDBSaver",
         stop(sprintf("state must be an AgentState object (received: %s).", class(state)[1]))
       }
 
-      state_list <- state$to_list_serializable()
-      state_json <- jsonlite::toJSON(state_list, auto_unbox = TRUE, pretty = TRUE)
+      state_copy <- list(
+        data = as.list(state$data),
+        reducers = state$reducers,
+        schema = state$schema
+      )
+      state_blob <- base::serialize(state_copy, NULL)
 
       # Upsert logic (DuckDB specific)
       DBI::dbExecute(self$con, sprintf("
-                INSERT INTO %s (thread_id, state_json, updated_at)
+                INSERT INTO %s (thread_id, state_data, updated_at)
                 VALUES (?, ?, current_timestamp)
                 ON CONFLICT (thread_id) DO UPDATE SET
-                    state_json = excluded.state_json,
+                    state_data = excluded.state_data,
                     updated_at = excluded.updated_at
-            ", self$table_name), params = list(thread_id, state_json))
+            ", self$table_name), params = list(thread_id, list(state_blob)))
 
       invisible(self)
     },
@@ -238,15 +242,15 @@ DuckDBSaver <- R6::R6Class("DuckDBSaver",
         stop("thread_id must be a single string.")
       }
 
-      df <- DBI::dbGetQuery(self$con, sprintf("SELECT state_json FROM %s WHERE thread_id = ?", self$table_name), params = list(thread_id))
+      df <- DBI::dbGetQuery(self$con, sprintf("SELECT state_data FROM %s WHERE thread_id = ?", self$table_name), params = list(thread_id))
 
       if (nrow(df) > 0) {
-        state_list <- jsonlite::fromJSON(df$state_json[[1]], simplifyVector = FALSE)
+        state_copy <- base::unserialize(df$state_data[[1]])
         # Re-hydrate AgentState
         restored_state <- AgentState$new(
-          initial_data = state_list$data,
-          reducers = state_list$reducers,
-          schema = state_list$schema
+          initial_data = state_copy$data,
+          reducers = state_copy$reducers,
+          schema = state_copy$schema
         )
         return(restored_state)
       }

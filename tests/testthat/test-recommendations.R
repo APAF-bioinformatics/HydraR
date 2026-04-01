@@ -4,7 +4,7 @@ library(DBI)
 
 context("Technical Recommendations Verification")
 
-test_that("DuckDBSaver uses JSON storage and Registry re-hydration", {
+test_that("DuckDBSaver uses BLOB storage and Registry re-hydration", {
   # 1. Setup DuckDB
   db_path <- tempfile(fileext = ".duckdb")
   on.exit(unlink(db_path), add = TRUE)
@@ -24,18 +24,20 @@ test_that("DuckDBSaver uses JSON storage and Registry re-hydration", {
   thread_id <- "json-test-thread"
   saver$put(thread_id, state)
 
-  # 5. Verify JSON storage in DB (Human Readability)
+  # 5. Verify BLOB storage in DB
   con <- DBI::dbConnect(duckdb::duckdb(), db_path)
   on.exit(DBI::dbDisconnect(con), add = TRUE)
 
   # Check columns
   cols <- DBI::dbGetQuery(con, sprintf("PRAGMA table_info('%s')", saver$table_name))
-  expect_true("state_json" %in% cols$name)
+  expect_true("state_data" %in% cols$name)
 
-  df <- DBI::dbGetQuery(con, sprintf("SELECT state_json FROM %s WHERE thread_id = ?", saver$table_name), params = list(thread_id))
-  json_str <- df$state_json[[1]]
-  expect_match(json_str, "\"score\": 10")
-  expect_match(json_str, "\"test_reducer\"")
+  df <- DBI::dbGetQuery(con, sprintf("SELECT state_data FROM %s WHERE thread_id = ?", saver$table_name), params = list(thread_id))
+  blob <- df$state_data[[1]]
+  expect_true(is.raw(blob))
+  unserialized_state <- base::unserialize(blob)
+  expect_equal(unserialized_state$data$score, 10)
+  expect_true(is.function(unserialized_state$reducers$score))
 
   # 6. Restore and Verify Logic hydration
   restored <- saver$get(thread_id)
