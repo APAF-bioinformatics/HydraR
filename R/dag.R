@@ -127,10 +127,10 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
         # If test: prefix is used, resolve it
         if (grepl("^test:", l_clean)) {
-          test_id <- gsub("^test:", "", l_clean)
-          # We use a lazy resolver since we are during build/parsing
-          # resolve_test_pattern is in registry.R
-          test_fn <- resolve_test_pattern(test_id)
+           test_id <- gsub("^test:", "", l_clean)
+           # We use a lazy resolver since we are during build/parsing
+           # resolve_test_pattern is in registry.R
+           test_fn <- resolve_test_pattern(test_id)
         }
 
         purrr::walk(from, function(f) {
@@ -517,7 +517,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
               return()
             }
 
-            cat(sprintf("[DEBUG] Queue: %s | Running: %s\n", paste(current_nodes, collapse = ", "), node_id))
+            cat(sprintf("[DEBUG] Queue: %s | Running: %s\n", paste(current_nodes, collapse=", "), node_id))
             restricted_state <- RestrictedState$new(self$state, node_id, self$message_log)
             start_time <- Sys.time()
             res <- self$nodes[[node_id]]$run(restricted_state)
@@ -709,12 +709,12 @@ AgentDAG <- R6::R6Class("AgentDAG",
             }
           })
         } else {
-          # Even without results, style the error edges as red/dashed
-          purrr::iwalk(all_edges_list, function(e, idx) {
-            if (identical(e$type, "error")) {
-              extra_lines <<- c(extra_lines, sprintf("  linkStyle %d stroke:#e53935,stroke-width:2px,stroke-dasharray: 5 5;", idx - 1))
-            }
-          })
+           # Even without results, style the error edges as red/dashed
+           purrr::iwalk(all_edges_list, function(e, idx) {
+             if (identical(e$type, "error")) {
+               extra_lines <<- c(extra_lines, sprintf("  linkStyle %d stroke:#e53935,stroke-width:2px,stroke-dasharray: 5 5;", idx - 1))
+             }
+           })
         }
       }
 
