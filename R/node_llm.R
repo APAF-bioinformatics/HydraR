@@ -104,22 +104,22 @@ AgentLLMNode <- R6::R6Class("AgentLLMNode",
 
       # 1. Automatic Code Extraction (if requested in params)
       output_res <- raw_response
-      if (identical(self$params$output_format, "r")) {
+      if (identical(self$params[["output_format"]], "r")) {
         output_res <- HydraR::extract_r_code_advanced(raw_response)
       }
 
       # 2. File Persistence (if output_path is provided in params)
-      if (!is.null(self$params$output_path)) {
+      if (!is.null(self$params[["output_path"]])) {
         tryCatch(
           {
-            writeLines(output_res, self$params$output_path)
+            writeLines(output_res, self$params[["output_path"]])
             # Optional: Automatic git tracking if in a worktree
             # We check system status or state for worktree indicator
-            system2("git", c("add", shQuote(self$params$output_path)), stdout = FALSE, stderr = FALSE)
+            system2("git", c("add", shQuote(self$params[["output_path"]])), stdout = FALSE, stderr = FALSE)
             system2("git", c("commit", "-m", shQuote(sprintf("HydraR: Updated %s", self$id))), stdout = FALSE, stderr = FALSE)
           },
           error = function(e) {
-            warning(sprintf("[%s] Failed to write/commit LLM output to '%s': %s", self$id, self$params$output_path, e$message))
+            warning(sprintf("[%s] Failed to write/commit LLM output to '%s': %s", self$id, self$params[["output_path"]], e$message))
           }
         )
       }
