@@ -1,7 +1,7 @@
 Package: HydraR
 Type: Package
 Title: Stateful Agentic Orchestration for Scientific Reproducibility
-Version: 0.1.0
+Version: 0.1.0-9004
 Authors@R: 
     c(person(given = c("Chi", "Nam", "Ignatius"),
              family = "Pang",
@@ -35,6 +35,7 @@ RoxygenNote: 7.3.3
 Depends: 
     R (>= 4.1.0)
 Imports: 
+    uuid,
     DBI,
     digest,
     furrr,
@@ -42,13 +43,13 @@ Imports:
     jsonlite,
     purrr,
     R6,
-    yaml
+    yaml,
+    httr2
 Suggests: 
     testthat (>= 3.0.0),
     duckdb,
     knitr,
     rmarkdown,
-    httr2,
     future,
     devtools,
     withr,
@@ -65,14 +66,19 @@ Collate:
     'drivers_api.R'
     'drivers_cli.R'
     'factory.R'
+    'jules_client.R'
     'logic_node.R'
+    'map_node.R'
     'merge_harmonizer.R'
     'mermaid_parser.R'
     'message_log.R'
     'node.R'
+    'node_jules.R'
     'node_languages.R'
     'node_llm.R'
+    'observer_node.R'
     'registry.R'
+    'router_node.R'
     'state.R'
     'state_restricted.R'
     'tools.R'

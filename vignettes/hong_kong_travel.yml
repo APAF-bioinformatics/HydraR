@@ -8,9 +8,6 @@ graph: |
     Validator["Constraint Auditor | type=logic | logic_id=validate_constraints | retries=3"]
     Finalizer["Itinerary Saver | type=logic | logic_id=save_itinerary"]
 
-    Planner --> Validator
-    Validator -- "fail" --> Planner
-    Validator -- "pass" --> Finalizer
 
 conditional_edges:
   Validator:

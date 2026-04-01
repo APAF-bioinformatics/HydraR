@@ -32,6 +32,18 @@ test_that("OpenAIDriver correctly formats requests and parses response", {
   })
 })
 
+test_that("OpenAIDriver handles API errors gracefully", {
+  withr::with_envvar(list(OPENAI_API_KEY = "test_key"), {
+    drv <- OpenAIDriver$new()
+    httr2::with_mocked_responses(
+      function(req) httr2::response(status_code = 500),
+      {
+        expect_error(drv$call("Hello"), "OpenAI API request failed")
+      }
+    )
+  })
+})
+
 test_that("AnthropicDriver correctly formats requests and parses response", {
   withr::with_envvar(list(ANTHROPIC_API_KEY = "test_key"), {
     drv <- AnthropicDriver$new()
@@ -50,6 +62,18 @@ test_that("AnthropicDriver correctly formats requests and parses response", {
       {
         res <- drv$call("Hello")
         expect_equal(res, "Claude Response")
+      }
+    )
+  })
+})
+
+test_that("AnthropicDriver handles API errors gracefully", {
+  withr::with_envvar(list(ANTHROPIC_API_KEY = "test_key"), {
+    drv <- AnthropicDriver$new()
+    httr2::with_mocked_responses(
+      function(req) httr2::response(status_code = 500),
+      {
+        expect_error(drv$call("Hello"), "Anthropic API request failed")
       }
     )
   })
@@ -79,12 +103,75 @@ test_that("GeminiAPIDriver correctly formats requests and parses response", {
   })
 })
 
+test_that("GeminiAPIDriver handles API errors gracefully", {
+  withr::with_envvar(list(GOOGLE_API_KEY = "test_key"), {
+    drv <- GeminiAPIDriver$new()
+    httr2::with_mocked_responses(
+      function(req) httr2::response(status_code = 500),
+      {
+        expect_error(drv$call("Hello"), "Gemini API request failed")
+      }
+    )
+  })
+})
+
 
 test_that("API Drivers report correct capabilities", {
   drv <- OpenAIDriver$new()
   caps <- drv$get_capabilities()
   expect_true(caps$json_mode)
   expect_true(caps$tools)
+})
+
+test_that("OpenAIDriver handles network failures gracefully", {
+  withr::with_envvar(list(OPENAI_API_KEY = "test_key"), {
+    drv <- OpenAIDriver$new()
+
+    mock_error <- function(req) {
+      stop("Could not resolve host: api.openai.com")
+    }
+
+    httr2::with_mocked_responses(
+      mock_error,
+      {
+        expect_error(drv$call("Hello"), "OpenAI API request failed: Could not resolve host")
+      }
+    )
+  })
+})
+
+test_that("AnthropicDriver handles network failures gracefully", {
+  withr::with_envvar(list(ANTHROPIC_API_KEY = "test_key"), {
+    drv <- AnthropicDriver$new()
+
+    mock_error <- function(req) {
+      stop("Could not resolve host: api.anthropic.com")
+    }
+
+    httr2::with_mocked_responses(
+      mock_error,
+      {
+        expect_error(drv$call("Hello"), "Anthropic API request failed: Could not resolve host")
+      }
+    )
+  })
+})
+
+test_that("GeminiAPIDriver handles network failures gracefully", {
+  withr::with_envvar(list(GOOGLE_API_KEY = "test_key"), {
+    drv <- GeminiAPIDriver$new()
+
+    mock_error <- function(req) {
+      stop("Could not resolve host: generativelanguage.googleapis.com")
+    }
+
+    httr2::with_mocked_responses(
+      mock_error,
+      {
+        expect_error(drv$call("Hello"), "Gemini API request failed: Could not resolve host")
+      }
+    )
+  })
 })
 
 # <!-- APAF Bioinformatics | test-drivers_api.R | Approved | 2026-03-29 -->
