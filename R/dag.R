@@ -683,7 +683,8 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
         # Node styling
         purrr::iwalk(self$results, function(res, node_id) {
-          cls <- if (res$status == "success") "success" else if (res$status %in% c("failed", "error")) "failure" else if (res$status == "pause") "pause" else NULL
+          status_val <- res$status %||% ""
+          cls <- if (identical(status_val, "success")) "success" else if (status_val %in% c("failed", "error")) "failure" else if (identical(status_val, "pause")) "pause" else NULL
           if (!is.null(cls)) extra_lines <<- c(extra_lines, sprintf("  class %s %s", node_id, cls))
         })
 
