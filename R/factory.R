@@ -293,7 +293,7 @@ auto_node_factory <- function(driver_registry = NULL) {
           # Fallback: use label or id as prompt if prompt parameter is missing
           prompt <- label %||% id
         }
-        
+
         AgentJulesNode$new(
           id = id,
           prompt = prompt,
