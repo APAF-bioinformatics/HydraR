@@ -15,15 +15,15 @@ MockFanOutDriver <- R6::R6Class("MockFanOutDriver",
   public = list(
     call = function(prompt, ...) {
       if (grepl("creative director", prompt)) {
-        return("The cybernetic cat enters the hidden city.")
+         return("The cybernetic cat enters the hidden city.")
       } else if (grepl("action-thriller", prompt)) {
-        return("Explosions in the neon alleyway!")
+         return("Explosions in the neon alleyway!")
       } else if (grepl("mystery writer", prompt)) {
-        return("Who left this cryptic holodisk?")
+         return("Who left this cryptic holodisk?")
       } else if (grepl("romance writer", prompt)) {
-        return("The cat shared a tender moment with a drone.")
+         return("The cat shared a tender moment with a drone.")
       } else if (grepl("master editor", prompt)) {
-        return("The final story: Action, Mystery, and Romance combined.")
+         return("The final story: Action, Mystery, and Romance combined.")
       }
       return("Default mock response")
     }
@@ -31,6 +31,7 @@ MockFanOutDriver <- R6::R6Class("MockFanOutDriver",
 )
 
 test_that("Fan-Out Fan-In YAML workflow loads and executes correctly", {
+
   # Inline definition of the YAML to ensure robustness across R CMD check environments
   yaml_content <- "
 graph: |

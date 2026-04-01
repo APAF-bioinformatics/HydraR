@@ -51,7 +51,7 @@ test_that("Declarative conditional edges handle named functions", {
   # Manually register for this test
   register_logic("my_test_fn", function(out) isTRUE(out$output$pass))
   register_logic("la", function(s) list())
-  register_logic("lb", function(s) list(output = list(pass = TRUE)))
+  register_logic("lb", function(s) list(output=list(pass=TRUE)))
 
   wf <- list(
     graph = "graph TD\nA[A|type=logic|logic_id=la] --> B[B|type=logic|logic_id=lb]",
