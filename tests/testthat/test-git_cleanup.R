@@ -24,6 +24,10 @@ test_that("cleanup_jules_branches handles dry run securely", {
   system2("git", c("-C", shQuote(repo), "branch", "-M", "main"), stdout = FALSE, stderr = FALSE)
   system2("git", c("-C", shQuote(repo), "push", "-u", "origin", "main"), stdout = FALSE, stderr = FALSE)
 
+  # Also skip if git fetch fails (e.g. R CMD check inside a sub-folder where remote is not accessible)
+  can_fetch <- system2("git", c("-C", repo, "fetch", "--all", "--prune"), stdout = FALSE, stderr = FALSE) == 0
+  skip_if_not(can_fetch, "Cannot fetch from remote repository")
+
   # Ensure it doesn't crash and identifies main as protected
   # Since I already cleaned up, it should return 0 branches
   res <- cleanup_jules_branches(repo_root = repo, dry_run = TRUE, verbose = FALSE)

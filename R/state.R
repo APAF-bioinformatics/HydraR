@@ -124,6 +124,18 @@ AgentState <- R6::R6Class("AgentState",
       invisible(self)
     },
 
+    #' Update state from a node's output
+    #' @param output The output from the node.
+    #' @param node_id The ID of the node.
+    update_from_node = function(output, node_id) {
+      if (is_named_list(output)) {
+        self$update(output)
+      } else {
+        self$update(stats::setNames(list(output), node_id))
+      }
+      invisible(self)
+    },
+
     #' Export state for persistence (logic as names)
     #' @return List.
     to_list_serializable = function() {

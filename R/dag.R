@@ -369,11 +369,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
         self$results[[node_id]] <<- res
 
         if (!is.null(res$output)) {
-          if (is_named_list(res$output)) {
-            self$state$update(res$output)
-          } else {
-            self$state$update(setNames(list(res$output), node_id))
-          }
+          self$state$update_from_node(res$output, node_id)
         }
 
         step_count <<- step_count + 1
@@ -481,7 +477,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
             res <- p_res$res
             self$results[[node_id]] <<- res
             if (!is.null(res$output)) {
-              if (is_named_list(res$output)) self$state$update(res$output) else self$state$update(setNames(list(res$output), node_id))
+              self$state$update_from_node(res$output, node_id)
             }
             step_count <<- step_count + 1
             self$trace_log[[step_count]] <<- list(
@@ -551,7 +547,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
             self$results[[node_id]] <<- res
             if (!is.null(res$output)) {
-              if (is_named_list(res$output)) self$state$update(res$output) else self$state$update(setNames(list(res$output), node_id))
+              self$state$update_from_node(res$output, node_id)
             }
             self$trace_log[[step_idx_inner]] <<- list(
               step = step_idx_inner, node = node_id, mode = "iterative",

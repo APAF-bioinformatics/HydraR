@@ -85,6 +85,7 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
         },
         error = function(e) {
           # Silently ignore autoload failures in offline environments; duckdb might have it built-in or fall back safely
+          NULL
         }
       )
 
@@ -93,7 +94,7 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
           sender VARCHAR,
           recipient VARCHAR,
           timestamp TIMESTAMP,
-          content_json JSON
+          content_json VARCHAR
         )
       ")
 
@@ -116,6 +117,14 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
       }
       con <- DBI::dbConnect(duckdb::duckdb(), self$db_path, read_only = TRUE)
       on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
+
+      tryCatch(
+        {
+          DBI::dbExecute(con, "INSTALL json")
+          DBI::dbExecute(con, "LOAD json")
+        },
+        error = function(e) NULL
+      )
 
       if (!DBI::dbExistsTable(con, "agent_messages")) {
         return(list())
