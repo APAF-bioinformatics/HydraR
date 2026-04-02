@@ -1,57 +1,54 @@
-## Hong Kong Travel Itinerary: May 26 – June 1, 2026
+This itinerary balances the high-energy urban pulse of Hong Kong with the relaxed, historical charm of its outlying islands. 
 
-Welcome to your curated Hong Kong getaway. This itinerary balances iconic city landmarks with the charming, laid-back atmosphere of the outlying islands, while incorporating your specific dining requests.
-
-**Flight Details:**
-*   **Outbound:** Sydney (SYD) to Hong Kong (HKG) via Qantas.
-*   **Inbound:** Hong Kong (HKG) to Sydney (SYD) via Qantas.
+**Flight Recommendation:**
+*   **Outbound:** QF127 (SYD 10:00 – HKG 17:15) on 2026-05-26.
+*   **Inbound:** QF128 (HKG 19:00 – SYD 06:30+1) on 2026-06-01.
 
 ---
 
-### Day 1: Arrival & Harbor Views
-*   **Morning/Afternoon:** Arrive at HKG Airport. Take the **Airport Express** to Central. Check into your hotel (recommend staying in Central or Tsim Sha Tsui for convenience).
-*   **Evening:** Head to the **Tsim Sha Tsui Promenade**. Watch the *Symphony of Lights* show at 8:00 PM.
-*   **Dinner:** **The Spaghetti House (Tsim Sha Tsui branch).** Enjoy their signature Hong Kong-style fusion pasta dishes in a comfortable, classic setting.
+### **Day 1: Arrival & Harbour Lights (May 26)**
+*   **Evening:** Arrive at HKG, take the Airport Express to Central. Check into your hotel (recommend staying in Tsim Sha Tsui for the best skyline views).
+*   **Dining:** Enjoy a casual welcome dinner at **The Spaghetti House** (Tsim Sha Tsui branch). It is a local Hong Kong institution known for its fusion of Italian and Cantonese tastes.
+*   **Activity:** Stroll the Tsim Sha Tsui Promenade to watch the *Symphony of Lights* show at 8:00 PM.
 
-### Day 2: Peak Vistas & Cultural Heritage
-*   **Morning:** Take the **Peak Tram** to Victoria Peak for panoramic views of the skyline. Walk the Lugard Road circular trail.
-*   **Lunch:** Dine at the Peak Galleria for quick bites.
-*   **Afternoon:** Descend and explore the **Man Mo Temple** in Sheung Wan, then wander through the antique shops on Hollywood Road.
-*   **Dinner:** Immerse yourself in **Local Cuisine** at a traditional *Dai Pai Dong* (open-air food stall) in Central, such as **Sing Heung Yuen** for their famous tomato broth noodles and crispy buns.
+### **Day 2: Peak Views & Colonial History (May 27)**
+*   **Morning:** Take the historic Peak Tram to **Victoria Peak**. Walk the Lugard Road circular trail for the best panoramic views of the harbor.
+*   **Lunch:** Head back down to Central and visit a classic *Cha Chaan Teng* (local tea cafe) like **Lan Fong Yuen** for a pork chop bun and silk-stocking milk tea.
+*   **Afternoon:** Explore the Mid-Levels Escalators and the Tai Kwun Centre for Heritage and Arts.
+*   **Dinner:** Fine Cantonese dining at **Luk Yu Tea House** in Central to experience traditional dim sum service in a historical setting.
 
-### Day 3: The Charm of Cheung Chau Island
-*   **Morning:** Head to Central Pier 5 and take the ferry to **Cheung Chau Island** (approx. 35-60 minutes).
-*   **Daytime:** Explore the island on foot. Visit the **Pak Tai Temple**, walk the **Mini Great Wall** hiking trail, and relax on **Tung Wan Beach**.
-*   **Lunch:** Eat like a local on the island. Seek out the famous **Cheung Chau “Mango Mochi”** from street vendors and try fresh seafood at one of the waterfront restaurants along Pak She Praya Road.
-*   **Evening:** Return to Hong Kong Island via ferry. 
-*   **Dinner:** Casual dining at a local *Cha Chaan Teng* (Hong Kong tea restaurant) to try authentic Hong Kong milk tea and pineapple buns.
+### **Day 3: The Charm of Cheung Chau Island (May 28)**
+*   **Morning:** Take the ferry from Central Pier 5 to **Cheung Chau Island** (approx. 45-60 minutes).
+*   **Activity:** Rent a bicycle and ride around the island. Visit the **Pak Tai Temple** and the **Cheung Po Tsai Cave** (legendary pirate hideout).
+*   **Lunch:** Indulge in local island cuisine. Cheung Chau is famous for its seafood—try the steamed scallops with garlic and vermicelli at any of the waterfront stalls along the Praya. Don't forget to grab a "Mango Mochi" from a street stall for dessert.
+*   **Evening:** Return to the city for a quiet evening.
 
-### Day 4: Markets & Mong Kok Energy
-*   **Morning:** Visit **Nan Lian Garden** and the **Chi Lin Nunnery** in Diamond Hill for a peaceful morning.
-*   **Lunch:** Try authentic Dim Sum at **Tim Ho Wan** (Sham Shui Po branch—the original hole-in-the-wall location).
-*   **Afternoon:** Navigate the vibrant markets of Mong Kok: The Ladies’ Market (clothes/souvenirs) and the Goldfish Market.
-*   **Dinner:** Indulge in more **Local Cuisine**—Roasted Goose at **Yat Lok** or **Kam's Roast Goose** (Michelin-starred).
+### **Day 4: Markets & Street Food Exploration (May 29)**
+*   **Morning:** Visit **Mong Kok**. Explore the Goldfish Market, Flower Market, and Ladies’ Market. 
+*   **Lunch:** Dive into local cuisine at **Tim Ho Wan** (the world’s cheapest Michelin-starred restaurant) for their signature BBQ pork buns.
+*   **Afternoon:** Visit the **Yuen Po Street Bird Garden** for a slice of traditional Hong Kong culture.
+*   **Dinner:** Explore the "Temple Street Night Market." Grab a plastic stool and order "Typhoon Shelter Crab" and claypot rice from a local *dai pai dong* (open-air food stall).
 
-### Day 5: Lantau Island Adventure
-*   **Morning:** Take the MTR to Tung Chung, then ride the **Ngong Ping 360 Cable Car** to see the **Big Buddha (Tian Tan Buddha)**.
-*   **Afternoon:** Visit the nearby **Po Lin Monastery** and hike the Wisdom Path.
-*   **Evening:** Return to the city. 
-*   **Dinner:** **The Spaghetti House** (optional second visit if you want to try different menu items, or explore a local hotpot restaurant like **Megan’s Kitchen** for a quintessential HK experience).
+### **Day 5: Lantau Island & The Big Buddha (May 30)**
+*   **Morning:** Take the MTR to Tung Chung and hop on the **Ngong Ping 360 Cable Car** for a breathtaking ride over the mountains.
+*   **Activity:** Visit the Tian Tan Buddha and the Po Lin Monastery. Hike the Wisdom Path.
+*   **Lunch:** Enjoy a vegetarian monk’s meal at the Po Lin Monastery refectory.
+*   **Evening:** Return to the city and spend the night exploring the bars and nightlife of **Lan Kwai Fong** or Soho.
 
-### Day 6: Art, History, & Farewell
-*   **Morning:** Visit the **M+ Museum** or the **Hong Kong Palace Museum** in the West Kowloon Cultural District. 
-*   **Lunch:** Enjoy a refined lunch at a local Cantonese restaurant specializing in *Siu Mei* (roast meats).
-*   **Afternoon:** Last-minute shopping at Harbour City or Pacific Place.
-*   **Evening:** Farewell dinner—find a restaurant with a view of the harbor to toast your final night in the city.
+### **Day 6: Culture & Leisure (May 31)**
+*   **Morning:** Visit the **Man Mo Temple** on Hollywood Road, then walk through the antique shops on Cat Street.
+*   **Lunch:** A second visit to **The Spaghetti House** if you want to sample their baked pasta specialties, or try **Mak's Noodle** for an authentic bowl of wonton noodles.
+*   **Afternoon:** Take the **Star Ferry** across the harbor—it is the most scenic and historic way to cross the water.
+*   **Evening:** Farewell dinner at a high-end restaurant in the International Finance Centre (IFC) overlooking the harbor, such as **Lung King Heen** for world-class Cantonese.
 
-### Day 7: Departure
-*   **Morning:** Enjoy a final local breakfast—Congee and Youtiao (fried dough sticks).
-*   **Afternoon:** Take the Airport Express back to HKG for your Qantas flight home to Sydney.
+### **Day 7: Departure (June 1)**
+*   **Morning:** Enjoy a relaxed breakfast at a local bakery (try an Egg Tart from **Tai Cheong Bakery**). 
+*   **Afternoon:** Last-minute shopping at Harbour City or the Elements mall. 
+*   **Departure:** Take the Airport Express to HKG for your 19:00 flight back to Sydney.
 
 ---
 
-### Travel Concierge Tips:
-1.  **Transport:** Purchase an **Octopus Card** immediately upon arrival. It works for all MTR trains, ferries (including the Cheung Chau ferry), buses, and even at convenience stores.
-2.  **Dining Reservations:** For popular spots like Kam's Roast Goose or high-end Dim Sum, expect a queue; arrive early or look for booking options online. 
-3.  **Connectivity:** Consider picking up a local tourist SIM card at the airport for easy map navigation while exploring the islands.
-4.  **Weather:** May and June can be humid with occasional tropical showers. Pack light, breathable clothing and always carry a compact umbrella.
+### **Travel Tips for Your Trip:**
+1.  **Octopus Card:** Purchase an Octopus card at the airport. It is essential for all public transport (ferries, MTR, buses) and can be used at convenience stores.
+2.  **Connectivity:** Download the "OpenRice" app—it is the definitive guide for restaurant reviews and menus in Hong Kong.
+3.  **Footwear:** Bring comfortable walking shoes; even with excellent public transport, you will be doing a significant amount of walking.
