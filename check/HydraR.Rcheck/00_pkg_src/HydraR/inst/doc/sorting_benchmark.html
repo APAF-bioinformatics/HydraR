@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Parallel Benchmarking with Git Worktrees</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Parallel Benchmarking with Git
+Worktrees</h1>
+
+
+
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>Modern agentic workflows often involve multiple specialized agents
+working on different parts of a codebase simultaneously. When these
+agents modify files, they risk stepping on each other’s toes—causing
+merge conflicts or corrupted git states.</p>
+<p><code>HydraR</code> addresses this by leveraging <strong>Git
+Worktrees</strong> for isolated execution. This guide demonstrates a
+parallel workflow where: 1. <strong>Three Agents</strong> simultaneously
+write R code for different sorting algorithms (Bubble, Quick, Merge
+sort) in separate worktrees. 2. A <strong>Merge Harmonizer</strong>
+automatically merges these independent branches back into the main
+repository. 3. A <strong>Benchmarking Node</strong> executes the
+generated code to compare their performance. 4. A <strong>Visualization
+Node</strong> plots the results.</p>
+<hr />
+</div>
+<div id="step-1-initialize-an-isolated-repository" class="section level2">
+<h2>🏗️ Step 1: Initialize an Isolated Repository</h2>
+<p>To demonstrate the power of worktrees, we first create a temporary
+Git repository.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(HydraR)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(withr)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co"># Ensure Gemini CLI path is configured (Environment variables are inherited by workers)</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">HYDRAR_GEMINI_PATH =</span> <span class="st">&quot;/opt/homebrew/bin/gemini&quot;</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co"># Define the repository root for worktrees</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>repo_root <span class="ot">&lt;-</span> <span class="st">&quot;.&quot;</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co"># 0. Setup Parallel Execution (for Worktree Isolation)</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="fu">plan</span>(multisession, <span class="at">workers =</span> <span class="dv">3</span>, <span class="at">envir =</span> <span class="fu">globalenv</span>())</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="fu">options</span>(<span class="at">future.rng.onMisuse =</span> <span class="st">&quot;ignore&quot;</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="co"># 1. Create a temporary folder</span></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>repo_root <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">&quot;sorting-benchmark-repo&quot;</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">dir.exists</span>(repo_root)) <span class="fu">unlink</span>(repo_root, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a><span class="fu">dir.create</span>(repo_root)</span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a><span class="co"># 2. Initialize Git and a README</span></span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>withr<span class="sc">::</span><span class="fu">with_dir</span>(repo_root, {</span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a>  <span class="fu">system</span>(<span class="st">&quot;git init -b main&quot;</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a>  <span class="fu">system</span>(<span class="st">&quot;git config user.email &#39;apaf@example.com&#39;&quot;</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a>  <span class="fu">system</span>(<span class="st">&quot;git config user.name &#39;APAF Agent&#39;&quot;</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a>  <span class="fu">system</span>(<span class="st">&quot;git config commit.gpgsign false&quot;</span>)</span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a>  <span class="fu">writeLines</span>(<span class="st">&quot;# Sorting Benchmark&quot;</span>, <span class="st">&quot;README.md&quot;</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a>  <span class="fu">system</span>(<span class="st">&quot;git add README.md&quot;</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a>  <span class="fu">system</span>(<span class="st">&quot;git commit -m &#39;Initial commit&#39;&quot;</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a>})</span></code></pre></div>
+<hr />
+</div>
+<div id="step-2-declarative-workflow-loading" class="section level2">
+<h2>🧠 Step 2: Declarative Workflow Loading</h2>
+<p>Rather than registering roles and logic manually in R, we now define
+the entire workflow architecture (graph, prompts, logic) in a single
+declarative YAML file. This follows the
+<strong>APAF-Agentic-Standard</strong> for Zero-R-Code definitions.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># 1. Load the workflow manifest</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>wf <span class="ot">&lt;-</span> <span class="fu">load_workflow</span>(<span class="st">&quot;sorting_benchmark.yml&quot;</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co"># 2. Extract components</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>mermaid_graph <span class="ot">&lt;-</span> wf<span class="sc">$</span>graph</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>initial_state <span class="ot">&lt;-</span> wf<span class="sc">$</span>initial_state</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co"># 3. Inject dynamic environment variables into initial state</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>initial_state<span class="sc">$</span>repo_root <span class="ot">&lt;-</span> repo_root</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co"># 4. Instantiate and Compile</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>dag <span class="ot">&lt;-</span> AgentDAG<span class="sc">$</span><span class="fu">from_mermaid</span>(mermaid_graph, <span class="at">node_factory =</span> <span class="fu">auto_node_factory</span>())</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>compiled_dag <span class="ot">&lt;-</span> dag<span class="sc">$</span><span class="fu">compile</span>()</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co"># 5. Run with Worktree Isolation</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co"># Ensure workers inherit our environment (for API keys and PATH)</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>future<span class="sc">::</span><span class="fu">plan</span>(future<span class="sc">::</span>multisession, <span class="at">workers =</span> <span class="dv">3</span>, <span class="at">envir =</span> <span class="fu">globalenv</span>())</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>results <span class="ot">&lt;-</span> compiled_dag<span class="sc">$</span><span class="fu">run</span>(</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>  <span class="at">initial_state =</span> initial_state,</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>  <span class="at">use_worktrees =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>  <span class="at">repo_root =</span> repo_root,</span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>  <span class="at">fail_if_dirty =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>  <span class="at">packages =</span> <span class="fu">c</span>(<span class="st">&quot;withr&quot;</span>, <span class="st">&quot;HydraR&quot;</span>, <span class="st">&quot;ggplot2&quot;</span>)</span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>)</span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co"># 6. Save Execution Trace</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a>compiled_dag<span class="sc">$</span><span class="fu">save_trace</span>(<span class="st">&quot;sorting_trace.json&quot;</span>)</span></code></pre></div>
+<hr />
+</div>
+<div id="summary" class="section level2">
+<h2>🧘 Summary</h2>
+<p>By using <strong>Declarative Mermaid Nodes</strong> with
+<code>auto_node_factory()</code>, we: 1. <strong>Eliminated
+Boilerplate</strong>: No hand-written node factory — the Mermaid graph
+IS the specification. 2. <strong>Eliminated State Corruption</strong>:
+Three agents modified the codebase simultaneously via isolated Git
+Worktrees. 3. <strong>Automated Conflict Resolution</strong>: The
+<code>MergeHarmonizer</code> handled integration of branches. 4.
+<strong>End-to-End Validation</strong>: Generated code was benchmarked
+immediately downstream.</p>
+<hr />
+<!-- APAF Bioinformatics | sorting_benchmark.Rmd | Approved | 2026-03-30 -->
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

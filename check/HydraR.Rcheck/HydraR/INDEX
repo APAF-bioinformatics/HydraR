@@ -1,0 +1,63 @@
+AgentBashNode           Bash Execution Node
+AgentDAG                Agent Graph R6 Class
+AgentDriver             Agent Driver R6 Class
+AgentLLMNode            Agent LLM Node R6 Class
+AgentLogicNode          Agent Logic Node R6 Class
+AgentMapNode            Agent Map Node R6 Class
+AgentNode               Agent Node Base Class
+AgentObserverNode       Agent Observer Node R6 Class
+AgentPythonNode         Python Execution Node
+AgentRouterNode         Agent Router Node R6 Class
+AgentState              Agent State R6 Class
+AgentTool               Agent Tool R6 Class
+AnthropicDriver         Anthropic API Driver R6 Class
+Checkpointer            Checkpointer Interface
+ClaudeCodeDriver        Claude CLI Driver R6 Class
+ConflictResolver        Git Conflict Resolver R6 Class
+CopilotCLIDriver        Copilot CLI Driver R6 Class
+DriverRegistry          Driver Registry R6 Class
+DuckDBMessageLog        DuckDB Message Log R6 Class
+DuckDBSaver             DuckDBSaver Checkpointer
+GeminiAPIDriver         Gemini API Driver R6 Class
+GeminiCLIDriver         Gemini CLI Driver R6 Class
+JSONLMessageLog         JSONL Message Log R6 Class
+MemoryMessageLog        Memory Message Log R6 Class
+MemorySaver             MemorySaver Checkpointer
+MessageLog              Message Log Base R6 Class
+OllamaDriver            Ollama Driver R6 Class
+OpenAIDriver            OpenAI API Driver R6 Class
+RDSSaver                RDS File Checkpointer
+RestrictedState         Restricted State R6 Class
+WorktreeManager         Git Worktree Manager R6 Class
+add_llm_node            Create an LLM Agent Node easily
+add_logic_node          Create an R Logic Node easily
+auto_node_factory       Automatic Node Factory for Mermaid-as-Source
+cleanup_jules_branches
+                        Cleanup Stale GitHub Branches
+create_merge_harmonizer
+                        Create a Merge Harmonizer Node
+dag_add_llm_node        Add an LLM Agent Node directly to a DAG
+dag_add_logic_node      Add an R Logic Node directly to a DAG
+dag_create              Create an Agent Graph
+extract_r_code_advanced
+                        Extract R Code from LLM Response
+format_toolset          Format Toolset for Prompt
+get_agent_roles         List Registered Roles
+get_driver_registry     Global Driver Registry Accessor
+get_logic               Get Logic Function
+get_role                Get an LLM Role (System Prompt)
+is_named_list           Check if an object is a named list
+list_logic              List Registered Components
+load_workflow           Load Multi-Agent Workflow from File
+mermaid_to_dag          Create AgentDAG from Mermaid
+parse_mermaid           Parse Mermaid Flowchart Syntax
+reducer_append          Built-in Reducer: Append
+reducer_merge_list      Built-in Reducer: Merge List
+register_logic          Register Logic Function
+register_role           Register an LLM Role (System Prompt)
+resolve_default_driver
+                        <!- APAF Bioinformatics | factory.R | Approved
+                        | 2026-03-30 -> Resolve a Default Driver from
+                        Shorthand ID
+spawn_dag               Spawn an AgentDAG from a Workflow Object
+standard_node_factory   Standard Node Factory for Mermaid

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head><title>R: Stateful Agentic Orchestration for Scientific Reproducibility</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body><div class="container">
+<h1> Stateful Agentic Orchestration for Scientific Reproducibility
+<img class="toplogo" src="../../../doc/html/Rlogo.svg" alt="[R logo]" />
+</h1>
+<hr/>
+<div style="text-align: center;">
+<a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]" /></a>
+<a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]" /></a>
+</div><h2>Documentation for package &lsquo;HydraR&rsquo; version 0.1.0-9004</h2>
+
+<ul><li><a href="../DESCRIPTION" type="text/plain; charset=utf-8">DESCRIPTION file</a>.</li>
+<li><a href="../doc/index.html">User guides, package vignettes and other documentation.</a></li>
+<li><a href="../NEWS.md">Package NEWS</a>.</li>
+</ul>
+
+<h2>Help Pages</h2>
+
+
+<table style="width: 100%;">
+<tr><td style="width: 25%;"><a href="add_llm_node.html">add_llm_node</a></td>
+<td>Create an LLM Agent Node easily</td></tr>
+<tr><td style="width: 25%;"><a href="add_logic_node.html">add_logic_node</a></td>
+<td>Create an R Logic Node easily</td></tr>
+<tr><td style="width: 25%;"><a href="AgentBashNode.html">AgentBashNode</a></td>
+<td>Bash Execution Node</td></tr>
+<tr><td style="width: 25%;"><a href="AgentDAG.html">AgentDAG</a></td>
+<td>Agent Graph R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="AgentDriver.html">AgentDriver</a></td>
+<td>Agent Driver R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="AgentLLMNode.html">AgentLLMNode</a></td>
+<td>Agent LLM Node R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="AgentLogicNode.html">AgentLogicNode</a></td>
+<td>Agent Logic Node R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="AgentMapNode.html">AgentMapNode</a></td>
+<td>Agent Map Node R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="AgentNode.html">AgentNode</a></td>
+<td>Agent Node Base Class</td></tr>
+<tr><td style="width: 25%;"><a href="AgentObserverNode.html">AgentObserverNode</a></td>
+<td>Agent Observer Node R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="AgentPythonNode.html">AgentPythonNode</a></td>
+<td>Python Execution Node</td></tr>
+<tr><td style="width: 25%;"><a href="AgentRouterNode.html">AgentRouterNode</a></td>
+<td>Agent Router Node R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="AgentState.html">AgentState</a></td>
+<td>Agent State R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="AgentTool.html">AgentTool</a></td>
+<td>Agent Tool R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="AnthropicDriver.html">AnthropicDriver</a></td>
+<td>Anthropic API Driver R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="auto_node_factory.html">auto_node_factory</a></td>
+<td>Automatic Node Factory for Mermaid-as-Source</td></tr>
+<tr><td style="width: 25%;"><a href="Checkpointer.html">Checkpointer</a></td>
+<td>Checkpointer Interface</td></tr>
+<tr><td style="width: 25%;"><a href="ClaudeCodeDriver.html">ClaudeCodeDriver</a></td>
+<td>Claude CLI Driver R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="cleanup_jules_branches.html">cleanup_jules_branches</a></td>
+<td>Cleanup Stale GitHub Branches</td></tr>
+<tr><td style="width: 25%;"><a href="ConflictResolver.html">ConflictResolver</a></td>
+<td>Git Conflict Resolver R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="CopilotCLIDriver.html">CopilotCLIDriver</a></td>
+<td>Copilot CLI Driver R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="create_merge_harmonizer.html">create_merge_harmonizer</a></td>
+<td>Create a Merge Harmonizer Node</td></tr>
+<tr><td style="width: 25%;"><a href="dag_add_llm_node.html">dag_add_llm_node</a></td>
+<td>Add an LLM Agent Node directly to a DAG</td></tr>
+<tr><td style="width: 25%;"><a href="dag_add_logic_node.html">dag_add_logic_node</a></td>
+<td>Add an R Logic Node directly to a DAG</td></tr>
+<tr><td style="width: 25%;"><a href="dag_create.html">dag_create</a></td>
+<td>Create an Agent Graph</td></tr>
+<tr><td style="width: 25%;"><a href="DriverRegistry.html">DriverRegistry</a></td>
+<td>Driver Registry R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="DuckDBMessageLog.html">DuckDBMessageLog</a></td>
+<td>DuckDB Message Log R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="DuckDBSaver.html">DuckDBSaver</a></td>
+<td>DuckDBSaver Checkpointer</td></tr>
+<tr><td style="width: 25%;"><a href="extract_r_code_advanced.html">extract_r_code_advanced</a></td>
+<td>Extract R Code from LLM Response</td></tr>
+<tr><td style="width: 25%;"><a href="format_toolset.html">format_toolset</a></td>
+<td>Format Toolset for Prompt</td></tr>
+<tr><td style="width: 25%;"><a href="GeminiAPIDriver.html">GeminiAPIDriver</a></td>
+<td>Gemini API Driver R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="GeminiCLIDriver.html">GeminiCLIDriver</a></td>
+<td>Gemini CLI Driver R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="get_agent_roles.html">get_agent_roles</a></td>
+<td>List Registered Roles</td></tr>
+<tr><td style="width: 25%;"><a href="get_driver_registry.html">get_driver_registry</a></td>
+<td>Global Driver Registry Accessor</td></tr>
+<tr><td style="width: 25%;"><a href="get_logic.html">get_logic</a></td>
+<td>Get Logic Function</td></tr>
+<tr><td style="width: 25%;"><a href="get_role.html">get_role</a></td>
+<td>Get an LLM Role (System Prompt)</td></tr>
+<tr><td style="width: 25%;"><a href="is_named_list.html">is_named_list</a></td>
+<td>Check if an object is a named list</td></tr>
+<tr><td style="width: 25%;"><a href="JSONLMessageLog.html">JSONLMessageLog</a></td>
+<td>JSONL Message Log R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="list_logic.html">list_logic</a></td>
+<td>List Registered Components</td></tr>
+<tr><td style="width: 25%;"><a href="load_workflow.html">load_workflow</a></td>
+<td>Load Multi-Agent Workflow from File</td></tr>
+<tr><td style="width: 25%;"><a href="MemoryMessageLog.html">MemoryMessageLog</a></td>
+<td>Memory Message Log R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="MemorySaver.html">MemorySaver</a></td>
+<td>MemorySaver Checkpointer</td></tr>
+<tr><td style="width: 25%;"><a href="mermaid_to_dag.html">mermaid_to_dag</a></td>
+<td>Create AgentDAG from Mermaid</td></tr>
+<tr><td style="width: 25%;"><a href="MessageLog.html">MessageLog</a></td>
+<td>Message Log Base R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="OllamaDriver.html">OllamaDriver</a></td>
+<td>Ollama Driver R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="OpenAIDriver.html">OpenAIDriver</a></td>
+<td>OpenAI API Driver R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="parse_mermaid.html">parse_mermaid</a></td>
+<td>Parse Mermaid Flowchart Syntax</td></tr>
+<tr><td style="width: 25%;"><a href="RDSSaver.html">RDSSaver</a></td>
+<td>RDS File Checkpointer</td></tr>
+<tr><td style="width: 25%;"><a href="reducer_append.html">reducer_append</a></td>
+<td>Built-in Reducer: Append</td></tr>
+<tr><td style="width: 25%;"><a href="reducer_merge_list.html">reducer_merge_list</a></td>
+<td>Built-in Reducer: Merge List</td></tr>
+<tr><td style="width: 25%;"><a href="register_logic.html">register_logic</a></td>
+<td>Register Logic Function</td></tr>
+<tr><td style="width: 25%;"><a href="register_role.html">register_role</a></td>
+<td>Register an LLM Role (System Prompt)</td></tr>
+<tr><td style="width: 25%;"><a href="resolve_default_driver.html">resolve_default_driver</a></td>
+<td>&lt;!- APAF Bioinformatics | factory.R | Approved | 2026-03-30 -&gt; Resolve a Default Driver from Shorthand ID</td></tr>
+<tr><td style="width: 25%;"><a href="RestrictedState.html">RestrictedState</a></td>
+<td>Restricted State R6 Class</td></tr>
+<tr><td style="width: 25%;"><a href="spawn_dag.html">spawn_dag</a></td>
+<td>Spawn an AgentDAG from a Workflow Object</td></tr>
+<tr><td style="width: 25%;"><a href="standard_node_factory.html">standard_node_factory</a></td>
+<td>Standard Node Factory for Mermaid</td></tr>
+<tr><td style="width: 25%;"><a href="WorktreeManager.html">WorktreeManager</a></td>
+<td>Git Worktree Manager R6 Class</td></tr>
+</table>
+</div></body></html>

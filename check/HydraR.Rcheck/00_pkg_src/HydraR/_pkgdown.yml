@@ -1,0 +1,117 @@
+url: https://github.com/APAF-bioinformatics/HydraR
+template:
+  bootstrap: 5
+  params:
+    bootswatch: zephyr
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, news]
+    right: [github]
+  components:
+      text: Get Started
+      href: articles/manual.html
+
+reference:
+  - title: Core Orchestration
+    desc: The heart of the HydraR framework.
+    contents:
+      - AgentDAG
+      - AgentNode
+      - AgentState
+  - title: Agent Nodes
+    desc: Specialized nodes for LLM interaction and logical routing.
+    contents:
+      - AgentLLMNode
+      - AgentLogicNode
+      - AgentBashNode
+      - AgentPythonNode
+      - add_llm_node
+      - add_logic_node
+      - dag_add_llm_node
+      - dag_add_logic_node
+      - standard_node_factory
+  - title: Parallelism & Merge Harmonization
+    desc: Infrastructure for isolated execution and conflict resolution.
+    contents:
+      - WorktreeManager
+      - ConflictResolver
+      - create_merge_harmonizer
+      - RestrictedState
+  - title: LLM Drivers
+    desc: Provider-agnostic interfaces for CLI-based and API-based LLMs.
+    contents:
+      - AgentDriver
+      - GeminiCLIDriver
+      - GeminiAPIDriver
+      - OpenAIDriver
+      - AnthropicDriver
+      - OllamaDriver
+      - ClaudeCodeDriver
+      - CopilotCLIDriver
+  - title: Dynamic Driver & Logic Registry
+    desc: Tools for hot-swapping drivers and registering domain-specific logic.
+    contents:
+      - DriverRegistry
+      - get_driver_registry
+      - list_logic
+      - get_logic
+      - register_logic
+  - title: Messaging & Persistence
+    desc: State persistence and inter-node messaging infrastructure.
+    contents:
+      - MessageLog
+      - MemoryMessageLog
+      - DuckDBMessageLog
+      - JSONLMessageLog
+      - Checkpointer
+      - MemorySaver
+      - DuckDBSaver
+      - RDSSaver
+  - title: Utilities & Parsing
+    desc: Helper functions for mermaid visualization and code extraction.
+    contents:
+      - AgentTool
+      - dag_create
+      - parse_mermaid
+      - mermaid_to_dag
+      - extract_r_code_advanced
+      - format_toolset
+      - reducer_merge_list
+      - reducer_append
+
+articles:
+  - title: Instruction Manual
+    navbar: Manual
+    contents:
+      - manual
+  - title: Case Studies
+    navbar: Case Studies
+    contents:
+      - hong_kong_travel
+      - sorting_benchmark
+  - title: Examples Gallery
+    navbar: Examples
+    contents:
+      - academic_research
+      - blog_writer
+      - data_science
+      - hello_world_agent
+      - personalized_shopping
+      - software_bug_assistant
+      - story_teller
+      - gemini_cli_demo
+      - hello_world_logic
+      - parameterized_mermaid
+      - round_trip_demo
+      - distributed_communication
+  - title: Developer Guides
+    navbar: Guides
+    contents:
+      - targets_integration
+      - creating_drivers
+      - git_worktree_toy
+      - reprex_duckdb
+
+---
+<!-- APAF Bioinformatics | HydraR | Approved | 2026-03-29 -->

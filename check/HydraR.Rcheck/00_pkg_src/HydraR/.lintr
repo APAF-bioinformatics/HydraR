@@ -1,0 +1,11 @@
+linters:
+  linters_with_defaults(
+    object_name_linter(style = "SNAKE_CASE"),
+    commented_code_linter = NULL,
+    line_length_linter(120)
+  )
+exclusions:
+  list(
+    "inst/doc",
+    "vignettes"
+  )
