@@ -60,6 +60,8 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
   public = list(
     #' @field db_path String. Path to DuckDB file.
     db_path = NULL,
+    #' @field con DBIConnection. Cached DuckDB connection.
+    con = NULL,
     #' @description Initialize DuckDBMessageLog.
     #' @param db_path String.
     #' @return A new `DuckDBMessageLog` object.
@@ -75,14 +77,15 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
         return(invisible(self))
       }
 
-      con <- DBI::dbConnect(duckdb::duckdb(), self$db_path)
-      on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
+      if (is.null(self$con)) {
+        self$con <- DBI::dbConnect(duckdb::duckdb(), self$db_path)
+      }
 
       # Use tryCatch for JSON extension loading which might fail on restricted environments like CI
       tryCatch(
         {
-          DBI::dbExecute(con, "INSTALL json")
-          DBI::dbExecute(con, "LOAD json")
+          DBI::dbExecute(self$con, "INSTALL json")
+          DBI::dbExecute(self$con, "LOAD json")
         },
         error = function(e) {
           # Silently ignore autoload failures in offline environments; duckdb might have it built-in or fall back safely
@@ -90,7 +93,7 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
         }
       )
 
-      DBI::dbExecute(con, "
+      DBI::dbExecute(self$con, "
         CREATE TABLE IF NOT EXISTS agent_messages (
           sender VARCHAR,
           recipient VARCHAR,
@@ -107,7 +110,7 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
         stringsAsFactors = FALSE
       )
 
-      DBI::dbWriteTable(con, "agent_messages", df, append = TRUE)
+      DBI::dbWriteTable(self$con, "agent_messages", df, append = TRUE)
       invisible(self)
     },
     #' @description Get all logs.
@@ -116,22 +119,24 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
       if (!requireNamespace("DBI", quietly = TRUE) || !requireNamespace("duckdb", quietly = TRUE)) {
         return(list())
       }
-      con <- DBI::dbConnect(duckdb::duckdb(), self$db_path, read_only = TRUE)
-      on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
+
+      if (is.null(self$con)) {
+        self$con <- DBI::dbConnect(duckdb::duckdb(), self$db_path)
+      }
 
       tryCatch(
         {
-          DBI::dbExecute(con, "INSTALL json")
-          DBI::dbExecute(con, "LOAD json")
+          DBI::dbExecute(self$con, "INSTALL json")
+          DBI::dbExecute(self$con, "LOAD json")
         },
         error = function(e) NULL
       )
 
-      if (!DBI::dbExistsTable(con, "agent_messages")) {
+      if (!DBI::dbExistsTable(self$con, "agent_messages")) {
         return(list())
       }
 
-      res <- DBI::dbReadTable(con, "agent_messages")
+      res <- DBI::dbReadTable(self$con, "agent_messages")
       lapply(seq_len(nrow(res)), function(i) {
         list(
           from = res$sender[i],
@@ -140,6 +145,12 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
           content = jsonlite::fromJSON(res$content_json[i])
         )
       })
+    },
+    #' @description Finalizer to clean up the cached connection.
+    finalize = function() {
+      if (!is.null(self$con) && requireNamespace("DBI", quietly = TRUE)) {
+        try(DBI::dbDisconnect(self$con, shutdown = TRUE), silent = TRUE)
+      }
     }
   )
 )
