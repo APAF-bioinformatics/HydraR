@@ -145,7 +145,9 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
           content = jsonlite::fromJSON(res$content_json[i])
         )
       })
-    },
+    }
+  ),
+  private = list(
     #' @description Finalizer to clean up the cached connection.
     finalize = function() {
       if (!is.null(self$con) && requireNamespace("DBI", quietly = TRUE)) {
