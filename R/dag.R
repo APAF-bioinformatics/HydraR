@@ -245,7 +245,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
         stopifnot(inherits(checkpointer, "Checkpointer"))
         loaded_state <- checkpointer$get(thread_id)
         if (!is.null(loaded_state)) {
-          cat(sprintf("[Iteration] Restored state from checkpoint for thread: %s\n", thread_id))
+          cat(sprintf("[%s] [Iteration] Restored state from checkpoint for thread: %s\n", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), thread_id))
           self$state <- if (is.null(initial_state)) {
             loaded_state
           } else {
@@ -282,7 +282,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
       # 3. Unified Worktree Initialization
       if (use_worktrees) {
-        cat(sprintf("[Worktree] Initializing WorktreeManager for thread: %s\n", thread_id))
+        cat(sprintf("[%s] [Worktree] Initializing WorktreeManager for thread: %s\n", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), thread_id))
         self$worktree_manager <- WorktreeManager$new(
           repo_root = repo_root %||% getwd(),
           thread_id = thread_id,
@@ -344,7 +344,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
           resume_idx <- match(resume_from[1], node_ids)
           if (!is.na(resume_idx)) {
             node_ids <- node_ids[resume_idx:length(node_ids)]
-            cat(sprintf("[Resuming] Linear DAG Execution from node: %s\n", resume_from[1]))
+            cat(sprintf("[%s] [Resuming] Linear DAG Execution from node: %s\n", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), resume_from[1]))
           }
         }
       }
@@ -365,7 +365,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
           return()
         }
 
-        cat(sprintf("[Linear] Running Node: %s\n", node_id))
+        cat(sprintf("[%s] [Linear] Running Node: %s\n", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), node_id))
         restricted_state <- RestrictedState$new(self$state, node_id, self$message_log)
 
         start_time <- Sys.time()
@@ -428,7 +428,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
                               fail_if_dirty = TRUE,
                               packages = c("withr")) {
       current_nodes <- if (!is.null(resume_from)) {
-        cat(sprintf("[Resuming] Resuming Iterative DAG Execution from node(s): %s\n", paste(resume_from, collapse = ", ")))
+        cat(sprintf("[%s] [Resuming] Resuming Iterative DAG Execution from node(s): %s\n", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), paste(resume_from, collapse = ", ")))
         resume_from
       } else if (!is.null(self$start_node)) {
         self$start_node
@@ -457,7 +457,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
         nodes_to_run_parallel <- if (!is.null(self$worktree_manager)) current_nodes else character(0)
 
         if (length(nodes_to_run_parallel) > 0) {
-          cat(sprintf("[Parallel] Executing %d nodes in isolated worktrees using furrr...\n", length(nodes_to_run_parallel)))
+          cat(sprintf("[%s] [Parallel] Executing %d nodes in isolated worktrees using furrr...\n", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), length(nodes_to_run_parallel)))
           self$state$set("__worktree_manager__", self$worktree_manager)
           self$state$set("__fail_if_dirty__", private$.fail_if_dirty)
           purrr::walk(nodes_to_run_parallel, ~ self$worktree_manager$create(.x, fail_if_dirty = private$.fail_if_dirty))
@@ -511,12 +511,12 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
             # 1. Error Edge (Highest priority if failed)
             if (!is.null(res$status) && res$status %in% c("failed", "error") && node_id %in% names(self$error_edges)) {
-              cat(sprintf("   [%s] Node failed (Parallel). Following error edge to: %s\n", node_id, self$error_edges[[node_id]]))
+              cat(sprintf("[%s]    [%s] Node failed (Parallel). Following error edge to: %s\n", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), node_id, self$error_edges[[node_id]]))
               target <- self$error_edges[[node_id]]
             }
             # 2. Dynamic Router Output
             else if (!is.null(res$target_node)) {
-              cat(sprintf("   [%s] Router (Parallel) selected next node: %s\n", node_id, res$target_node))
+              cat(sprintf("[%s]    [%s] Router (Parallel) selected next node: %s\n", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), node_id, res$target_node))
               target <- res$target_node
             }
             # 3. Conditional Edges
@@ -549,7 +549,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
               return()
             }
 
-            cat(sprintf("[DEBUG] Queue: %s | Running: %s\n", paste(current_nodes, collapse = ", "), node_id))
+            cat(sprintf("[%s] [DEBUG] Queue: %s | Running: %s\n", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), paste(current_nodes, collapse = ", "), node_id))
             restricted_state <- RestrictedState$new(self$state, node_id, self$message_log)
             start_time <- Sys.time()
             run_call <- list(state = restricted_state)
@@ -586,12 +586,12 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
             # 1. Error Edge (Highest priority if failed)
             if (!is.null(res$status) && res$status %in% c("failed", "error") && node_id %in% names(self$error_edges)) {
-              cat(sprintf("   [%s] Node failed. Following error edge to: %s\n", node_id, self$error_edges[[node_id]]))
+              cat(sprintf("[%s]    [%s] Node failed. Following error edge to: %s\n", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), node_id, self$error_edges[[node_id]]))
               target <- self$error_edges[[node_id]]
             }
             # 2. Dynamic Router Output
             else if (!is.null(res$target_node)) {
-              cat(sprintf("   [%s] Router selected next node: %s\n", node_id, res$target_node))
+              cat(sprintf("[%s]    [%s] Router selected next node: %s\n", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), node_id, res$target_node))
               target <- res$target_node
             }
             # 3. Conditional Edges

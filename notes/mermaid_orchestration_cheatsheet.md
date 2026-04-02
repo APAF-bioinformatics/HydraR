@@ -34,6 +34,9 @@ To ensure consistent behavior across nodes and drivers, the following keys are r
 | `yolo` | Boolean | Gemini | Skip safety/confirmation checks. |
 | `num_ctx` | Integer | Ollama | Context window size. |
 | `verbose` | Boolean | Claude | Enable verbose CLI logging. |
+| `aspect_ratio` | String | Gemini/OpenAI | Image dimensions (e.g., `1:1`, `16:9`). |
+| `image_size` | String | Gemini/OpenAI | Output resolution (e.g., `1K`, `2K`, `512`). |
+| `output_dir` | String | Logic/Driver | Path to save generated binary assets. |
 
 ---
 
@@ -104,6 +107,13 @@ graph TD
   Check -- "Test" --> Success
   Check -- "Fail" --> Retry
   Check -- "error" --> Halt["Emergency Stop"]
+```
+
+### 4. Multimodal Image Generation
+Use `driver=gemini_image` or `openai_image` for generating binary visual assets.
+```mermaid
+graph TD
+  IG["Image Generator | driver=gemini_image | model=gemini-3.1-flash-image-preview | aspect_ratio=16:9 | output_dir=vignettes/images"]
 ```
 
 > [!IMPORTANT]

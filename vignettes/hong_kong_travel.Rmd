@@ -69,7 +69,7 @@ checkpointer <- DuckDBSaver$new(db_path = "travel_booking.duckdb")
 
 # Toggle for slow/expensive and potentially rate-limited AI figure generation
 # Set to TRUE to force-regenerate the images, otherwise uses existing ones.
-FORCE_REGENERATE_IMAGES <- TRUE
+FORCE_REGENERATE_IMAGES <- FALSE
 ASPECT_RATIO <- "16:9"
 
 # Run the orchestration using the state from YAML

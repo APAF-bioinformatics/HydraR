@@ -44,7 +44,8 @@ Imports:
     purrr,
     R6,
     yaml,
-    httr2
+    httr2,
+    base64enc
 Suggests: 
     testthat (>= 3.0.0),
     duckdb,
