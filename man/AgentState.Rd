@@ -35,6 +35,7 @@ Initialize AgentState}
 \item \href{#method-AgentState-validate}{\code{AgentState$validate()}}
 \item \href{#method-AgentState-set}{\code{AgentState$set()}}
 \item \href{#method-AgentState-update}{\code{AgentState$update()}}
+\item \href{#method-AgentState-update_from_node}{\code{AgentState$update_from_node()}}
 \item \href{#method-AgentState-to_list_serializable}{\code{AgentState$to_list_serializable()}}
 \item \href{#method-AgentState-clone}{\code{AgentState$clone()}}
 }
@@ -148,6 +149,25 @@ Update state using reducers}
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{updates}}{List of state updates.
+Update state from a node's output}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AgentState-update_from_node"></a>}}
+\if{latex}{\out{\hypertarget{method-AgentState-update_from_node}{}}}
+\subsection{Method \code{update_from_node()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{AgentState$update_from_node(output, node_id)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{output}}{The output from the node.}
+
+\item{\code{node_id}}{The ID of the node.
 Export state for persistence (logic as names)}
 }
 \if{html}{\out{</div>}}

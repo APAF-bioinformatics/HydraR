@@ -2,32 +2,35 @@ library(testthat)
 library(HydraR)
 
 test_that("cleanup_jules_branches handles dry run securely", {
-  # Skip if not in a git repo (e.g. during devtools::check())
-  repo <- getwd()
+  # Initialize a temporary git repo to ensure the test has a valid git env
+  repo <- withr::local_tempdir()
+  remote_repo <- withr::local_tempdir()
 
-  # When running in some CI environments, shQuote(getwd()) causes git -C to fail
-  # because system2 bypasses the shell. We'll check using repo directly, just as
-  # cleanup_jules_branches does via system2, which means cleanup_jules_branches
-  # will also fail if shQuote(repo) fails.
-  # If git fetch fails because of the shQuote bug on CI, we catch the error
-  # and skip the test instead of failing the test suite.
+  # Create a dummy remote repo
+  system2("git", c("-C", shQuote(remote_repo), "init", "--bare"), stdout = FALSE, stderr = FALSE)
 
-  is_git <- system2("git", c("-C", repo, "rev-parse", "--is-inside-work-tree"), stdout = FALSE, stderr = FALSE) == 0
-  skip_if_not(is_git, "Not in a git repository")
+  # Create local repo
+  system2("git", c("-C", shQuote(repo), "init"), stdout = FALSE, stderr = FALSE)
+  system2("git", c("-C", shQuote(repo), "config", "user.name", "'Test User'"), stdout = FALSE, stderr = FALSE)
+  system2("git", c("-C", shQuote(repo), "config", "user.email", "'test@example.com'"), stdout = FALSE, stderr = FALSE)
 
-  # Also skip if no remotes are configured (e.g. in CI)
-  remotes <- system2("git", c("-C", repo, "remote"), stdout = TRUE, stderr = FALSE)
-  has_remote <- length(attributes(remotes)$status) == 0 && length(remotes) > 0 && nzchar(remotes[1])
-  skip_if_not(has_remote, "No git remotes configured")
+  # Add remote to allow fetch to succeed
+  system2("git", c("-C", shQuote(repo), "remote", "add", "origin", shQuote(remote_repo)), stdout = FALSE, stderr = FALSE)
+
+  # Create an initial commit to avoid "unknown revision" errors
+  writeLines("test", file.path(repo, "README.md"))
+  system2("git", c("-C", shQuote(repo), "add", "README.md"), stdout = FALSE, stderr = FALSE)
+  system2("git", c("-C", shQuote(repo), "commit", "-m", "'Initial commit'"), stdout = FALSE, stderr = FALSE)
+  system2("git", c("-C", shQuote(repo), "branch", "-M", "main"), stdout = FALSE, stderr = FALSE)
+  system2("git", c("-C", shQuote(repo), "push", "-u", "origin", "main"), stdout = FALSE, stderr = FALSE)
+
+  # Also skip if git fetch fails (e.g. R CMD check inside a sub-folder where remote is not accessible)
+  can_fetch <- system2("git", c("-C", repo, "fetch", "--all", "--prune"), stdout = FALSE, stderr = FALSE) == 0
+  skip_if_not(can_fetch, "Cannot fetch from remote repository")
 
   # Ensure it doesn't crash and identifies main as protected
   # Since I already cleaned up, it should return 0 branches
-  res <- tryCatch({
-    cleanup_jules_branches(repo_root = repo, dry_run = TRUE, verbose = FALSE)
-  }, error = function(e) {
-    # Skip test if git operations fail inside the function (like the shQuote bug on CI)
-    skip(paste("Skipping test due to git error:", e$message))
-  })
+  res <- cleanup_jules_branches(repo_root = repo, dry_run = TRUE, verbose = FALSE)
 
   expect_type(res, "character")
   # Protected branches should NEVER be in the list
