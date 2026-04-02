@@ -281,7 +281,7 @@ GeminiImageDriver <- R6::R6Class("GeminiImageDriver",
 
         # Determine if we use GenerateContent (Gemini 3.x) or Predict (Imagen)
         is_imagen <- grepl("^imagen-", target_model)
-        
+
         if (is_imagen) {
           url <- sprintf("%s/models/%s:predict", self$api_base, target_model)
         } else {
@@ -297,7 +297,7 @@ GeminiImageDriver <- R6::R6Class("GeminiImageDriver",
           )
           # Note: personGeneration is often restricted in 2026, so only add if explicitly requested
           if (!is.null(cli_opts$personGeneration)) {
-             final_params$person_generation <- cli_opts$personGeneration
+            final_params$person_generation <- cli_opts$personGeneration
           }
 
           request_body <- list(
@@ -327,7 +327,7 @@ GeminiImageDriver <- R6::R6Class("GeminiImageDriver",
           message(sprintf("DEBUG: [%s] Prompt: %s...", self$id, substr(prompt, 1, 50)))
         }
 
-        # Use curl::curl_fetch_disk to avoid httr2 crash on large responses 
+        # Use curl::curl_fetch_disk to avoid httr2 crash on large responses
         # and system2() hangs in R6/withr context.
         req_body_json <- jsonlite::toJSON(request_body, auto_unbox = TRUE)
         resp_file <- tempfile(pattern = "gemini_resp_", fileext = ".json")
@@ -356,14 +356,14 @@ GeminiImageDriver <- R6::R6Class("GeminiImageDriver",
           message("DEBUG: [", self$id, "] Response saved (", file.size(resp_file), " bytes). Parsing JSON...")
         }
         cont <- jsonlite::fromJSON(resp_file, simplifyVector = FALSE)
-        
+
         # Cleanup
         unlink(resp_file)
 
         # Extract base64 image data based on format
         img_b64 <- NULL
         mime_type <- "image/png"
-        
+
         if (is_imagen) {
           # Imagen Predict format
           if (!is.null(cont$predictions) && length(cont$predictions) > 0) {
@@ -385,8 +385,10 @@ GeminiImageDriver <- R6::R6Class("GeminiImageDriver",
         }
 
         if (is.null(img_b64) || img_b64 == "") {
-          stop(sprintf("[%s] No image data found in %s response from model %s.", 
-                      self$id, ifelse(is_imagen, "predict", "generateContent"), target_model))
+          stop(sprintf(
+            "[%s] No image data found in %s response from model %s.",
+            self$id, ifelse(is_imagen, "predict", "generateContent"), target_model
+          ))
         }
 
         # Save and return path
@@ -400,7 +402,7 @@ GeminiImageDriver <- R6::R6Class("GeminiImageDriver",
         writeBin(bin_data, final_path)
 
         if (Sys.getenv("HYDRAR_DEBUG") == "TRUE") {
-           message(sprintf("[%s] Successfully saved Gemini-generated image: %s", self$id, final_path))
+          message(sprintf("[%s] Successfully saved Gemini-generated image: %s", self$id, final_path))
         }
         return(final_path)
       })
