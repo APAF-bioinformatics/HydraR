@@ -13,6 +13,8 @@ Persists messages to the master DuckDB database.
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{db_path}}{String. Path to DuckDB file.}
+
+\item{\code{con}}{DBIConnection. Cached DuckDB connection.}
 }
 \if{html}{\out{</div>}}
 }
@@ -22,6 +24,7 @@ Persists messages to the master DuckDB database.
 \item \href{#method-DuckDBMessageLog-new}{\code{DuckDBMessageLog$new()}}
 \item \href{#method-DuckDBMessageLog-log}{\code{DuckDBMessageLog$log()}}
 \item \href{#method-DuckDBMessageLog-get_all}{\code{DuckDBMessageLog$get_all()}}
+\item \href{#method-DuckDBMessageLog-finalize}{\code{DuckDBMessageLog$finalize()}}
 \item \href{#method-DuckDBMessageLog-clone}{\code{DuckDBMessageLog$clone()}}
 }
 }
@@ -77,6 +80,16 @@ Get all logs.
 \subsection{Returns}{
 List of logs.
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DuckDBMessageLog-finalize"></a>}}
+\if{latex}{\out{\hypertarget{method-DuckDBMessageLog-finalize}{}}}
+\subsection{Method \code{finalize()}}{
+Finalizer to clean up the cached connection.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DuckDBMessageLog$finalize()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DuckDBMessageLog-clone"></a>}}

@@ -68,10 +68,38 @@ When we run the DAG, we use the `initial_state` extracted from the YAML file. No
 checkpointer <- DuckDBSaver$new(db_path = "travel_booking.duckdb")
 
 # Run the orchestration using the state from YAML
-results <- dag$run(initial_state = wf$initial_state, max_steps = 5, checkpointer = checkpointer)
+results <- dag$run(initial_state = wf$initial_state, max_steps = 15, checkpointer = checkpointer)
 
-# Display final itinerary (will be NULL if run without API keys)
-cat(results$state$get("Planner"))
+# Display final itinerary
+cat("\n\n### Generated Itinerary\n")
+cat(as.character(results$state$get("Planner")))
+
+# Display Constraint Audit Report
+cat("\n\n### Constraint Audit Report\n")
+audit_res <- results$state$get("Validator")
+if (!is.null(audit_res$report)) {
+  cat(audit_res$report)
+} else {
+  cat("No audit report available.")
+}
+
+# Display Pamphlet (HTML)
+cat("\n\n### Formatted Pamphlet (HTML Fragment)\n")
+pamphlet_html <- results$state$get("PamphletFormatter")
+if (!is.null(pamphlet_html)) {
+  htmltools::HTML(pamphlet_html)
+} else {
+  cat("Pamphlet not generated.")
+}
+
+# List Artifacts
+cat("\n\n### Generated Artifacts\n")
+artifacts <- list.files(pattern = "hong_kong|validation_report")
+if (length(artifacts) > 0) {
+  cat(paste("- ", artifacts, collapse = "\n"))
+} else {
+  cat("No artifacts found.")
+}
 ```
 
 ## Conclusion
