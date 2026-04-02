@@ -53,10 +53,30 @@ MemoryMessageLog <- R6::R6Class("MemoryMessageLog",
 
 #' DuckDB Message Log R6 Class
 #'
-#' @description Persists messages to the master DuckDB database.
+#' @description Persists messages to the master DuckDB database. Maintains an open connection for efficiency.
 #' @export
 DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
   inherit = MessageLog,
+  private = list(
+    con = NULL,
+    get_connection = function() {
+      if (is.null(private$con)) {
+        if (!requireNamespace("DBI", quietly = TRUE) || !requireNamespace("duckdb", quietly = TRUE)) {
+          return(NULL)
+        }
+        private$con <- DBI::dbConnect(duckdb::duckdb(), self$db_path)
+      }
+      private$con
+    },
+    finalize = function() {
+      if (!is.null(private$con)) {
+        if (requireNamespace("DBI", quietly = TRUE)) {
+          DBI::dbDisconnect(private$con, shutdown = TRUE)
+        }
+        private$con <- NULL
+      }
+    }
+  ),
   public = list(
     #' @field db_path String. Path to DuckDB file.
     db_path = NULL,
@@ -70,13 +90,11 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
     #' @param msg List. Message object.
     #' @return The log object (invisibly).
     log = function(msg) {
-      if (!requireNamespace("DBI", quietly = TRUE) || !requireNamespace("duckdb", quietly = TRUE)) {
+      con <- private$get_connection()
+      if (is.null(con)) {
         warning("DBI or duckdb not available. Skipping persistent log.")
         return(invisible(self))
       }
-
-      con <- DBI::dbConnect(duckdb::duckdb(), self$db_path)
-      on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
 
       DBI::dbExecute(con, "
         CREATE TABLE IF NOT EXISTS agent_messages (
@@ -101,11 +119,10 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
     #' @description Get all logs.
     #' @return List of logs.
     get_all = function() {
-      if (!requireNamespace("DBI", quietly = TRUE) || !requireNamespace("duckdb", quietly = TRUE)) {
+      con <- private$get_connection()
+      if (is.null(con)) {
         return(list())
       }
-      con <- DBI::dbConnect(duckdb::duckdb(), self$db_path, read_only = TRUE)
-      on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
 
       if (!DBI::dbExistsTable(con, "agent_messages")) {
         return(list())
