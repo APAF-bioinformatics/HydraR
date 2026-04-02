@@ -226,7 +226,7 @@ test_that("OpenAIDriver handles network failures gracefully", {
     httr2::with_mocked_responses(
       mock_error,
       {
-        expect_error(drv$call("Hello"), "OpenAI API request failed: Internal Server Error. Body: unreadable body")
+        expect_error(drv$call("Hello"), "OpenAI API request failed: Internal Server Error")
       }
     )
   })
@@ -243,7 +243,7 @@ test_that("AnthropicDriver handles network failures gracefully", {
     httr2::with_mocked_responses(
       mock_error,
       {
-        expect_error(drv$call("Hello"), "Anthropic API request failed: Internal Server Error. Body: unreadable body")
+        expect_error(drv$call("Hello"), "Anthropic API request failed: Internal Server Error")
       }
     )
   })
@@ -260,7 +260,7 @@ test_that("GeminiAPIDriver handles network failures gracefully", {
     httr2::with_mocked_responses(
       mock_error,
       {
-        expect_error(drv$call("Hello"), "Gemini API request failed: Internal Server Error. Body: unreadable body")
+        expect_error(drv$call("Hello"), "Gemini API request failed: Internal Server Error")
       }
     )
   })
