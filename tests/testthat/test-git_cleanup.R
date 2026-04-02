@@ -2,38 +2,41 @@ library(testthat)
 library(HydraR)
 
 test_that("cleanup_jules_branches handles dry run securely", {
-  # We should use a dedicated temporary git repo for tests
-  # that run git commands. This prevents failures in CI environments
-  # (e.g. `devtools::check()`) where the package source is extracted
-  # from a tarball without a `.git` folder, and `getwd()` points
-  # to the temporary check directory.
-  tmp_dir <- withr::local_tempdir()
+  # Initialize a temporary git repo to ensure the test has a valid git env
+  repo <- withr::local_tempdir()
+  remote_repo <- withr::local_tempdir()
 
-  withr::with_dir(tmp_dir, {
-    system2("git", c("init", "-b", "main"), stdout = FALSE, stderr = FALSE)
-    system2("git", c("config", "user.name", "'Test User'"), stdout = FALSE, stderr = FALSE)
-    system2("git", c("config", "user.email", "'test@example.com'"), stdout = FALSE, stderr = FALSE)
+  # Create a dummy remote repo
+  system2("git", c("-C", shQuote(remote_repo), "init", "--bare"), stdout = FALSE, stderr = FALSE)
 
-    # Create an initial commit
-    file.create("README.md")
-    system2("git", c("add", "README.md"), stdout = FALSE, stderr = FALSE)
-    system2("git", c("commit", "-m", "'Initial commit'"), stdout = FALSE, stderr = FALSE)
+  # Create local repo
+  system2("git", c("-C", shQuote(repo), "init"), stdout = FALSE, stderr = FALSE)
+  system2("git", c("-C", shQuote(repo), "config", "user.name", "'Test User'"), stdout = FALSE, stderr = FALSE)
+  system2("git", c("-C", shQuote(repo), "config", "user.email", "'test@example.com'"), stdout = FALSE, stderr = FALSE)
 
-    # Note: cleanup_jules_branches explicitly checks remote tracking branches ("origin/*"),
-    # so we need to set up a dummy remote to simulate a full checkout environment,
-    # or test the function against local branches if it supports it.
-    # However, since `cleanup_jules_branches` hardcodes "origin/", let's mock the remote.
-    system2("git", c("remote", "add", "origin", "."), stdout = FALSE, stderr = FALSE)
-    system2("git", c("fetch", "origin"), stdout = FALSE, stderr = FALSE)
+  # Add remote to allow fetch to succeed
+  system2("git", c("-C", shQuote(repo), "remote", "add", "origin", shQuote(remote_repo)), stdout = FALSE, stderr = FALSE)
 
-    # Let's ensure it doesn't crash and identifies main as protected
-    res <- cleanup_jules_branches(repo_root = tmp_dir, dry_run = TRUE, verbose = FALSE)
+  # Create an initial commit to avoid "unknown revision" errors
+  writeLines("test", file.path(repo, "README.md"))
+  system2("git", c("-C", shQuote(repo), "add", "README.md"), stdout = FALSE, stderr = FALSE)
+  system2("git", c("-C", shQuote(repo), "commit", "-m", "'Initial commit'"), stdout = FALSE, stderr = FALSE)
+  system2("git", c("-C", shQuote(repo), "branch", "-M", "main"), stdout = FALSE, stderr = FALSE)
+  system2("git", c("-C", shQuote(repo), "push", "-u", "origin", "main"), stdout = FALSE, stderr = FALSE)
 
-    expect_type(res, "character")
-    expect_false("main" %in% res)
-    expect_false("gh-pages" %in% res)
-    expect_false("HEAD" %in% res)
-  })
+  # Also skip if git fetch fails (e.g. R CMD check inside a sub-folder where remote is not accessible)
+  can_fetch <- system2("git", c("-C", repo, "fetch", "--all", "--prune"), stdout = FALSE, stderr = FALSE) == 0
+  skip_if_not(can_fetch, "Cannot fetch from remote repository")
+
+  # Ensure it doesn't crash and identifies main as protected
+  # Since I already cleaned up, it should return 0 branches
+  res <- cleanup_jules_branches(repo_root = repo, dry_run = TRUE, verbose = FALSE)
+
+  expect_type(res, "character")
+  # Protected branches should NEVER be in the list
+  expect_false("main" %in% res)
+  expect_false("gh-pages" %in% res)
+  expect_false("HEAD" %in% res)
 })
 
 test_that("cleanup_jules_branches fails gracefully on non-git repos", {

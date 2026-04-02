@@ -21,6 +21,7 @@
 #' @importFrom R6 R6Class
 #' @importFrom purrr walk
 #' @importFrom digest digest
+#' @importFrom uuid UUIDgenerate
 #' @export
 WorktreeManager <- R6::R6Class("WorktreeManager",
   public = list(

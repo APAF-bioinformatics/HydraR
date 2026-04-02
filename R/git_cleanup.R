@@ -30,13 +30,13 @@ cleanup_jules_branches <- function(repo_root = getwd(),
   if (verbose) message("--- HydraR Branch Cleanup Utility ---")
 
   # 1. Fetch latest remote state
-  res_fetch <- system2("git", c("-C", shQuote(repo_root), "fetch", "--all", "--prune"), stdout = FALSE, stderr = FALSE)
+  res_fetch <- system2("git", c("-C", repo_root, "fetch", "--all", "--prune"), stdout = FALSE, stderr = FALSE)
   if (res_fetch != 0) {
     stop(sprintf("Git fetch failed for repository at '%s'. Ensure it is a valid git repository.", repo_root))
   }
 
   # 2. List remote branches
-  branches_raw <- system2("git", c("-C", shQuote(repo_root), "branch", "-r"), stdout = TRUE)
+  branches_raw <- system2("git", c("-C", repo_root, "branch", "-r"), stdout = TRUE)
   if (length(attributes(branches_raw)$status) > 0 && attributes(branches_raw)$status != 0) {
     stop("Failed to list remote branches.")
   }
@@ -69,7 +69,7 @@ cleanup_jules_branches <- function(repo_root = getwd(),
     age_hours <- (now - last_commit_ts) / 3600
 
     # Check if merged into main
-    is_merged <- system2("git", c("-C", shQuote(repo_root), "branch", "-r", "--merged", "origin/main"), stdout = TRUE)
+    is_merged <- system2("git", c("-C", repo_root, "branch", "-r", "--merged", "origin/main"), stdout = TRUE)
     is_merged <- any(grepl(paste0("origin/", b, "$"), is_merged))
 
     # Candidate if:
@@ -97,7 +97,7 @@ cleanup_jules_branches <- function(repo_root = getwd(),
     } else {
       if (verbose) message(sprintf("\nDELETING: %d remote branches...", length(candidates)))
       purrr::walk(candidates, function(b) {
-        system2("git", c("-C", shQuote(repo_root), "push", "origin", "--delete", shQuote(b)), stdout = FALSE, stderr = FALSE)
+        system2("git", c("-C", repo_root, "push", "origin", "--delete", b), stdout = FALSE, stderr = FALSE)
         if (verbose) message(sprintf("  - [Deleted] %s", b))
       })
     }
