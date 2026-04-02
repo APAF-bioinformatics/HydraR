@@ -9,6 +9,27 @@
 library(testthat)
 library(httr2)
 
+test_that("OpenAIDriver validates missing API key", {
+  withr::with_envvar(list(OPENAI_API_KEY = ""), {
+    drv <- OpenAIDriver$new()
+    expect_error(drv$call("Hello"), "OPENAI_API_KEY environment variable not set")
+  })
+})
+
+test_that("AnthropicDriver validates missing API key", {
+  withr::with_envvar(list(ANTHROPIC_API_KEY = ""), {
+    drv <- AnthropicDriver$new()
+    expect_error(drv$call("Hello"), "ANTHROPIC_API_KEY environment variable not set")
+  })
+})
+
+test_that("GeminiAPIDriver validates missing API key", {
+  withr::with_envvar(list(GOOGLE_API_KEY = ""), {
+    drv <- GeminiAPIDriver$new()
+    expect_error(drv$call("Hello"), "GOOGLE_API_KEY environment variable not set")
+  })
+})
+
 test_that("OpenAIDriver correctly formats requests and parses response", {
   withr::with_envvar(list(OPENAI_API_KEY = "test_key"), {
     drv <- OpenAIDriver$new()
@@ -178,10 +199,20 @@ test_that("GeminiAPIDriver correctly handles API errors", {
 })
 
 test_that("API Drivers report correct capabilities", {
-  drv <- OpenAIDriver$new()
-  caps <- drv$get_capabilities()
-  expect_true(caps$json_mode)
-  expect_true(caps$tools)
+  drv_openai <- OpenAIDriver$new()
+  caps_openai <- drv_openai$get_capabilities()
+  expect_true(caps_openai$json_mode)
+  expect_true(caps_openai$tools)
+
+  drv_anthropic <- AnthropicDriver$new()
+  caps_anthropic <- drv_anthropic$get_capabilities()
+  expect_true(caps_anthropic$json_mode)
+  expect_true(caps_anthropic$tools)
+
+  drv_gemini <- GeminiAPIDriver$new()
+  caps_gemini <- drv_gemini$get_capabilities()
+  expect_true(caps_gemini$json_mode)
+  expect_true(caps_gemini$tools)
 })
 
 test_that("OpenAIDriver handles network failures gracefully", {
@@ -189,13 +220,13 @@ test_that("OpenAIDriver handles network failures gracefully", {
     drv <- OpenAIDriver$new()
 
     mock_error <- function(req) {
-      stop("Could not resolve host: api.openai.com")
+      httr2::response(status_code = 500)
     }
 
     httr2::with_mocked_responses(
       mock_error,
       {
-        expect_error(drv$call("Hello"), "OpenAI API request failed: Could not resolve host")
+        expect_error(drv$call("Hello"), "OpenAI API request failed: HTTP 500 Internal Server Error")
       }
     )
   })
@@ -206,13 +237,13 @@ test_that("AnthropicDriver handles network failures gracefully", {
     drv <- AnthropicDriver$new()
 
     mock_error <- function(req) {
-      stop("Could not resolve host: api.anthropic.com")
+      httr2::response(status_code = 500)
     }
 
     httr2::with_mocked_responses(
       mock_error,
       {
-        expect_error(drv$call("Hello"), "Anthropic API request failed: Could not resolve host")
+        expect_error(drv$call("Hello"), "Anthropic API request failed: HTTP 500 Internal Server Error")
       }
     )
   })
@@ -223,13 +254,13 @@ test_that("GeminiAPIDriver handles network failures gracefully", {
     drv <- GeminiAPIDriver$new()
 
     mock_error <- function(req) {
-      stop("Could not resolve host: generativelanguage.googleapis.com")
+      httr2::response(status_code = 500)
     }
 
     httr2::with_mocked_responses(
       mock_error,
       {
-        expect_error(drv$call("Hello"), "Gemini API request failed: Could not resolve host")
+        expect_error(drv$call("Hello"), "Gemini API request failed: HTTP 500 Internal Server Error")
       }
     )
   })
