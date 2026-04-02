@@ -181,6 +181,9 @@ DuckDBSaver <- R6::R6Class("DuckDBSaver",
     #' @param db_path String path to DuckDB file. Optional if con is provided.
     #' @param table_name Name of the table to store checkpoints in.
     initialize = function(con = NULL, db_path = NULL, table_name = "agent_checkpoints") {
+      if (!is.character(table_name) || length(table_name) != 1 || !grepl("^[a-zA-Z0-9_]+$", table_name)) {
+        stop("Invalid table_name: must be a single string containing only alphanumeric characters and underscores.")
+      }
       self$table_name <- table_name
 
       if (!is.null(db_path)) {

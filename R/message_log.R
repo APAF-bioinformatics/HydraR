@@ -81,12 +81,24 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
         self$con <- DBI::dbConnect(duckdb::duckdb(), self$db_path)
       }
 
+      # Use tryCatch for JSON extension loading which might fail on restricted environments like CI
+      tryCatch(
+        {
+          DBI::dbExecute(self$con, "INSTALL json")
+          DBI::dbExecute(self$con, "LOAD json")
+        },
+        error = function(e) {
+          # Silently ignore autoload failures in offline environments; duckdb might have it built-in or fall back safely
+          NULL
+        }
+      )
+
       DBI::dbExecute(self$con, "
         CREATE TABLE IF NOT EXISTS agent_messages (
           sender VARCHAR,
           recipient VARCHAR,
           timestamp TIMESTAMP,
-          content_json JSON
+          content_json VARCHAR
         )
       ")
 
@@ -111,6 +123,14 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
       if (is.null(self$con)) {
         self$con <- DBI::dbConnect(duckdb::duckdb(), self$db_path)
       }
+
+      tryCatch(
+        {
+          DBI::dbExecute(self$con, "INSTALL json")
+          DBI::dbExecute(self$con, "LOAD json")
+        },
+        error = function(e) NULL
+      )
 
       if (!DBI::dbExistsTable(self$con, "agent_messages")) {
         return(list())

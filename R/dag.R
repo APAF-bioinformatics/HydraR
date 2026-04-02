@@ -329,7 +329,13 @@ AgentDAG <- R6::R6Class("AgentDAG",
     #' @param step_count Integer current total step count.
     #' @param fail_if_dirty Logical.
     #' @return Execution result list.
-    .run_linear = function(max_steps = 25, checkpointer = NULL, thread_id = NULL, resume_from = NULL, node_ids = NULL, step_count = 0, fail_if_dirty = TRUE) {
+    .run_linear = function(max_steps = 25,
+                           checkpointer = NULL,
+                           thread_id = NULL,
+                           resume_from = NULL,
+                           node_ids = NULL,
+                           step_count = 0,
+                           fail_if_dirty = TRUE) {
       if (is.null(node_ids)) {
         topo_order <- igraph::topo_sort(self$graph)
         node_ids <- names(igraph::V(self$graph)[topo_order])
@@ -369,11 +375,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
         self$results[[node_id]] <<- res
 
         if (!is.null(res$output)) {
-          if (is_named_list(res$output)) {
-            self$state$update(res$output)
-          } else {
-            self$state$update(setNames(list(res$output), node_id))
-          }
+          self$state$update_from_node(res$output, node_id)
         }
 
         step_count <<- step_count + 1
@@ -418,7 +420,13 @@ AgentDAG <- R6::R6Class("AgentDAG",
     #' @param step_count Integer.
     #' @param fail_if_dirty Logical.
     #' @param packages Character vector. Packages to load in parallel workers.
-    .run_iterative = function(max_steps, checkpointer = NULL, thread_id = NULL, resume_from = NULL, step_count = 0, fail_if_dirty = TRUE, packages = c("withr")) {
+    .run_iterative = function(max_steps,
+                              checkpointer = NULL,
+                              thread_id = NULL,
+                              resume_from = NULL,
+                              step_count = 0,
+                              fail_if_dirty = TRUE,
+                              packages = c("withr")) {
       current_nodes <- if (!is.null(resume_from)) {
         cat(sprintf("[Resuming] Resuming Iterative DAG Execution from node(s): %s\n", paste(resume_from, collapse = ", ")))
         resume_from
@@ -481,7 +489,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
             res <- p_res$res
             self$results[[node_id]] <<- res
             if (!is.null(res$output)) {
-              if (is_named_list(res$output)) self$state$update(res$output) else self$state$update(setNames(list(res$output), node_id))
+              self$state$update_from_node(res$output, node_id)
             }
             step_count <<- step_count + 1
             self$trace_log[[step_count]] <<- list(
@@ -551,7 +559,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
             self$results[[node_id]] <<- res
             if (!is.null(res$output)) {
-              if (is_named_list(res$output)) self$state$update(res$output) else self$state$update(setNames(list(res$output), node_id))
+              self$state$update_from_node(res$output, node_id)
             }
             self$trace_log[[step_idx_inner]] <<- list(
               step = step_idx_inner, node = node_id, mode = "iterative",

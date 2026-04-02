@@ -92,4 +92,21 @@ test_that("DuckDBSaver checkpointer works and creates db file", {
   DBI::dbDisconnect(saver$con, shutdown = TRUE)
 })
 
+test_that("DuckDBSaver validates table_name against SQL injection", {
+  skip_if_not_installed("duckdb")
+  tmp_db <- tempfile(fileext = ".db")
+
+  # Invalid table names
+  expect_error(DuckDBSaver$new(db_path = tmp_db, table_name = "test; DROP TABLE users;"), "Invalid table_name")
+  expect_error(DuckDBSaver$new(db_path = tmp_db, table_name = "test--"), "Invalid table_name")
+  expect_error(DuckDBSaver$new(db_path = tmp_db, table_name = "my table"), "Invalid table_name")
+  expect_error(DuckDBSaver$new(db_path = tmp_db, table_name = 123), "Invalid table_name")
+  expect_error(DuckDBSaver$new(db_path = tmp_db, table_name = c("test", "test2")), "Invalid table_name")
+
+  # Valid table name
+  saver <- DuckDBSaver$new(db_path = tmp_db, table_name = "my_table_123")
+  expect_s3_class(saver, "DuckDBSaver")
+  DBI::dbDisconnect(saver$con, shutdown = TRUE)
+})
+
 # <!-- APAF Bioinformatics | test-checkpointer.R | Approved | 2026-03-31 -->

@@ -63,3 +63,21 @@ print('Python Reticulate OK')
 })
 
 # <!-- APAF Bioinformatics | test-node_languages.R | Approved | 2026-03-29 -->
+
+test_that("AgentPythonNode (reticulate) handles failure correctly", {
+  skip_if_not_installed("reticulate")
+
+  py_script <- "
+# This will cause a runtime error
+result = state_r['val'] / 0
+print('Python Reticulate OK')
+"
+  node <- AgentPythonNode$new("py_ret_fail", script = py_script, engine = "reticulate")
+  state <- AgentState$new()
+  state$set("val", 50)
+
+  res <- node$run(state = state)
+  expect_false(res$success)
+  expect_true(is.character(res$error))
+  expect_true(nchar(res$error) > 0)
+})
