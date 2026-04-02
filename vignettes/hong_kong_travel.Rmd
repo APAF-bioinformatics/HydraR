@@ -67,8 +67,20 @@ When we run the DAG, we use the `initial_state` extracted from the YAML file. No
 # Register a checkpointer for durability
 checkpointer <- DuckDBSaver$new(db_path = "travel_booking.duckdb")
 
+# Toggle for slow/expensive and potentially rate-limited AI figure generation
+# Set to TRUE to force-regenerate the images, otherwise uses existing ones.
+FORCE_REGENERATE_IMAGES <- TRUE
+ASPECT_RATIO <- "16:9"
+
 # Run the orchestration using the state from YAML
-results <- dag$run(initial_state = wf$initial_state, max_steps = 15, checkpointer = checkpointer)
+results <- dag$run(
+  initial_state = append(wf$initial_state, list(
+    force_regenerate_images = FORCE_REGENERATE_IMAGES,
+    aspect_ratio = ASPECT_RATIO
+  )),
+  max_steps = 15,
+  checkpointer = checkpointer
+)
 
 # Display final itinerary
 cat("\n\n### Generated Itinerary\n")
@@ -76,9 +88,9 @@ cat(as.character(results$state$get("Planner")))
 
 # Display Constraint Audit Report
 cat("\n\n### Constraint Audit Report\n")
-audit_res <- results$state$get("Validator")
-if (!is.null(audit_res$report)) {
-  cat(audit_res$report)
+report <- results$state$get("report")
+if (!is.null(report)) {
+  cat(as.character(report))
 } else {
   cat("No audit report available.")
 }

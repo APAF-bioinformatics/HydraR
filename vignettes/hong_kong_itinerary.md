@@ -1,85 +1,57 @@
-**Travel Details:**
-*   **Airline:** Qantas
-*   **Departure:** Sydney (SYD)
-*   **Arrival:** Hong Kong (HKG)
+## Hong Kong Travel Itinerary: May 26 – June 1, 2026
+
+Welcome to your curated Hong Kong getaway. This itinerary balances iconic city landmarks with the charming, laid-back atmosphere of the outlying islands, while incorporating your specific dining requests.
+
+**Flight Details:**
+*   **Outbound:** Sydney (SYD) to Hong Kong (HKG) via Qantas.
+*   **Inbound:** Hong Kong (HKG) to Sydney (SYD) via Qantas.
 
 ---
 
-**Day 1: Tuesday, May 26, 2026 - Arrival & Tsim Sha Tsui Exploration**
+### Day 1: Arrival & Harbor Views
+*   **Morning/Afternoon:** Arrive at HKG Airport. Take the **Airport Express** to Central. Check into your hotel (recommend staying in Central or Tsim Sha Tsui for convenience).
+*   **Evening:** Head to the **Tsim Sha Tsui Promenade**. Watch the *Symphony of Lights* show at 8:00 PM.
+*   **Dinner:** **The Spaghetti House (Tsim Sha Tsui branch).** Enjoy their signature Hong Kong-style fusion pasta dishes in a comfortable, classic setting.
 
-*   **Morning/Afternoon:** Depart Sydney on Qantas flight to Hong Kong.
-*   **Late Afternoon:** Arrive at Hong Kong International Airport (HKG). Transfer to your accommodation in Tsim Sha Tsui.
-*   **Evening:** Settle in and head out to explore the vibrant Tsim Sha Tsui area.
-    *   **Activity:** Stroll along the **Avenue of Stars** for stunning views of the Hong Kong skyline.
-    *   **Dinner (Local Cuisine):** Experience a traditional Hong Kong-style dinner at a local *cha chaan teng* (tea restaurant) or a Cantonese eatery around Jordan/Yau Ma Tei, perhaps at the famous **Temple Street Night Market** for street food and lively atmosphere.
+### Day 2: Peak Vistas & Cultural Heritage
+*   **Morning:** Take the **Peak Tram** to Victoria Peak for panoramic views of the skyline. Walk the Lugard Road circular trail.
+*   **Lunch:** Dine at the Peak Galleria for quick bites.
+*   **Afternoon:** Descend and explore the **Man Mo Temple** in Sheung Wan, then wander through the antique shops on Hollywood Road.
+*   **Dinner:** Immerse yourself in **Local Cuisine** at a traditional *Dai Pai Dong* (open-air food stall) in Central, such as **Sing Heung Yuen** for their famous tomato broth noodles and crispy buns.
 
----
+### Day 3: The Charm of Cheung Chau Island
+*   **Morning:** Head to Central Pier 5 and take the ferry to **Cheung Chau Island** (approx. 35-60 minutes).
+*   **Daytime:** Explore the island on foot. Visit the **Pak Tai Temple**, walk the **Mini Great Wall** hiking trail, and relax on **Tung Wan Beach**.
+*   **Lunch:** Eat like a local on the island. Seek out the famous **Cheung Chau “Mango Mochi”** from street vendors and try fresh seafood at one of the waterfront restaurants along Pak She Praya Road.
+*   **Evening:** Return to Hong Kong Island via ferry. 
+*   **Dinner:** Casual dining at a local *Cha Chaan Teng* (Hong Kong tea restaurant) to try authentic Hong Kong milk tea and pineapple buns.
 
-**Day 2: Wednesday, May 27, 2026 - Hong Kong Island Highlights**
+### Day 4: Markets & Mong Kok Energy
+*   **Morning:** Visit **Nan Lian Garden** and the **Chi Lin Nunnery** in Diamond Hill for a peaceful morning.
+*   **Lunch:** Try authentic Dim Sum at **Tim Ho Wan** (Sham Shui Po branch—the original hole-in-the-wall location).
+*   **Afternoon:** Navigate the vibrant markets of Mong Kok: The Ladies’ Market (clothes/souvenirs) and the Goldfish Market.
+*   **Dinner:** Indulge in more **Local Cuisine**—Roasted Goose at **Yat Lok** or **Kam's Roast Goose** (Michelin-starred).
 
-*   **Morning:** Take the MTR to Hong Kong Island.
-    *   **Activity:** Ride the **Peak Tram** up to **Victoria Peak** for panoramic city views. Explore the various viewing platforms.
-*   **Lunch:** Enjoy lunch with a view at Victoria Peak or head down to Central for more options.
-*   **Afternoon:** Descend from the Peak.
-    *   **Activity:** Visit **Man Mo Temple**, a beautiful and historic temple in Sheung Wan, dedicated to the Gods of Literature and War. Explore the surrounding antique shops on Hollywood Road.
-*   **Evening:** Explore the bustling streets of Central or Wan Chai.
-    *   **Dinner (Local Cuisine):** Indulge in authentic Cantonese dim sum or a seafood feast in a local restaurant.
+### Day 5: Lantau Island Adventure
+*   **Morning:** Take the MTR to Tung Chung, then ride the **Ngong Ping 360 Cable Car** to see the **Big Buddha (Tian Tan Buddha)**.
+*   **Afternoon:** Visit the nearby **Po Lin Monastery** and hike the Wisdom Path.
+*   **Evening:** Return to the city. 
+*   **Dinner:** **The Spaghetti House** (optional second visit if you want to try different menu items, or explore a local hotpot restaurant like **Megan’s Kitchen** for a quintessential HK experience).
 
----
+### Day 6: Art, History, & Farewell
+*   **Morning:** Visit the **M+ Museum** or the **Hong Kong Palace Museum** in the West Kowloon Cultural District. 
+*   **Lunch:** Enjoy a refined lunch at a local Cantonese restaurant specializing in *Siu Mei* (roast meats).
+*   **Afternoon:** Last-minute shopping at Harbour City or Pacific Place.
+*   **Evening:** Farewell dinner—find a restaurant with a view of the harbor to toast your final night in the city.
 
-**Day 3: Thursday, May 28, 2026 - Cheung Chau Island Escape**
-
-*   **Morning:** Take the MTR to Central Ferry Pier No. 5.
-    *   **Activity:** Catch a ferry to **Cheung Chau Island**. Enjoy the scenic ride.
-*   **Day Trip:** Explore the charming island of Cheung Chau.
-    *   **Activities:** Rent a bicycle to explore the island, visit **Tung Wan Beach**, discover small temples, and wander through the fishing village.
-*   **Lunch:** Enjoy fresh seafood at one of the many open-air restaurants along the waterfront on Cheung Chau.
-*   **Late Afternoon:** Take the ferry back to Central.
-*   **Evening:** Relax after a day of island exploration.
-    *   **Dinner:** Explore dining options near your accommodation or try a restaurant in Causeway Bay.
-
----
-
-**Day 4: Friday, May 29, 2026 - Culinary Delights & Shopping**
-
-*   **Morning:** Start your day with a classic Hong Kong breakfast.
-    *   **Activity:** Indulge in **Dim Sum** at a traditional restaurant like Tim Ho Wan or a local favourite.
-*   **Afternoon:** Enjoy some retail therapy.
-    *   **Activity:** Explore the mega-malls of Causeway Bay, the trendy boutiques of Tsim Sha Tsui, or the electronic markets of Mong Kok.
-*   **Evening:**
-    *   **Dinner:** Head to **Spaghetti House** for a nostalgic meal, fulfilling a specific request. There are several branches across Hong Kong, check for the nearest one.
-    *   **Activity:** Enjoy the **Symphony of Lights** show over Victoria Harbour if time permits.
+### Day 7: Departure
+*   **Morning:** Enjoy a final local breakfast—Congee and Youtiao (fried dough sticks).
+*   **Afternoon:** Take the Airport Express back to HKG for your Qantas flight home to Sydney.
 
 ---
 
-**Day 5: Saturday, May 30, 2026 - Cultural Immersion or Modern Marvels**
-
-*   **Option 1 (Cultural):** Lantau Island Excursion
-    *   **Morning:** Take the Ngong Ping 360 cable car to **Ngong Ping Village**.
-    *   **Activity:** Visit the majestic **Big Buddha (Tian Tan Buddha)** and **Po Lin Monastery**.
-    *   **Afternoon:** Take a local bus or taxi to **Tai O fishing village** to see stilt houses and experience traditional Hong Kong life.
-    *   **Lunch:** Seafood or local snacks in Tai O.
-*   **Option 2 (Modern/Theme Park):** Hong Kong Disneyland or Ocean Park (if preferred).
-*   **Evening:** Return to the city.
-    *   **Dinner:** Explore new dining experiences or revisit a favourite spot.
-
----
-
-**Day 6: Sunday, May 31, 2026 - Leisure & Farewell**
-
-*   **Morning:** Enjoy a leisurely morning.
-    *   **Activity:** You might visit a museum (e.g., Hong Kong Museum of History, M+), explore a local market like the Goldfish Market or Flower Market, or do some last-minute souvenir shopping.
-*   **Lunch:** Casual lunch at a cafe or local eatery.
-*   **Afternoon:** Enjoy some free time for personal interests or revisit a favourite spot.
-*   **Evening:**
-    *   **Farewell Dinner (Local Cuisine):** Enjoy a final taste of Hong Kong's culinary scene, perhaps a roasted goose specialty or a hotpot experience.
-
----
-
-**Day 7: Monday, June 1, 2026 - Departure**
-
-*   **Morning:** Enjoy a final Hong Kong breakfast. Depending on your flight schedule, you might have time for some last-minute shopping or a quick visit to a nearby attraction.
-*   **Afternoon:** Check out from your accommodation and transfer to Hong Kong International Airport (HKG) for your Qantas flight back to Sydney.
-
----
-<!-- APAF Bioinformatics | hong_kong_itinerary.md | Approved | 2026-04-02 -->
+### Travel Concierge Tips:
+1.  **Transport:** Purchase an **Octopus Card** immediately upon arrival. It works for all MTR trains, ferries (including the Cheung Chau ferry), buses, and even at convenience stores.
+2.  **Dining Reservations:** For popular spots like Kam's Roast Goose or high-end Dim Sum, expect a queue; arrive early or look for booking options online. 
+3.  **Connectivity:** Consider picking up a local tourist SIM card at the airport for easy map navigation while exploring the islands.
+4.  **Weather:** May and June can be humid with occasional tropical showers. Pack light, breathable clothing and always carry a compact umbrella.

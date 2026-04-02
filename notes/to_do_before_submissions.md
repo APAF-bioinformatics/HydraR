@@ -1,4 +1,6 @@
-* I need to fix the paper vignettes, make sure there is output for the itinerary, may be a pamphlet with photos?
+* [/] Fix the paper vignettes, make sure there is output for the itinerary, and a pamphlet with photos.
+    *   **Status**: Travel vignette fixed, itinerary (`hong_kong_itinerary.md`) and pamphlet (`hong_kong_pamphlet.html`) generated with AI imagery.
+    *   **Remaining**: Need to update the paper itself.
 
 * I need to test all of the API drivers
 
