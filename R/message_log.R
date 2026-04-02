@@ -78,6 +78,7 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
       con <- DBI::dbConnect(duckdb::duckdb(), self$db_path)
       on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
 
+      # Use tryCatch for JSON extension loading which might fail on restricted environments like CI
       tryCatch(
         {
           DBI::dbExecute(con, "INSTALL json")
