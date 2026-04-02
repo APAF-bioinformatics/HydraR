@@ -17,6 +17,8 @@ To ensure consistent behavior across nodes and drivers, the following keys are r
 | `type` | String | Node specialty: `logic` (default), `router`, `map`, `observer`. |
 | `logic_id` | String | ID of the logic/function registered in `HydraR`. |
 | `map_key` | String | (For `type=map`) The state key containing the list to map over. |
+| `agents_files` | List | Comma-separated paths to markdown files for AI persona injection. |
+| `skills_files` | List | Comma-separated paths to markdown files for AI capability injection. |
 
 ### 2. LLM / Driver Parameters (`AgentLLMNode`)
 | Keyword | Type | Description |
@@ -65,6 +67,15 @@ graph TD
   A --> B
   C --> A
 ```
+
+### 5. Plotting & Visualization (API vs CLI)
+When rendering the DAG via `dag$plot()`, the driver selection impacts the visual output:
+
+*   **Labels**: If you call `dag$plot(details = TRUE)`, the generated Mermaid code will include the driver ID inside the node box. For example:
+    *   **API**: `Planner["Travel Planner | type=llm | driver=gemini_api | model=..."]`
+    *   **CLI**: `Planner["Travel Planner | type=llm | driver=gemini | model=..."]`
+*   **Factory Logic**: The `auto_node_factory()` uses the `driver` parameter to decide which R6 class to instantiate. `gemini` defaults to the CLI driver (via `GeminiCLIDriver`), while `gemini_api` and `gemini_image` route to the API-based drivers.
+*   **Visual Styling**: Currently, both use the same CSS classes (e.g., green for success), but the text label is the primary way to tell them apart when viewing the graph structure.
 
 ---
 
@@ -116,8 +127,24 @@ graph TD
   IG["Image Generator | driver=gemini_image | model=gemini-3.1-flash-image-preview | aspect_ratio=16:9 | output_dir=vignettes/images"]
 ```
 
+### 5. Context & System Prompt Injection
+HydraR automatically manages the "Rules of the House" for LLM nodes by injecting markdown files into the `system_prompt`.
+
+*   **Automatic Worktree Injection**: Every `AgentLLMNode` automatically detects and injects `agents.md` and `skills.md` if they exist in the active worktree (sandbox).
+*   **Static File Injection**: Use `agents_files` and `skills_files` to inject specific instructions across multiple files.
+*   **Mermaid Syntax**: Use comma-separated strings for multiple files.
+
+```mermaid
+graph TD
+  A["Researcher | type=llm | agents_files=global_rules.md,local_rules.md | skills_files=bash_skills.md"]
+```
+
+> [!TIP]
+> This pattern allows you to keep your Mermaid diagrams clean while still enforcing complex project standards across all agents.
+
 > [!IMPORTANT]
 > **Deduplication**: If a node is defined multiple times with different parameters, HydraR prioritizes the **first** definition containing a pipe `|`.
 > **Case Sensitivity**: Reserved keywords are case-sensitive and should be lowercase. values like `true`/`false` are case-insensitive.
 
-<!-- APAF Bioinformatics | HydraR | Approved | 2026-03-29 -->
+<!-- APAF Bioinformatics | HydraR | Approved | 2026-04-03 -->
+

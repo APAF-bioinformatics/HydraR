@@ -17,6 +17,7 @@ graph: |
     Validator --> Planner
     Validator --> ImageGate
     ImageGate --> ImageGenerator
+    ImageGate --> TemplateManager
     ImageGenerator --> TemplateManager
     TemplateManager --> PamphletFormatter
     PamphletFormatter --> Finalizer

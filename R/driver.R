@@ -132,10 +132,11 @@ AgentDriver <- R6::R6Class("AgentDriver",
     #' Call the LLM
     #' @param prompt String. The prompt to send.
     #' @param model String. Optional model override.
+    #' @param system_prompt String. Optional system prompt.
     #' @param cli_opts List. Named list of CLI options.
     #' @param ... Additional arguments.
     #' @return String. Cleaned response from the LLM.
-    call = function(prompt, model = NULL, cli_opts = list(), ...) {
+    call = function(prompt, model = NULL, system_prompt = NULL, cli_opts = list(), ...) {
       stop("Abstract Method: call() must be implemented by subclass.")
     },
 

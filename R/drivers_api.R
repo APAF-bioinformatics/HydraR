@@ -37,10 +37,11 @@ OpenAIDriver <- R6::R6Class("OpenAIDriver",
     #' Call OpenAI API
     #' @param prompt String. The prompt text.
     #' @param model String. Optional model override.
+    #' @param system_prompt String. Optional system prompt.
     #' @param cli_opts List. Additional API options.
     #' @param ... Additional arguments.
     #' @return String. LLM response.
-    call = function(prompt, model = NULL, cli_opts = list(), ...) {
+    call = function(prompt, model = NULL, system_prompt = NULL, cli_opts = list(), ...) {
       if (!requireNamespace("httr2", quietly = TRUE)) {
         stop("Package 'httr2' is required for OpenAIDriver. Install it with install.packages('httr2').")
       }
@@ -53,11 +54,16 @@ OpenAIDriver <- R6::R6Class("OpenAIDriver",
         api_key <- Sys.getenv("OPENAI_API_KEY")
         if (api_key == "") stop("OPENAI_API_KEY environment variable not set.")
 
+        messages <- list(list(role = "user", content = prompt))
+        if (!is.null(system_prompt)) {
+          messages <- c(list(list(role = "system", content = system_prompt)), messages)
+        }
+
         req <- httr2::request(self$api_url) |>
           httr2::req_auth_bearer_token(api_key) |>
           httr2::req_body_json(utils::modifyList(list(
             model = target_model,
-            messages = list(list(role = "user", content = prompt))
+            messages = messages
           ), cli_opts)) |>
           httr2::req_retry(max_tries = 3)
 
@@ -108,10 +114,11 @@ AnthropicDriver <- R6::R6Class("AnthropicDriver",
     #' Call Anthropic API
     #' @param prompt String. The prompt text.
     #' @param model String. Optional model override.
+    #' @param system_prompt String. Optional system prompt.
     #' @param cli_opts List. Additional API options.
     #' @param ... Additional arguments.
     #' @return String. LLM response.
-    call = function(prompt, model = NULL, cli_opts = list(), ...) {
+    call = function(prompt, model = NULL, system_prompt = NULL, cli_opts = list(), ...) {
       if (!requireNamespace("httr2", quietly = TRUE)) {
         stop("Package 'httr2' is required for AnthropicDriver.")
       }
@@ -126,15 +133,20 @@ AnthropicDriver <- R6::R6Class("AnthropicDriver",
         # Anthropic requires max_tokens as mandatory
         if (!"max_tokens" %in% names(cli_opts)) cli_opts$max_tokens <- 4096
 
+        req_body <- list(
+          model = target_model,
+          messages = list(list(role = "user", content = prompt))
+        )
+        if (!is.null(system_prompt)) {
+          req_body$system <- system_prompt
+        }
+
         req <- httr2::request(self$api_url) |>
           httr2::req_headers(
             "x-api-key" = api_key,
             "anthropic-version" = "2023-06-01"
           ) |>
-          httr2::req_body_json(utils::modifyList(list(
-            model = target_model,
-            messages = list(list(role = "user", content = prompt))
-          ), cli_opts)) |>
+          httr2::req_body_json(utils::modifyList(req_body, cli_opts)) |>
           httr2::req_retry(max_tries = 3)
 
         resp <- tryCatch(
@@ -184,10 +196,11 @@ GeminiAPIDriver <- R6::R6Class("GeminiAPIDriver",
     #' Call Gemini API
     #' @param prompt String. The prompt text.
     #' @param model String. Optional model override.
+    #' @param system_prompt String. Optional system prompt.
     #' @param cli_opts List. Additional API options.
     #' @param ... Additional arguments.
     #' @return String. LLM response.
-    call = function(prompt, model = NULL, cli_opts = list(), ...) {
+    call = function(prompt, model = NULL, system_prompt = NULL, cli_opts = list(), ...) {
       if (!requireNamespace("httr2", quietly = TRUE)) {
         stop("Package 'httr2' is required for GeminiAPIDriver.")
       }
@@ -202,11 +215,16 @@ GeminiAPIDriver <- R6::R6Class("GeminiAPIDriver",
         url <- sprintf("%s/models/%s:generateContent", self$api_base, target_model)
         message("DEBUG: [", self$id, "] Calling URL: ", url)
 
+        req_body <- list(
+          contents = list(list(parts = list(list(text = prompt))))
+        )
+        if (!is.null(system_prompt)) {
+          req_body$systemInstruction <- list(parts = list(list(text = system_prompt)))
+        }
+
         req <- httr2::request(url) |>
           httr2::req_url_query(key = api_key) |>
-          httr2::req_body_json(utils::modifyList(list(
-            contents = list(list(parts = list(list(text = prompt))))
-          ), cli_opts)) |>
+          httr2::req_body_json(utils::modifyList(req_body, cli_opts)) |>
           httr2::req_retry(max_tries = 3)
 
         resp <- tryCatch(
@@ -264,10 +282,11 @@ GeminiImageDriver <- R6::R6Class("GeminiImageDriver",
     #' Call Gemini Image API (Multimodal Unified)
     #' @param prompt String. Image prompt.
     #' @param model String. Optional override.
+    #' @param system_prompt String. Optional system prompt.
     #' @param cli_opts List. Parameters (aspectRatio, etc).
     #' @param ... Additional arguments.
     #' @return String. Local path to the generated image.
-    call = function(prompt, model = NULL, cli_opts = list(), ...) {
+    call = function(prompt, model = NULL, system_prompt = NULL, cli_opts = list(), ...) {
       if (!requireNamespace("httr2", quietly = TRUE)) stop("Package 'httr2' is required.")
 
       handler <- if (!is.null(self$working_dir)) withr::with_dir else function(d, expr) expr
@@ -317,6 +336,9 @@ GeminiImageDriver <- R6::R6Class("GeminiImageDriver",
               responseModalities = list("IMAGE")
             )
           )
+          if (!is.null(system_prompt)) {
+            request_body$systemInstruction <- list(parts = list(list(text = system_prompt)))
+          }
         }
 
         if (Sys.getenv("HYDRAR_DEBUG") == "TRUE") {

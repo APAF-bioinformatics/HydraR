@@ -82,18 +82,24 @@ extract_params <- function(label_text) {
         key <- trimws(kv[1])
         val <- trimws(paste(kv[-1], collapse = "="))
         val_lower <- tolower(val)
-        coerced_val <- if (val_lower == "null") {
-          NULL
-        } else if (val_lower %in% c("na", "nan")) {
-          NA
-        } else if (grepl("^-?\\d+(\\.\\d+)?$", val)) {
-          as.numeric(val)
-        } else if (val_lower == "true") {
-          TRUE
-        } else if (val_lower == "false") {
-          FALSE
+        
+        # Handle list-based parameters
+        if (key %in% c("agents_files", "skills_files")) {
+          coerced_val <- trimws(strsplit(val, ",")[[1]])
         } else {
-          val
+          coerced_val <- if (val_lower == "null") {
+            NULL
+          } else if (val_lower %in% c("na", "nan")) {
+            NA
+          } else if (grepl("^-?\\d+(\\.\\d+)?$", val)) {
+            as.numeric(val)
+          } else if (val_lower == "true") {
+            TRUE
+          } else if (val_lower == "false") {
+            FALSE
+          } else {
+            val
+          }
         }
         params[[key]] <<- coerced_val
       }
