@@ -33,7 +33,16 @@ These tools allow you to peer into the persistent state managed by `DuckDBSaver`
 
 ---
 
-## 4. Usage Instructions
+## 4. Internal Cleanup & Legacy
+These scripts are intended for maintenance and managing historical agent sessions.
+
+| Script | Purpose |
+| :--- | :--- |
+| **`list_jules_sessions.R`** | Lists historical sessions from the legacy Jules driver to aid in repository cleanup and state pruning. |
+
+---
+
+## 5. Usage Instructions
 
 To run any of these tools from the project root:
 
