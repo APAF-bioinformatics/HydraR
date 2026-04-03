@@ -13,16 +13,16 @@ library(HydraR)
 MockFanOutDriver <- R6::R6Class("MockFanOutDriver",
   inherit = AgentDriver,
   public = list(
-    call = function(prompt, ...) {
-      if (grepl("creative director", prompt)) {
+    call = function(prompt, system_prompt, ...) {
+      if (grepl("creative director", system_prompt)) {
         return("The cybernetic cat enters the hidden city.")
-      } else if (grepl("action-thriller", prompt)) {
+      } else if (grepl("action-thriller", system_prompt)) {
         return("Explosions in the neon alleyway!")
-      } else if (grepl("mystery writer", prompt)) {
+      } else if (grepl("mystery writer", system_prompt)) {
         return("Who left this cryptic holodisk?")
-      } else if (grepl("romance writer", prompt)) {
+      } else if (grepl("romance writer", system_prompt)) {
         return("The cat shared a tender moment with a drone.")
-      } else if (grepl("master editor", prompt)) {
+      } else if (grepl("master editor", system_prompt)) {
         return("The final story: Action, Mystery, and Romance combined.")
       }
       return("Default mock response")

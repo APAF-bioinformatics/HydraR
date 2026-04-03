@@ -12,7 +12,7 @@ start_node: A
 
 conditional_edges:
   B:
-    test: 'isTRUE(out$output$ok)'
+    test: 'isTRUE(out$ok)'
     if_true: null
     if_false: 'A'
 
@@ -54,7 +54,7 @@ test_that("Declarative conditional edges handle named functions", {
   register_logic("lb", function(s) list(output = list(pass = TRUE)))
 
   wf <- list(
-    graph = "graph TD\nA[A|type=logic|logic_id=la] --> B[B|type=logic|logic_id=lb]",
+    graph = "graph TD\nA[A|type=logic|logic_id=la] --> B[B|type=logic|logic_id=lb]\nB --> A",
     start_node = "A",
     conditional_edges = list(
       B = list(test = "my_test_fn", if_true = NULL, if_false = "A")
