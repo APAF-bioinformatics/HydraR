@@ -54,10 +54,18 @@ Although `reticulate` [@reticulate] enables R users to interface with Python fra
 ## Multimodal Travel Itinerary Planner
 In this example, an LLM `Planner` agent generates a draft itinerary, which is then audited by a deterministic `Validator` against hard constraints. Successfully validated plans proceed to a **multimodal image generation** phase where **Gemini 3.1 Flash** [@google2025gemini] creates visual assets based on the itinerary's locales. Finally, a logic node renders a bespoke, CSS-styled HTML pamphlet. Crucially, **conditional looping** between the planner and validator enforces an iterative refinement cycle until all strict parameters are met (\autoref{fig:travel_workflow}).
 
+::: {#fig:travel_workflow}
+![Page 1: Multi-modal travel pamphlet showcasing stateful orchestration and image generation.](Itinerary Page 1.png){#fig:travel_workflow_a}
+
+![Page 2: Final formatted CSS-styled HTML itinerary.](Itinerary Page 2.png){#fig:travel_workflow_b}
+
+Generated Multi-modal travel pamphlet for a Sydney to Hong Kong itinerary.
+:::
+
 ### Declarative Workflow Excerpt
 ```yaml
 graph: |
-  graph TD
+  graph LR
     Planner["Travel Planner | type=llm | role_id=travel_concierge"]
     Validator["Constraint Auditor | type=logic | logic_id=validate_constraints"]
     ImageGate["Image Gate | type=logic | logic_id=check_image_status"]
@@ -80,6 +88,10 @@ roles:
     You are a professional travel concierge...
 ```
 
+![Visual DAG structure of the multi-modal travel itinerary planner, featuring iterative validation loops and parallel generation paths.](figures/travel_workflow.png){#fig:travel_graph}
+
+
+
 ### R Orchestration (Minimal)
 ```r
 library(HydraR)
@@ -88,17 +100,17 @@ dag <- spawn_dag(wf, auto_node_factory())
 results <- dag$run(initial_state = wf$initial_state)
 ```
 
+
+
 ## Parallel Sorting Algorithm Comparison
 This benchmarking example tasks three distinct LLM agents with simultaneously implementing different sorting algorithms. `HydraR` executes each task within an isolated Git worktree to aggressively uncouple filesystem side-effects and prevent merge conflicts. Following execution, a **Merge Harmonizer** systematically reconciles the independent branches back to the main state, preceding a terminal logic node that empirically benchmarks the aggregated algorithms across five continuous trials (\autoref{fig:sorting}).
 
 ![Sorting Algorithm Performance Benchmark (1,000 elements over 5 trials).](sorting_benchmark.pdf){#fig:sorting}
 
-![Generated Multi-modal travel pamphlet for a Sydney to Hong Kong itinerary, showcasing complex stateful orchestration and image generation.](Itinerary Page 1.png){#fig:travel_workflow}
-
 ### Declarative Workflow Excerpt
 ```yaml
 graph: |
-  graph TD
+  graph LR
       bubble["Bubble Agent | type=llm | role_id=bubble"]
       quick["Quick Agent | type=llm | role_id=quick"]
       merge["Merge Agent | type=llm | role_id=merge"]
@@ -110,6 +122,8 @@ graph: |
       merge --> merger
       merger --> benchmark
 ```
+
+![Visual representation of the parallel sorting comparison workflow, showing the fan-out/fan-in pattern and the merge harmonizer.](figures/sorting_workflow.png){#fig:sorting_graph}
 
 ### R Orchestration (Parallel with Isolation)
 ```r
@@ -125,7 +139,7 @@ To mitigate transient failures inherent to long-running scientific workflows, `H
 ### Declarative Workflow Definition
 ```yaml
 graph: |
-  graph TD
+  graph LR
     Step1["Initialization"] --> Step2["Risky Logic"]
     Step2["Risky Logic"] --> Step3["Conclusion"]
 logic:
@@ -134,6 +148,7 @@ logic:
       return(list(status = "PAUSE", output = "Waiting for manual fix."))
     list(status = "SUCCESS", output = "System recovered!")
 ```
+![Visual logic of the fault-tolerant pipeline with DuckDB persistence, illustrating a linear flow with restartable checkpoints.](figures/fault_workflow.png){#fig:fault_graph}
 
 ### Checkpoint and Resume
 ```r
