@@ -30,12 +30,12 @@ Researchers can architect workflows as Directed Acyclic Graphs (DAGs) or iterati
 
 # Statement of Need
 
-The contemporary R ecosystem currently lacks a unified framework that provides both high-level agentic orchestration and robust, low-level filesystem safety. Existing packages, such as `ellmer` [@ellmer], primarily focus on conversational interfaces, while `mall` [@mall] excels at mapping LLM inferences over data frames. Neither is structurally equipped to manage long-running, multi-agent collaborations that demand complex state persistence or isolated execution environments.
+The contemporary R ecosystem currently lacks a unified framework that provides both high-level agentic orchestration and robust, low-level filesystem safety. Existing packages, such as `ellmer` [@ellmer], primarily focus on conversational interfaces, while `mall` [@mall] excels at mapping LLM inferences over textual data within data frames. Neither is structurally equipped to manage long-running, multi-agent collaborations that demand complex state persistence or isolated execution environments.
 
 `HydraR` addresses three fundamental challenges in this domain:
 1. **Auditability**: It implements a centralized `AgentState` with persistent checkpointing (via DuckDB [@duckdb]), yielding a complete, verifiable audit trail of all LLM interactions and state mutations.
-2. **Filesystem Safety**: Leveraging **Git Worktrees**, `HydraR` isolates parallel agent executions into temporary branches, virtually eliminating data corruption and race conditions during concurrent operations.
-3. **Reproducible Orchestration**: By defining workflows via **Mermaid.js** syntax and **YAML** manifests, `HydraR` decouples orchestration logic from the underlying execution framework. This declarative approach creates portable, shareable agentic protocols, effortlessly bypassing the fragility typical of multi-language environments.
+2. **Filesystem Safety**: Leveraging Git Worktrees, `HydraR` isolates parallel agent executions into temporary branches, virtually eliminating data corruption and race conditions during concurrent operations.
+3. **Reproducible Orchestration**: By defining workflows via `Mermaid.js` syntax and `YAML` manifests, `HydraR` decouples orchestration logic from the underlying execution framework. This declarative approach creates portable, shareable agentic protocols, effortlessly bypassing the fragility typical of multi-language environments.
 
 # State of the Field
 
@@ -101,7 +101,7 @@ results <- dag$run(initial_state = wf$initial_state)
 ```
 
 ## Parallel Sorting Algorithm Comparison
-This benchmarking example tasks three distinct LLM agents with simultaneously implementing different sorting algorithms. `HydraR` executes each task within an isolated Git worktree to aggressively uncouple filesystem side-effects and prevent merge conflicts. Following execution, a Merge Harmonizer systematically reconciles the independent branches back to the main state, preceding a terminal logic node that empirically benchmarks the aggregated algorithms across five continuous trials (\autoref{fig:sorting}).
+This benchmarking example tasks three distinct LLM agents with simultaneously implementing different sorting algorithms. `HydraR` executes each task within an isolated Git worktree to aggressively uncouple filesystem side-effects and prevent merge conflicts. Following execution, a Merge Harmonizer noded systematically reconciles the independent branches back to the main state, preceding a terminal logic node that empirically benchmarks the aggregated algorithms across five continuous trials (\autoref{fig:sorting}).
 
 ![Sorting Algorithm Performance Benchmark (1,000 elements over 5 trials).](figures/sorting_benchmark.pdf){#fig:sorting}
 
