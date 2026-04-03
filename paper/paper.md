@@ -93,6 +93,8 @@ This benchmarking example tasks three distinct LLM agents with simultaneously im
 
 ![Sorting Algorithm Performance Benchmark (1,000 elements over 5 trials).](sorting_benchmark.pdf){#fig:sorting}
 
+![Generated Multi-modal travel pamphlet for a Sydney to Hong Kong itinerary, showcasing complex stateful orchestration and image generation.](Itinerary Page 1.png){#fig:travel_workflow}
+
 ### Declarative Workflow Excerpt
 ```yaml
 graph: |
