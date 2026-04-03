@@ -121,10 +121,6 @@ Synchronizes parallel execution paths.
 - **Role**: Merges changes from isolated git worktrees back into the base branch.
 - **Automatic**: Triggered by the orchestrator when parallel branches converge.
 
-### `type=jules` (AgentJulesNode)
-Integration with Google Jules for autonomous coding tasks.
-- **Role**: Generating PRs, fixing bugs, or refactoring code across a workspace.
-
 ---
 
 ## 4. Orchestration Syntax

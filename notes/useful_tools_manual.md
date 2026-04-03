@@ -29,7 +29,6 @@ These tools allow you to peer into the persistent state managed by `DuckDBSaver`
 
 | Script | Purpose |
 | :--- | :--- |
-| **`list_jules_sessions.R`** | Interfaces with the Google Jules API to list active coding sessions and retrieve session status. |
 | **`check_models.R`** | A quick connectivity test for `GeminiAPIDriver`, `ClaudeCodeDriver`, and others to ensure API keys are valid. |
 
 ---

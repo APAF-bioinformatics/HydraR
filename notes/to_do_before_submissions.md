@@ -7,8 +7,6 @@
 
 * I need to test all of the CLI and also ollama drivers
 
-* I need to test the Jules drivers
-
 * [x] Create a list of all unit tests, functions tested, and justifications.
   *   **Full Report (TSV)**: [test_audit_report_full.tsv](file:///Users/ignatiuspang/Workings/2026/HydraR/notes/submission/test_audit_report_full.tsv) (Contains 161 test cases and 471 assertions).
 

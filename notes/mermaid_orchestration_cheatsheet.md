@@ -9,7 +9,7 @@ To ensure consistent behavior across nodes and drivers, the following keys are r
 ### 1. Node Configuration (`AgentNode`)
 | Keyword | Type | Description |
 | :--- | :--- | :--- |
-| `type` | String | Node specialty: `logic` (default), `llm`, `router`, `map`, `observer`, `merge`, `jules`, `auto`. |
+| `type` | String | Node specialty: `logic` (default), `llm`, `router`, `map`, `observer`, `merge`, `auto`. |
 | `retries` | Integer | Number of execution attempts on failure. |
 | `timeout` | Integer | Maximum execution time in seconds. |
 | `isolation` | Boolean | If `true`, runs in an isolated git worktree. |
@@ -111,7 +111,6 @@ graph TD
 *   **`router`**: Decisions-based branching. Requires `logic_id` that returns a target node ID.
 *   **`map`**: Iterates over a list in `state`. Requires `map_key` and `logic_id`.
 *   **`merge`**: Harmonizes multiple input branches before proceeding.
-*   **`jules`**: Advanced autonomous coding node (Google Jules API).
 *   **`auto`**: Fallback; treats the label as a function lookup in the logic registry.
 
 ### 3. Resilient Failover (Error Edges)

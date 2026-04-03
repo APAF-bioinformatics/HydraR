@@ -36,7 +36,6 @@ RestrictedState$get	RestrictedState	TRUE	test-state.R	RestrictedState works	Priv
 AgentMapNode$run	AgentMapNode	TRUE	test-fan-out-fan-in.R	Fan-out/Fan-in	Validation of parallel data processing patterns.
 AgentObserverNode$run	AgentObserverNode	TRUE	test-comprehensive-circuitry.R	Observer logic	Real-time monitoring and event-driven logging.
 AgentRouterNode$run	AgentRouterNode	TRUE	test-comprehensive-circuitry.R	Router logic	Dynamic flow control and branch switching.
-AgentJulesNode$run	AgentJulesNode	TRUE	test-jules_api.R	Jules API interaction	Cloud-native agent communication reliability.
 Checkpointer$put	Checkpointer	TRUE	test-checkpointer.R	persistence works	Graph state recovery and long-running job safety.
 Checkpointer$get	Checkpointer	TRUE	test-checkpointer.R	persistence works	Graph state recovery and long-running job safety.
 driver_registry_add	NA	FALSE	test-driver_framework.R	driver registry functionality	Dynamic driver management and extension.

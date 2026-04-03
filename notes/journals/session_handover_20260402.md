@@ -11,8 +11,7 @@ The **HydraR** codebase is now stabilized and ready for rOpenSci/JOSS submission
     *   Fixed multi-edge parsing and comment handling.
     *   Migrated integration tests to support the new `data.frame` structure.
 3.  **Git Cleanup Utility**:
-    *   Implemented `cleanup_jules_branches()` in `R/git_cleanup.R`.
-    *   This function automates the deletion of stale branches authored by `google-labs-jules[bot]` (threshold: 24h) and any previously merged branches.
+    *   Implemented `cleanup_branches()` to automate the deletion of stale and merged remote branches.
 4.  **Package Health**:
     *   Current `devtools::check()` status: **0 Errors / 0 Warnings**.
     *   **459 Tests Passed**.

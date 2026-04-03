@@ -88,14 +88,8 @@ test-drivers.R	extract_r_code_advanced correctly extracts R code blocks	4	AgentD
 test-drivers.R	GeminiCLIDriver invokes gemini CLI and captures output	3	AgentDriver	TRUE	Standard behavior validation
 test-drivers.R	OllamaDriver invokes ollama CLI via stdin	3	AgentDriver	TRUE	Standard behavior validation
 test-fan-out-fan-in.R	Fan-Out Fan-In YAML workflow loads and executes correctly	15	Fan-Out	FALSE	Standard behavior validation
-test-git_cleanup.R	cleanup_jules_branches handles dry run securely	4	cleanup_jules_branches	FALSE	Standard behavior validation
-test-git_cleanup.R	cleanup_jules_branches fails gracefully on non-git repos	1	cleanup_jules_branches	FALSE	Error handling and resilience
 test-hello_world_agent.R	Hello World Guesser loop works	2	Hello	FALSE	Standard behavior validation
 test-hong_kong_travel.R	Hong Kong planning loop works	2	Hong	FALSE	Standard behavior validation
-test-jules_api.R	JulesClient handles authentication and requests	1	JulesClient	FALSE	Standard behavior validation
-test-jules_api.R	JulesClient create_session and get_session work	2	JulesClient	FALSE	Standard behavior validation
-test-jules_api.R	AgentJulesNode correctly polls and returns result	3	AgentJulesNode	TRUE	Standard behavior validation
-test-jules_api.R	AgentJulesNode fails gracefully if no API key	2	AgentJulesNode	TRUE	Error handling and resilience
 test-mermaid_params.R	Mermaid parser extracts parameters correctly	3	Mermaid	FALSE	Critical innovation: Declarative parsing
 test-mermaid_params.R	Mermaid parser handles edge cases	5	Mermaid	FALSE	Critical innovation: Declarative parsing
 test-mermaid_params.R	Bidirectional parameter round-trip works	7	Bidirectional	FALSE	Standard behavior validation
