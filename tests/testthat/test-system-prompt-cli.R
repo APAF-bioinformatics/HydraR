@@ -34,11 +34,11 @@ test_that("GeminiCLIDriver correctly prepends system_prompt to prompt", {
   expect_true(grepl("User Task", res))
 })
 
-test_that("ClaudeCodeDriver includes system_prompt in cli_opts", {
-  # ClaudeCodeDriver maps system_prompt to cli_opts$system_prompt
+test_that("AnthropicCLIDriver includes system_prompt in cli_opts", {
+  # AnthropicCLIDriver maps system_prompt to cli_opts$system_prompt
   # We can verify this by subclassing and overriding exec_in_dir
   MockClaudeDriver <- R6::R6Class("MockClaudeDriver",
-    inherit = ClaudeCodeDriver,
+    inherit = AnthropicCLIDriver,
     public = list(
       captured_args = NULL,
       exec_in_dir = function(cmd, args, ...) {

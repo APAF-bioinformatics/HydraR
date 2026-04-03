@@ -251,7 +251,7 @@ dag$add_node(AgentLLMNode$new(
 
 dag$add_node(AgentLLMNode$new(
   id = "test_agent",
-  driver = ClaudeCodeDriver$new(),
+  driver = AnthropicCLIDriver$new(),
   ...
 ))
 
@@ -396,7 +396,7 @@ call = function(prompt, model = NULL, cli_opts = list(), ...) {
   # ...
 }
 
-# ClaudeCodeDriver$call()
+# AnthropicCLIDriver$call()
 call = function(prompt, model = NULL, cli_opts = list(), ...) {
   # ... build args ...
   res <- self$exec_in_dir("claude", args = formatted_opts,
@@ -407,7 +407,7 @@ call = function(prompt, model = NULL, cli_opts = list(), ...) {
 
 ### 6.3 API Drivers — No Changes Needed
 
-API drivers (`OpenAIDriver`, `AnthropicDriver`, `GeminiAPIDriver`) use `httr2` HTTP calls — they have **no filesystem interaction**, so `working_dir` is irrelevant for them.
+API drivers (`OpenAIAPIDriver`, `AnthropicAPIDriver`, `GeminiAPIDriver`) use `httr2` HTTP calls — they have **no filesystem interaction**, so `working_dir` is irrelevant for them.
 
 ### 6.4 Ollama — No Changes Needed
 
@@ -419,7 +419,7 @@ Ollama is a pure inference server. It receives a prompt over stdin and returns t
 |-----------|--------|--------|
 | `AgentDriver` (base) | Add `working_dir` field + `exec_in_dir()` method | All subclasses inherit |
 | `GeminiCLIDriver` | Replace `system2()` → `self$exec_in_dir()` | Worktree-aware |
-| `ClaudeCodeDriver` | Replace `system2()` → `self$exec_in_dir()` | Worktree-aware |
+| `AnthropicCLIDriver` | Replace `system2()` → `self$exec_in_dir()` | Worktree-aware |
 | `CopilotCLIDriver` | Replace `system2()` → `self$exec_in_dir()` | Worktree-aware |
 | `OllamaDriver` | Can optionally use `exec_in_dir()` for consistency | No functional change |
 | `AgentAPIDriver` | No change | N/A |

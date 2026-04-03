@@ -102,10 +102,22 @@ load_workflow <- function(file_path) {
   }
 
   # 3. Register Logic
+  base_dir <- dirname(file_path)
   if (!is.null(raw_data[["logic"]])) {
     purrr::iwalk(raw_data[["logic"]], function(v, name) {
-      fn <- resolve_logic_pattern(v)
+      fn <- resolve_logic_pattern(v, base_dir = base_dir)
       register_logic(name, fn)
+    })
+  }
+
+  # 3.5 Register Conditional Edge Tests
+  if (!is.null(raw_data[["conditional_edges"]])) {
+    purrr::iwalk(raw_data[["conditional_edges"]], function(cfg, name) {
+      if (!is.null(cfg$test)) {
+        # We don't register them here yet, but we'll need to resolve them later.
+        # Actually, spawn_dag handles this by calling resolve_test_pattern.
+        # But we need to make sure spawn_dag knows the base_dir too.
+      }
     })
   }
 
@@ -118,6 +130,7 @@ load_workflow <- function(file_path) {
     start_node = raw_data[["start_node"]] %||% NULL,
     conditional_edges = raw_data[["conditional_edges"]] %||% list(),
     error_edges = raw_data[["error_edges"]] %||% list(),
+    base_dir = base_dir,
     raw = raw_data
   )
 }
@@ -148,7 +161,7 @@ spawn_dag <- function(wf, node_factory = auto_node_factory()) {
   # 2.5 Apply Declarative Conditional Edges
   if (!is.null(wf$conditional_edges) && length(wf$conditional_edges) > 0) {
     purrr::iwalk(wf$conditional_edges, function(cfg, from) {
-      test_fn <- resolve_test_pattern(cfg$test)
+      test_fn <- resolve_test_pattern(cfg$test, base_dir = wf$base_dir)
       dag$add_conditional_edge(
         from = from,
         test = test_fn,
@@ -179,9 +192,10 @@ spawn_dag <- function(wf, node_factory = auto_node_factory()) {
 
 #' Resolve Logic Pattern (3-Tier)
 #' @param v String. File path, function name, or code snippet.
+#' @param base_dir String. Base directory for resolving relative paths.
 #' @return Logic function.
 #' @keywords internal
-resolve_logic_pattern <- function(v) {
+resolve_logic_pattern <- function(v, base_dir = ".") {
   if (!is.character(v)) {
     stop("Logic entry must be a character string.")
   }
@@ -189,7 +203,15 @@ resolve_logic_pattern <- function(v) {
   v_trim <- trimws(v)
 
   # Tier 1: External R File (source(v)$value)
-  if (grepl("\\.[rR]$", v_trim) && file.exists(v_trim)) {
+  # Try relative to base_dir first, then absolute/CWD
+  potential_path <- file.path(base_dir, v_trim)
+  if (!grepl("\\.[rR]$", v_trim, ignore.case = TRUE)) {
+    # If it doesn't end in .R, it's definitely not Tier 1
+  } else if (file.exists(potential_path)) {
+    v_trim <- potential_path
+  }
+
+  if (grepl("\\.[rR]$", v_trim, ignore.case = TRUE) && file.exists(v_trim)) {
     res <- tryCatch(
       {
         source(v_trim, local = TRUE)$value
@@ -239,15 +261,21 @@ validate_workflow_schema <- function(data) {
 
 #' Resolve Test Pattern (for Conditional Edges)
 #' @param v String or function.
+#' @param base_dir String. Base directory for resolving relative paths.
 #' @return A function(out) -> Logical.
 #' @keywords internal
-resolve_test_pattern <- function(v) {
+resolve_test_pattern <- function(v, base_dir = ".") {
   if (is.function(v)) {
     return(v)
   }
   if (!is.character(v)) stop("Test pattern must be a function or string.")
 
   v_trim <- trimws(v)
+
+  # Support file-based tests (Tier 1 logic)
+  if (grepl("\\.[rR]$", v_trim, ignore.case = TRUE)) {
+    return(resolve_logic_pattern(v_trim, base_dir = base_dir))
+  }
 
   # Check logic registry or search path for named function
   existing_fn <- get_logic(v_trim)

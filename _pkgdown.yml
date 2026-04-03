@@ -44,10 +44,10 @@ reference:
       - AgentDriver
       - GeminiCLIDriver
       - GeminiAPIDriver
-      - OpenAIDriver
-      - AnthropicDriver
+      - OpenAIAPIDriver
+      - AnthropicAPIDriver
       - OllamaDriver
-      - ClaudeCodeDriver
+      - AnthropicCLIDriver
       - CopilotCLIDriver
   - title: Dynamic Driver & Logic Registry
     desc: Tools for hot-swapping drivers and registering domain-specific logic.

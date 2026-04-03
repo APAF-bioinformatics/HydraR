@@ -29,12 +29,12 @@ Preparing: rcmdcheck
 
 ✔ Package name is available
 ✔ has a 'contributing' file.
-✖ The following functions have no documented return values: [AgentBashNode, AgentNode, AgentPythonNode, AgentTool, Checkpointer, ClaudeCodeDriver, CopilotCLIDriver, DuckDBMessageLog, GeminiCLIDriver, JSONLMessageLog, MemoryMessageLog, MemorySaver, MessageLog, OllamaDriver, RDSSaver, RestrictedState]
+✖ The following functions have no documented return values: [AgentBashNode, AgentNode, AgentPythonNode, AgentTool, Checkpointer, AnthropicCLIDriver, CopilotCLIDriver, DuckDBMessageLog, GeminiCLIDriver, JSONLMessageLog, MemoryMessageLog, MemorySaver, MessageLog, OllamaDriver, RDSSaver, RestrictedState]
 ✔ uses 'roxygen2'.
 ✔ 'DESCRIPTION' has a URL field.
 ✔ 'DESCRIPTION' has a BugReports field.
 ✔ Package has at least one HTML vignette
-✖ These functions do not have examples: [add_llm_node, add_logic_node, AgentBashNode, AgentNode, AgentPythonNode, AgentTool, AnthropicDriver, Checkpointer, ClaudeCodeDriver, ConflictResolver, CopilotCLIDriver, dag_add_llm_node, dag_add_logic_node, dag_create, DriverRegistry, DuckDBMessageLog, extract_r_code_advanced, format_toolset, GeminiAPIDriver, GeminiCLIDriver, get_driver_registry, get_logic, get_role, JSONLMessageLog, list_logic, list_roles, load_workflow, MemoryMessageLog, MemorySaver, mermaid_to_dag, MessageLog, OllamaDriver, OpenAIDriver, RDSSaver, reducer_append, reducer_merge_list, register_logic, register_role, resolve_default_driver, RestrictedState, spawn_dag, standard_node_factory].
+✖ These functions do not have examples: [add_llm_node, add_logic_node, AgentBashNode, AgentNode, AgentPythonNode, AgentTool, AnthropicAPIDriver, Checkpointer, AnthropicCLIDriver, ConflictResolver, CopilotCLIDriver, dag_add_llm_node, dag_add_logic_node, dag_create, DriverRegistry, DuckDBMessageLog, extract_r_code_advanced, format_toolset, GeminiAPIDriver, GeminiCLIDriver, get_driver_registry, get_logic, get_role, JSONLMessageLog, list_logic, list_roles, load_workflow, MemoryMessageLog, MemorySaver, mermaid_to_dag, MessageLog, OllamaDriver, OpenAIAPIDriver, RDSSaver, reducer_append, reducer_merge_list, register_logic, register_role, resolve_default_driver, RestrictedState, spawn_dag, standard_node_factory].
 ✖ Package has no continuous integration checks.
 ✖ Package coverage failed
 ✖ R CMD check process failed with message: 'Build process failed'.

@@ -4,10 +4,12 @@
 \alias{resolve_logic_pattern}
 \title{Resolve Logic Pattern (3-Tier)}
 \usage{
-resolve_logic_pattern(v)
+resolve_logic_pattern(v, base_dir = ".")
 }
 \arguments{
 \item{v}{String. File path, function name, or code snippet.}
+
+\item{base_dir}{String. Base directory for resolving relative paths.}
 }
 \value{
 Logic function.

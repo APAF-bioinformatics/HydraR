@@ -9,16 +9,16 @@
 library(testthat)
 library(httr2)
 
-test_that("OpenAIDriver validates missing API key", {
+test_that("OpenAIAPIDriver validates missing API key", {
   withr::with_envvar(list(OPENAI_API_KEY = ""), {
-    drv <- OpenAIDriver$new()
+    drv <- OpenAIAPIDriver$new()
     expect_error(drv$call("Hello"), "OPENAI_API_KEY environment variable not set")
   })
 })
 
-test_that("AnthropicDriver validates missing API key", {
+test_that("AnthropicAPIDriver validates missing API key", {
   withr::with_envvar(list(ANTHROPIC_API_KEY = ""), {
-    drv <- AnthropicDriver$new()
+    drv <- AnthropicAPIDriver$new()
     expect_error(drv$call("Hello"), "ANTHROPIC_API_KEY environment variable not set")
   })
 })
@@ -30,9 +30,9 @@ test_that("GeminiAPIDriver validates missing API key", {
   })
 })
 
-test_that("OpenAIDriver correctly formats requests and parses response", {
+test_that("OpenAIAPIDriver correctly formats requests and parses response", {
   withr::with_envvar(list(OPENAI_API_KEY = "test_key"), {
-    drv <- OpenAIDriver$new()
+    drv <- OpenAIAPIDriver$new()
 
     # Mock response
     mock_resp <- httr2::response(
@@ -53,9 +53,9 @@ test_that("OpenAIDriver correctly formats requests and parses response", {
   })
 })
 
-test_that("OpenAIDriver handles API errors gracefully", {
+test_that("OpenAIAPIDriver handles API errors gracefully", {
   withr::with_envvar(list(OPENAI_API_KEY = "test_key"), {
-    drv <- OpenAIDriver$new()
+    drv <- OpenAIAPIDriver$new()
     httr2::with_mocked_responses(
       function(req) httr2::response(status_code = 500, body = charToRaw("Internal Error")),
       {
@@ -65,9 +65,9 @@ test_that("OpenAIDriver handles API errors gracefully", {
   })
 })
 
-test_that("AnthropicDriver correctly formats requests and parses response", {
+test_that("AnthropicAPIDriver correctly formats requests and parses response", {
   withr::with_envvar(list(ANTHROPIC_API_KEY = "test_key"), {
-    drv <- AnthropicDriver$new()
+    drv <- AnthropicAPIDriver$new()
 
     # Mock response
     mock_resp <- httr2::response(
@@ -88,9 +88,9 @@ test_that("AnthropicDriver correctly formats requests and parses response", {
   })
 })
 
-test_that("AnthropicDriver handles API errors gracefully", {
+test_that("AnthropicAPIDriver handles API errors gracefully", {
   withr::with_envvar(list(ANTHROPIC_API_KEY = "test_key"), {
-    drv <- AnthropicDriver$new()
+    drv <- AnthropicAPIDriver$new()
     httr2::with_mocked_responses(
       function(req) httr2::response(status_code = 500, body = charToRaw("Anthropic Error")),
       {
@@ -137,9 +137,9 @@ test_that("GeminiAPIDriver handles API errors gracefully", {
 })
 
 
-test_that("OpenAIDriver correctly handles API errors", {
+test_that("OpenAIAPIDriver correctly handles API errors", {
   withr::with_envvar(list(OPENAI_API_KEY = "test_key"), {
-    drv <- OpenAIDriver$new()
+    drv <- OpenAIAPIDriver$new()
 
     # Mock error response
     mock_err <- function(req) {
@@ -158,9 +158,9 @@ test_that("OpenAIDriver correctly handles API errors", {
   })
 })
 
-test_that("AnthropicDriver correctly handles API errors", {
+test_that("AnthropicAPIDriver correctly handles API errors", {
   withr::with_envvar(list(ANTHROPIC_API_KEY = "test_key"), {
-    drv <- AnthropicDriver$new()
+    drv <- AnthropicAPIDriver$new()
 
     mock_err <- function(req) {
       httr2::response(status_code = 500)
@@ -199,12 +199,12 @@ test_that("GeminiAPIDriver correctly handles API errors", {
 })
 
 test_that("API Drivers report correct capabilities", {
-  drv_openai <- OpenAIDriver$new()
+  drv_openai <- OpenAIAPIDriver$new()
   caps_openai <- drv_openai$get_capabilities()
   expect_true(caps_openai$json_mode)
   expect_true(caps_openai$tools)
 
-  drv_anthropic <- AnthropicDriver$new()
+  drv_anthropic <- AnthropicAPIDriver$new()
   caps_anthropic <- drv_anthropic$get_capabilities()
   expect_true(caps_anthropic$json_mode)
   expect_true(caps_anthropic$tools)
@@ -215,9 +215,9 @@ test_that("API Drivers report correct capabilities", {
   expect_true(caps_gemini$tools)
 })
 
-test_that("OpenAIDriver handles network failures gracefully", {
+test_that("OpenAIAPIDriver handles network failures gracefully", {
   withr::with_envvar(list(OPENAI_API_KEY = "test_key"), {
-    drv <- OpenAIDriver$new()
+    drv <- OpenAIAPIDriver$new()
 
     mock_error <- function(req) {
       httr2::response(status_code = 500)
@@ -232,9 +232,9 @@ test_that("OpenAIDriver handles network failures gracefully", {
   })
 })
 
-test_that("AnthropicDriver handles network failures gracefully", {
+test_that("AnthropicAPIDriver handles network failures gracefully", {
   withr::with_envvar(list(ANTHROPIC_API_KEY = "test_key"), {
-    drv <- AnthropicDriver$new()
+    drv <- AnthropicAPIDriver$new()
 
     mock_error <- function(req) {
       httr2::response(status_code = 500)

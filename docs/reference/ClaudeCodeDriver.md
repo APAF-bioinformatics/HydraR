@@ -5,23 +5,23 @@ Driver for the 'claude' CLI tool.
 ## Super class
 
 [`HydraR::AgentDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.md)
--\> `ClaudeCodeDriver`
+-\> `AnthropicCLIDriver`
 
 ## Public fields
 
 - `model`:
 
-  String. Default model. Initialize ClaudeCodeDriver
+  String. Default model. Initialize AnthropicCLIDriver
 
 ## Methods
 
 ### Public methods
 
-- [`ClaudeCodeDriver$new()`](#method-ClaudeCodeDriver-new)
+- [`AnthropicCLIDriver$new()`](#method-AnthropicCLIDriver-new)
 
-- [`ClaudeCodeDriver$call()`](#method-ClaudeCodeDriver-call)
+- [`AnthropicCLIDriver$call()`](#method-AnthropicCLIDriver-call)
 
-- [`ClaudeCodeDriver$clone()`](#method-ClaudeCodeDriver-clone)
+- [`AnthropicCLIDriver$clone()`](#method-AnthropicCLIDriver-clone)
 
 Inherited methods
 
@@ -36,7 +36,7 @@ Inherited methods
 
 #### Usage
 
-    ClaudeCodeDriver$new(
+    AnthropicCLIDriver$new(
       id = "claude_cli",
       model = "claude-3-5-sonnet-latest",
       validation_mode = "warning",
@@ -67,7 +67,7 @@ Inherited methods
 
 #### Usage
 
-    ClaudeCodeDriver$call(prompt, model = NULL, cli_opts = list(), ...)
+    AnthropicCLIDriver$call(prompt, model = NULL, cli_opts = list(), ...)
 
 #### Arguments
 
@@ -99,7 +99,7 @@ The objects of this class are cloneable with this method.
 
 #### Usage
 
-    ClaudeCodeDriver$clone(deep = FALSE)
+    AnthropicCLIDriver$clone(deep = FALSE)
 
 #### Arguments
 

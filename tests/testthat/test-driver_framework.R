@@ -50,7 +50,7 @@ test_that("AgentLLMNode injects tools into prompt builder", {
 })
 
 test_that("CLI Drivers are correctly instantiated", {
-  claude_driver <- ClaudeCodeDriver$new()
+  claude_driver <- AnthropicCLIDriver$new()
   expect_equal(claude_driver$id, "claude_cli")
   expect_true(inherits(claude_driver, "AgentDriver"))
 

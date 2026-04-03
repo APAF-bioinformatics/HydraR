@@ -1,0 +1,29 @@
+# ==============================================================
+# HydraR | Advanced Multi-Agent Orchestration (2026)
+# Multi-Driver Workflow: Planner -> Coder -> Auditor
+# ==============================================================
+
+graph: |
+  graph TD
+    Planner["Orchestrator | type=llm | driver=openai_api | role_id=research_planner"]
+    Coder["Implementer | type=llm | driver=openai | role_id=apaf_coder | sandbox=workspace-write"]
+    Auditor["Compliance | type=llm | driver=anthropic_api | role_id=apaf_auditor"]
+
+    Planner --> Coder
+    Coder --> Auditor
+
+# --------------------------------------------------------------
+# Metadata & Constraints
+# --------------------------------------------------------------
+metadata:
+  vignette: "advanced_orchestration_2026"
+  org: "APAF Bioinformatics"
+  version: "2.1.0"
+
+# --------------------------------------------------------------
+# Roles & Logic Registrations (Handled in R/zzz.R)
+# --------------------------------------------------------------
+# role_id mapping:
+# research_planner -> High-level decomposition (GPT-5.4)
+# apaf_coder -> Low-level R/Bash logic (Codex CLI)
+# apaf_auditor -> Compliance & APAF Standards (Claude Sonnet 4.6)

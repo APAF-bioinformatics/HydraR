@@ -75,13 +75,15 @@ The `driver` parameter determines how HydraR interacts with an LLM. Drivers are 
 ### Anthropic (Claude)
 | Shorthand | Class | Description |
 | :--- | :--- | :--- |
-| `claude` | `ClaudeCodeDriver` | **CLI Mode.** Uses the `claude` CLI tool. Primarily used for autonomous coding tasks and localized context. |
-| `anthropic_api`| `AnthropicDriver` | **Cloud API.** Direct interaction with Anthropic's Messages API. Requires `ANTHROPIC_API_KEY`. |
+| `claude` | `AnthropicCLIDriver` | **CLI Mode.** Uses the `claude` CLI tool. Primarily used for autonomous coding tasks and localized context. |
+| `anthropic_api`| `AnthropicAPIDriver` | **Cloud API.** Direct interaction with Anthropic's Messages API. Requires `ANTHROPIC_API_KEY`. |
 
 ### OpenAI (GPT)
 | Shorthand | Class | Description |
 | :--- | :--- | :--- |
-| `openai` | `OpenAIDriver` | **Cloud API.** Standard OpenAI Chat Completions driver. Supports GPT-4o and O1 models. Requires `OPENAI_API_KEY`. |
+| `openai` | `OpenAICodexCLIDriver` | **CLI Mode.** Uses the official OpenAI `codex` CLI (v0.118+). High-performance coding agent for local tasks. |
+| `openai_api` | `OpenAIAPIDriver` | **Cloud API.** Standard OpenAI Chat Completions driver. Supports GPT-5.4 flagship and mini models. Requires `OPENAI_API_KEY`. |
+
 
 ### Local & Open Source
 | Shorthand | Class | Description |
@@ -293,7 +295,7 @@ You can enable and configure MCP servers by passing provider-specific flags in t
 ```yaml
 graph: |
   graph TD
-    DBAgent["Query Node | type=llm | driver=claude | model=claude-3-5-sonnet-latest"]
+    DBAgent["Query Node | type=llm | driver=anthropic | model=claude-3-5-sonnet-latest"]
 
 logic:
   DBAgent:

@@ -29,7 +29,7 @@ These tools allow you to peer into the persistent state managed by `DuckDBSaver`
 
 | Script | Purpose |
 | :--- | :--- |
-| **`check_models.R`** | A quick connectivity test for `GeminiAPIDriver`, `ClaudeCodeDriver`, and others to ensure API keys are valid. |
+| **`check_models.R`** | A quick connectivity test for `GeminiAPIDriver`, `AnthropicCLIDriver`, and others to ensure API keys are valid. |
 
 ---
 

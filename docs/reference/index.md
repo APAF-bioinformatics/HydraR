@@ -57,13 +57,13 @@ Provider-agnostic interfaces for CLI-based and API-based LLMs.
   : Gemini CLI Driver R6 Class
 - [`GeminiAPIDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/GeminiAPIDriver.md)
   : Gemini API Driver R6 Class
-- [`OpenAIDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/OpenAIDriver.md)
+- [`OpenAIAPIDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/OpenAIAPIDriver.md)
   : OpenAI API Driver R6 Class
-- [`AnthropicDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/AnthropicDriver.md)
+- [`AnthropicAPIDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/AnthropicAPIDriver.md)
   : Anthropic API Driver R6 Class
 - [`OllamaDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/OllamaDriver.md)
   : Ollama Driver R6 Class
-- [`ClaudeCodeDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/ClaudeCodeDriver.md)
+- [`AnthropicCLIDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/AnthropicCLIDriver.md)
   : Claude CLI Driver R6 Class
 - [`CopilotCLIDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/CopilotCLIDriver.md)
   : Copilot CLI Driver R6 Class

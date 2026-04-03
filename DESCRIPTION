@@ -1,7 +1,7 @@
 Package: HydraR
 Type: Package
 Title: Stateful Agentic Orchestration for Scientific Reproducibility
-Version: 0.1.0-9004
+Version: 0.2.0
 Authors@R: 
     c(person(given = c("Chi", "Nam", "Ignatius"),
              family = "Pang",
@@ -60,7 +60,6 @@ Suggests:
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Collate: 
-    'init_duckdb.R'
     'checkpointer.R'
     'dag.R'
     'driver.R'

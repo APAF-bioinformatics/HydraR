@@ -9,9 +9,9 @@
 library(testthat)
 library(httr2)
 
-test_that("OpenAIDriver includes system_prompt in request", {
+test_that("OpenAIAPIDriver includes system_prompt in request", {
   withr::with_envvar(list(OPENAI_API_KEY = "test_key"), {
-    drv <- OpenAIDriver$new()
+    drv <- OpenAIAPIDriver$new()
 
     # Mock response
     mock_resp <- httr2::response(
@@ -43,9 +43,9 @@ test_that("OpenAIDriver includes system_prompt in request", {
   })
 })
 
-test_that("AnthropicDriver includes system_prompt in request", {
+test_that("AnthropicAPIDriver includes system_prompt in request", {
   withr::with_envvar(list(ANTHROPIC_API_KEY = "test_key"), {
-    drv <- AnthropicDriver$new()
+    drv <- AnthropicAPIDriver$new()
 
     mock_resp <- httr2::response(
       status_code = 200,

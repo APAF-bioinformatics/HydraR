@@ -12,22 +12,9 @@ graph: |
     Step2 --> Step3
 
 logic:
-  init_proc: |
-    {
-      list(status = "SUCCESS", output = "Initialization complete.")
-    }
-  check_fixed: |
-    {
-      if (!isTRUE(state$get("fixed"))) {
-        # Return "PAUSE" status - HydraR saves state and stops cleanly
-        return(list(status = "PAUSE", output = "Waiting for manual fix."))
-      }
-      list(status = "SUCCESS", output = "System recovered!")
-    }
-  finalize_proc: |
-    {
-      list(status = "SUCCESS", output = "All steps finished.")
-    }
+  init_proc: "logic/init_proc.R"
+  check_fixed: "logic/check_fixed.R"
+  finalize_proc: "logic/finalize_proc.R"
 
 start_node: Step1
 

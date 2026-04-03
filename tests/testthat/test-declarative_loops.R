@@ -12,15 +12,21 @@ start_node: A
 
 conditional_edges:
   B:
-    test: 'isTRUE(out$ok)'
+    test: 'check_ok'
     if_true: null
     if_false: 'A'
 
 logic:
-  logic_a: |
-    list(status = 'success', output = 'a_done')
-  logic_b: |
-    # Loop once, then pass
+  logic_a: 'logic_a'
+  logic_b: 'logic_b'
+"
+  # Mock a file since load_workflow needs a path
+  tmp_file <- tempfile(fileext = ".yml")
+  writeLines(wf_yml, tmp_file)
+
+  # Pre-register for security Tier 2
+  register_logic("logic_a", function(state) list(status = 'success', output = 'a_done'))
+  register_logic("logic_b", function(state) {
     count <- state$get('count') %||% 0
     state$set('count', count + 1)
     if (count < 1) {
@@ -28,10 +34,8 @@ logic:
     } else {
       list(status = 'success', output = list(ok = TRUE))
     }
-"
-  # Mock a file since load_workflow needs a path
-  tmp_file <- tempfile(fileext = ".yml")
-  writeLines(wf_yml, tmp_file)
+  })
+  register_logic("check_ok", function(out) isTRUE(out$ok))
 
   # Use load_workflow which SHOULD register the logic
   wf <- load_workflow(tmp_file)

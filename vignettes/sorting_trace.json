@@ -1,0 +1,62 @@
+[
+  {
+    "step": 1,
+    "node": "bubble",
+    "mode": "parallel",
+    "start_time": "2026-04-03 18:52:12.937215",
+    "end_time": "2026-04-03 18:53:57.389856",
+    "duration_secs": 104.4526,
+    "status": "success",
+    "error": {}
+  },
+  {
+    "step": 2,
+    "node": "quick",
+    "mode": "parallel",
+    "start_time": "2026-04-03 18:52:12.935802",
+    "end_time": "2026-04-03 18:53:12.829365",
+    "duration_secs": 59.8936,
+    "status": "success",
+    "error": {}
+  },
+  {
+    "step": 3,
+    "node": "merge",
+    "mode": "parallel",
+    "start_time": "2026-04-03 18:52:12.941217",
+    "end_time": "2026-04-03 18:53:37.213309",
+    "duration_secs": 84.2721,
+    "status": "success",
+    "error": {}
+  },
+  {
+    "step": 4,
+    "node": "merger",
+    "mode": "parallel",
+    "start_time": "2026-04-03 18:53:57.607117",
+    "end_time": "2026-04-03 18:53:58.052051",
+    "duration_secs": 0.4449,
+    "status": "success",
+    "error": {}
+  },
+  {
+    "step": 5,
+    "node": "benchmark",
+    "mode": "parallel",
+    "start_time": "2026-04-03 18:53:58.102512",
+    "end_time": "2026-04-03 18:53:58.122596",
+    "duration_secs": 0.0201,
+    "status": "success",
+    "error": {}
+  },
+  {
+    "step": 6,
+    "node": "plot",
+    "mode": "parallel",
+    "start_time": "2026-04-03 18:53:58.174355",
+    "end_time": "2026-04-03 18:53:58.174497",
+    "duration_secs": 0.0001,
+    "status": "failed",
+    "error": "No benchmark data found."
+  }
+]

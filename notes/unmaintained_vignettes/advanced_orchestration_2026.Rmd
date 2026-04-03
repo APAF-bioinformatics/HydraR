@@ -1,0 +1,94 @@
+---
+title: "Advanced Orchestration 2026: Hybrid Multi-Agent Synergy"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Advanced Orchestration 2026}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+In 2026, the agentic landscape has moved beyond single-provider interactions. High-performance workflows now leverage a **Hybrid Orchestration** model: using high-reasoning cloud APIs for planning and specialized CLI agents for secure, local execution.
+
+This vignette demonstrates how `HydraR` bridges the gap between **OpenAI (GPT-5.4 & Codex)** and **Anthropic (Claude 4.6)** in a unified Directed Acyclic Graph (DAG).
+
+## 1. The 2026 Driver Stack
+
+`HydraR` provides standardized shorthands for the leading agentic tools:
+
+*   **`openai_api`**: Flagship cloud reasoning (GPT-5.4).
+*   **`openai`**: Local high-performance coding agent (Codex CLI).
+*   **`anthropic_api`**: Independent auditor with extremely low hallucination rates (Sonnet 4.6).
+
+## 2. Declarative Multi-Agent YAML
+
+Instead of writing complex R scripts to wire these agents together, we use a declarative Mermaid-inspired YAML:
+
+```yaml
+graph: |
+  graph TD
+    Planner["Orchestrator | type=llm | driver=openai_api | role_id=research_planner"]
+    Coder["Implementer | type=llm | driver=openai | role_id=apaf_coder | sandbox=workspace-write"]
+    Auditor["Compliance | type=llm | driver=anthropic_api | role_id=apaf_auditor"]
+
+    Planner --> Coder
+    Coder --> Auditor
+```
+
+## 3. Implementation Workflow
+
+### Step 1: Load and Spawn
+
+Load the workflow and spawn the DAG. The drivers are automatically resolved by the internal `resolve_default_driver()` registry.
+
+```r
+library(HydraR)
+
+# Load the declarative workflow
+wf <- load_workflow("vignettes/advanced_orchestration_2026.yml")
+
+# Spawn the DAG with persistent audit logging
+dag <- spawn_dag(wf, message_log = DuckDBMessageLog$new())
+```
+
+### Step 2: High-Reasoning Planning
+
+The `Planner` (GPT-5.4) receives the initial user request and breaks it down. Since it's a cloud API, it has access to the broadest knowledge base.
+
+```r
+initial_state <- list(
+  request = "Perform a differential expression analysis on 'data.csv' using DESeq2 patterns."
+)
+```
+
+### Step 3: Local Coding with Codex
+
+The `Coder` (Codex CLI) takes the plan and generates the R code. Because it uses the `openai` (CLI) driver, it operates within a **Git Worktree sandbox**, ensuring that experimental code does not corrupt your main branch.
+
+### Step 4: Auditor Compliance
+
+Finally, the `Auditor` (Claude 4.6) reviews the output. Using a second provider (Anthropic) for auditing OpenAI's output is an APAF best practice for reducing model-specific bias and hallucination.
+
+## 4. Persistent Audit Trails
+
+The entire multi-turn, multi-agent conversation is stored in `~/.gemini/memory/bot_history.duckdb`. You can query this database at any time to recreate the "Chain of Thought" across providers.
+
+```r
+log <- DuckDBMessageLog$new()
+history <- log$get_all()
+# View the interactions between Planner (OpenAI) and Auditor (Anthropic)
+```
+
+## 5. Summary
+
+By combining localized CLI tools with high-reasoning cloud APIs, `HydraR` provides a state-of-the-art framework for reproducible, secure, and collaborative AI research in 2026.
+
+---
+<!-- APAF Bioinformatics | advanced_orchestration_2026.Rmd | Approved | 2026-04-03 -->

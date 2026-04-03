@@ -2,10 +2,10 @@
 library(HydraR)
 library(withr)
 
-# Define a spy driver that inherits from OpenAIDriver
+# Define a spy driver that inherits from OpenAIAPIDriver
 # but instead of making a network call, it just returns getwd()
 SpyDriver <- R6::R6Class("SpyDriver",
-  inherit = OpenAIDriver,
+  inherit = OpenAIAPIDriver,
   public = list(
     call = function(...) {
       # Use same handler logic as in drivers_api.R

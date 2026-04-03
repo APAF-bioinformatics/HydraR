@@ -8,7 +8,7 @@
 - **State Management**: Robust `AgentState` system for tracking data
   through multi-step agent transitions.
 - **Provider-Agnostic Drivers**: Initial support for `GeminiCLIDriver`,
-  `ClaudeCodeDriver`, and `CopilotCLIDriver`, enabling “hot-swappable”
+  `AnthropicCLIDriver`, and `CopilotCLIDriver`, enabling “hot-swappable”
   LLM backends.
 - **High-Fidelity Validation**: Integrated `Auditor` pattern for
   autonomous quality control of agent outputs.

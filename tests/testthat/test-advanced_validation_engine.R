@@ -51,7 +51,7 @@ test_that("Advanced Validation: R Logic Syntax Error (Validation Level)", {
   code_file <- tempfile(fileext = ".R")
   writeLines("function(state) { broken_syntax_here( ", code_file)
 
-  expect_error(register_logic("bad_code", resolve_logic_pattern(code_file)))
+  expect_error(register_logic("bad_code", HydraR:::resolve_logic_pattern(code_file)))
   unlink(code_file)
 })
 
@@ -60,7 +60,7 @@ test_that("Advanced Validation: APAF Rule G-25 (For-loop) warning", {
   code_file <- tempfile(fileext = ".R")
   writeLines("function(state) { for (i in 1:10) { print(i) }; list(status='success') }", code_file)
 
-  register_logic("loop_logic", resolve_logic_pattern(code_file))
+  register_logic("loop_logic", HydraR:::resolve_logic_pattern(code_file))
 
   wf <- list(
     graph = "graph TD\n  A[\"Node A | type=logic | logic_id=loop_logic\"]",

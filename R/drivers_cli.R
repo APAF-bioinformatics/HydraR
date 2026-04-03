@@ -203,25 +203,26 @@ OllamaDriver <- R6::R6Class("OllamaDriver",
   )
 )
 
-#' Claude CLI Driver R6 Class
+#' Anthropic CLI Driver
 #'
 #' @description
-#' Driver for the 'claude' CLI tool.
+#' Driver for the Anthropic `claude` (Claude Code) CLI.
 #'
-#' @importFrom R6 R6Class
 #' @export
-ClaudeCodeDriver <- R6::R6Class("ClaudeCodeDriver",
+AnthropicCLIDriver <- R6::R6Class(
+  "AnthropicCLIDriver",
   inherit = AgentDriver,
   public = list(
     #' @field model String. Default model.
-    model = "claude-3-5-sonnet-latest",
+    model = "sonnet",
 
-    #' Initialize ClaudeCodeDriver
+    #' Initialize AnthropicCLIDriver
     #' @param id Unique identifier.
     #' @param model String. Default model.
     #' @param validation_mode String. "warning" or "strict".
     #' @param working_dir String. Optional. Path to isolated Git worktree.
-    initialize = function(id = "claude_cli", model = "claude-3-5-sonnet-latest", validation_mode = "warning", working_dir = NULL) {
+    #' @return A new `AnthropicCLIDriver` object.
+    initialize = function(id = "claude_cli", model = "sonnet", validation_mode = "warning", working_dir = NULL) {
       super$initialize(id, provider = "anthropic", model_name = model, validation_mode = validation_mode, working_dir = working_dir)
       self$model <- model
       self$supported_opts <- c(
@@ -294,17 +295,12 @@ ClaudeCodeDriver <- R6::R6Class("ClaudeCodeDriver",
 CopilotCLIDriver <- R6::R6Class("CopilotCLIDriver",
   inherit = AgentDriver,
   public = list(
-    #' @field type String. Use 'shell' or 'git'.
-    type = "shell",
-
     #' Initialize CopilotCLIDriver
     #' @param id Unique identifier.
-    #' @param type String. Default type ('shell').
     #' @param validation_mode String. "warning" or "strict".
     #' @param working_dir String. Optional. Path to isolated Git worktree.
-    initialize = function(id = "copilot_cli", type = "shell", validation_mode = "warning", working_dir = NULL) {
+    initialize = function(id = "copilot_cli", validation_mode = "warning", working_dir = NULL) {
       super$initialize(id, provider = "github", model_name = "copilot", validation_mode = validation_mode, working_dir = working_dir)
-      self$type <- type
       self$supported_opts <- c(
         "add_dir", "allow_all_paths", "allow_all_tools", "allow_tool",
         "deny_tool", "model", "prompt", "resume", "screen_reader",
@@ -314,17 +310,11 @@ CopilotCLIDriver <- R6::R6Class("CopilotCLIDriver",
 
     #' Call the LLM
     #' @param prompt String.
-    #' @param type String override.
     #' @param system_prompt String. Optional system prompt.
     #' @param cli_opts List.
     #' @param ... Additional arguments.
     #' @return String. Cleaned result.
-    call = function(prompt, type = NULL, system_prompt = NULL, cli_opts = list(), ...) {
-      target_type <- if (!is.null(type)) type else self$type
-      if (!is.null(target_type)) {
-        self$validate_no_injection(target_type)
-      }
-
+    call = function(prompt, system_prompt = NULL, cli_opts = list(), ...) {
       # Standard fallback: prepend system_prompt to prompt if not natively supported by CLI
       final_prompt <- if (!is.null(system_prompt)) {
         sprintf("System Guidelines:\n%s\n\nUser Task:\n%s", system_prompt, prompt)
@@ -332,19 +322,24 @@ CopilotCLIDriver <- R6::R6Class("CopilotCLIDriver",
         prompt
       }
 
-      # Copilot CLI often uses --prompt for non-interactive
+      # Modern gh copilot uses -p or --prompt for non-interactive
       if (!"prompt" %in% names(cli_opts)) {
         cli_opts$prompt <- final_prompt
       }
 
-      if ("prompt" %in% names(cli_opts)) {
-        cli_opts$prompt <- shQuote(cli_opts$prompt)
+      # Non-interactive flags for agent use
+      if (!"allow_all_tools" %in% names(cli_opts)) {
+        cli_opts$allow_all_tools <- TRUE
+      }
+      if (!"no_custom_instructions" %in% names(cli_opts)) {
+        cli_opts$no_custom_instructions <- TRUE
       }
 
       formatted_opts <- self$format_cli_opts(cli_opts)
 
-      # Implementation: gh copilot suggest -t <type> [opts]
-      res <- self$exec_in_dir("gh", args = c("copilot", "suggest", "-t", target_type, formatted_opts), stdout = TRUE, stderr = TRUE)
+      # Implementation: gh copilot -- -p <prompt> [opts]
+      # Using -- to ensure sub-binary doesn't conflict with gh flags
+      res <- self$exec_in_dir("gh", args = c("copilot", "--", formatted_opts), stdout = TRUE, stderr = TRUE)
 
       # Sanitize output from CLI noise
       clean_lines <- self$filter_llm_noise(res)
@@ -359,4 +354,84 @@ CopilotCLIDriver <- R6::R6Class("CopilotCLIDriver",
   )
 )
 
-#' <!-- APAF Bioinformatics | drivers_cli.R | Approved | 2026-03-28 -->
+#' OpenAI Codex CLI Driver
+#'
+#' Supports the official `codex` CLI (v0.118+).
+#'
+#' @export
+OpenAICodexCLIDriver <- R6::R6Class(
+  "OpenAICodexCLIDriver",
+  inherit = AgentDriver,
+  public = list(
+    #' Initialize OpenAICodexCLIDriver
+    #' @param id String. Unique identifier.
+    #' @param validation_mode String. "warning" or "strict".
+    #' @param working_dir String. Optional. Path to isolated Git worktree.
+    initialize = function(id = "codex_cli", validation_mode = "warning", working_dir = NULL) {
+      super$initialize(id, provider = "openai", model_name = "codex", validation_mode = validation_mode, working_dir = working_dir)
+      self$supported_opts <- c("model", "sandbox", "cd", "search", "add_dir", "ephemeral", "color")
+    },
+
+    #' Call the LLM
+    #' @param prompt String.
+    #' @param system_prompt String. Optional system prompt.
+    #' @param cli_opts List.
+    #' @param ... Additional arguments.
+    #' @return String. Cleaned result.
+    call = function(prompt, system_prompt = NULL, cli_opts = list(), ...) {
+      final_prompt <- if (!is.null(system_prompt)) {
+        sprintf("System Guidelines:\n%s\n\nUser Task:\n%s", system_prompt, prompt)
+      } else {
+        prompt
+      }
+
+      # Always use --json for reliable parsing in agentic workflows
+      cmd_args <- c("exec", "--json")
+
+      # Convert cli_opts to flags (kabab-case)
+      for (opt in names(cli_opts)) {
+        val <- cli_opts[[opt]]
+        flag <- gsub("_", "-", opt)
+        if (is.logical(val)) {
+          if (val) cmd_args <- c(cmd_args, sprintf("--%s", flag))
+        } else {
+          cmd_args <- c(cmd_args, sprintf("--%s", flag), as.character(val))
+        }
+      }
+
+      # Append prompt
+      cmd_args <- c(cmd_args, final_prompt)
+
+      # Execution using the worktree-aware helper
+      res <- self$exec_in_dir("codex", args = cmd_args, stdout = TRUE, stderr = TRUE)
+
+      # JSONL Stream Parsing Logic
+      # We look for the 'item.completed' event where item$type == 'agent_message'
+      final_content <- ""
+      for (line in res) {
+        if (trimws(line) == "") next
+        if (!startsWith(line, "{")) next # Skip non-json preamble if any
+
+        parsed <- tryCatch(jsonlite::fromJSON(line), error = function(e) NULL)
+        if (is.null(parsed)) next
+
+        if (!is.null(parsed$type) && parsed$type == "item.completed") {
+          item <- parsed$item
+          if (!is.null(item) && !is.null(item$type) && item$type == "agent_message") {
+            final_content <- item$text
+          }
+        }
+      }
+
+      # Final fallback: If JSON parsing failed to find a message, try raw text filtering
+      if (nchar(final_content) == 0) {
+        clean_lines <- self$filter_llm_noise(res)
+        final_content <- paste(clean_lines, collapse = "\n")
+      }
+
+      return(final_content)
+    }
+  )
+)
+
+#' <!-- APAF Bioinformatics | drivers_cli.R | Approved | 2026-04-03 -->

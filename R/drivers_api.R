@@ -6,24 +6,26 @@
 # License:     LGPL (>= 3) (see LICENSE)
 # ==============================================================
 
-#' OpenAI API Driver R6 Class
+#' OpenAI API Driver
 #'
-#' @description Driver for OpenAI Chat Completions API.
-#' @return An `OpenAIDriver` R6 object.
+#' @description
+#' Implementation of the OpenAI Chat Completions API.
+#'
 #' @export
-OpenAIDriver <- R6::R6Class("OpenAIDriver",
+OpenAIAPIDriver <- R6::R6Class(
+  "OpenAIAPIDriver",
   inherit = AgentDriver,
   public = list(
     #' @field api_url String. Base URL.
     api_url = "https://api.openai.com/v1/chat/completions",
 
-    #' Initialize OpenAIDriver
+    #' Initialize OpenAIAPIDriver
     #' @param id String. Unique identifier.
     #' @param model String. Model name.
     #' @param validation_mode String. "warning" or "strict".
     #' @param working_dir String. Optional. Path to worktree.
-    #' @return A new `OpenAIDriver` object.
-    initialize = function(id = "openai_api", model = "gpt-4o", validation_mode = "warning", working_dir = NULL) {
+    #' @return A new `OpenAIAPIDriver` object.
+    initialize = function(id = "openai_api", model = "gpt-5.4-mini", validation_mode = "warning", working_dir = NULL) {
       super$initialize(id, provider = "openai", model_name = model, validation_mode = validation_mode, working_dir = working_dir)
       self$supported_opts <- c("temperature", "max_tokens", "top_p", "frequency_penalty", "presence_penalty", "response_format")
     },
@@ -43,7 +45,7 @@ OpenAIDriver <- R6::R6Class("OpenAIDriver",
     #' @return String. LLM response.
     call = function(prompt, model = NULL, system_prompt = NULL, cli_opts = list(), ...) {
       if (!requireNamespace("httr2", quietly = TRUE)) {
-        stop("Package 'httr2' is required for OpenAIDriver. Install it with install.packages('httr2').")
+        stop("Package 'httr2' is required for OpenAIAPIDriver. Install it with install.packages('httr2').")
       }
 
       # Execute within worktree context if assigned
@@ -98,24 +100,26 @@ OpenAIDriver <- R6::R6Class("OpenAIDriver",
   )
 )
 
-#' Anthropic API Driver R6 Class
+#' Anthropic API Driver
 #'
-#' @description Driver for Anthropic Messages API.
-#' @return An `AnthropicDriver` R6 object.
+#' @description
+#' Implementation of the Anthropic Messages API.
+#'
 #' @export
-AnthropicDriver <- R6::R6Class("AnthropicDriver",
+AnthropicAPIDriver <- R6::R6Class(
+  "AnthropicAPIDriver",
   inherit = AgentDriver,
   public = list(
     #' @field api_url String. Base URL.
     api_url = "https://api.anthropic.com/v1/messages",
 
-    #' Initialize AnthropicDriver
+    #' Initialize AnthropicAPIDriver
     #' @param id String. Unique identifier.
     #' @param model String. Model name.
     #' @param validation_mode String. "warning" or "strict".
     #' @param working_dir String. Optional. Path to worktree.
-    #' @return A new `AnthropicDriver` object.
-    initialize = function(id = "anthropic_api", model = "claude-3-5-sonnet-20241022", validation_mode = "warning", working_dir = NULL) {
+    #' @return A new `AnthropicAPIDriver` object.
+    initialize = function(id = "anthropic_api", model = "claude-sonnet-4-6", validation_mode = "warning", working_dir = NULL) {
       super$initialize(id, provider = "anthropic", model_name = model, validation_mode = validation_mode, working_dir = working_dir)
       self$supported_opts <- c("max_tokens", "metadata", "stop_sequences", "system", "temperature", "top_k", "top_p")
     },
@@ -135,7 +139,7 @@ AnthropicDriver <- R6::R6Class("AnthropicDriver",
     #' @return String. LLM response.
     call = function(prompt, model = NULL, system_prompt = NULL, cli_opts = list(), ...) {
       if (!requireNamespace("httr2", quietly = TRUE)) {
-        stop("Package 'httr2' is required for AnthropicDriver.")
+        stop("Package 'httr2' is required for AnthropicAPIDriver.")
       }
 
       handler <- if (!is.null(self$working_dir)) withr::with_dir else function(d, expr) expr

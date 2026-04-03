@@ -59,25 +59,11 @@ roles:
   editor: \"You are the master editor. Combine the scenes into a cohesive short story.\"
 
 logic:
-  prompt_director: >
-    sprintf(\"Expand slightly on this premise: %s\", state$get(\"premise\"))
-
-  prompt_action: >
-    sprintf(\"Based on the director's vision: %s\\nWrite an action scene.\", state$get(\"director\"))
-
-  prompt_mystery: >
-    sprintf(\"Based on the director's vision: %s\\nWrite a mystery scene.\", state$get(\"director\"))
-
-  prompt_romance: >
-    sprintf(\"Based on the director's vision: %s\\nWrite a romantic or emotional scene.\", state$get(\"director\"))
-
-  prompt_editor: >
-    sprintf(
-      \"Synthesize these three scenes into one short story:\\n\\nAction: %s\\n\\nMystery: %s\\n\\nRomance: %s\",
-      state$get(\"writer_action\"),
-      state$get(\"writer_mystery\"),
-      state$get(\"writer_romance\")
-    )
+  prompt_director: \"prompt_director\"
+  prompt_action: \"prompt_action\"
+  prompt_mystery: \"prompt_mystery\"
+  prompt_romance: \"prompt_romance\"
+  prompt_editor: \"prompt_editor\"
 
 start_node: director
 
@@ -87,6 +73,28 @@ initial_state:
 
   yaml_path <- tempfile(fileext = ".yml")
   writeLines(yaml_content, yaml_path)
+
+  # Pre-register logic to satisfy security Tier 2 resolution
+  register_logic("prompt_director", function(state) {
+    sprintf("Expand slightly on this premise: %s", state$get("premise"))
+  })
+  register_logic("prompt_action", function(state) {
+    sprintf("Based on the director's vision: %s\nWrite an action scene.", state$get("director"))
+  })
+  register_logic("prompt_mystery", function(state) {
+    sprintf("Based on the director's vision: %s\nWrite a mystery scene.", state$get("director"))
+  })
+  register_logic("prompt_romance", function(state) {
+    sprintf("Based on the director's vision: %s\nWrite a romantic or emotional scene.", state$get("director"))
+  })
+  register_logic("prompt_editor", function(state) {
+    sprintf(
+      "Synthesize these three scenes into one short story:\n\nAction: %s\n\nMystery: %s\n\nRomance: %s",
+      state$get("writer_action"),
+      state$get("writer_mystery"),
+      state$get("writer_romance")
+    )
+  })
 
   # Load the workflow from the temp file
   wf <- load_workflow(yaml_path)

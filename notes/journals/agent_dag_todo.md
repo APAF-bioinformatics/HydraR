@@ -41,7 +41,7 @@ This document translates the state-of-the-art gap analysis from `notes/agent_dag
     - [x] *Goal*: Enable CLI-native tool calling or prompt-based tool discovery for different providers.
 - [x] **Develop Core Drivers**:
     - [x] `GeminiCLIDriver`: Integration with the `gemini` CLI.
-    - [x] `ClaudeCodeDriver`: Integration with the `claude` (Anthropic) CLI.
+    - [x] `AnthropicCLIDriver`: Integration with the `claude` (Anthropic) CLI.
     - [x] `CopilotCLIDriver`: Integration with the GitHub Copilot CLI (`gh copilot`).
     - [x] `OllamaDriver`: Integration with local `ollama` CLI.
 

@@ -203,7 +203,7 @@ supported_opts = c(
 )
 ```
 
-**ClaudeCodeDriver** supported opts:
+**AnthropicCLIDriver** supported opts:
 ```r
 supported_opts = c(
   "add_dir", "agent", "agents", "allowedTools", "append_system_prompt",
@@ -601,7 +601,7 @@ With private messaging, a distributed algorithm simulation looks like:
 # Register heterogeneous drivers
 registry <- DriverRegistry$new()
 registry$register(GeminiCLIDriver$new())
-registry$register(ClaudeCodeDriver$new())
+registry$register(AnthropicCLIDriver$new())
 
 # Build DAG with different drivers per node
 dag <- AgentDAG$new()

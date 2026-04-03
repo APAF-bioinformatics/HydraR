@@ -4,30 +4,30 @@ Driver for OpenAI Chat Completions API.
 
 ## Value
 
-An \`OpenAIDriver\` R6 object.
+An \`OpenAIAPIDriver\` R6 object.
 
 ## Super class
 
 [`HydraR::AgentDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.md)
--\> `OpenAIDriver`
+-\> `OpenAIAPIDriver`
 
 ## Public fields
 
 - `api_url`:
 
-  String. Base URL. Initialize OpenAIDriver
+  String. Base URL. Initialize OpenAIAPIDriver
 
 ## Methods
 
 ### Public methods
 
-- [`OpenAIDriver$new()`](#method-OpenAIDriver-new)
+- [`OpenAIAPIDriver$new()`](#method-OpenAIAPIDriver-new)
 
-- [`OpenAIDriver$get_capabilities()`](#method-OpenAIDriver-get_capabilities)
+- [`OpenAIAPIDriver$get_capabilities()`](#method-OpenAIAPIDriver-get_capabilities)
 
-- [`OpenAIDriver$call()`](#method-OpenAIDriver-call)
+- [`OpenAIAPIDriver$call()`](#method-OpenAIAPIDriver-call)
 
-- [`OpenAIDriver$clone()`](#method-OpenAIDriver-clone)
+- [`OpenAIAPIDriver$clone()`](#method-OpenAIAPIDriver-clone)
 
 Inherited methods
 
@@ -41,7 +41,7 @@ Inherited methods
 
 #### Usage
 
-    OpenAIDriver$new(
+    OpenAIAPIDriver$new(
       id = "openai_api",
       model = "gpt-4o",
       validation_mode = "warning",
@@ -68,7 +68,7 @@ Inherited methods
 
 #### Returns
 
-A new \`OpenAIDriver\` object. Get Capabilities
+A new \`OpenAIAPIDriver\` object. Get Capabilities
 
 ------------------------------------------------------------------------
 
@@ -76,7 +76,7 @@ A new \`OpenAIDriver\` object. Get Capabilities
 
 #### Usage
 
-    OpenAIDriver$get_capabilities()
+    OpenAIAPIDriver$get_capabilities()
 
 #### Returns
 
@@ -88,7 +88,7 @@ A list of capabilities. Call OpenAI API
 
 #### Usage
 
-    OpenAIDriver$call(prompt, model = NULL, cli_opts = list(), ...)
+    OpenAIAPIDriver$call(prompt, model = NULL, cli_opts = list(), ...)
 
 #### Arguments
 
@@ -120,7 +120,7 @@ The objects of this class are cloneable with this method.
 
 #### Usage
 
-    OpenAIDriver$clone(deep = FALSE)
+    OpenAIAPIDriver$clone(deep = FALSE)
 
 #### Arguments
 

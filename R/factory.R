@@ -125,8 +125,9 @@ standard_node_factory <- function(id, label, driver = NULL) {
 # Global Variable Bindings for R CMD check
 # ==============================================================
 utils::globalVariables(c(
-  "ClaudeCodeDriver", "OpenAIDriver", "GeminiCLIDriver", "GeminiAPIDriver",
-  "GeminiImageDriver", "OllamaDriver", "CopilotCLIDriver"
+  "AnthropicCLIDriver", "OpenAIAPIDriver", "GeminiCLIDriver", "GeminiAPIDriver",
+  "GeminiImageDriver", "OllamaDriver", "CopilotCLIDriver", "OpenAICodexCLIDriver",
+  "AnthropicAPIDriver"
 ))
 
 #' <!-- APAF Bioinformatics | factory.R | Approved | 2026-03-30 -->
@@ -157,9 +158,12 @@ resolve_default_driver <- function(driver_id, driver_registry = NULL) {
     "gemini" = GeminiCLIDriver$new(),
     "gemini_api" = GeminiAPIDriver$new(),
     "gemini_image" = GeminiImageDriver$new(),
-    "claude" = ClaudeCodeDriver$new(),
-    "openai" = OpenAIDriver$new(),
-    stop(sprintf("Unknown driver shorthand: '%s'. Register it first or use a known ID (gemini, gemini_api, gemini_image, claude, openai).", driver_id))
+    "anthropic" = AnthropicCLIDriver$new(),
+    "anthropic_api" = AnthropicAPIDriver$new(),
+    "openai" = OpenAICodexCLIDriver$new(),
+    "openai_api" = OpenAIAPIDriver$new(),
+    "ollama" = OllamaDriver$new(),
+    stop(sprintf("Unknown driver shorthand: '%s'. Register it first or use a known ID (gemini, gemini_api, gemini_image, anthropic, anthropic_api, openai, openai_api, ollama).", driver_id))
   )
 }
 

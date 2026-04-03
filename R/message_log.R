@@ -67,6 +67,12 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
         private$con <- DBI::dbConnect(duckdb::duckdb(), self$db_path)
       }
       private$con
+    },
+    #' @description Finalizer to clean up the cached connection.
+    finalize = function() {
+      if (!is.null(private$con) && requireNamespace("DBI", quietly = TRUE)) {
+        try(DBI::dbDisconnect(private$con, shutdown = TRUE), silent = TRUE)
+      }
     }
   ),
   public = list(
@@ -149,12 +155,6 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
           content = jsonlite::fromJSON(res$content_json[i])
         )
       })
-    },
-    #' @description Finalizer to clean up the cached connection.
-    finalize = function() {
-      if (!is.null(private$con) && requireNamespace("DBI", quietly = TRUE)) {
-        try(DBI::dbDisconnect(private$con, shutdown = TRUE), silent = TRUE)
-      }
     }
   )
 )

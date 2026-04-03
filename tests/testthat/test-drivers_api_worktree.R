@@ -2,12 +2,12 @@ library(testthat)
 library(HydraR)
 library(withr)
 
-test_that("OpenAIDriver respects working_dir during call", {
+test_that("OpenAIAPIDriver respects working_dir during call", {
   tmp_dir <- normalizePath(withr::local_tempdir())
 
   # Mock driver to check environment
   MockDriver <- R6::R6Class("MockDriver",
-    inherit = OpenAIDriver,
+    inherit = OpenAIAPIDriver,
     public = list(
       call = function(...) {
         handler <- if (!is.null(self$working_dir)) withr::with_dir else function(d, expr) expr
@@ -22,11 +22,11 @@ test_that("OpenAIDriver respects working_dir during call", {
   expect_equal(normalizePath(driver$call("test")), tmp_dir)
 })
 
-test_that("AnthropicDriver respects working_dir during call", {
+test_that("AnthropicAPIDriver respects working_dir during call", {
   tmp_dir <- normalizePath(withr::local_tempdir())
 
   MockDriver <- R6::R6Class("MockDriver",
-    inherit = AnthropicDriver,
+    inherit = AnthropicAPIDriver,
     public = list(
       call = function(...) {
         handler <- if (!is.null(self$working_dir)) withr::with_dir else function(d, expr) expr

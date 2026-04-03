@@ -54,8 +54,8 @@ The `driver` parameter determines the execution engine for `type=llm` nodes. If 
 | `gemini` | `GeminiCLIDriver` | Google | `gemini-2.5-flash` | CLI (Local) |
 | `gemini_api`| `GeminiAPIDriver` | Google | `gemini-3.1-flash-lite-preview` | Cloud API |
 | `gemini_image`| `GeminiImageDriver`| Google | `gemini-3.1-flash-image-preview` | Multimodal |
-| `claude` | `ClaudeCodeDriver` | Anthropic | `claude-3-5-sonnet-latest` | CLI (Local) |
-| `openai` | `OpenAIDriver` | OpenAI | `gpt-4o` | Cloud API |
+| `claude` | `AnthropicCLIDriver` | Anthropic | `claude-3-5-sonnet-latest` | CLI (Local) |
+| `openai_api` | `OpenAIAPIDriver` | OpenAI | `gpt-4o` | Cloud API |
 | `ollama` | `OllamaDriver` | Ollama | `llama3.2` | Local (Local) |
 | `copilot_cli`| `CopilotCLIDriver` | Github | `copilot` | CLI (Local) |
 

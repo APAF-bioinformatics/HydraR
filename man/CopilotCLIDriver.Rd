@@ -9,14 +9,6 @@ Driver for the 'gh copilot' CLI tool.
 \section{Super class}{
 \code{\link[HydraR:AgentDriver]{HydraR::AgentDriver}} -> \code{CopilotCLIDriver}
 }
-\section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{type}}{String. Use 'shell' or 'git'.
-Initialize CopilotCLIDriver}
-}
-\if{html}{\out{</div>}}
-}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -44,7 +36,6 @@ Initialize CopilotCLIDriver}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CopilotCLIDriver$new(
   id = "copilot_cli",
-  type = "shell",
   validation_mode = "warning",
   working_dir = NULL
 )}\if{html}{\out{</div>}}
@@ -54,8 +45,6 @@ Initialize CopilotCLIDriver}
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{id}}{Unique identifier.}
-
-\item{\code{type}}{String. Default type ('shell').}
 
 \item{\code{validation_mode}}{String. "warning" or "strict".}
 
@@ -70,21 +59,13 @@ Call the LLM}
 \if{latex}{\out{\hypertarget{method-CopilotCLIDriver-call}{}}}
 \subsection{Method \code{call()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CopilotCLIDriver$call(
-  prompt,
-  type = NULL,
-  system_prompt = NULL,
-  cli_opts = list(),
-  ...
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CopilotCLIDriver$call(prompt, system_prompt = NULL, cli_opts = list(), ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{prompt}}{String.}
-
-\item{\code{type}}{String override.}
 
 \item{\code{system_prompt}}{String. Optional system prompt.}
 

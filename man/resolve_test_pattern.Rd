@@ -4,10 +4,12 @@
 \alias{resolve_test_pattern}
 \title{Resolve Test Pattern (for Conditional Edges)}
 \usage{
-resolve_test_pattern(v)
+resolve_test_pattern(v, base_dir = ".")
 }
 \arguments{
 \item{v}{String or function.}
+
+\item{base_dir}{String. Base directory for resolving relative paths.}
 }
 \value{
 A function(out) -> Logical.

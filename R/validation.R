@@ -160,6 +160,16 @@ lint_workflow_logic <- function(wf) {
       return()
     }
 
+    v_trim <- trimws(code)
+    # If the logic entry is a file path, read the file content for linting
+    if (grepl("\\.[rR]$", v_trim, ignore.case = TRUE) && file.exists(v_trim)) {
+      code_content <- tryCatch(
+        paste(readLines(v_trim, warn = FALSE), collapse = "\n"),
+        error = function(e) code
+      )
+      code <- code_content
+    }
+
     # 1. Syntactic Parse Check (Hard Stop)
     parse_res <- tryCatch(
       {
