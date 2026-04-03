@@ -1,0 +1,72 @@
+---
+title: "Round-Trip Resiliency: Status-Colored Plotting"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Round-Trip Resiliency: Status-Colored Plotting}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = TRUE
+)
+library(HydraR)
+```
+
+This vignette demonstrates how to use the `HydraR` status-colored plotting API. By defining a workflow in YAML and running it, you can generate a **status-colored** Mermaid visualization that highlights nodes based on their execution outcome.
+
+## The Quality Control Loop
+
+We simulate a "Quality Control" loop where initial findings from a search are checked. If the check fails, the graph routes execution back to a "Deep Search" node to gather more detail before re-summarizing.
+
+```{r setup}
+library(HydraR)
+
+# Load the resilient loop from YAML
+wf <- load_workflow("round_trip_resiliency.yml")
+
+# Spawn and compile the DAG
+dag <- spawn_dag(wf)
+```
+
+## Visualizing the Spec
+
+We start with a clean graph.
+
+```{r plot_spec}
+dag$plot()
+```
+
+## Running the Scenario
+
+In this example, the `Check Quality` node is hardcoded to fail on its first run and succeed on its second.
+
+```{r run}
+# Run with a max_steps limit to prevent infinite loops
+final <- dag$run(wf$initial_state, max_steps = 10)
+
+# Display the final state
+print(final$results$Publish$output)
+```
+
+## Generating the Status Plot
+
+After the execution, the `plot(status = TRUE)` method uses the internal `trace_log` to apply styles to the Mermaid graph:
+-   **Green**: Successful execution.
+-   **Red**: Failed execution.
+-   **Yellow**: Paused or currently active.
+
+```{r plot_status}
+# Export status-colored Mermaid
+dag$plot(status = TRUE)
+```
+
+## Summary
+
+`HydraR` ensures that even complex, cyclic graphs can be audited and visualized effectively, making it easier to debug multi-agent coordination issues and trace the path taken through the consensus engine.
+
+---
+<!-- APAF Bioinformatics | round_trip_resiliency.Rmd | Approved | 2026-04-03 -->

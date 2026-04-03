@@ -1,6 +1,0 @@
-library(testthat)
-library(httr2)
-source("R/driver.R")
-source("R/drivers_api.R")
-source("R/utils.R")
-test_file('tests/testthat/test-drivers_api.R')

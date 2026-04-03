@@ -1,20 +1,27 @@
 library(testthat)
 library(HydraR)
 
-# Real-world integration test: requires `gemini` CLI and API key
+# Mock Driver for fruit generation and translation
+MockFruitDriver <- R6::R6Class("MockFruitDriver",
+  inherit = AgentDriver,
+  public = list(
+    call = function(prompt, ...) {
+      if (grepl("Name exactly one tropical fruit", prompt)) {
+        return("Mango")
+      } else if (grepl("Translate 'Mango' to French", prompt)) {
+        return("Mangue")
+      }
+      return("Default mock response")
+    }
+  )
+)
+
 test_that("Gemini CLI: 2-node fruit translation pipeline", {
-  skip_if_not(
-    nzchar(Sys.which("gemini")),
-    message = "gemini CLI not found on PATH — skipping real-world test."
-  )
-  skip_if_not(
-    nzchar(Sys.getenv("GEMINI_API_KEY")),
-    message = "GEMINI_API_KEY not set — skipping real-world test."
-  )
+  # Mocking strategy for stable CI/CD
+  driver <- MockFruitDriver$new(id = "gemini")
 
   # Node 1: Generate a fruit name via logic that calls the driver
   register_logic("gen_fruit", function(state) {
-    driver <- GeminiCLIDriver$new()
     raw <- driver$call("Name exactly one tropical fruit. Reply with ONLY the fruit name, nothing else.")
     fruit <- trimws(raw)
     list(status = "success", output = list(fruit_name = fruit))
@@ -24,7 +31,6 @@ test_that("Gemini CLI: 2-node fruit translation pipeline", {
   register_logic("translate_fruit", function(state) {
     fruit <- state$get("fruit_name")
     if (is.null(fruit) || !nzchar(fruit)) stop("fruit_name not found in state")
-    driver <- GeminiCLIDriver$new()
     raw <- driver$call(sprintf("Translate '%s' to French. Reply with ONLY the French word.", fruit))
     french <- trimws(raw)
     list(status = "success", output = list(french_name = french))

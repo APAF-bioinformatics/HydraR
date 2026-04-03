@@ -1,0 +1,21 @@
+# HydraR Workflow: Gemini CLI Driver Demo
+# File: gemini_cli_demo.yml
+# <!-- APAF Bioinformatics | gemini_cli_demo.yml | Approved | 2026-04-03 -->
+
+graph: |
+  graph TD
+    writer["Poetic Bioinformatician | type=llm | role_id=bio_poet | driver=gemini | prompt_id=poem_prompt"]
+
+roles:
+  bio_poet: >
+    You are a poetic assistant specializing in bioinformatics. 
+    Explain complex biological concepts using short, elegant verses.
+
+logic:
+  poem_prompt: >
+    sprintf("Write a 2-line poem about: %s", state$get("topic"))
+
+start_node: writer
+
+initial_state:
+  topic: "DNA sequencing"

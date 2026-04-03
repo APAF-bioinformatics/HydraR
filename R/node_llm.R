@@ -35,6 +35,10 @@ AgentLLMNode <- R6::R6Class("AgentLLMNode",
     prompt_builder = NULL,
     #' @field tools List of AgentTool objects.
     tools = list(),
+    #' @field agents_files Character vector. Paths to agents context files.
+    agents_files = NULL,
+    #' @field skills_files Character vector. Paths to skills context files.
+    skills_files = NULL,
 
 
     #' Initialize AgentLLMNode
@@ -47,7 +51,9 @@ AgentLLMNode <- R6::R6Class("AgentLLMNode",
     #' @param tools List of AgentTool objects.
     #' @param label Optional human-readable name.
     #' @param params Optional list of parameters.
-    initialize = function(id, role, driver, model = NULL, cli_opts = list(), prompt_builder = NULL, tools = list(), label = NULL, params = list()) {
+    #' @param agents_files Optional character vector of paths to agents.md files.
+    #' @param skills_files Optional character vector of paths to skills.md files.
+    initialize = function(id, role, driver, model = NULL, cli_opts = list(), prompt_builder = NULL, tools = list(), label = NULL, params = list(), agents_files = NULL, skills_files = NULL) {
       super$initialize(id, label = label, params = params)
       stopifnot(is.character(role) && length(role) == 1)
       stopifnot(inherits(driver, "AgentDriver"))
@@ -58,6 +64,8 @@ AgentLLMNode <- R6::R6Class("AgentLLMNode",
       self$cli_opts <- cli_opts
       self$prompt_builder <- prompt_builder
       self$tools <- tools
+      self$agents_files <- agents_files %||% params[["agents_files"]]
+      self$skills_files <- skills_files %||% params[["skills_files"]]
     },
 
 
@@ -77,16 +85,52 @@ AgentLLMNode <- R6::R6Class("AgentLLMNode",
         jsonlite::toJSON(safe_state, auto_unbox = TRUE)
       }
 
-      # Construct prompt
+      # Construct System Prompt
       tool_injection <- format_toolset(self$tools)
-      full_prompt <- sprintf("System: %s%s\n\nUser: %s", self$role, tool_injection, input_text)
+      system_prompt <- sprintf("%s%s", self$role, tool_injection)
+
+      # 1. Automatic Discovery from Worktree
+      work_dir <- self$driver$working_dir
+      if (!is.null(work_dir) && dir.exists(work_dir)) {
+        agents_path <- file.path(work_dir, "agents.md")
+        if (file.exists(agents_path)) {
+          agents_md <- paste(readLines(agents_path, warn = FALSE), collapse = "\n")
+          system_prompt <- paste0(system_prompt, "\n\n### Agents Context (agents.md)\n", agents_md)
+        }
+
+        skills_path <- file.path(work_dir, "skills.md")
+        if (file.exists(skills_path)) {
+          skills_md <- paste(readLines(skills_path, warn = FALSE), collapse = "\n")
+          system_prompt <- paste0(system_prompt, "\n\n### Skills Context (skills.md)\n", skills_md)
+        }
+      }
+
+      # 2. Explicit Static Paths (via agents_files / skills_files)
+      if (length(self$agents_files) > 0) {
+        purrr::walk(self$agents_files, function(f) {
+          if (file.exists(f)) {
+            content <- paste(readLines(f, warn = FALSE), collapse = "\n")
+            system_prompt <<- paste0(system_prompt, "\n\n### Additional Agent Context (", basename(f), ")\n", content)
+          }
+        })
+      }
+
+      if (length(self$skills_files) > 0) {
+        purrr::walk(self$skills_files, function(f) {
+          if (file.exists(f)) {
+            content <- paste(readLines(f, warn = FALSE), collapse = "\n")
+            system_prompt <<- paste0(system_prompt, "\n\n### Additional Skills Context (", basename(f), ")\n", content)
+          }
+        })
+      }
 
       # Use Driver
       raw_response <- tryCatch(
         {
           self$driver$call(
-            prompt = full_prompt,
+            prompt = input_text,
             model = self$model,
+            system_prompt = system_prompt,
             cli_opts = self$cli_opts,
             ...
           )

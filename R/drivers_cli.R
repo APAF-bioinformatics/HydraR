@@ -39,13 +39,21 @@ GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
     #' Call the LLM
     #' @param prompt String.
     #' @param model String override.
+    #' @param system_prompt String. Optional system prompt.
     #' @param cli_opts List. Named list of CLI options.
     #' @param ... Additional arguments.
     #' @return String. Cleaned result.
-    call = function(prompt, model = NULL, cli_opts = list(), ...) {
+    call = function(prompt, model = NULL, system_prompt = NULL, cli_opts = list(), ...) {
       target_model <- if (!is.null(model)) model else self$model
       if (!is.null(target_model)) {
         self$validate_no_injection(target_model)
+      }
+
+      # Standard fallback: prepend system_prompt to prompt if not natively supported by CLI
+      final_prompt <- if (!is.null(system_prompt)) {
+        sprintf("System Guidelines:\n%s\n\nUser Task:\n%s", system_prompt, prompt)
+      } else {
+        prompt
       }
 
       # Ensure model is in cli_opts if provided
@@ -56,7 +64,7 @@ GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
       formatted_opts <- self$format_cli_opts(cli_opts)
 
       tmp_prompt <- tempfile(pattern = "gemini_prompt_", fileext = ".txt")
-      writeLines(prompt, tmp_prompt)
+      writeLines(final_prompt, tmp_prompt)
       on.exit(unlink(tmp_prompt))
 
       tmp_stdout <- tempfile(pattern = "gemini_stdout_", fileext = ".txt")
@@ -154,18 +162,27 @@ OllamaDriver <- R6::R6Class("OllamaDriver",
     #' Call the LLM
     #' @param prompt String.
     #' @param model String override.
+    #' @param system_prompt String. Optional system prompt.
     #' @param cli_opts List.
     #' @param ... Additional arguments.
     #' @return String. Cleaned result.
-    call = function(prompt, model = NULL, cli_opts = list(), ...) {
+    call = function(prompt, model = NULL, system_prompt = NULL, cli_opts = list(), ...) {
       target_model <- if (!is.null(model)) model else self$model
       if (!is.null(target_model)) {
         self$validate_no_injection(target_model)
       }
+
+      # Standard fallback: prepend system_prompt to prompt if not natively supported by CLI
+      final_prompt <- if (!is.null(system_prompt)) {
+        sprintf("System Guidelines:\n%s\n\nUser Task:\n%s", system_prompt, prompt)
+      } else {
+        prompt
+      }
+
       formatted_opts <- self$format_cli_opts(cli_opts)
 
       tmp_prompt <- tempfile(pattern = "ollama_prompt_", fileext = ".txt")
-      writeLines(prompt, tmp_prompt)
+      writeLines(final_prompt, tmp_prompt)
       on.exit(unlink(tmp_prompt))
 
       # Respect global path option
@@ -219,10 +236,11 @@ ClaudeCodeDriver <- R6::R6Class("ClaudeCodeDriver",
     #' Call the LLM
     #' @param prompt String.
     #' @param model String override.
+    #' @param system_prompt String. Optional system prompt.
     #' @param cli_opts List.
     #' @param ... Additional arguments.
     #' @return String. Cleaned result.
-    call = function(prompt, model = NULL, cli_opts = list(), ...) {
+    call = function(prompt, model = NULL, system_prompt = NULL, cli_opts = list(), ...) {
       target_model <- if (!is.null(model)) model else self$model
       if (!is.null(target_model)) {
         self$validate_no_injection(target_model)
@@ -230,6 +248,10 @@ ClaudeCodeDriver <- R6::R6Class("ClaudeCodeDriver",
 
       if (!is.null(target_model) && !"model" %in% names(cli_opts)) {
         cli_opts$model <- target_model
+      }
+
+      if (!is.null(system_prompt)) {
+        cli_opts$system_prompt <- system_prompt
       }
 
       # Claude CLI usually needs --print for non-interactive
@@ -293,18 +315,26 @@ CopilotCLIDriver <- R6::R6Class("CopilotCLIDriver",
     #' Call the LLM
     #' @param prompt String.
     #' @param type String override.
+    #' @param system_prompt String. Optional system prompt.
     #' @param cli_opts List.
     #' @param ... Additional arguments.
     #' @return String. Cleaned result.
-    call = function(prompt, type = NULL, cli_opts = list(), ...) {
+    call = function(prompt, type = NULL, system_prompt = NULL, cli_opts = list(), ...) {
       target_type <- if (!is.null(type)) type else self$type
       if (!is.null(target_type)) {
         self$validate_no_injection(target_type)
       }
 
+      # Standard fallback: prepend system_prompt to prompt if not natively supported by CLI
+      final_prompt <- if (!is.null(system_prompt)) {
+        sprintf("System Guidelines:\n%s\n\nUser Task:\n%s", system_prompt, prompt)
+      } else {
+        prompt
+      }
+
       # Copilot CLI often uses --prompt for non-interactive
       if (!"prompt" %in% names(cli_opts)) {
-        cli_opts$prompt <- prompt
+        cli_opts$prompt <- final_prompt
       }
 
       if ("prompt" %in% names(cli_opts)) {

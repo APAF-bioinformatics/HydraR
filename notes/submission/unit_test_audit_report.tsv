@@ -1,0 +1,47 @@
+Function/Method	R6_Class	Is_R6_Method	Test_File	Test_Description	Justification_Status
+parse_mermaid	NA	FALSE	test-mermaid_parser.R	Regex Flowchart Parser extracts nodes and edges	Critical innovation: core declarative workflow entry point.
+build_nodes_df	NA	FALSE	test-mermaid_parser.R	build_nodes_df and build_edges_df work correctly	Essential for transforming mermaid syntax into DAG node structures.
+build_edges_df	NA	FALSE	test-mermaid_parser.R	build_nodes_df and build_edges_df work correctly	Essential for mapping declarative relationships to graph edges.
+mermaid_to_dag	NA	FALSE	test-coverage_mermaid.R	mermaid_to_dag integration	End-to-end validation of the mermaid-to-execution pipeline.
+AgentDAG$add_node	AgentDAG	TRUE	test-dag.R	add_node works correctly	Fundamental graph maintenance method.
+AgentDAG$add_edge	AgentDAG	TRUE	test-dag.R	add_edge works correctly	Fundamental graph maintenance method.
+AgentDAG$run	AgentDAG	TRUE	test-dag.R	run executes nodes in order	Core orchestrator execution logic.
+AgentDAG$plot	AgentDAG	TRUE	test-coverage_mermaid.R	AgentDAG$plot works	Visual feedback validation for users.
+AgentState$set	AgentState	TRUE	test-state.R	set and get work	State atomicity and consistency.
+AgentState$get	AgentState	TRUE	test-state.R	set and get work	State retrieval reliability.
+WorktreeManager$create	WorktreeManager	TRUE	test-worktree-integration.R	Worktree isolation	Git-level safety for concurrent agent operations.
+ClaudeAPIDriver$run	ClaudeAPIDriver	TRUE	test-drivers_api.R	Claude driver execution	Primary cloud-api interaction reliability.
+OllamaCLIDriver$run	OllamaCLIDriver	TRUE	test-drivers.R	Ollama driver	Local model interaction reliability.
+AgentBashNode$run	AgentBashNode	TRUE	test-node_languages.R	Bash node execution	Validation of local shell command isolation.
+AgentPythonNode$run	AgentPythonNode	TRUE	test-node_languages.R	Python node execution	Validation of local python isolation.
+load_workflow	NA	FALSE	test-workflow_loader.R	load_workflow() loads valid YAML	Workflow serialization and persistence.
+spawn_dag	NA	FALSE	test-workflow_loader.R	spawn_dag creates graph	End-to-end component registration and assembly.
+reducer_append	NA	FALSE	test-state.R	reducer functions	Validation of complex state merging logic.
+reducer_merge_list	NA	FALSE	test-state.R	reducer functions	Validation of complex state merging logic.
+is_named_list	NA	FALSE	test-coverage_validation.R	Utility tests	Internal consistency helper (trivial).
+extract_r_code_advanced	NA	FALSE	test-coverage_validation.R	Utility tests	Parsers for LLM-generated code blocks.
+.onLoad	NA	FALSE	NA	NA	Untested: Standard package initialization; side effects better checked by R CMD check.
+OllamaCLIDriver$check_availability	OllamaCLIDriver	TRUE	NA	NA	Untested: Requires external ollama binary installation in the path; difficult to mock in CI.
+AgentDAG$.run_linear	AgentDAG	TRUE	NA	NA	Untested: Private method; covered by public $run integration tests.
+AgentDAG$.run_iterative	AgentDAG	TRUE	NA	NA	Untested: Private method; covered by public $run integration tests.
+ConflictResolver$resolve	ConflictResolver	TRUE	NA	NA	Untested: Complex git merge conflict mocking required; planned for future manual audit.
+git_cleanup_orphans	NA	FALSE	test-git_cleanup.R	cleanup works	Safety mechanism for dangling worktrees.
+resolve_logic_pattern	NA	FALSE	test-workflow_loader.R	resolve_logic_pattern handles Tiers	Component resolution for dynamic workflow files.
+validate_workflow_schema	NA	FALSE	test-workflow_loader.R	validate_workflow_schema warns	Structural validation of user input workflows.
+format_toolset	NA	FALSE	test-coverage_tools.R	format_toolset works	Formatting utility for driver-specific tool schemas.
+AgentTool$run	AgentTool	TRUE	test-coverage_tools.R	AgentTool$run works	Core tool execution framework.
+MessageLog$add	MessageLog	TRUE	test-messaging.R	MessageLog methods	Audit log consistency and storage.
+MessageLog$get_history	MessageLog	TRUE	test-messaging.R	MessageLog methods	Audit log consistency and storage.
+RestrictedState$get	RestrictedState	TRUE	test-state.R	RestrictedState works	Privacy and scope-locking for individual agents.
+AgentMapNode$run	AgentMapNode	TRUE	test-fan-out-fan-in.R	Fan-out/Fan-in	Validation of parallel data processing patterns.
+AgentObserverNode$run	AgentObserverNode	TRUE	test-comprehensive-circuitry.R	Observer logic	Real-time monitoring and event-driven logging.
+AgentRouterNode$run	AgentRouterNode	TRUE	test-comprehensive-circuitry.R	Router logic	Dynamic flow control and branch switching.
+Checkpointer$put	Checkpointer	TRUE	test-checkpointer.R	persistence works	Graph state recovery and long-running job safety.
+Checkpointer$get	Checkpointer	TRUE	test-checkpointer.R	persistence works	Graph state recovery and long-running job safety.
+driver_registry_add	NA	FALSE	test-driver_framework.R	driver registry functionality	Dynamic driver management and extension.
+resolve_default_driver	NA	FALSE	test-driver_framework.R	driver registry functionality	System-wide sane defaults for model selection.
+auto_node_factory	NA	FALSE	test-auto_node_factory.R	auto_node_factory logic	Convenience API for quick graph prototyping.
+standard_node_factory	NA	FALSE	test-auto_node_factory.R	standard_node_factory logic	Convenience API for quick graph prototyping.
+dag_create	NA	FALSE	test-dag.R	factory methods	Functional API for graph construction.
+dag_add_llm_node	NA	FALSE	test-dag.R	factory methods	Functional API for graph construction.
+dag_add_logic_node	NA	FALSE	test-dag.R	factory methods	Functional API for graph construction.

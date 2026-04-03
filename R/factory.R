@@ -125,8 +125,8 @@ standard_node_factory <- function(id, label, driver = NULL) {
 # Global Variable Bindings for R CMD check
 # ==============================================================
 utils::globalVariables(c(
-  "ClaudeCLIDriver", "OpenAIDriver", "GeminiCLIDriver",
-  "OllamaDriver", "CopilotCLIDriver", "AgentJulesNode"
+  "ClaudeCodeDriver", "OpenAIDriver", "GeminiCLIDriver", "GeminiAPIDriver",
+  "GeminiImageDriver", "OllamaDriver", "CopilotCLIDriver"
 ))
 
 #' <!-- APAF Bioinformatics | factory.R | Approved | 2026-03-30 -->
@@ -154,10 +154,12 @@ resolve_default_driver <- function(driver_id, driver_registry = NULL) {
 
   # 2. Auto-construct from shorthand
   switch(driver_id,
-    "gemini"  = GeminiCLIDriver$new(),
-    "claude"  = ClaudeCodeDriver$new(),
-    "openai"  = OpenAIDriver$new(),
-    stop(sprintf("Unknown driver shorthand: '%s'. Register it first or use a known ID (gemini, claude, openai).", driver_id))
+    "gemini" = GeminiCLIDriver$new(),
+    "gemini_api" = GeminiAPIDriver$new(),
+    "gemini_image" = GeminiImageDriver$new(),
+    "claude" = ClaudeCodeDriver$new(),
+    "openai" = OpenAIDriver$new(),
+    stop(sprintf("Unknown driver shorthand: '%s'. Register it first or use a known ID (gemini, gemini_api, gemini_image, claude, openai).", driver_id))
   )
 }
 
@@ -286,23 +288,6 @@ auto_node_factory <- function(driver_registry = NULL) {
           stop(sprintf("Node '%s' (type=observer): logic_id '%s' not found in registry.", id, logic_id))
         }
         AgentObserverNode$new(id = id, observe_fn = observe_fn, label = label, params = params)
-      },
-      "jules" = {
-        prompt <- params[["prompt"]]
-        if (is.null(prompt)) {
-          # Fallback: use label or id as prompt if prompt parameter is missing
-          prompt <- label %||% id
-        }
-
-        AgentJulesNode$new(
-          id = id,
-          prompt = prompt,
-          source = params[["source"]],
-          branch = params[["branch"]],
-          timeout = as.numeric(params[["timeout"]] %||% 1800),
-          label = label,
-          params = params
-        )
       },
       "auto" = {
         # Fallback: try logic registry by id, then passthrough

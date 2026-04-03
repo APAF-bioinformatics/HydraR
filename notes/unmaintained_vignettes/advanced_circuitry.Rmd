@@ -1,0 +1,68 @@
+---
+title: "Advanced Network Logic Circuitry"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Advanced Network Logic Circuitry}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = TRUE
+)
+library(HydraR)
+```
+
+`HydraR` supports complex "Network Logic Circuitry" that goes beyond simple Directed Acyclic Graphs. This includes dynamic routing, self-healing networks via error edges, and parallel isolation.
+
+## Core Concepts
+
+1.  **Dynamic Routing**: Use a `Router` node to decide which path to follow at runtime based on the current state.
+2.  **Error Handling**: Define `error_edges` to automatically switch to recovery nodes if a task fails.
+3.  **Declarative Control**: Define these complex relationships in YAML, keeping your R code strictly focused on high-level orchestration.
+
+## Loading the Circuit
+
+We load a workflow that demonstrates a "High Risk" vs "Low Risk" path based on a `mode` parameter.
+
+```{r setup}
+library(HydraR)
+
+# Load the advanced circuitry definition
+wf <- load_workflow("advanced_circuitry.yml")
+
+# Spawn the DAG
+dag <- spawn_dag(wf)
+```
+
+## Visualizing the Switch and Fallback
+
+Notice the **Mode Switch** router and the fallback from **High Risk Path** to **Recovery Node** (this would be represented by an error edge).
+
+```{r plot}
+dag$plot()
+```
+
+## Running the Scenario
+
+In this scenario, we set `simulate_fail = TRUE` to witness the self-healing capability.
+
+```{r run}
+# Run the DAG with 'fast' mode and 'simulate_fail = TRUE'
+final <- dag$run(wf$initial_state)
+
+# Check the results
+print(final$state$get("finalize_run"))
+```
+
+## Resilience Features
+
+-   **Router Nodes**: Allow for branching that is decided by logic, not just hardcoded paths.
+-   **Error Edges**: Ensure that critical failures don't crash the entire workflow but instead trigger cleanup or recovery routines.
+-   **State Isolation**: Combined with `use_worktrees = TRUE`, these branches can run in complete isolation from one another.
+
+---
+<!-- APAF Bioinformatics | advanced_circuitry.Rmd | Approved | 2026-04-03 -->

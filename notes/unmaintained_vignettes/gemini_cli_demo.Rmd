@@ -1,0 +1,58 @@
+---
+title: "Gemini CLI Driver Demo"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Gemini CLI Driver Demo}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+library(HydraR)
+```
+
+This vignette demonstrates how to use the `GeminiCLIDriver` to power an LLM node in `HydraR`. The CLI driver is ideal for local development and environments where direct API access might be restricted or where you want to leverage pre-configured CLI tools.
+
+## Setup
+
+Ensure you have the `gemini` CLI installed and authenticated on your system.
+
+## Loading the Workflow
+
+We define a simple "Poetic Bioinformatician" agent in a YAML file.
+
+```{r load}
+library(HydraR)
+
+# Load the workflow from YAML
+wf <- load_workflow("gemini_cli_demo.yml")
+
+# Spawn and compile the DAG
+dag <- spawn_dag(wf)
+```
+
+## Running with the CLI Driver
+
+The `dag$run()` method will invoke the `GeminiCLIDriver` for the `writer` node.
+
+```{r running, eval = FALSE}
+# Execute with the initial topic: "DNA sequencing"
+final <- dag$run(wf$initial_state)
+
+# View the poetic output
+cat(final$results$writer$output)
+```
+
+## Driver Specifics
+
+The `GeminiCLIDriver` translates the agent's role and prompt into a standard CLI command (e.g., `gemini --role '...' --prompt '...'`). This allows for:
+1.  **Observability**: You can see the raw CLI commands being executed in your terminal or logs.
+2.  **Configuration**: CLI-specific options like `--model` or `--temperature` can be passed via the `cli_opts` parameter in the node definition.
+
+---
+<!-- APAF Bioinformatics | gemini_cli_demo.Rmd | Approved | 2026-04-03 -->

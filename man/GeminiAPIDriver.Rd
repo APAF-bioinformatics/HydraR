@@ -47,7 +47,7 @@ Initialize GeminiAPIDriver}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GeminiAPIDriver$new(
   id = "gemini_api",
-  model = "gemini-1.5-pro",
+  model = "gemini-3.1-flash-lite-preview",
   validation_mode = "warning",
   working_dir = NULL
 )}\if{html}{\out{</div>}}
@@ -89,7 +89,13 @@ Call Gemini API
 \if{latex}{\out{\hypertarget{method-GeminiAPIDriver-call}{}}}
 \subsection{Method \code{call()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GeminiAPIDriver$call(prompt, model = NULL, cli_opts = list(), ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GeminiAPIDriver$call(
+  prompt,
+  model = NULL,
+  system_prompt = NULL,
+  cli_opts = list(),
+  ...
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -98,6 +104,8 @@ Call Gemini API
 \item{\code{prompt}}{String. The prompt text.}
 
 \item{\code{model}}{String. Optional model override.}
+
+\item{\code{system_prompt}}{String. Optional system prompt.}
 
 \item{\code{cli_opts}}{List. Additional API options.}
 

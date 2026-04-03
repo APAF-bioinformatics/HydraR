@@ -32,7 +32,11 @@ node <- AgentLLMNode$new("chat", role = "helpful assistant")
 
 \item{\code{prompt_builder}}{Function(state) -> String.}
 
-\item{\code{tools}}{List of AgentTool objects.
+\item{\code{tools}}{List of AgentTool objects.}
+
+\item{\code{agents_files}}{Character vector. Paths to agents context files.}
+
+\item{\code{skills_files}}{Character vector. Paths to skills context files.
 Initialize AgentLLMNode}
 }
 \if{html}{\out{</div>}}
@@ -60,7 +64,9 @@ Initialize AgentLLMNode}
   prompt_builder = NULL,
   tools = list(),
   label = NULL,
-  params = list()
+  params = list(),
+  agents_files = NULL,
+  skills_files = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -83,7 +89,11 @@ Initialize AgentLLMNode}
 
 \item{\code{label}}{Optional human-readable name.}
 
-\item{\code{params}}{Optional list of parameters.
+\item{\code{params}}{Optional list of parameters.}
+
+\item{\code{agents_files}}{Optional character vector of paths to agents.md files.}
+
+\item{\code{skills_files}}{Optional character vector of paths to skills.md files.
 Run the LLM Node}
 }
 \if{html}{\out{</div>}}

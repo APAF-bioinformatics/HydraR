@@ -13,6 +13,8 @@ Persists messages to the master DuckDB database.
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{db_path}}{String. Path to DuckDB file.}
+
+\item{\code{con}}{DBIConnection. Cached DuckDB connection.}
 }
 \if{html}{\out{</div>}}
 }

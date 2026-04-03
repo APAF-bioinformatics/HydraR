@@ -1,0 +1,25 @@
+# HydraR Workflow: Git Worktree Isolation
+# File: worktree_isolation.yml
+# <!-- APAF Bioinformatics | worktree_isolation.yml | Approved | 2026-04-03 -->
+
+graph: |
+  graph TD
+    code_creator["Code Creator | type=llm | role_id=code_gen | driver=gemini_api | prompt_id=gen_prompt"]
+    merger["Merge Harmonizer | type=merge"]
+    
+    code_creator --> merger
+
+roles:
+  code_gen: >
+    You are an R developer. Generate a simple R function to calculate the square 
+    of a number. SAVE the code to a file named 'math_fun.R' in the current directory. 
+    Output ONLY the code, no markdown blocks.
+
+logic:
+  gen_prompt: >
+    "Generate a square function and save it to math_fun.R."
+
+start_node: code_creator
+
+initial_state:
+  input: "Start isolated execution"

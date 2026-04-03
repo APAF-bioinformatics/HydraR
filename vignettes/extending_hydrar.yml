@@ -1,0 +1,21 @@
+# HydraR Workflow: Specialized Agent
+# File: extending_hydrar.yml
+# <!-- APAF Bioinformatics | extending_hydrar.yml | Approved | 2026-04-03 -->
+
+graph: |
+  graph TD
+    A["Specialized Agent | type=llm | role_id=bio_specialist | driver=gemini_api | prompt_id=spec_prompt"]
+
+roles:
+  bio_specialist: >
+    You are a specialized bioinformatician. Use your domain expertise to 
+    process complex biological datasets and provide concise summaries.
+
+logic:
+  spec_prompt: >
+    sprintf("Process and summarize the following biological data: %s", state$get("input"))
+
+start_node: A
+
+initial_state:
+  input: "Raw gene expression matrix for CRC patients."

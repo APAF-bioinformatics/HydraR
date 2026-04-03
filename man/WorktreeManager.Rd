@@ -38,6 +38,7 @@ Initialize the WorktreeManager.}
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-WorktreeManager-new}{\code{WorktreeManager$new()}}
+\item \href{#method-WorktreeManager-validate_branch_name}{\code{WorktreeManager$validate_branch_name()}}
 \item \href{#method-WorktreeManager-create}{\code{WorktreeManager$create()}}
 \item \href{#method-WorktreeManager-get_path}{\code{WorktreeManager$get_path()}}
 \item \href{#method-WorktreeManager-get_branch}{\code{WorktreeManager$get_branch()}}
@@ -82,6 +83,26 @@ Initialize the WorktreeManager.}
 }
 \subsection{Returns}{
 A new `WorktreeManager` object.
+Validate a branch name
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-WorktreeManager-validate_branch_name"></a>}}
+\if{latex}{\out{\hypertarget{method-WorktreeManager-validate_branch_name}{}}}
+\subsection{Method \code{validate_branch_name()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{WorktreeManager$validate_branch_name(branch)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{branch}}{String. The branch name to validate.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Logical or error.
 Create an Isolated Worktree
 }
 }

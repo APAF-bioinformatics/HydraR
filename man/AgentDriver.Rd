@@ -148,7 +148,13 @@ Call the LLM
 \if{latex}{\out{\hypertarget{method-AgentDriver-call}{}}}
 \subsection{Method \code{call()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AgentDriver$call(prompt, model = NULL, cli_opts = list(), ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{AgentDriver$call(
+  prompt,
+  model = NULL,
+  system_prompt = NULL,
+  cli_opts = list(),
+  ...
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -157,6 +163,8 @@ Call the LLM
 \item{\code{prompt}}{String. The prompt to send.}
 
 \item{\code{model}}{String. Optional model override.}
+
+\item{\code{system_prompt}}{String. Optional system prompt.}
 
 \item{\code{cli_opts}}{List. Named list of CLI options.}
 

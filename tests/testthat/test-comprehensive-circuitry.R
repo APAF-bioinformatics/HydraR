@@ -42,22 +42,22 @@ test_that("Scenario 1: Integrated Circuitry (Router -> Map)", {
 
 test_that("Scenario 2: Fault-Tolerant Circular Routing (Loop + ErrorEdge)", {
   # Logic: Node B fails twice, then redirected via error edge
-  # Use a global counter to mock internal state across R6 instances if needed,
-  # but here we use the AgentState (which is persistent in the DAG run).
+  # Use a local environment to track state without polluting global workspace
+  my_env <- new.env()
+  assign("fail_count", 0, envir = my_env)
 
   register_logic("A", function(state) list(status = "success"))
 
-  register_logic("B", function(state) {
-    # If we failed before, increment a counter in state
-    fails <- state$get("fail_count") %||% 0
+  register_logic("B_isolated", function(state) {
+    # If we failed before, increment a counter in our local env
+    fails <- my_env$fail_count
     if (fails < 1) {
-      .GlobalEnv$fail_count <- .GlobalEnv$fail_count + 1
+      assign("fail_count", fails + 1, envir = my_env)
+      state$set("fail_count", fails + 1)
       return(list(status = "failed", output = "Mock Failure"))
     }
     return(list(status = "success", output = "Mock Success"))
   })
-
-  .GlobalEnv$fail_count <- 0
 
   mermaid_src <- '
   graph TD
@@ -70,6 +70,9 @@ test_that("Scenario 2: Fault-Tolerant Circular Routing (Loop + ErrorEdge)", {
   '
 
   dag <- mermaid_to_dag(mermaid_src)
+  # Overwrite logic with our isolated test logic
+  dag$nodes$B$logic_fn <- get_logic("B_isolated")
+
   # A and B are roots, so no need to set start node specifically to run both
   # or set A to start the loop
   dag$set_start_node("A")
@@ -81,7 +84,7 @@ test_that("Scenario 2: Fault-Tolerant Circular Routing (Loop + ErrorEdge)", {
   res <- dag$run(initial_state = list())
 
   expect_true("C" %in% names(res$results))
-  expect_equal(.GlobalEnv$fail_count, 1) # First failure takes error edge immediately if it exists
+  expect_equal(my_env$fail_count, 1) # First failure takes error edge immediately if it exists
   # Wait! Error edge takes priority over Test/Fail labels in .run_iterative!
 })
 

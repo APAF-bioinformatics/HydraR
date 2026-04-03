@@ -1,0 +1,51 @@
+# HydraR Workflow: Distributed Consensus
+# File: distributed_communication.yml
+# <!-- APAF Bioinformatics | distributed_communication.yml | Approved | 2026-04-03 -->
+
+graph: |
+  graph TD
+    V1["Voter Alpha | type=logic | logic_id=voter_logic"]
+    V2["Voter Beta | type=logic | logic_id=voter_logic"]
+    V3["Voter Gamma | type=logic | logic_id=voter_logic"]
+    Leader["Consensus Leader | type=logic | logic_id=leader_logic"]
+    
+    V1 --> Leader
+    V2 --> Leader
+    V3 --> Leader
+
+logic:
+  voter_logic: |
+    {
+      # 1. Decide randomly or based on input
+      vote <- sample(c("SUCCESS", "FAILURE"), 1)
+      
+      # 2. Send private message to the Leader
+      state$send_message(to = "Leader", content = list(vote = vote))
+      
+      message(sprintf("   [%s] Voted: %s", state$node_id, vote))
+      list(status = "SUCCESS", output = vote)
+    }
+  leader_logic: |
+    {
+      # 1. Retrieve messages from private inbox
+      msgs <- state$receive_messages()
+      
+      if (length(msgs) == 0) {
+        return(list(status = "FAILED", output = "No votes received."))
+      }
+      
+      # 2. Extract and count votes
+      votes <- vapply(msgs, function(m) m$content$vote, character(1))
+      counts <- table(votes)
+      
+      # 3. Determine majority
+      majority <- names(counts)[which.max(counts)]
+      
+      message(sprintf("   [Leader] Received %d votes. Consensus: %s", length(votes), majority))
+      list(status = "SUCCESS", output = list(final_consensus = majority, vote_table = as.list(counts)))
+    }
+
+start_node: V1
+
+initial_state:
+  topic: "Simulation of Distributed Consensus"

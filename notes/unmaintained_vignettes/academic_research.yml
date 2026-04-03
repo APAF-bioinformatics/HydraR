@@ -1,0 +1,36 @@
+# HydraR Workflow: Academic Researcher
+# File: academic_research.yml
+# <!-- APAF Bioinformatics | academic_research.yml | Approved | 2026-04-03 -->
+
+graph: |
+  graph TD
+    Searcher["Literature Searcher | type=llm | role_id=research_assistant | driver=gemini_api | prompt_id=search_prompt"]
+    Summarizer["Content Summarizer | type=llm | role_id=scientific_editor | driver=gemini_api | prompt_id=summarize_prompt"]
+    Compiler["Report Compiler | type=llm | role_id=technical_writer | driver=gemini_api | prompt_id=compile_prompt"]
+    
+    Searcher --> Summarizer
+    Summarizer --> Compiler
+
+roles:
+  research_assistant: >
+    You are an academic research assistant. Identify 2-3 key hypothetical papers for the given topic. 
+    Output the result as a simple markdown list.
+  scientific_editor: >
+    You are a scientific editor. Summarize the following paper list into key highlights 
+    using bullet points.
+  technical_writer: >
+    You are a professional technical writer. Format the following summaries into a 
+    comprehensive literature review with professional headers.
+
+logic:
+  search_prompt: >
+    sprintf("Research Topic: %s\nProvide a list of 2-3 paper titles and brief descriptions.", state$get("research_topic"))
+  summarize_prompt: >
+    sprintf("Paper List: %s", state$get("Searcher"))
+  compile_prompt: >
+    sprintf("Topic: %s\nSummaries: %s", state$get("research_topic"), state$get("Summarizer"))
+
+start_node: Searcher
+
+initial_state:
+  research_topic: "CRISPR Gene Editing"

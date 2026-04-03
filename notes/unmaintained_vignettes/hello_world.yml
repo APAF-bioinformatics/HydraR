@@ -1,0 +1,27 @@
+# HydraR Workflow: Hello World
+# File: hello_world.yml
+# <!-- APAF Bioinformatics | hello_world.yml | Approved | 2026-04-03 -->
+
+graph: |
+  graph TD
+    collect_input["Collect Input | type=logic | logic_id=collect_input"]
+    process_data["Process Data | type=logic | logic_id=process_data"]
+    
+    collect_input --> process_data
+
+logic:
+  collect_input: |
+    {
+      list(status = "SUCCESS", output = list(input_raw = state$get("input")))
+    }
+  process_data: |
+    {
+      raw <- state$get("input_raw")
+      res <- paste0("HYDRAR says: ", toupper(raw))
+      list(status = "SUCCESS", output = list(processed_result = res))
+    }
+
+start_node: collect_input
+
+initial_state:
+  input: "hello hydra"

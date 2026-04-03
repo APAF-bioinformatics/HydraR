@@ -12,6 +12,5 @@ This file contains all external URLs referenced within the `HydraR` package and 
 - testthat: https://testthat.r-lib.org/
 - rmarkdown: https://rmarkdown.rstudio.com/
 - Mermaid.js: https://mermaid.js.org/
-- Google Jules API: https://developers.google.com/jules/api
 
 <!-- APAF Bioinformatics | references.md | Approved | 2026-03-29 -->

@@ -1,0 +1,66 @@
+---
+title: "Agentic Software Bug Assistant: Self-Healing Loops"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Agentic Software Bug Assistant: Self-Healing Loops}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = TRUE
+)
+library(HydraR)
+```
+
+This vignette demonstrates the **Software Bug Assistant** pattern, a classic "Generate-and-Test" self-healing loop. In this scenario, two agent nodes work together to resolve a software bug by proposing patches and verifying them against a test suite.
+
+## The Remediation Cycle
+
+1.  **Debugger Agent**: Reviews the bug report and any previous test failures, then proposes a corrected R code snippet.
+2.  **Test Suite**: A logic node that simulates running a test suite against the proposed patch. If the test fails, it provides the error trace back to the Debugger.
+
+## Declarative Self-Healing
+
+The entire loop, including the testing logic and repair prompts, is defined in a YAML file.
+
+```{r load}
+library(HydraR)
+
+# Load the bug assistant workflow
+wf <- load_workflow("software_bug_assistant.yml")
+
+# Spawn and compile the DAG
+dag <- spawn_dag(wf)
+```
+
+## Visualizing the Repair Loop
+
+The graph shows the tight feedback loop between the **Debugger Agent** and the **Test Suite**.
+
+```{r plot}
+dag$plot()
+```
+
+## Running the Automatic Remediation
+
+The DAG will continue to iterate, with the `Analyzer` refining its patch based on the `Tester`'s feedback, until the test suite passes (or the `max_steps` limit is reached).
+
+```{r run, eval = FALSE}
+# Note: Requires a valid GEMINI_API_KEY
+final <- dag$run(wf$initial_state, max_steps = 10)
+
+# Display the final patch and test outcome
+cat("Final Patch Proposed:\n", final$state$get("Analyzer"), "\n")
+cat("Test Results:", final$state$get("Tester")$test_feedback, "\n")
+```
+
+## Summary
+
+The `Bug Assistant` pattern is a cornerstone of autonomous software engineering. By combining LLMs' reasoning with deterministic code execution (testing), `HydraR` enables the creation of robust, self-correcting agents that can maintain and repair codebases with minimal human intervention.
+
+---
+<!-- APAF Bioinformatics | software_bug_assistant.Rmd | Approved | 2026-04-03 -->

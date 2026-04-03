@@ -20,8 +20,7 @@
 # ==============================================================
 utils::globalVariables(c(
   "ClaudeCodeDriver", "OpenAIDriver", "GeminiCLIDriver",
-  "OllamaDriver", "CopilotCLIDriver", "ClaudeCLIDriver",
-  "AgentJulesNode"
+  "OllamaDriver", "CopilotCLIDriver", "ClaudeCLIDriver"
 ))
 
 # <!-- APAF Bioinformatics | zzz.R | Approved | 2026-03-31 -->

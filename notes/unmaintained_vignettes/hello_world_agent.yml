@@ -1,0 +1,36 @@
+# HydraR Workflow: Hello World Agent
+# File: hello_world_agent.yml
+# <!-- APAF Bioinformatics | hello_world_agent.yml | Approved | 2026-04-03 -->
+
+graph: |
+  graph TD
+    Guesser["LLM Guesser | type=llm | role_id=word_guesser | driver=gemini_api | prompt_id=guess_prompt"]
+    Validator["Greeting Validator | type=logic | logic_id=validate_guess"]
+    
+    Guesser --> Validator
+    Validator --> Guesser
+
+conditional_edges:
+  Validator:
+    test: "isTRUE(out$valid)"
+    if_true: null
+    if_false: "Guesser"
+
+roles:
+  word_guesser: >
+    You are an agent trying to guess a specific word. Your task is to output 
+    exactly one word in lowercase. The word is a common greeting.
+
+logic:
+  guess_prompt: >
+    "Guess the secret greeting word. Output only the word."
+  validate_guess: |
+    {
+      guess <- tolower(trimws(state$get("Guesser") %||% ""))
+      is_valid <- (guess == "hello")
+      list(status = "SUCCESS", output = list(valid = is_valid))
+    }
+
+start_node: Guesser
+
+initial_state: {}

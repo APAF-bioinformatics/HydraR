@@ -1,0 +1,87 @@
+---
+title: "Isolated Execution with Git Worktrees"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Isolated Execution with Git Worktrees}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+library(HydraR)
+```
+
+A major challenge in building autonomous agents is **isolation**. When an agent modifies a file (e.g., writing code or fixing a bug), it can easily cause conflicts with other parallel agents or your main working directory. `HydraR` solves this by natively integrating with **Git Worktrees**.
+
+## Why Use Worktrees?
+
+1.  **No Conflicts**: Parallel agents can modify the same files (like `DESCRIPTION`) in separate worktrees without corrupted git states.
+2.  **Explicit Merging**: Changes only appear in your main directory when a **Merge Harmonizer** node explicitly merges them back to the primary branch.
+3.  **Hardened Context**: If an agent runs a destructive command, it only affects its temporary worktree, leaving your primary codebase safe.
+
+## Setting Up a Test Repository
+
+To avoid modifying your actual project, let's create a temporary Git repository.
+
+```{r setup, eval = FALSE}
+library(HydraR)
+
+# Create a temporary folder
+repo_root <- file.path(tempdir(), "hydra-toy-repo")
+dir.create(repo_root)
+
+# Initialize Git
+withr::with_dir(repo_root, {
+  system("git init -b main")
+  system("git config user.email 'apaf@example.com'")
+  system("git config user.name 'APAF Agent'")
+  writeLines("# Toy Project", "README.md")
+  system("git add README.md")
+  system("git commit -m 'Initial commit'")
+})
+```
+
+## Declarative Isolation
+
+We define the workflow with a **Code Creator** and a **Merge Harmonizer**.
+
+```{r load}
+# Load the isolated worktree workflow
+wf <- load_workflow("worktree_isolation.yml")
+
+# Spawn and compile the DAG
+dag <- spawn_dag(wf)
+```
+
+## Running with Worktree Isolation
+
+By setting `use_worktrees = TRUE`, `HydraR` will:
+1.  **Spawn a Worktree**: Create a new git branch and directory for each node.
+2.  **Execute Isolated**: The LLM agent operates in the worktree directory.
+3.  **Harmonize**: The `Merge Harmonizer` node consolidates the results.
+
+```{r run, eval = FALSE}
+# Run with worktree isolation enabled
+final <- dag$run(
+  initial_state = wf$initial_state,
+  use_worktrees = TRUE,
+  repo_root = repo_root,
+  fail_if_dirty = FALSE
+)
+
+# Verify the file was merged into the main repo branch
+list.files(repo_root)
+# "README.md" "math_fun.R"
+```
+
+## Summary
+
+Git Worktrees provide a robust, low-overhead mechanism for isolating agent activities. `HydraR` abstracts this complexity, allowing you to build parallel, safe multi-agent networks that respect your primary codebase's integrity.
+
+---
+<!-- APAF Bioinformatics | worktree_isolation.Rmd | Approved | 2026-04-03 -->

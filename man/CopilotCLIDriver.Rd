@@ -70,7 +70,13 @@ Call the LLM}
 \if{latex}{\out{\hypertarget{method-CopilotCLIDriver-call}{}}}
 \subsection{Method \code{call()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CopilotCLIDriver$call(prompt, type = NULL, cli_opts = list(), ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CopilotCLIDriver$call(
+  prompt,
+  type = NULL,
+  system_prompt = NULL,
+  cli_opts = list(),
+  ...
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -79,6 +85,8 @@ Call the LLM}
 \item{\code{prompt}}{String.}
 
 \item{\code{type}}{String override.}
+
+\item{\code{system_prompt}}{String. Optional system prompt.}
 
 \item{\code{cli_opts}}{List.}
 

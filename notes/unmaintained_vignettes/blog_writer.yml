@@ -1,0 +1,49 @@
+# HydraR Workflow: Blog Writer
+# File: blog_writer.yml
+# <!-- APAF Bioinformatics | blog_writer.yml | Approved | 2026-04-03 -->
+
+graph: |
+  graph TD
+    Outliner["Content Strategist | type=llm | role_id=content_strategist | driver=gemini_api | prompt_id=outline_prompt"]
+    Drafter["Creative Writer | type=llm | role_id=blog_writer | driver=gemini_api | prompt_id=draft_prompt"]
+    Editor["SEO Editor | type=llm | role_id=seo_specialist | driver=gemini_api | prompt_id=edit_prompt"]
+    
+    Outliner --> Drafter
+    Drafter --> Editor
+    Editor --> Drafter
+
+conditional_edges:
+  Editor:
+    test: "grepl('Approved', out, ignore.case = TRUE)"
+    if_true: null
+    if_false: "Drafter"
+
+roles:
+  content_strategist: >
+    You are a content strategist. Create a structured outline for a blog post 
+    based on a topic provided by the user. Ensure you include SEO keywords.
+  blog_writer: >
+    You are a professional blog writer. Draft a full blog post based on an outline 
+    and any specific editorial feedback provided. 
+    Maintain an engaging and technical tone.
+  seo_specialist: >
+    You are an SEO specialist. Review the blog draft. 
+    If it is excellent and meets professional standards, say 'Approved'. 
+    If not, provide specific 'Improvement Feedback' for the writer.
+
+logic:
+  outline_prompt: >
+    sprintf("Topic: %s\nProvide a detailed multisection outline.", state$get("blog_topic"))
+  draft_prompt: >
+    {
+      feedback <- state$get("Editor")
+      feedback_text <- if (!is.null(feedback)) sprintf("\nFeedback: %s", feedback) else ""
+      sprintf("Outline: %s%s\nDraft the full blog post.", state$get("Outliner"), feedback_text)
+    }
+  edit_prompt: >
+    sprintf("Draft: %s\nDoes this meet professional standards? Respond either with 'Approved' or detailed feedback.", state$get("Drafter"))
+
+start_node: Outliner
+
+initial_state:
+  blog_topic: "Agentic Workflows in R"

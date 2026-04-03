@@ -1,0 +1,67 @@
+---
+title: "Agentic Personalized Shopping Assistant"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Agentic Personalized Shopping Assistant}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = TRUE
+)
+library(HydraR)
+```
+
+This vignette demonstrates how to model an interactive, multi-agent feedback loop using `HydraR`. We simulate a **Personalized Shopping Assistant** where a recommendation engine interacts with a mock user.
+
+## The Interaction Model
+
+The workflow consists of two primary roles:
+1.  **Store Concierge**: Acts as the intelligent proxy that searches the catalogue based on preferences.
+2.  **Customer Proxy**: Represents the user feedback loop. It critiques the recommended item, providing refinement feedback or final approval.
+
+## Declarative Feedback Loop
+
+We define the looping logic and agent roles in a YAML file.
+
+```{r load}
+library(HydraR)
+
+# Load the shopping assistant workflow
+wf <- load_workflow("customer_agent.yml")
+
+# Spawn and compile the DAG
+dag <- spawn_dag(wf)
+```
+
+## Visualizing the Interaction
+
+The graph shows the recursive loop between the **Store Concierge** and the **Customer Proxy**.
+
+```{r plot}
+dag$plot()
+```
+
+## Running the Scenario
+
+The DAG will continue to iterate, with the `Shopper` refining its recommendation based on the `UserProxy`'s feedback, until the customer is satisfied (or the `max_steps` limit is reached).
+
+```{r run, eval = FALSE}
+# Note: Requires a valid GEMINI_API_KEY
+final <- dag$run(wf$initial_state, max_steps = 10)
+
+# Display the final shopping journey result
+cat("Final Recommendation:", final$state$get("Shopper"), "\n")
+cat("User Feedback:", final$state$get("UserProxy"), "\n")
+```
+
+## Summary
+
+The `Customer Agent` pattern is a powerful way to use LLMs to simulate real-world user interactions and refine outputs through automated, intelligent critiquing. Using `HydraR`'s declarative framework, these complex loops are easy to define and audit.
+
+---
+<!-- APAF Bioinformatics | customer_agent.Rmd | Approved | 2026-04-03 -->

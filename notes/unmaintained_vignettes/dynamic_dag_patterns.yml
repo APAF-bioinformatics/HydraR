@@ -1,0 +1,32 @@
+# HydraR Workflow: Dynamic DAG Patterns
+# File: dynamic_dag_patterns.yml
+# <!-- APAF Bioinformatics | dynamic_dag_patterns.yml | Approved | 2026-04-03 -->
+
+graph: |
+  graph TD
+    A["Initial Research | type=logic | logic_id=param_logic | retries=3 | workdir=./w1"]
+    B["Analysis | type=logic | logic_id=param_logic | verbose=true"]
+    C["Report | type=logic | logic_id=param_logic | workdir=./output"]
+    
+    A --> B
+    B --> C
+
+logic:
+  param_logic: |
+    {
+      # Access parameters directly from the node's params field
+      # Note: params are parsed from the Mermaid label automatically by auto_node_factory
+      p <- params
+      param_str <- if (length(p) > 0) {
+        paste(names(p), p, sep = "=", collapse = ", ")
+      } else {
+        "none"
+      }
+      message(sprintf("   [%s] Executing with params: %s", state$node_id, param_str))
+      list(status = "SUCCESS", output = paste("Result from", state$node_id))
+    }
+
+start_node: A
+
+initial_state:
+  input: "Testing parameter injection"

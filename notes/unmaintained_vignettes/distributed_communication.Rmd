@@ -1,0 +1,65 @@
+---
+title: "Distributed Consensus: Secure Messaging API"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Distributed Consensus: Secure Messaging API}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = TRUE
+)
+library(HydraR)
+```
+
+This vignette demonstrates how to use the `HydraR` messaging API to simulate a **Distributed Consensus** algorithm. In this scenario, multiple "Voter" agents independently decide on a value and send their decision to a "Leader" agent, who determines the final outcome based on a majority.
+
+## Secure Private Inboxes
+
+Communication in `HydraR` is handled through a `RestrictedState` wrapper, which provides each node with a private inbox. This ensures that nodes can only see messages explicitly sent to them, preventing state leakage and ensuring reliable multi-agent coordination.
+
+## Loading the Workflow
+
+We define the voters and the leader in a declarative YAML file. Each voter uses the same `voter_logic`, but operates as a unique node in the graph.
+
+```{r setup_consensus}
+library(HydraR)
+
+# Load the consensus workflow from YAML
+wf <- load_workflow("distributed_communication.yml")
+
+# Spawn and compile the DAG
+dag <- spawn_dag(wf)
+```
+
+## Visualizing the Architecture
+
+We have three independent voters feeding their decisions into a single **Consensus Leader**.
+
+```{r plot}
+dag$plot()
+```
+
+## Running the Simulation
+
+We execute the consensus run. Behind the scenes, the voters use `state$send_message()` to transmit their votes.
+
+```{r execution}
+# Execute the consensus run
+final_run <- dag$run(wf$initial_state)
+
+# View final result from the Leader
+print(final_run$results$Leader$output$final_consensus)
+print(final_run$results$Leader$output$vote_table)
+```
+
+## Verification and Auditing
+
+`HydraR` supports an optional `MessageLog` that records all transmissions for later audit. This is critical for debugging complex distributed systems or verifying that agents are communicating as intended.
+
+---
+<!-- APAF Bioinformatics | distributed_communication.Rmd | Approved | 2026-04-03 -->

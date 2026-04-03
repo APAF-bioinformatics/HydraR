@@ -1,0 +1,21 @@
+# HydraR Workflow: targets Integration
+# File: targets_integration.yml
+# <!-- APAF Bioinformatics | targets_integration.yml | Approved | 2026-04-03 -->
+
+graph: |
+  graph TD
+    summarizer["Literature Summarizer | type=logic | logic_id=summarize_logic"]
+
+logic:
+  summarize_logic: |
+    {
+      text <- state$get("raw_text")
+      # Simulate LLM call
+      summary <- paste("Summary of:", substr(text, 1, 50), "...")
+      list(status = "SUCCESS", output = list(summary = summary))
+    }
+
+start_node: summarizer
+
+initial_state:
+  raw_text: "Highly complex scientific text about bioinformatics trends in 2026..."

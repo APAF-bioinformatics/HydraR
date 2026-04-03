@@ -44,7 +44,8 @@ Imports:
     purrr,
     R6,
     yaml,
-    httr2
+    httr2,
+    base64enc
 Suggests: 
     testthat (>= 3.0.0),
     duckdb,
@@ -66,15 +67,13 @@ Collate:
     'drivers_api.R'
     'drivers_cli.R'
     'factory.R'
-    'git_cleanup.R'
-    'jules_client.R'
+    'init_duckdb.R'
     'logic_node.R'
     'map_node.R'
     'merge_harmonizer.R'
     'mermaid_parser.R'
     'message_log.R'
     'node.R'
-    'node_jules.R'
     'node_languages.R'
     'node_llm.R'
     'observer_node.R'
@@ -84,5 +83,6 @@ Collate:
     'state_restricted.R'
     'tools.R'
     'utils.R'
+    'validation.R'
     'worktree.R'
     'zzz.R'

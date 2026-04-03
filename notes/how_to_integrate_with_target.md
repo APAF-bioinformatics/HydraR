@@ -1,46 +1,75 @@
-✦ I've developed a conceptual plan for integrating HydraR with targets. The core idea is to treat HydraR AgentDAG executions as discrete targets, where each
-  target's command invokes a run() method on a compiled DAG.
+# Integrating HydraR with `targets`
 
-  HydraR + targets Integration Strategy
+This guide describes the strategy for combining **HydraR** agentic orchestration with the **`targets`** workflow management package [@targets]. The core principle is to treat `AgentDAG` executions as discrete, cached targets within a pipeline.
 
-  The most robust way to combine these is by mapping HydraR nodes or entire DAGs to targets.
+---
 
-  1. The "DAG-as-Target" (Macro-Orchestration)
-  You can run an entire HydraR workflow within a single tar_target. This is useful for long-running agentic tasks that need to be cached as a whole.
+## 1. Macro-Orchestration (DAG-as-Target)
 
-    1 # _targets.R
-    2 list(
-    3   tar_target(
-    4     research_agent,
-    5     {
-    6       dag <- AgentDAG$new()
-    7       dag$add_node(research_node)
-    8       dag$compile()
-    9       dag$run(initial_state = list(query = "bioinformatics trends"))
-   10     },
-   11     format = "rds" # Caches the entire result list (status, output, state)
-   12   )
-   13 )
+The simplest integration is to run an entire HydraR workflow within a single `tar_target`. This is ideal for long-running agentic tasks where you want to cache the final results of a multi-agent collaboration.
 
-  2. The "State-to-Target" (Micro-Orchestration)
-  If you want targets to track individual agent decisions, you can have a target depend on the output state of a HydraR node.
+```r
+# _targets.R
+library(targets)
+library(HydraR)
 
-   1 # Define a target that extracts a specific part of the agent's memory
-   2 tar_target(
-   3   literature_summary,
-   4   research_agent$results$summary_node$output$content
-   5 )
+list(
+  # A target representing a complete autonomous research agent
+  tar_target(
+    research_agent_results,
+    {
+      dag <- load_workflow("research_pipeline.yml")
+      dag$compile()
+      dag$run(initial_state = list(query = "bioinformatics trends"))
+    },
+    format = "rds" # Caches the entire results list (status, state, outputs)
+  )
+)
+```
 
-  3. Automatic Checkpointing for Long-Running Agents
-  Since HydraR has a built-in Checkpointer (DuckDB), we can bridge it with targets so that if a targets build is interrupted, the agent resumes from its last
-  successful node rather than restarting the entire target.
+---
 
-  Next Steps for HydraR
-  I recommend we add a dedicated utility function to HydraR called tar_hydra() (or similar) that wraps an AgentDAG for easy use in _targets.R. This would handle:
-   * Automatic Dependency Tracking: Scanning the AgentDAG for any R objects it depends on.
-   * Persistent Checkpointing: Linking the targets metadata with the HydraR DuckDB history.
-   * Parallelism: Integrating furrr (already in your Imports) with targets' parallel workers.
+## 2. Micro-Orchestration (State-to-Target)
 
-  Would you like me to draft a new vignette or an example script examples/targets_integration.R demonstrating this?
+For more granular control, downstream targets can depend on specific parts of an agent's memory (the `AgentState`). This allows standard R functions to process agentic outputs as soon as they are available.
 
-  <!-- APAF Bioinformatics | R_is_for_Robot | Approved -->
+```r
+# Extract only the summary content from the successful agent run
+tar_target(
+  literature_summary,
+  research_agent_results$results$summary_node$output$content
+)
+```
+
+---
+
+## 3. Integrated Resilience & Checkpointing
+
+Since HydraR features a built-in **DuckDB Checkpointer**, it can bridge with `targets` to provide "interrupt-safe" agentic execution. If a `targets` build is cancelled or fails, HydraR can resume from its last successful node within the target, rather than restarting the entire DAG.
+
+### Resume Pattern
+```r
+tar_target(
+  resilient_agent,
+  {
+    saver <- DuckDBSaver$new(db_path = "state_history.duckdb")
+    dag$run(
+      thread_id = "joss-demo-001",
+      checkpointer = saver,
+      resume_from = "last" # Automatically resume from the last successful checkpoint
+    )
+  }
+)
+```
+
+---
+
+## 4. Proposed Strategic Utility: `tar_hydra()`
+
+To simplify this integration, we recommend implementing a native `tar_hydra()` wrapper in future releases of HydraR. This utility would automate:
+1.  **Dependency Tracking**: Automatically scanning the `AgentDAG` for any R objects or files it depends on.
+2.  **Metadata Linking**: Synchronizing `targets` metadata with the HydraR DuckDB history for a unified audit trail.
+3.  **Parallelism**: Integrating `furrr` (HydraR's parallel backend) with `targets` asynchronous workers.
+
+---
+<!-- APAF Bioinformatics | HydraR | targets Integration | 2026-04-03 -->

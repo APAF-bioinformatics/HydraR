@@ -1,0 +1,67 @@
+---
+title: "Agentic Blog Writer: Loops and Feedback"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Agentic Blog Writer: Loops and Feedback}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = TRUE
+)
+library(HydraR)
+```
+
+This vignette demonstrates the **cyclic feedback** pattern in `HydraR`. Content creation often involves iterative refinement between a writer and an editor. We model this as a DAG with a mix of linear execution and conditional loops using the **Gemini API**.
+
+## The Workflow Architecture
+
+1.  **Outliner**: Generates a structured outline based on a topic.
+2.  **Drafter**: Writes the draft based on the outline and incorporates any feedback from the Editor.
+3.  **Editor**: Reviews the draft for SEO and quality. If it fails to meet standards, it triggers a loop back to the Drafter.
+
+## Declarative Configuration
+
+We define the looping logic and agent roles in a single YAML file.
+
+```{r load}
+library(HydraR)
+
+# Load the workflow from YAML
+wf <- load_workflow("blog_writer.yml")
+
+# Spawn and compile the DAG
+dag <- spawn_dag(wf)
+```
+
+## Visualizing the Feedback Loop
+
+Notice the back-edge from **Editor** to **Drafter**.
+
+```{r plot}
+dag$plot()
+```
+
+## Running the Iterative Scenario
+
+The `run()` method will continue executing until either the "Approved" condition is met or the `max_steps` limit is reached.
+
+```{r run, eval = FALSE}
+# Note: Requires a valid GEMINI_API_KEY
+final <- dag$run(wf$initial_state, max_steps = 10)
+
+# Display the final draft and editor's approval
+cat("Final Output:\n", final$state$get("Drafter"), "\n")
+cat("Editor Decision:", final$state$get("Editor"), "\n")
+```
+
+## Resilience
+
+If the loop runs too long or the API connection is severed, `HydraR` can pause execution. By attaching a checkpointer, you can resume the writing process from the exactly where it left off, preserving all previous drafts and feedback history.
+
+---
+<!-- APAF Bioinformatics | blog_writer.Rmd | Approved | 2026-04-03 -->

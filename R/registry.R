@@ -165,6 +165,10 @@ spawn_dag <- function(wf, node_factory = auto_node_factory()) {
     })
   }
 
+  # 2.7 Advanced Workflow Integration Validation
+  # Ensures all roles, logic, and edges are synchronized correctly.
+  validate_workflow_full(dag, wf)
+
   # 3. Compile
   dag$compile()
 
@@ -258,9 +262,13 @@ resolve_test_pattern <- function(v) {
     return(get(v_trim, mode = "function"))
   }
 
-  # Anonymous Code Wrapper (expects 'out')
-  function(out) {
-    eval(parse(text = v), envir = list(out = out), enclos = parent.frame())
+  # Anonymous Code Wrapper (expects 'out' as data, 'res' as full result)
+  function(res) {
+    if (!is.list(res)) {
+      return(FALSE)
+    }
+    out <- res$output
+    eval(parse(text = v), envir = list(out = out, res = res), enclos = parent.frame())
   }
 }
 

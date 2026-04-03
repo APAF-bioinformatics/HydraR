@@ -1,0 +1,66 @@
+---
+title: "Hello World: Your First DAG"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Hello World: Your First DAG}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = TRUE
+)
+```
+
+This vignette provides the simplest "Hello World" entry point for `HydraR`, demonstrating the declarative **YAML + Mermaid** pattern for defining and running a Directed Acyclic Graph (DAG) of logic nodes.
+
+## Setup
+
+```{r setup}
+library(HydraR)
+```
+
+## Loading the Workflow
+
+Instead of writing R code to manually instantiate nodes and edges, we define the entire architecture in a separate YAML file. This separates the **orchestration** from the **execution**.
+
+```{r load}
+# Load the declarative workflow definition
+wf <- load_workflow("hello_world.yml")
+
+# Spawn the compiled DAG
+dag <- spawn_dag(wf)
+```
+
+## Visualizing the Architecture
+
+We can visualize the DAG directly from the compiled object.
+
+```{r plot}
+dag$plot()
+```
+
+## Running the DAG
+
+We execute the DAG with the initial state provided in the YAML.
+
+```{r run}
+# Running without a checkpointer for this simple example
+final <- dag$run(wf$initial_state)
+
+# Inspect the final output from the 'process_data' node
+print(final$results$process_data$output$processed_result)
+```
+
+## Summary
+
+This pattern allows you to:
+1.  **Visualize** your logic before running it.
+2.  **Externalize** node logic into blocks that can be easily audited.
+3.  **Scale** to more complex LLM-driven agents by simply changing the `type` in the Mermaid node tags.
+
+---
+<!-- APAF Bioinformatics | hello_world.Rmd | Approved | 2026-04-03 -->

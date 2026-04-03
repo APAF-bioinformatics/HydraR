@@ -1,0 +1,68 @@
+---
+title: "Agentic Data Science: AutoML Optimization"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Agentic Data Science: AutoML Optimization}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = TRUE
+)
+library(HydraR)
+```
+
+In machine learning workflows, hyperparameter tuning is inherently iterative. We can map this paradigm to an `AgentDAG` using the **Gemini API**. This vignette demonstrates how to define an AutoML optimization loop that includes data preprocessing, LLM-driven parameter recommendations, and automated threshold evaluation.
+
+## The Optimization Pipeline
+
+The workflow contains an initial data setup phase followed by a cyclic model optimization phase:
+1.  **Data Preprocessor**: Ingests and prepares the raw data for analysis.
+2.  **AutoML Optimizer**: Uses an LLM to recommend hyperparameters based on previous performance.
+3.  **Threshold Guard**: Assesses the model's accuracy. If it falls below the target threshold, it loops back to the Optimizer with refinement feedback.
+
+## Declarative Workflow
+
+We define the entire optimization loop in a YAML file.
+
+```{r load}
+library(HydraR)
+
+# Load the AutoML workflow from YAML
+wf <- load_workflow("data_science.yml")
+
+# Spawn and compile the DAG
+dag <- spawn_dag(wf)
+```
+
+## Visualizing the Optimization Loop
+
+The chart clearly shows the feedback loop from the **Threshold Guard** back to the **AutoML Optimizer**.
+
+```{r plot}
+dag$plot()
+```
+
+## Running the Scenario
+
+The DAG intelligently executes the data prep before dropping into an iterative optimization loop until the target metric (85% accuracy) is satisfied!
+
+```{r run, eval = FALSE}
+# Note: Requires a valid GEMINI_API_KEY
+final <- dag$run(wf$initial_state, max_steps = 15)
+
+# Inspect the final tuning result
+cat("Final Configuration:", final$state$get("ModelTrainer"), "\n")
+cat("Final Accuracy Status:", final$state$get("eval_message"), "\n")
+```
+
+## Summary
+
+By combining deterministic R logic (preprocessing, evaluation) with LLM agents (optimization), `HydraR` provides a flexible and powerful framework for building complex, self-correcting data science pipelines.
+
+---
+<!-- APAF Bioinformatics | data_science.Rmd | Approved | 2026-04-03 -->
