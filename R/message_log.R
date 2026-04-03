@@ -53,15 +53,25 @@ MemoryMessageLog <- R6::R6Class("MemoryMessageLog",
 
 #' DuckDB Message Log R6 Class
 #'
-#' @description Persists messages to the master DuckDB database.
+#' @description Persists messages to the master DuckDB database. Maintains an open connection for efficiency.
 #' @export
 DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
   inherit = MessageLog,
+  private = list(
+    con = NULL,
+    get_connection = function() {
+      if (is.null(private$con)) {
+        if (!requireNamespace("DBI", quietly = TRUE) || !requireNamespace("duckdb", quietly = TRUE)) {
+          return(NULL)
+        }
+        private$con <- DBI::dbConnect(duckdb::duckdb(), self$db_path)
+      }
+      private$con
+    }
+  ),
   public = list(
     #' @field db_path String. Path to DuckDB file.
     db_path = NULL,
-    #' @field con DBIConnection. Cached DuckDB connection.
-    con = NULL,
     #' @description Initialize DuckDBMessageLog.
     #' @param db_path String.
     #' @return A new `DuckDBMessageLog` object.
@@ -72,20 +82,17 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
     #' @param msg List. Message object.
     #' @return The log object (invisibly).
     log = function(msg) {
-      if (!requireNamespace("DBI", quietly = TRUE) || !requireNamespace("duckdb", quietly = TRUE)) {
+      con <- private$get_connection()
+      if (is.null(con)) {
         warning("DBI or duckdb not available. Skipping persistent log.")
         return(invisible(self))
-      }
-
-      if (is.null(self$con)) {
-        self$con <- DBI::dbConnect(duckdb::duckdb(), self$db_path)
       }
 
       # Use tryCatch for JSON extension loading which might fail on restricted environments like CI
       tryCatch(
         {
-          DBI::dbExecute(self$con, "INSTALL json")
-          DBI::dbExecute(self$con, "LOAD json")
+          DBI::dbExecute(con, "INSTALL json")
+          DBI::dbExecute(con, "LOAD json")
         },
         error = function(e) {
           # Silently ignore autoload failures in offline environments; duckdb might have it built-in or fall back safely
@@ -93,7 +100,7 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
         }
       )
 
-      DBI::dbExecute(self$con, "
+      DBI::dbExecute(con, "
         CREATE TABLE IF NOT EXISTS agent_messages (
           sender VARCHAR,
           recipient VARCHAR,
@@ -110,33 +117,30 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
         stringsAsFactors = FALSE
       )
 
-      DBI::dbWriteTable(self$con, "agent_messages", df, append = TRUE)
+      DBI::dbWriteTable(con, "agent_messages", df, append = TRUE)
       invisible(self)
     },
     #' @description Get all logs.
     #' @return List of logs.
     get_all = function() {
-      if (!requireNamespace("DBI", quietly = TRUE) || !requireNamespace("duckdb", quietly = TRUE)) {
+      con <- private$get_connection()
+      if (is.null(con)) {
         return(list())
-      }
-
-      if (is.null(self$con)) {
-        self$con <- DBI::dbConnect(duckdb::duckdb(), self$db_path)
       }
 
       tryCatch(
         {
-          DBI::dbExecute(self$con, "INSTALL json")
-          DBI::dbExecute(self$con, "LOAD json")
+          DBI::dbExecute(con, "INSTALL json")
+          DBI::dbExecute(con, "LOAD json")
         },
         error = function(e) NULL
       )
 
-      if (!DBI::dbExistsTable(self$con, "agent_messages")) {
+      if (!DBI::dbExistsTable(con, "agent_messages")) {
         return(list())
       }
 
-      res <- DBI::dbReadTable(self$con, "agent_messages")
+      res <- DBI::dbReadTable(con, "agent_messages")
       lapply(seq_len(nrow(res)), function(i) {
         list(
           from = res$sender[i],
@@ -145,13 +149,11 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
           content = jsonlite::fromJSON(res$content_json[i])
         )
       })
-    }
-  ),
-  private = list(
+    },
     #' @description Finalizer to clean up the cached connection.
     finalize = function() {
-      if (!is.null(self$con) && requireNamespace("DBI", quietly = TRUE)) {
-        try(DBI::dbDisconnect(self$con, shutdown = TRUE), silent = TRUE)
+      if (!is.null(private$con) && requireNamespace("DBI", quietly = TRUE)) {
+        try(DBI::dbDisconnect(private$con, shutdown = TRUE), silent = TRUE)
       }
     }
   )

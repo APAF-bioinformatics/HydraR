@@ -60,6 +60,7 @@ Suggests:
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Collate: 
+    'init_duckdb.R'
     'checkpointer.R'
     'dag.R'
     'driver.R'

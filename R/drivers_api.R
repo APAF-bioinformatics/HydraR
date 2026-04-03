@@ -426,12 +426,10 @@ GeminiImageDriver <- R6::R6Class("GeminiImageDriver",
           # Gemini 3.x generateContent format (inlineData)
           if (!is.null(cont$candidates) && length(cont$candidates) > 0) {
             parts <- cont$candidates[[1]]$content$parts
-            for (p in parts) {
-              if (!is.null(p$inlineData$data)) {
-                img_b64 <- p$inlineData$data
-                mime_type <- p$inlineData$mimeType %||% "image/jpeg"
-                break
-              }
+            img_part <- purrr::detect(parts, function(p) !is.null(p$inlineData$data))
+            if (!is.null(img_part)) {
+              img_b64 <- img_part$inlineData$data
+              mime_type <- img_part$inlineData$mimeType %||% "image/jpeg"
             }
           }
         }

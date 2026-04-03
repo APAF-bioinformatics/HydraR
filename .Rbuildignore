@@ -45,3 +45,4 @@
 ^repro_repo/
 ^gateway/
 ^man/.*\\.Rd$
+^tools/
