@@ -416,7 +416,7 @@
     if (definition.type !== "output") {
       throw new Error("Unrecognized widget type '" + definition.type + "'");
     }
-    // TODO: Verify that .name is a valid CSS classname
+    // Verify that .name is a valid CSS classname
 
     // Support new-style instance-bound definitions. Old-style class-bound
     // definitions have one widget "object" per widget per type/class of
