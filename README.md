@@ -45,15 +45,15 @@ devtools::install_github("apaf-bioinformatics/HydraR")
 
 ## 📖 Documentation & Manual
 
-The primary resource for learning `HydraR` is the **[Complete Instruction Manual](https://verbose-adventure-923r8zn.pages.github.io/articles/manual.html)**. 
+The primary resource for learning `HydraR` is the **[Complete Instruction Manual](vignettes/manual.Rmd)**. 
 
 ### Case Studies & Examples
 
-- **📍 [Sydney to Hong Kong Travel Planner](https://verbose-adventure-923r8zn.pages.github.io/articles/hong_kong_travel.html)**: High-fidelity orchestration using the `GeminiCLIDriver` to book a complex itinerary.
-- **💾 [Academic Research Assistant](https://verbose-adventure-923r8zn.pages.github.io/articles/academic_research.html)**: Demonstrates literature search and stateful summarization.
-- **🛡️ [Software Bug Assistant](https://verbose-adventure-923r8zn.pages.github.io/articles/software_bug_assistant.html)**: Shows how to orchestrate code analysis and fix suggestions.
-- **🛠️ [Creating Custom Drivers](https://verbose-adventure-923r8zn.pages.github.io/articles/creating_drivers.html)**: Developer guide on subclassing `AgentDriver` with Mocking and API support.
-- **🛡️ [Isolated Execution with Git Worktrees](https://verbose-adventure-923r8zn.pages.github.io/articles/git_worktree_toy.html)**: A toy program demonstrating safe, parallel file modifications using the Gemini CLI.
+- **📍 [Sydney to Hong Kong Travel Planner](vignettes/hong_kong_travel.Rmd)**: High-fidelity orchestration using the `GeminiCLIDriver` to book a complex itinerary.
+- **💾 [Academic Research Assistant](vignettes/academic_research.Rmd)**: Demonstrates literature search and stateful summarization.
+- **🛡️ [Software Bug Assistant](vignettes/software_bug_assistant.Rmd)**: Shows how to orchestrate code analysis and fix suggestions.
+- **🛠️ [Creating Custom Drivers](vignettes/creating_drivers.Rmd)**: Developer guide on subclassing `AgentDriver` with Mocking and API support.
+- **🛡️ [Isolated Execution with Git Worktrees](vignettes/git_worktree_toy.Rmd)**: A toy program demonstrating safe, parallel file modifications using the Gemini CLI.
 
 ### 🛠️ Technical Documentation
 
@@ -80,7 +80,7 @@ For deep technical dives into the orchestration engine and developer tools, refe
 - **Enterprise APIs**: Secure connection to internal LLM endpoints via `httr2`.
 - **Mock Backends**: Deterministic drivers for unit testing complex DAG logic.
 
-Refer to the [Creating Custom Drivers](https://verbose-adventure-923r8zn.pages.github.io/articles/creating_drivers.html) guide for implementation details.
+Refer to the [Creating Custom Drivers](vignettes/creating_drivers.Rmd) guide for implementation details.
 
 ## 📊 Visualizing Execution
 
