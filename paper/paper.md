@@ -55,11 +55,11 @@ Although `reticulate` [@reticulate] enables R users to interface with Python fra
 In this example, an LLM `Planner` agent generates a draft itinerary, which is then audited by a deterministic `Validator` against hard constraints. Successfully validated plans proceed to a **multimodal image generation** phase where **Gemini 3.1 Flash** [@google2025gemini] creates visual assets based on the itinerary's locales. Finally, a logic node renders a bespoke, CSS-styled HTML pamphlet. Crucially, **conditional looping** between the planner and validator enforces an iterative refinement cycle until all strict parameters are met (\autoref{fig:travel_workflow}).
 
 ::: {#fig:travel_workflow}
-![Page 1: Multi-modal travel pamphlet showcasing stateful orchestration and image generation.](Itinerary Page 1.png){#fig:travel_workflow_a}
+![Page 1: Multi-modal travel pamphlet showcasing stateful orchestration and image generation.](figures/Itinerary Page 1.png){#fig:travel_workflow_a}
 
-![Page 2: Final formatted CSS-styled HTML itinerary.](Itinerary Page 2.png){#fig:travel_workflow_b}
+![Page 2: Final formatted CSS-styled HTML itinerary.](figures/Itinerary Page 2.png){#fig:travel_workflow_b}
 
-Generated Multi-modal travel pamphlet for a Sydney to Hong Kong itinerary.
+Generated Multi-modal travel pamphlet for a Sydney to Hong Kong itinerary. The complete document is available as an integrated PDF ([HK Travel Pamphlet](figures/HK Travel Pamphlet.pdf)).
 :::
 
 ### Declarative Workflow Excerpt
@@ -105,7 +105,7 @@ results <- dag$run(initial_state = wf$initial_state)
 ## Parallel Sorting Algorithm Comparison
 This benchmarking example tasks three distinct LLM agents with simultaneously implementing different sorting algorithms. `HydraR` executes each task within an isolated Git worktree to aggressively uncouple filesystem side-effects and prevent merge conflicts. Following execution, a **Merge Harmonizer** systematically reconciles the independent branches back to the main state, preceding a terminal logic node that empirically benchmarks the aggregated algorithms across five continuous trials (\autoref{fig:sorting}).
 
-![Sorting Algorithm Performance Benchmark (1,000 elements over 5 trials).](sorting_benchmark.pdf){#fig:sorting}
+![Sorting Algorithm Performance Benchmark (1,000 elements over 5 trials).](figures/sorting_benchmark.pdf){#fig:sorting}
 
 ### Declarative Workflow Excerpt
 ```yaml
