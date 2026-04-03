@@ -1,0 +1,68 @@
+# HydraR Workflow: Data Science Assistant
+# File: data_science.yml
+# <!-- APAF Bioinformatics | data_science.yml | Approved | 2026-04-03 -->
+
+graph: |
+  graph TD
+    DataCleaner["Data Preprocessor | type=logic | logic_id=clean_data"]
+    ModelTrainer["AutoML Optimizer | type=llm | role_id=automl_expert | driver=gemini_api | prompt_id=train_prompt"]
+    Evaluator["Threshold Guard | type=logic | logic_id=evaluate_model"]
+    
+    DataCleaner --> ModelTrainer
+    ModelTrainer --> Evaluator
+    Evaluator --> ModelTrainer
+
+conditional_edges:
+  Evaluator:
+    test: "isTRUE(out$optimization_complete)"
+    if_true: null
+    if_false: "ModelTrainer"
+
+roles:
+  automl_expert: >
+    You are an AutoML expert. Given a dataset and previous accuracy logs, 
+    recommend a new set of hyperparameters for a machine learning model.
+    Output exactly the model configuration string.
+
+logic:
+  clean_data: |
+    {
+      dataset <- state$get("raw_data")
+      clean <- paste("Cleaned", dataset)
+      list(status = "SUCCESS", output = list(clean_data = clean))
+    }
+  train_prompt: |
+    {
+      feedback <- state$get("Evaluator")
+      feedback_text <- if (!is.null(feedback)) sprintf("\nFeedback: %s", feedback) else ""
+      sprintf("Dataset: %s%s\nOutput exactly a model configuration string.", state$get("clean_data"), feedback_text)
+    }
+  evaluate_model: |
+    {
+      config <- state$get("ModelTrainer")
+      target <- state$get("target_accuracy") %||% 0.85
+      iteration <- (state$get("total_evaluations") %||% 0) + 1
+      state$set("total_evaluations", iteration)
+
+      # Simulate improvement over time
+      accuracy <- min(0.60 + (iteration * 0.10), 0.95)
+
+      if (accuracy >= target) {
+        list(status = "SUCCESS", output = list(
+          optimization_complete = TRUE,
+          eval_message = sprintf("Target reached: %.2f >= %.2f using config: %s", accuracy, target, config)
+        ))
+      } else {
+        list(status = "SUCCESS", output = list(
+          optimization_complete = FALSE,
+          eval_message = sprintf("Accuracy %.2f is below %.2f. Recommending new parameters.", accuracy, target)
+        ))
+      }
+    }
+
+start_node: DataCleaner
+
+initial_state:
+  raw_data: "Titanic_Dataset.csv"
+  target_accuracy: 0.85
+  total_evaluations: 0

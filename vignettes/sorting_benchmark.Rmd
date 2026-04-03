@@ -30,10 +30,12 @@ Modern agentic workflows often involve multiple specialized agents working on di
 
 To demonstrate the power of worktrees, we first create a temporary Git repository.
 
-```{r setup, eval = FALSE}
+```{r setup, eval = TRUE}
 library(HydraR)
 library(withr)
 library(ggplot2)
+library(future)
+library(furrr)
 
 # Ensure Gemini CLI path is configured (Environment variables are inherited by workers)
 Sys.setenv(HYDRAR_GEMINI_PATH = "/opt/homebrew/bin/gemini")
@@ -42,7 +44,7 @@ Sys.setenv(HYDRAR_GEMINI_PATH = "/opt/homebrew/bin/gemini")
 repo_root <- "."
 
 # 0. Setup Parallel Execution (for Worktree Isolation)
-plan(multisession, workers = 3, envir = globalenv())
+future::plan(future::multisession, workers = 3)
 options(future.rng.onMisuse = "ignore")
 
 # 1. Create a temporary folder
@@ -71,7 +73,7 @@ entire workflow architecture (graph, prompts, logic) in a single
 declarative YAML file. This follows the **APAF-Agentic-Standard** for 
 Zero-R-Code definitions.
 
-```{r load_wf, eval = FALSE}
+```{r load_wf, eval = TRUE}
 # 1. Load the workflow manifest
 wf <- load_workflow("sorting_benchmark.yml")
 
@@ -88,7 +90,7 @@ compiled_dag <- dag$compile()
 
 # 5. Run with Worktree Isolation
 # Ensure workers inherit our environment (for API keys and PATH)
-future::plan(future::multisession, workers = 3, envir = globalenv())
+future::plan(future::multisession, workers = 3)
 
 results <- compiled_dag$run(
   initial_state = initial_state,

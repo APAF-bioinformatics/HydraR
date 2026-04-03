@@ -1,0 +1,60 @@
+# HydraR Workflow: Software Bug Assistant
+# File: software_bug_assistant.yml
+# <!-- APAF Bioinformatics | software_bug_assistant.yml | Approved | 2026-04-03 -->
+
+graph: |
+  graph TD
+    Analyzer["Debugger Agent | type=llm | role_id=bug_fixer | driver=gemini_api | prompt_id=fix_prompt"]
+    Tester["Test Suite | type=logic | logic_id=run_tests"]
+    
+    Analyzer --> Tester
+    Tester --> Analyzer
+
+conditional_edges:
+  Tester:
+    test: "isTRUE(out$tests_passed)"
+    if_true: null
+    if_false: "Analyzer"
+
+roles:
+  bug_fixer: >
+    You are a software engineer specializing in fixing R bugs. Review the bug 
+    report and any previous test failures, then provide a corrected R code snippet.
+    Ensure you handle NULL values using 'is.null()'. Output ONLY the code block.
+
+logic:
+  fix_prompt: |
+    {
+      feedback <- state$get("Tester")
+      feedback_text <- if (!is.null(feedback)) sprintf("\nTest Feedback: %s", feedback) else ""
+      sprintf("Bug Report: %s%s\nOutput exactly a snippet of R code.", state$get("bug_report"), feedback_text)
+    }
+  run_tests: |
+    {
+      patch <- state$get("Analyzer") %||% ""
+      
+      # Extract code block if wrapped in markdown
+      if (grepl("```", patch)) {
+        lines <- strsplit(patch, "\n")[[1]]
+        code_lines <- lines[!grepl("^```", lines)]
+        patch <- paste(code_lines, collapse = "\n")
+      }
+      
+      # Mock evaluation logic: In our scenario, the fix must use is.null().
+      if (grepl("is.null", patch, fixed = TRUE)) {
+        list(status = "SUCCESS", output = list(
+          tests_passed = TRUE,
+          test_feedback = "All 5 tests passed successfully."
+        ))
+      } else {
+        list(status = "SUCCESS", output = list(
+          tests_passed = FALSE,
+          test_feedback = "Error: object 'NULL' not found. Did you mean to use 'is.null()'?"
+        ))
+      }
+    }
+
+start_node: Analyzer
+
+initial_state:
+  bug_report: "Function crashes when 'x' is missing."

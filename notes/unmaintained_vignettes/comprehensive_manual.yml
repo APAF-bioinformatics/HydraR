@@ -1,0 +1,19 @@
+# HydraR Workflow: Manual Example
+# File: comprehensive_manual.yml
+# <!-- APAF Bioinformatics | comprehensive_manual.yml | Approved | 2026-04-03 -->
+
+graph: |
+  graph TD
+    Hello["Greet User | type=logic | logic_id=greet_logic"]
+
+logic:
+  greet_logic: |
+    {
+      name <- state$get("user_name") %||% "Stranger"
+      list(status = "SUCCESS", output = list(greeting = paste("Hello,", name)))
+    }
+
+start_node: Hello
+
+initial_state:
+  user_name: "Hydra User"

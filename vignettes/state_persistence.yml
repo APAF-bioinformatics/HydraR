@@ -1,0 +1,36 @@
+# HydraR Workflow: State Persistence & Resumption
+# File: state_persistence.yml
+# <!-- APAF Bioinformatics | state_persistence.yml | Approved | 2026-04-03 -->
+
+graph: |
+  graph TD
+    Step1["Initialization | type=logic | logic_id=init_proc"]
+    Step2["Risky Logic | type=logic | logic_id=check_fixed"]
+    Step3["Conclusion | type=logic | logic_id=finalize_proc"]
+    
+    Step1 --> Step2
+    Step2 --> Step3
+
+logic:
+  init_proc: |
+    {
+      list(status = "SUCCESS", output = "Initialization complete.")
+    }
+  check_fixed: |
+    {
+      if (!isTRUE(state$get("fixed"))) {
+        # Return "PAUSE" status - HydraR saves state and stops cleanly
+        return(list(status = "PAUSE", output = "Waiting for manual fix."))
+      }
+      list(status = "SUCCESS", output = "System recovered!")
+    }
+  finalize_proc: |
+    {
+      list(status = "SUCCESS", output = "All steps finished.")
+    }
+
+start_node: Step1
+
+initial_state:
+  fixed: false
+  counter: 0

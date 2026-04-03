@@ -1,6 +1,6 @@
 # HydraR Mermaid Orchestration Cheatsheet
 
-This document defines the reserved keywords and syntax for orchestrating HydraR agent networks directly within Mermaid diagrams.
+This document defines the reserved keywords and syntax for orchestrating HydraR agent networks directly within Mermaid diagrams or YAML workflow definitions.
 
 ## Reserved Keywords
 
@@ -9,13 +9,13 @@ To ensure consistent behavior across nodes and drivers, the following keys are r
 ### 1. Node Configuration (`AgentNode`)
 | Keyword | Type | Description |
 | :--- | :--- | :--- |
+| `type` | String | Node specialty: `logic` (default), `llm`, `router`, `map`, `observer`, `merge`, `jules`, `auto`. |
 | `retries` | Integer | Number of execution attempts on failure. |
 | `timeout` | Integer | Maximum execution time in seconds. |
 | `isolation` | Boolean | If `true`, runs in an isolated git worktree. |
 | `priority` | Integer | Execution priority for parallel branches (higher = sooner). |
 | `checkpoint` | Boolean | If `false`, disables state persistence for this node. |
-| `type` | String | Node specialty: `logic` (default), `router`, `map`, `observer`. |
-| `logic_id` | String | ID of the logic/function registered in `HydraR`. |
+| `logic_id` | String | ID of the logic/function registered in `HydraR` (required for `type=logic`). |
 | `map_key` | String | (For `type=map`) The state key containing the list to map over. |
 | `agents_files` | List | Comma-separated paths to markdown files for AI persona injection. |
 | `skills_files` | List | Comma-separated paths to markdown files for AI capability injection. |
@@ -23,22 +23,41 @@ To ensure consistent behavior across nodes and drivers, the following keys are r
 ### 2. LLM / Driver Parameters (`AgentLLMNode`)
 | Keyword | Type | Description |
 | :--- | :--- | :--- |
-| `model` | String | LLM model identifier (e.g., `gemini-2.5-flash`). |
-| `role` | String | System prompt or persona (e.g., `Expert Researcher`). |
+| **`driver`** | String | **The primary engine.** See [Available Drivers](#available-drivers) below. |
+| `model` | String | LLM model identifier (e.g., `gemini-3.1-flash-lite-preview`). |
+| `role` | String | Inline system prompt or persona (e.g., `Expert Researcher`). |
+| `role_id` | String | Reference to a registered role in the `roles` registry. |
+| `prompt_id` | String | Reference to a registered logic function used to build the prompt. |
 | `temp` | Float | Temperature (0.0 to 2.0). |
 | `max_tokens`| Integer | Maximum response length. |
 | `format` | String | Expected output format (`text`, `json`, `markdown`). |
 
-### 3. CLI Driver Flags (Driver-Specific)
+### 3. Driver-Specific Flags (CLI & Multimodal)
 | Keyword | Type | Driver | Description |
 | :--- | :--- | :--- | :--- |
-| `sandbox` | Boolean | Gemini | Enable/disable sandbox execution. |
-| `yolo` | Boolean | Gemini | Skip safety/confirmation checks. |
+| `sandbox` | Boolean | Gemini (CLI) | Enable/disable sandbox execution. |
+| `yolo` | Boolean | Gemini (CLI) | Skip safety/confirmation checks. |
 | `num_ctx` | Integer | Ollama | Context window size. |
-| `verbose` | Boolean | Claude | Enable verbose CLI logging. |
-| `aspect_ratio` | String | Gemini/OpenAI | Image dimensions (e.g., `1:1`, `16:9`). |
-| `image_size` | String | Gemini/OpenAI | Output resolution (e.g., `1K`, `2K`, `512`). |
+| `verbose` | Boolean | Claude (CLI) | Enable verbose CLI logging. |
+| `aspect_ratio`| String | Gemini/OpenAI | Image dimensions (e.g., `1:1`, `16:9`, `4:3`). |
+| `image_size` | String | Gemini/OpenAI | Output resolution (e.g., `1K`, `2K`). |
 | `output_dir` | String | Logic/Driver | Path to save generated binary assets. |
+
+---
+
+## Available Drivers
+
+The `driver` parameter determines the execution engine for `type=llm` nodes. If omitted, `gemini` (CLI) is the default.
+
+| Shorthand | Class | Provider | Default Model | Mode |
+| :--- | :--- | :--- | :--- | :--- |
+| `gemini` | `GeminiCLIDriver` | Google | `gemini-2.5-flash` | CLI (Local) |
+| `gemini_api`| `GeminiAPIDriver` | Google | `gemini-3.1-flash-lite-preview` | Cloud API |
+| `gemini_image`| `GeminiImageDriver`| Google | `gemini-3.1-flash-image-preview` | Multimodal |
+| `claude` | `ClaudeCodeDriver` | Anthropic | `claude-3-5-sonnet-latest` | CLI (Local) |
+| `openai` | `OpenAIDriver` | OpenAI | `gpt-4o` | Cloud API |
+| `ollama` | `OllamaDriver` | Ollama | `llama3.2` | Local (Local) |
+| `copilot_cli`| `CopilotCLIDriver` | Github | `copilot` | CLI (Local) |
 
 ---
 
@@ -60,47 +79,40 @@ graph TD
 | `key=val` | String | `role=Analyst` |
 
 ### Multi-Line Definitions
-For complex nodes, define the label and parameters in the first occurrence; subsequent occurrences can use just the ID.
+For complex nodes, define the parameters in the first occurrence; subsequent occurrences use just the ID.
 ```mermaid
 graph TD
-  A["Researcher | model=gemini-1.5-pro | isolation=true"]
+  A["Researcher | type=llm | driver=gemini_api | model=gemini-1.5-pro"]
   A --> B
   C --> A
 ```
-
-### 5. Plotting & Visualization (API vs CLI)
-When rendering the DAG via `dag$plot()`, the driver selection impacts the visual output:
-
-*   **Labels**: If you call `dag$plot(details = TRUE)`, the generated Mermaid code will include the driver ID inside the node box. For example:
-    *   **API**: `Planner["Travel Planner | type=llm | driver=gemini_api | model=..."]`
-    *   **CLI**: `Planner["Travel Planner | type=llm | driver=gemini | model=..."]`
-*   **Factory Logic**: The `auto_node_factory()` uses the `driver` parameter to decide which R6 class to instantiate. `gemini` defaults to the CLI driver (via `GeminiCLIDriver`), while `gemini_api` and `gemini_image` route to the API-based drivers.
-*   **Visual Styling**: Currently, both use the same CSS classes (e.g., green for success), but the text label is the primary way to tell them apart when viewing the graph structure.
 
 ---
 
 ## Orchestration Patterns
 
-### 1. Parallel Isolation
-Use `isolation=true` to trigger parallel git worktree branches.
-```mermaid
-graph TD
-  Start --> BranchA["Task A | isolation=true"]
-  Start --> BranchB["Task B | isolation=true"]
-  BranchA --> Merge
-  BranchB --> Merge
-```
-
-### 2. Conditional Routing & Dynamic Mapping
-Edge labels like `Test` (success) and `Fail` (failure) can be used for built-in conditional logic.
+### 1. Robust API Planning (Actual Usage)
+Based on the `hong_kong_travel.yml` pattern, combining cloud LLMs with deterministic logic gates.
 
 ```mermaid
 graph TD
-  M["List Processor | type=map | map_key=items | logic_id=process_fn"]
-  R["Router | type=router | logic_id=voter_logic"]
-  R --> NodeA
-  R --> NodeB
+    Planner["Travel Planner | type=llm | role_id=concierge | driver=gemini_api | prompt_id=plan_prompt"]
+    Validator["Constraint Auditor | type=logic | logic_id=validate_constraints | retries=3"]
+    
+    Planner --> Validator
+    Validator -- "Fail" --> Planner
+    Validator -- "Test" --> Success
 ```
+
+### 2. Node Types & Specializations
+
+*   **`llm`**: Asynchronous model call. Requires `role` or `role_id`.
+*   **`logic`**: Executes a registered R function. Requires `logic_id`.
+*   **`router`**: Decisions-based branching. Requires `logic_id` that returns a target node ID.
+*   **`map`**: Iterates over a list in `state`. Requires `map_key` and `logic_id`.
+*   **`merge`**: Harmonizes multiple input branches before proceeding.
+*   **`jules`**: Advanced autonomous coding node (Google Jules API).
+*   **`auto`**: Fallback; treats the label as a function lookup in the logic registry.
 
 ### 3. Resilient Failover (Error Edges)
 Standard edges represent the happy path. Error edges define the failover path if a node fails.
@@ -112,39 +124,19 @@ Standard edges represent the happy path. Error edges define the failover path if
 | `A -- "Fail" --> C` | Failure Path (Conditional) | Yellow/Solid |
 | `A -- "error" --> D` | Failover / Error Path | Red/Dashed |
 
-```mermaid
-graph TD
-  Check["Verify | type=logic | logic_id=check_val"]
-  Check -- "Test" --> Success
-  Check -- "Fail" --> Retry
-  Check -- "error" --> Halt["Emergency Stop"]
-```
-
 ### 4. Multimodal Image Generation
-Use `driver=gemini_image` or `openai_image` for generating binary visual assets.
-```mermaid
-graph TD
-  IG["Image Generator | driver=gemini_image | model=gemini-3.1-flash-image-preview | aspect_ratio=16:9 | output_dir=vignettes/images"]
-```
-
-### 5. Context & System Prompt Injection
-HydraR automatically manages the "Rules of the House" for LLM nodes by injecting markdown files into the `system_prompt`.
-
-*   **Automatic Worktree Injection**: Every `AgentLLMNode` automatically detects and injects `agents.md` and `skills.md` if they exist in the active worktree (sandbox).
-*   **Static File Injection**: Use `agents_files` and `skills_files` to inject specific instructions across multiple files.
-*   **Mermaid Syntax**: Use comma-separated strings for multiple files.
+Use `driver=gemini_image` for generating binary visual assets. Tested with `gemini-3.1-flash-image-preview`.
 
 ```mermaid
 graph TD
-  A["Researcher | type=llm | agents_files=global_rules.md,local_rules.md | skills_files=bash_skills.md"]
+  IG["Image Generator | type=llm | driver=gemini_image | model=gemini-3.1-flash-image-preview | aspect_ratio=16:9 | output_dir=images"]
 ```
 
 > [!TIP]
-> This pattern allows you to keep your Mermaid diagrams clean while still enforcing complex project standards across all agents.
+> **Context Injection**: HydraR automatically detects and injects `agents.md` and `skills.md` from your worktree into the system prompt. You can override this using `agents_files=file1,file2`.
 
 > [!IMPORTANT]
-> **Deduplication**: If a node is defined multiple times with different parameters, HydraR prioritizes the **first** definition containing a pipe `|`.
-> **Case Sensitivity**: Reserved keywords are case-sensitive and should be lowercase. values like `true`/`false` are case-insensitive.
+> **Deduplication**: If a node is defined multiple times, parameters from the **first** definition containing a pipe `|` are used. Subsequent mentions of the ID inherit these parameters.
 
-<!-- APAF Bioinformatics | HydraR | Approved | 2026-04-03 -->
+<!-- APAF Bioinformatics | Mermaid Orchestration Cheatsheet | Approved | 2026-04-03 -->
 

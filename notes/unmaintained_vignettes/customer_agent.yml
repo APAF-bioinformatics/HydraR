@@ -1,0 +1,43 @@
+# HydraR Workflow: Personalized Shopping Assistant
+# File: customer_agent.yml
+# <!-- APAF Bioinformatics | customer_agent.yml | Approved | 2026-04-03 -->
+
+graph: |
+  graph TD
+    Shopper["Store Concierge | type=llm | role_id=shopper_role | driver=gemini_api | prompt_id=shop_prompt"]
+    UserProxy["Customer Proxy | type=llm | role_id=customer_role | driver=gemini_api | prompt_id=feedback_prompt"]
+    
+    Shopper --> UserProxy
+    UserProxy --> Shopper
+
+conditional_edges:
+  UserProxy:
+    test: "grepl(\"buy it\", out, ignore.case = TRUE)"
+    if_true: null
+    if_false: "Shopper"
+
+roles:
+  shopper_role: >
+    You are a personalized shopping assistant. Based on the user's initial 
+    request and any feedback, provide a specific product recommendation.
+  customer_role: >
+    You are a customer looking for a specific item. Review the recommended product 
+    and either say 'I will buy it' if it matches your needs, or provide 
+    specific 'Modification Feedback' if you want something different.
+
+logic:
+  shop_prompt: |
+    {
+      feedback <- state$get("UserProxy")
+      feedback_text <- if (!is.null(feedback)) sprintf("\nUser Feedback: %s", feedback) else ""
+      sprintf("Original Request: %s%s\nOutput exactly a product name.", state$get("shopping_request"), feedback_text)
+    }
+  feedback_prompt: |
+    {
+      sprintf("Recommended Item: %s\nOriginal Request: %s\nDecide if you like it or need something different.", state$get("Shopper"), state$get("shopping_request"))
+    }
+
+start_node: Shopper
+
+initial_state:
+  shopping_request: "I need a cool t-shirt for the weekend with graphic design."

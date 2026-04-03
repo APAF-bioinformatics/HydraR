@@ -1,0 +1,65 @@
+---
+title: "Agentic Academic Researcher"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Agentic Academic Researcher}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = TRUE
+)
+library(HydraR)
+```
+
+This vignette demonstrates a multi-stage academic research pipeline using `HydraR`. We define a linear workflow designed to synthesize academic literature into a final report using the **Gemini API**.
+
+The pipeline comprises three agents:
+1.  **Searcher**: Identifies relevant papers for a given topic.
+2.  **Summarizer**: Extracts key findings from the papers.
+3.  **Compiler**: Formats the findings into a professional literature review.
+
+## Declarative Workflow Definition
+
+We use a YAML file to define the graph structure, the roles of each agent, and the prompt templates. This approach keeps the R code clean and focused on execution.
+
+```{r load}
+library(HydraR)
+
+# Load the workflow definition from YAML
+wf <- load_workflow("academic_research.yml")
+
+# Spawn and compile the DAG
+dag <- spawn_dag(wf)
+```
+
+## Visualizing the Pipeline
+
+The `plot()` method allows us to verify the architecture.
+
+```{r plot}
+dag$plot()
+```
+
+## Execution
+
+We run the DAG with a research topic. In this example, we use the default topic from the YAML: `CRISPR Gene Editing`.
+
+```{r run, eval = FALSE}
+# Note: Requires a valid GEMINI_API_KEY in the environment
+final <- dag$run(wf$initial_state)
+
+# Display the final literature review
+cat(final$state$get("Compiler"))
+```
+
+## Resilience and Checkpointing
+
+For longer research tasks, you can attach a `Checkpointer` (e.g., `DuckDBSaver`) to the `run()` method. This ensures that if the process is interrupted, you can resume from the last successful node without re-running the entire pipeline.
+
+---
+<!-- APAF Bioinformatics | academic_research.Rmd | Approved | 2026-04-03 -->

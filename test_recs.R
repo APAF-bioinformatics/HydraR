@@ -1,8 +1,0 @@
-library(testthat)
-source("R/state.R")
-source("R/checkpointer.R")
-source("R/registry.R")
-source("R/logic_node.R")
-source("R/node.R")
-source("R/dag.R")
-source("tests/testthat/test-recommendations.R")

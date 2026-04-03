@@ -1,0 +1,66 @@
+---
+title: "Hierarchical Agents: Critique and Revise"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Hierarchical Agents: Critique and Revise}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = TRUE
+)
+library(HydraR)
+```
+
+This vignette demonstrates the **Critique and Revise** pattern, a fundamental architectural building block for high-quality agentic systems. In this workflow, two LLM agents—a **Writer** and a **Reviewer**—collaborate to refine a creative story through an iterative feedback loop.
+
+## The Feedback Mechanism
+
+1.  **Story Author**: Drafts the initial story based on the prompt. If feedback is received, it revises the draft to address the editor's concerns.
+2.  **Literary Editor**: Critically reviews the story using internal quality criteria. If the story is approved, the loop terminates. Otherwise, it provides specific, constructive critique back to the author.
+
+## Declarative Loop Definition
+
+The logic for both prompt generation and the looping condition is defined in a YAML file.
+
+```{r load}
+library(HydraR)
+
+# Load the hierarchical workflow from YAML
+wf <- load_workflow("hierarchical_agents.yml")
+
+# Spawn and compile the DAG
+dag <- spawn_dag(wf)
+```
+
+## Visualizing the Hierarchy
+
+The `plot()` method reveals the recursive interaction between the two agents.
+
+```{r plot}
+dag$plot()
+```
+
+## Executing the Collaborative Run
+
+The `run()` method will continue to iterate until the `Reviewer` node returns an "Approved" status or the `max_steps` limit is hit.
+
+```{r run, eval = FALSE}
+# Note: Requires a valid GEMINI_API_KEY
+final <- dag$run(wf$initial_state, max_steps = 10)
+
+# Display the final story and editor's feedback
+cat("Final Story Draft:\n", final$state$get("Writer"), "\n")
+cat("Final Feedback:", final$state$get("Reviewer"), "\n")
+```
+
+## Resilience and Durability
+
+For long creative sessions, you can attach a `Checkpointer` (e.g., `DuckDBSaver`). This allows you to pause the process and resume it later, ensuring that no creative progress is lost due to API timeouts or system interruptions.
+
+---
+<!-- APAF Bioinformatics | hierarchical_agents.Rmd | Approved | 2026-04-03 -->

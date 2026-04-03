@@ -26,7 +26,7 @@ bibliography: paper.bib
 
 `HydraR` is a lightweight, state-managed framework designed to orchestrate complex "agentic" workflows—autonomous, multi-step processes driven by Large Language Models (LLMs)—natively within R. While mainstream orchestration tools such as LangChain [@langchain] and CrewAI [@crewai] are predominantly Python-based, `HydraR` fulfills the R community's critical requirements for rigorous reproducibility, auditability, and seamless integration with established statistical pipelines.
 
-Researchers can architect workflows as Directed Acyclic Graphs (DAGs) or iterative state machines, wherein each node represents an LLM-prompted task, a deterministic R function, or an autonomous auditor. `HydraR` ensures broad compatibility by supporting both complex cloud APIs (Gemini, Claude, OpenAI) and local CLI models (Ollama, Gemini CLI).
+Researchers can architect workflows as Directed Acyclic Graphs (DAGs) or iterative state machines, wherein each node represents an LLM-prompted task, a deterministic R function, or an autonomous auditor. `HydraR` ensures broad compatibility—supporting cloud APIs (Gemini [@google2025gemini], Claude, OpenAI) and local models (Ollama)—while enforcing structural integrity through a built-in **Advanced Validation Engine** that performs deep static analysis of orchestration manifests before execution.
 
 # Statement of Need
 
@@ -45,14 +45,14 @@ Although `reticulate` [@reticulate] enables R users to interface with Python fra
 
 `HydraR` employs a highly modular R6 architecture spanning several key components:
 - **AgentLLMNode / AgentLogicNode**: Encapsulate LLM-driven prompts and deterministic pure-R logic steps, respectively. They utilize pluggable `AgentDriver` backends for provider-agnostic model communication.
-- **AgentDAG**: The core orchestration engine that manages node dependencies, validates network topology (via `igraph` [@igraph]), and executes logic in parallel (via `furrr` [@furrr]).
+- **AgentDAG**: The core orchestration engine that manages node dependencies, validates network topology (via `igraph` [@igraph]), and executes logic in parallel (via `furrr` [@furrr]). It features an integrated compiler-like **Validation Engine** that cross-references Mermaid topologies with YAML resource definitions and lints embedded R logic for compliance with safety standards (e.g., prohibiting imperative loops).
 - **AgentState**: A centralized state repository employing versioned history and custom reducers to systematically coordinate multi-agent outputs.
 - **WorktreeManager**: An engine that provisions isolated Git worktrees for parallel execution tasks, paired with an extensible **ConflictResolver** handling automated semantic resolution alongside human-in-the-loop task reconciliation.
 
 # Research Applications
 
-## Travel Itinerary Planner
-In this example, an LLM `Planner` agent intelligently generates a draft itinerary, while a deterministic `Validator` logic node actively audits the output against user-defined constraints. Crucially, **conditional looping** between these entities enforces an iterative refinement cycle until all strict parameters are met, thereby operationalizing the concept of a self-correcting state machine within R.
+## Multimodal Travel Itinerary Planner
+In this example, an LLM `Planner` agent generates a draft itinerary, which is then audited by a deterministic `Validator` against hard constraints. Successfully validated plans proceed to a **multimodal image generation** phase where **Gemini 3.1 Flash** [@google2025gemini] creates visual assets based on the itinerary's locales. Finally, a logic node renders a bespoke, CSS-styled HTML pamphlet. Crucially, **conditional looping** between the planner and validator enforces an iterative refinement cycle until all strict parameters are met (\autoref{fig:travel_workflow}).
 
 ### Declarative Workflow Excerpt
 ```yaml
@@ -60,13 +60,24 @@ graph: |
   graph TD
     Planner["Travel Planner | type=llm | role_id=travel_concierge"]
     Validator["Constraint Auditor | type=logic | logic_id=validate_constraints"]
-    
+    ImageGate["Image Gate | type=logic | logic_id=check_image_status"]
+    ImageGenerator["Image Generator | type=logic | logic_id=generate_and_save_images"]
+    TemplateManager["Template Provider | type=logic | logic_id=provide_template"]
+    PamphletFormatter["Pamphlet Formatter | type=logic | logic_id=format_pamphlet"]
+    Finalizer["Itinerary Saver | type=logic | logic_id=save_itinerary"]
+
     Planner --> Validator
     Validator -- "fail" --> Planner
+    Validator -- "pass" --> ImageGate
+    ImageGate --> ImageGenerator
+    ImageGate --> TemplateManager
+    ImageGenerator --> TemplateManager
+    TemplateManager --> PamphletFormatter
+    PamphletFormatter --> Finalizer
 
 roles:
   travel_concierge: >
-    You are a professional travel concierge. Create detailed, day-by-day itineraries...
+    You are a professional travel concierge...
 ```
 
 ### R Orchestration (Minimal)

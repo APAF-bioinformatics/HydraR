@@ -1,0 +1,118 @@
+---
+title: "HydraR: The Complete Instruction Manual"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{HydraR: The Complete Instruction Manual}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = TRUE
+)
+library(HydraR)
+```
+
+## 1. Introduction
+
+`HydraR` is a professional-grade agentic orchestration framework built for R. It enables the design, execution, and monitoring of complex multi-agent workflows using a Directed Acyclic Graph (DAG) architecture that supports **iterative loops**, **parallel execution**, and **persistent state**.
+
+Developed at **APAF Bioinformatics**, `HydraR` addresses the need for durable, CLI-first agentic systems that can operate reliably in scientific and software engineering environments.
+
+## 2. Core Architecture
+
+The framework is built around four primary R6 classes:
+
+1.  **`AgentDAG`**: The central orchestrator that manages nodes, edges, and execution flow.
+2.  **`AgentNode`**: The fundamental unit of work, typically resolving to:
+    -   **`AgentLLMNode`**: Interfaces with Large Language Models via Drivers.
+    -   **`AgentLogicNode`**: Executes deterministic R functions.
+3.  **`AgentState`**: A structured, centrally managed container for all data shared between nodes.
+4.  **`AgentDriver`**: A provider-agnostic interface for communicating with LLMs (e.g., `GeminiAPIDriver`).
+
+## 3. Getting Started: The Declarative Pattern
+
+The recommended way to build a DAG in `HydraR` is using the **YAML + Mermaid** pattern. This separates your orchestration logic from your execution code.
+
+### Step 1: Define Your Workflow (`workflow.yml`)
+
+Create a YAML file containing your graph structure (Mermaid) and node logic:
+
+```yaml
+graph: |
+  graph TD
+    Hello["Greet User | type=logic | logic_id=greet_logic"]
+
+logic:
+  greet_logic: |
+    {
+      name <- state$get("user_name") %||% "Stranger"
+      list(status = "SUCCESS", output = list(greeting = paste("Hello,", name)))
+    }
+
+initial_state:
+  user_name: "Hydra User"
+```
+
+### Step 2: Load and Run in R
+
+```{r first_dag}
+library(HydraR)
+
+# 1. Load the workflow definition
+wf <- load_workflow("comprehensive_manual.yml")
+
+# 2. Spawn the compiled DAG
+dag <- spawn_dag(wf)
+
+# 3. Execute with initial state
+final <- dag$run(wf$initial_state)
+
+# 4. Access results
+print(final$state$get("greeting"))
+```
+
+## 4. Advanced Orchestration
+
+### Iterative Loops & Decisions
+
+`HydraR` supports **conditional edges** defined in your YAML. This allows for complex feedback loops between agents.
+
+```yaml
+conditional_edges:
+  Evaluator:
+    test: "isTRUE(out$valid)"
+    if_true: "Publisher"
+    if_false: "Researcher"
+```
+
+### Parallel Isolation (Git Worktrees)
+
+By setting `use_worktrees = TRUE` in the `run()` method, `HydraR` will execute independent branches of your DAG in isolated git worktrees. This prevents file-level conflicts when multiple agents are modifying the same codebase.
+
+## 5. Persistence & Resilience
+
+For long-running workflows, `HydraR` provides a **Checkpointer** system. If an execution is interrupted, it can be resumed from the last successful node using a unique `thread_id`.
+
+Supported backends:
+-   **`MemorySaver`**: In-memory storage.
+-   **`RDSSaver`**: File-based storage (RDS).
+-   **`DuckDBSaver`**: High-performance persistent database (DuckDB).
+
+## 6. Visualization & Observability
+
+`HydraR` generates high-quality **Mermaid.js** diagrams. After a run, use `dag$plot(status = TRUE)` to see the path taken by the agents, with nodes colored by their success or failure.
+
+```{r plot}
+dag$plot(status = TRUE)
+```
+
+## 7. Conclusion
+
+`HydraR` provides the scaffolding needed to turn isolated LLM calls into robust, stateful, and observable agentic systems. By combining R's analytical power with modern LLM orchestration, it empowers bioinformatics and data science teams to build scaleable, intelligent tools.
+
+---
+<!-- APAF Bioinformatics | comprehensive_manual.Rmd | Approved | 2026-04-03 -->

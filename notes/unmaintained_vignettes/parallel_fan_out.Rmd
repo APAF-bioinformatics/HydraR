@@ -1,0 +1,68 @@
+---
+title: "LLM Fan-Out and Fan-In Synthesis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{LLM Fan-Out and Fan-In Synthesis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = TRUE
+)
+library(HydraR)
+```
+
+This vignette demonstrates the **Fan-Out / Fan-In** pattern using `HydraR`. Instead of manual node configuration, we use a declarative YAML syntax to define complex multi-agent topologies.
+
+## Collaborative Storytelling Pattern
+
+We model a collaborative writing process where a **Director** sets the stage, multiple specialized **Writers** (Action, Mystery, Romance) independently generate plot lines in parallel, and a **Master Editor** synthesizes them into a cohesive story.
+
+This pattern is ideal for:
+1.  **Parallel Creativity**: Generating diverse perspectives on the same input.
+2.  **Synthesis**: Combining isolated agent outputs into a final consensus.
+
+## Declarative Orchestration
+
+We define the architecture in `parallel_fan_out.yml`.
+
+```{r setup}
+library(HydraR)
+
+# Load the workflow from YAML
+wf <- load_workflow("parallel_fan_out.yml")
+
+# Spawn and compile the DAG
+dag <- spawn_dag(wf)
+```
+
+## Visualizing the Parallelism
+
+The `plot()` method shows the one-to-many "Fan-Out" from the Director and the many-to-one "Fan-In" to the Editor.
+
+```{r plot}
+dag$plot()
+```
+
+## Running the Parallel Chain
+
+When `dag$run()` is called, the Director node executes first. Then, the Three writer nodes are evaluated (potentially in parallel if `furrr` is configured). Finally, the Master Editor consolidates the results.
+
+```{r running, eval = FALSE}
+# Execute with the initial premise
+final <- dag$run(wf$initial_state)
+
+# View the final synthesized story
+cat(final$state$get("editor"))
+```
+
+## Scaling with Worktrees
+
+For heavy parallel processing (e.g., each writer needing its own git environment), you can set `use_worktrees = TRUE` in the `run()` method. This ensures that each "branch" of the Fan-Out has a completely isolated filesystem for execution, preventing race conditions.
+
+---
+<!-- APAF Bioinformatics | parallel_fan_out.Rmd | Approved | 2026-04-03 -->

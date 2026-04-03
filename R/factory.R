@@ -125,7 +125,7 @@ standard_node_factory <- function(id, label, driver = NULL) {
 # Global Variable Bindings for R CMD check
 # ==============================================================
 utils::globalVariables(c(
-  "ClaudeCLIDriver", "OpenAIDriver", "GeminiCLIDriver", "GeminiAPIDriver",
+  "ClaudeCodeDriver", "OpenAIDriver", "GeminiCLIDriver", "GeminiAPIDriver",
   "GeminiImageDriver", "OllamaDriver", "CopilotCLIDriver", "AgentJulesNode"
 ))
 

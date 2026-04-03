@@ -54,6 +54,10 @@ OpenAIDriver <- R6::R6Class("OpenAIDriver",
         api_key <- Sys.getenv("OPENAI_API_KEY")
         if (api_key == "") stop("OPENAI_API_KEY environment variable not set.")
 
+        if (Sys.getenv("HYDRAR_DEBUG") == "TRUE") {
+          message("DEBUG: [", self$id, "] Calling URL: ", self$api_url)
+        }
+
         messages <- list(list(role = "user", content = prompt))
         if (!is.null(system_prompt)) {
           messages <- c(list(list(role = "system", content = system_prompt)), messages)
@@ -72,10 +76,21 @@ OpenAIDriver <- R6::R6Class("OpenAIDriver",
             httr2::req_perform(req)
           },
           error = function(e) {
-            stop(sprintf("OpenAI API request failed: %s", e$message))
+            if (!is.null(e$resp)) {
+              body_text <- tryCatch(httr2::resp_body_string(e$resp), error = function(ee) "unreadable body")
+              stop(sprintf(
+                "[%s] OpenAI API request failed: %s. Body: %s",
+                self$id, httr2::resp_status_desc(e$resp), body_text
+              ))
+            }
+            stop(sprintf("[%s] OpenAI API request failed: %s", self$id, e$message))
           }
         )
         cont <- httr2::resp_body_json(resp)
+
+        if (is.null(cont$choices) || length(cont$choices) == 0) {
+          stop(sprintf("[%s] OpenAI API returned success but no choices: %s", self$id, jsonlite::toJSON(cont)))
+        }
 
         return(extract_r_code_advanced(cont$choices[[1]]$message$content))
       })
@@ -130,6 +145,10 @@ AnthropicDriver <- R6::R6Class("AnthropicDriver",
         api_key <- Sys.getenv("ANTHROPIC_API_KEY")
         if (api_key == "") stop("ANTHROPIC_API_KEY environment variable not set.")
 
+        if (Sys.getenv("HYDRAR_DEBUG") == "TRUE") {
+          message("DEBUG: [", self$id, "] Calling URL: ", self$api_url)
+        }
+
         # Anthropic requires max_tokens as mandatory
         if (!"max_tokens" %in% names(cli_opts)) cli_opts$max_tokens <- 4096
 
@@ -154,10 +173,21 @@ AnthropicDriver <- R6::R6Class("AnthropicDriver",
             httr2::req_perform(req)
           },
           error = function(e) {
-            stop(sprintf("Anthropic API request failed: %s", e$message))
+            if (!is.null(e$resp)) {
+              body_text <- tryCatch(httr2::resp_body_string(e$resp), error = function(ee) "unreadable body")
+              stop(sprintf(
+                "[%s] Anthropic API request failed: %s. Body: %s",
+                self$id, httr2::resp_status_desc(e$resp), body_text
+              ))
+            }
+            stop(sprintf("[%s] Anthropic API request failed: %s", self$id, e$message))
           }
         )
         cont <- httr2::resp_body_json(resp)
+
+        if (is.null(cont$content) || length(cont$content) == 0) {
+          stop(sprintf("[%s] Anthropic API returned success but no content: %s", self$id, jsonlite::toJSON(cont)))
+        }
 
         return(extract_r_code_advanced(cont$content[[1]]$text))
       })
@@ -272,7 +302,7 @@ GeminiImageDriver <- R6::R6Class("GeminiImageDriver",
     #' @param aspect_ratio String.
     #' @param validation_mode String.
     #' @param working_dir String.
-    initialize = function(id = "gemini_image", model = "imagen-4.0-generate-001", output_dir = "images", aspect_ratio = "1:1", validation_mode = "warning", working_dir = NULL) {
+    initialize = function(id = "gemini_image", model = "gemini-3.1-flash-image-preview", output_dir = "images", aspect_ratio = "1:1", validation_mode = "warning", working_dir = NULL) {
       super$initialize(id, model = model, validation_mode = validation_mode, working_dir = working_dir)
       self$output_dir <- output_dir
       self$aspect_ratio <- aspect_ratio

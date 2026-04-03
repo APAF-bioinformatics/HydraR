@@ -36,9 +36,9 @@ test_that("OpenAIDriver handles API errors gracefully", {
   withr::with_envvar(list(OPENAI_API_KEY = "test_key"), {
     drv <- OpenAIDriver$new()
     httr2::with_mocked_responses(
-      function(req) httr2::response(status_code = 500),
+      function(req) httr2::response(status_code = 500, body = charToRaw("Internal Error")),
       {
-        expect_error(drv$call("Hello"), "OpenAI API request failed")
+        expect_error(drv$call("Hello"), "OpenAI API request failed: Internal Server Error. Body: Internal Error")
       }
     )
   })
@@ -71,9 +71,9 @@ test_that("AnthropicDriver handles API errors gracefully", {
   withr::with_envvar(list(ANTHROPIC_API_KEY = "test_key"), {
     drv <- AnthropicDriver$new()
     httr2::with_mocked_responses(
-      function(req) httr2::response(status_code = 500),
+      function(req) httr2::response(status_code = 500, body = charToRaw("Anthropic Error")),
       {
-        expect_error(drv$call("Hello"), "Anthropic API request failed")
+        expect_error(drv$call("Hello"), "Anthropic API request failed: Internal Server Error. Body: Anthropic Error")
       }
     )
   })
@@ -236,3 +236,38 @@ test_that("GeminiAPIDriver handles network failures gracefully", {
 })
 
 # <!-- APAF Bioinformatics | test-drivers_api.R | Approved | 2026-03-29 -->
+
+test_that("GeminiImageDriver correctly handles base64 responses and persistence", {
+  skip_if_not_installed("base64enc")
+  skip_if_not_installed("mockery")
+  
+  withr::with_envvar(list(GOOGLE_API_KEY = "test_key"), {
+    withr::with_tempdir({
+      # Setup dummy image content (1x1 transparent pixel)
+      dummy_base64 <- "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+      
+      drv <- GeminiImageDriver$new(model = "gemini-3.1-flash-image-preview", output_dir = ".")
+      
+      # Mock response structure based on Gemini API expectations
+      mock_json <- list(
+        candidates = list(list(content = list(parts = list(list(
+          inlineData = list(mimeType = "image/png", data = dummy_base64)
+        )))))
+      )
+      
+      # Since GeminiImageDriver uses curl::curl_fetch_disk, httr2 mocks won't work.
+      # We use mockery to stub the curl call.
+      mockery::stub(drv$call, "curl::curl_fetch_disk", function(url, path, handle) {
+        # Write the mock JSON to the path specified by the caller
+        writeLines(jsonlite::toJSON(mock_json, auto_unbox = TRUE), path)
+        return(list(status_code = 200))
+      })
+      
+      img_path <- drv$call("Draw a cat", cli_opts = list(filename = "cat.png"))
+      expect_equal(basename(img_path), "cat.png")
+      expect_true(file.exists("cat.png"))
+      
+      # Cleanup is handled by with_tempdir
+    })
+  })
+})

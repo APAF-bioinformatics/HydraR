@@ -1,0 +1,66 @@
+# HydraR Workflow: Advanced Circuitry Showcase
+# File: advanced_circuitry.yml
+# <!-- APAF Bioinformatics | advanced_circuitry.yml | Approved | 2026-04-03 -->
+
+graph: |
+  graph TD
+    Router["Mode Switch | type=router | logic_id=mode_router"]
+    LowRisk["Low Risk Path | type=logic | logic_id=process_low_risk"]
+    HighRisk["High Risk Path | type=logic | logic_id=process_high_risk"]
+    Recovery["Recovery Node | type=logic | logic_id=fix_it"]
+    Finalizer["Results Finalizer | type=logic | logic_id=finalize_run"]
+
+    Router --> LowRisk
+    Router --> HighRisk
+    HighRisk --> Finalizer
+    LowRisk --> Finalizer
+    
+    # Error edge from HighRisk to Recovery
+    HighRisk -- error --> Recovery
+    Recovery --> Finalizer
+
+error_edges:
+  HighRisk: Recovery
+
+logic:
+  mode_router: |
+    {
+      mode <- state$get("mode") %||% "safe"
+      if (mode == "fast") {
+        list(status = "SUCCESS", target_node = "HighRisk", output = "Fast mode selected (High Risk)")
+      } else {
+        list(status = "SUCCESS", target_node = "LowRisk", output = "Safe mode selected (Low Risk)")
+      }
+    }
+  process_low_risk: |
+    {
+      list(status = "SUCCESS", output = "Processed safely via Low Risk node.")
+    }
+  process_high_risk: |
+    {
+      # Simulate a failure if 'simulate_fail' is TRUE
+      if (isTRUE(state$get("simulate_fail"))) {
+        stop("Simulated failure in high risk task!")
+      }
+      list(status = "SUCCESS", output = "Processed successfully via High Risk node.")
+    }
+  fix_it: |
+    {
+      list(status = "SUCCESS", output = "Recovered from failure. Applying default values.")
+    }
+  finalize_run: |
+    {
+      res <- list(
+        mode = state$get("mode"),
+        router_out = state$get("Router"),
+        risk_out = state$get("HighRisk") %||% state$get("LowRisk"),
+        recovery = state$get("Recovery")
+      )
+      list(status = "SUCCESS", output = res)
+    }
+
+start_node: Router
+
+initial_state:
+  mode: "fast"
+  simulate_fail: true

@@ -1,0 +1,66 @@
+---
+title: "Hello World: Building an Agentic Loop"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Hello World: Building an Agentic Loop}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = TRUE
+)
+library(HydraR)
+```
+
+This vignette demonstrates how to construct a simple "Hello World" agentic loop using the `HydraR` framework. We will create a Directed Acyclic Graph (DAG) with two nodes: an **LLM Guesser** and a **Greeting Validator**.
+
+## The Guesser-Validator Loop
+
+1.  **LLM Guesser**: An agentically powered node that tries to guess a secret word ("hello").
+2.  **Greeting Validator**: A deterministic R logic node that checks the guess. If the guess is incorrect, it triggers a loop back to the guesser.
+
+## Declarative Workflow
+
+We define the entire orchestration, including the looping logic and agent roles, in a YAML file.
+
+```{r load}
+library(HydraR)
+
+# Load the agentic workflow from YAML
+wf <- load_workflow("hello_world_agent.yml")
+
+# Spawn and compile the DAG
+dag <- spawn_dag(wf)
+```
+
+## Visualizing the Loop
+
+The `plot()` method shows the iterative connection from the **Validator** back to the **Guesser**.
+
+```{r plot}
+dag$plot()
+```
+
+## Running the Agentic Loop
+
+The system will continue to loop until the LLM produces the correct target greeting!
+
+```{r run, eval = FALSE}
+# Note: Requires a valid GEMINI_API_KEY
+final <- dag$run(wf$initial_state, max_steps = 10)
+
+# View final results
+cat("Final Guess:", final$state$get("Guesser"), "\n")
+cat("Success Status:", final$results$Validator$output$valid, "\n")
+```
+
+## Summary
+
+The "Hello World Agent" demonstrates the core power of `HydraR`: combining LLM reasoning with deterministic R code to create autonomous, self-correcting feedback loops. This pattern forms the foundation for more complex systems like software bug fixers and iterative researchers.
+
+---
+<!-- APAF Bioinformatics | hello_world_agent.Rmd | Approved | 2026-04-03 -->

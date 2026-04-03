@@ -165,6 +165,10 @@ spawn_dag <- function(wf, node_factory = auto_node_factory()) {
     })
   }
 
+  # 2.7 Advanced Workflow Integration Validation
+  # Ensures all roles, logic, and edges are synchronized correctly.
+  validate_workflow_full(dag, wf)
+
   # 3. Compile
   dag$compile()
 
