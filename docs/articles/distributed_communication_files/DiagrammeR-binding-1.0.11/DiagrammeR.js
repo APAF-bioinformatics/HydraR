@@ -61,7 +61,7 @@ HTMLWidgets.widget({
     };
 
     return {
-      // TODO: add instance fields as required
+      // Instance fields can be added here if required
     }
 
   },

@@ -54,13 +54,14 @@ dir.create(repo_root)
 
 # 2. Initialize Git and a README
 withr::with_dir(repo_root, {
-  system("git init -b main")
-  system("git config user.email 'apaf@example.com'")
-  system("git config user.name 'APAF Agent'")
-  system("git config commit.gpgsign false")
+  system2("git", c("init"))
+  system2("git", c("config", "user.email", "apaf@example.com"))
+  system2("git", c("config", "user.name", "APAF Agent"))
+  system2("git", c("config", "commit.gpgsign", "false"))
   writeLines("# Sorting Benchmark", "README.md")
-  system("git add README.md")
-  system("git commit -m 'Initial commit'")
+  system2("git", c("add", "README.md"))
+  system2("git", c("commit", "-m", "Initial_commit"))
+  system2("git", c("branch", "-M", "main"))
 })
 ```
 

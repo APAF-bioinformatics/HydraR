@@ -68,6 +68,7 @@ Collate:
     'drivers_api.R'
     'drivers_cli.R'
     'factory.R'
+    'git_cleanup.R'
     'init_duckdb.R'
     'logic_node.R'
     'map_node.R'
