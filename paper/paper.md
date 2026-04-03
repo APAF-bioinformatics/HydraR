@@ -26,7 +26,7 @@ bibliography: paper.bib
 
 `HydraR` is a lightweight, state-managed framework designed to orchestrate complex "agentic" workflows—autonomous, multi-step processes driven by Large Language Models (LLMs) natively within R. While mainstream orchestration tools such as LangChain [@langchain] and CrewAI [@crewai] are predominantly Python-based, `HydraR` fulfills the R community's critical requirements for rigorous reproducibility, auditability, and seamless integration with established statistical pipelines.
 
-Researchers can architect workflows as Directed Acyclic Graphs (DAGs) or iterative state machines, wherein each node represents an LLM-prompted task, a deterministic R function, or an autonomous auditor. `HydraR` ensures broad compatibility—supporting cloud APIs (Gemini [@google2025gemini], Claude, OpenAI) and local models (Ollama)—while enforcing structural integrity through a built-in **Advanced Validation Engine** that performs deep static analysis of orchestration manifests before execution.
+Researchers can architect workflows as Directed Acyclic Graphs (DAGs) or iterative state machines, wherein each node represents an LLM-prompted task, a deterministic R function, or an autonomous auditor. `HydraR` ensures broad compatibility—supporting cloud APIs (Gemini [@google2025gemini], Claude, OpenAI) and local models (Ollama)—while enforcing structural integrity through a built-in `Advanced Validation Engine` that performs deep static analysis of orchestration manifests before execution.
 
 # Statement of Need
 
@@ -44,22 +44,22 @@ Although `reticulate` [@reticulate] enables R users to interface with Python fra
 # Software Design
 
 `HydraR` employs a highly modular R6 architecture spanning several key components:
-- **AgentLLMNode / AgentLogicNode**: Encapsulate LLM-driven prompts and deterministic pure-R logic steps, respectively. They utilize pluggable `AgentDriver` backends for provider-agnostic model communication.
-- **AgentDAG**: The core orchestration engine that manages node dependencies, validates network topology (via `igraph` [@igraph]), and executes logic in parallel (via `furrr` [@furrr]). It features an integrated compiler-like **Validation Engine** that cross-references Mermaid topologies with YAML resource definitions and lints embedded R logic for compliance with safety standards (e.g., prohibiting imperative loops).
-- **AgentState**: A centralized state repository employing versioned history and custom reducers to systematically coordinate multi-agent outputs.
-- **WorktreeManager**: An engine that provisions isolated Git worktrees for parallel execution tasks, paired with an extensible **ConflictResolver** handling automated semantic resolution alongside human-in-the-loop task reconciliation.
+- `AgentLLMNode` / `AgentLogicNode`: Encapsulate LLM-driven prompts and deterministic pure-R logic steps, respectively. They utilize pluggable `AgentDriver` backends for provider-agnostic model communication.
+- `AgentDAG`: The core orchestration engine that manages node dependencies, validates network topology (via `igraph` [@igraph]), and executes logic in parallel (via `furrr` [@furrr]). It features an integrated compiler-like Validation Engine that cross-references Mermaid topologies with YAML resource definitions and lints embedded R logic for compliance with safety standards (e.g., prohibiting imperative loops).
+- `AgentState`: A centralized state repository employing versioned history and custom reducers to systematically coordinate multi-agent outputs.
+- `WorktreeManager`: An engine that provisions isolated Git worktrees for parallel execution tasks, paired with an extensible `ConflictResolver` handling automated semantic resolution alongside human-in-the-loop task reconciliation.
 
 # Research Applications
 
 ## Multimodal Travel Itinerary Planner
-In this example, an LLM `Planner` agent generates a draft itinerary, which is then audited by a deterministic `Validator` against hard constraints. Successfully validated plans proceed to a **multimodal image generation** phase where **Gemini 3.1 Flash** [@google2025gemini] creates visual assets based on the itinerary's locales. Finally, a logic node renders a bespoke, CSS-styled HTML pamphlet. Crucially, **conditional looping** between the planner and validator enforces an iterative refinement cycle until all strict parameters are met (\autoref{fig:travel_workflow}).
+In this example, an LLM `Planner` agent generates a draft itinerary, which is then audited by a deterministic `Validator` against hard constraints. Successfully validated plans proceed to a *multimodal image generation* phase where **Gemini 3.1 Flash** [@google2025gemini] creates visual assets based on the itinerary's locales. Finally, a logic node renders a bespoke, CSS-styled HTML pamphlet. Crucially, **conditional looping** between the planner and validator enforces an iterative refinement cycle until all strict parameters are met (\autoref{fig:travel_workflow}).
 
 ::: {#fig:travel_workflow}
 ![Page 1: Multi-modal travel pamphlet showcasing stateful orchestration and image generation.](figures/Itinerary Page 1.png){#fig:travel_workflow_a}
 
 ![Page 2: Final formatted CSS-styled HTML itinerary.](figures/Itinerary Page 2.png){#fig:travel_workflow_b}
 
-Generated Multi-modal travel pamphlet for a Sydney to Hong Kong itinerary. The complete document is available as an integrated PDF ([HK Travel Pamphlet](figures/HK Travel Pamphlet.pdf)).
+Generated Multi-modal travel pamphlet for a Sydney to Hong Kong itinerary.
 :::
 
 ### Declarative Workflow Excerpt
@@ -100,10 +100,8 @@ dag <- spawn_dag(wf, auto_node_factory())
 results <- dag$run(initial_state = wf$initial_state)
 ```
 
-
-
 ## Parallel Sorting Algorithm Comparison
-This benchmarking example tasks three distinct LLM agents with simultaneously implementing different sorting algorithms. `HydraR` executes each task within an isolated Git worktree to aggressively uncouple filesystem side-effects and prevent merge conflicts. Following execution, a **Merge Harmonizer** systematically reconciles the independent branches back to the main state, preceding a terminal logic node that empirically benchmarks the aggregated algorithms across five continuous trials (\autoref{fig:sorting}).
+This benchmarking example tasks three distinct LLM agents with simultaneously implementing different sorting algorithms. `HydraR` executes each task within an isolated Git worktree to aggressively uncouple filesystem side-effects and prevent merge conflicts. Following execution, a Merge Harmonizer systematically reconciles the independent branches back to the main state, preceding a terminal logic node that empirically benchmarks the aggregated algorithms across five continuous trials (\autoref{fig:sorting}).
 
 ![Sorting Algorithm Performance Benchmark (1,000 elements over 5 trials).](figures/sorting_benchmark.pdf){#fig:sorting}
 
