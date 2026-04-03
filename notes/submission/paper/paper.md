@@ -17,7 +17,7 @@ authors:
 affiliations:
  - index: 1
    name: Australian Proteome Analysis Facility (APAF), Macquarie University, Sydney, Australia
-date: 31 March 2026
+date: 15 April 2026
 repository: https://github.com/APAF-bioinformatics/HydraR
 bibliography: paper.bib
 ---
@@ -120,28 +120,25 @@ results <- dag$run(initial_state = wf$initial_state, use_worktrees = TRUE)
 ## Fault-Tolerant Pipelines with DuckDB Persistence
 To mitigate transient failures inherent to long-running scientific workflows, `HydraR` integrates advanced checkpoint-and-resume functionality powered by DuckDB [@duckdb]. Whenever a pipeline pauses mid-execution, it automatically persists its complete `AgentState`. Upon restart, any operator-applied programmatic interventions are seamlessly merged, actively preventing redundant evaluations by allowing execution to jump directly back to the paused node.
 
-### Inline Workflow Definition
-```r
-library(HydraR)
-register_logic("check_fixed", function(state) {
-  if (!isTRUE(state$get("fixed")))
-    return(list(status = "pause", output = "Waiting for manual fix."))
-  list(status = "success", output = "System recovered!")
-})
-
-dag <- mermaid_to_dag('
+### Declarative Workflow Definition
+```yaml
+graph: |
   graph TD
-    Step1["Initialization | type=logic | logic_id=init_proc"]
-    Step2["Risky Logic | type=logic | logic_id=check_fixed"]
-    Step3["Conclusion | type=logic | logic_id=finalize_proc"]
-    Step1 --> Step2
-    Step2 --> Step3
-')
+    Step1["Initialization"] --> Step2["Risky Logic"]
+    Step2["Risky Logic"] --> Step3["Conclusion"]
+logic:
+  check_fixed: |
+    if (!isTRUE(state$get("fixed"))) 
+      return(list(status = "PAUSE", output = "Waiting for manual fix."))
+    list(status = "SUCCESS", output = "System recovered!")
 ```
 
 ### Checkpoint and Resume
 ```r
-saver <- DuckDBSaver$new(db_path = tempfile(fileext = ".duckdb"))
+library(HydraR)
+wf    <- load_workflow("state_persistence.yml")
+dag   <- spawn_dag(wf)
+saver <- DuckDBSaver$new(db_path = "history.duckdb")
 tid   <- "reprex-session-001"
 
 # Run 1: Pauses at Step2 — state saved to DuckDB
@@ -152,7 +149,6 @@ res1 <- dag$run(thread_id = tid, checkpointer = saver,
 res2 <- dag$run(thread_id = tid, checkpointer = saver,
                 initial_state = list(fixed = TRUE),
                 resume_from = "Step2")
-# res2$results$Step3$output => "All steps finished."
 ```
 
 By safeguarding computational progress autonomously, this pattern effectively circumvents prohibitively costly re-execution in data science pipelines reliant on voluminous LLM invocations or laborious large-scale database queries.

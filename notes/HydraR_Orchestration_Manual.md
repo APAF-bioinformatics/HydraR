@@ -157,7 +157,7 @@ HydraR is designed for high-availability systems where LLM calls might fail or t
 
 ### 5.2 Resilient Failover (Error Edges)
 
-Standard edges represent the nominal execution path (i.e., the primary success flow) of a workflow. However, in agentic systems, failures are expected—models might reach safety limits, context windows might overflow, or external APIs might time out. 
+Standard edges represent the nominal execution path (i.e., the primary success flow) of a workflow. However, in agentic systems, failures are expected e.g. models might reach safety limits, context windows might overflow, or external APIs might time out. 
 
 HydraR handles these through **Error Edges**, which are prioritized failover paths triggered only when a node returns a `failed` or `error` status.
 

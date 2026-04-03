@@ -27,21 +27,6 @@ Finalize the HydraR documentation suite for JOSS/rOpenSci submission by "minting
 *   **Action**: Mint from `notes/vignettes/targets_integration.Rmd`.
 *   **Focus**: Macro-orchestration (DAG-as-Target) and integrated resiliency.
 
-## Execution Workflow
-
-1.  **File Migration**:
-    *   Move `.Rmd` files to `vignettes/`.
-    *   Ensure any corresponding `.yml` files (like `reprex_duckdb.yml`) are also moved.
-2.  **Audit & Refactor**:
-    *   Convert all examples to use the **Mermaid-to-DAG** pattern (Zero-R-Code).
-    *   Update titles and YAML metadata to follow standard package formatting.
-3.  **Cleanup**:
-    *   Purge all `*.R` and `*.html` artifacts from `vignettes/` to keep only source files.
-4.  **Verification**:
-    *   Run `devtools::build_vignettes()` to ensure a clean build for all 5 vignettes.
-
-## Open Questions
-- [x] Should we also include the `academic_research.Rmd` as a simpler sequential DAG example? (Recommendation: Post-submission task, as the current suite is already quite rich). I agree with you not now. Don't do it now. Leave it. 
 
 ---
 <!-- APAF Bioinformatics | implementation_plan_vignette_minting_20260403.md | Approved | 2026-04-03 -->
