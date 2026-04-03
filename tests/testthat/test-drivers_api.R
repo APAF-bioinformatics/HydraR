@@ -240,21 +240,21 @@ test_that("GeminiAPIDriver handles network failures gracefully", {
 test_that("GeminiImageDriver correctly handles base64 responses and persistence", {
   skip_if_not_installed("base64enc")
   skip_if_not_installed("mockery")
-  
+
   withr::with_envvar(list(GOOGLE_API_KEY = "test_key"), {
     withr::with_tempdir({
       # Setup dummy image content (1x1 transparent pixel)
       dummy_base64 <- "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
-      
+
       drv <- GeminiImageDriver$new(model = "gemini-3.1-flash-image-preview", output_dir = ".")
-      
+
       # Mock response structure based on Gemini API expectations
       mock_json <- list(
         candidates = list(list(content = list(parts = list(list(
           inlineData = list(mimeType = "image/png", data = dummy_base64)
         )))))
       )
-      
+
       # Since GeminiImageDriver uses curl::curl_fetch_disk, httr2 mocks won't work.
       # We use mockery to stub the curl call.
       mockery::stub(drv$call, "curl::curl_fetch_disk", function(url, path, handle) {
@@ -262,11 +262,11 @@ test_that("GeminiImageDriver correctly handles base64 responses and persistence"
         writeLines(jsonlite::toJSON(mock_json, auto_unbox = TRUE), path)
         return(list(status_code = 200))
       })
-      
+
       img_path <- drv$call("Draw a cat", cli_opts = list(filename = "cat.png"))
       expect_equal(basename(img_path), "cat.png")
       expect_true(file.exists("cat.png"))
-      
+
       # Cleanup is handled by with_tempdir
     })
   })

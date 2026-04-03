@@ -264,7 +264,9 @@ resolve_test_pattern <- function(v) {
 
   # Anonymous Code Wrapper (expects 'out' as data, 'res' as full result)
   function(res) {
-    if (!is.list(res)) return(FALSE)
+    if (!is.list(res)) {
+      return(FALSE)
+    }
     out <- res$output
     eval(parse(text = v), envir = list(out = out, res = res), enclos = parent.frame())
   }

@@ -18,7 +18,7 @@ clear_registries <- function() {
 test_that("Advanced Validation: Success Case (Hong Kong Vignette)", {
   wf_path <- system.file("vignettes", "hong_kong_travel.yml", package = "HydraR")
   if (wf_path == "") wf_path <- "../../vignettes/hong_kong_travel.yml"
-  
+
   if (file.exists(wf_path)) {
     expect_no_error({
       wf <- load_workflow(wf_path)
@@ -50,7 +50,7 @@ test_that("Advanced Validation: R Logic Syntax Error (Validation Level)", {
   code <- "function(state) { broken_syntax_here( "
   # We use the internal resolver to register it properly
   register_logic("bad_code", resolve_logic_pattern(code))
-  
+
   wf <- list(
     graph = "graph TD\n  A[\"Node A | type=logic | logic_id=bad_code\"]",
     logic = list(bad_code = code),
@@ -63,7 +63,7 @@ test_that("Advanced Validation: APAF Rule G-25 (For-loop) warning", {
   clear_registries()
   code <- "for (i in 1:10) { print(i) }; list(status='success')"
   register_logic("loop_logic", resolve_logic_pattern(code))
-  
+
   wf <- list(
     graph = "graph TD\n  A[\"Node A | type=logic | logic_id=loop_logic\"]",
     logic = list(loop_logic = code),
@@ -75,8 +75,8 @@ test_that("Advanced Validation: APAF Rule G-25 (For-loop) warning", {
 test_that("Advanced Validation: Edge synchronization mismatch", {
   clear_registries()
   register_role("persona", "You are a probe.")
-  register_logic("dummy", function(state) list(status='ok'))
-  
+  register_logic("dummy", function(state) list(status = "ok"))
+
   wf <- list(
     graph = "graph TD\n  Root[\"Probe | type=llm | role_id=persona\"]\n  TargetA[\"A | type=logic | logic_id=dummy\"]\n  TargetB[\"B | type=logic | logic_id=dummy\"]\n  Root --> TargetA",
     logic = list(dummy = "{ list(status='ok') }"),
@@ -91,8 +91,8 @@ test_that("Advanced Validation: Edge synchronization mismatch", {
 test_that("Advanced Validation: Extra unmanaged Mermaid edges", {
   clear_registries()
   register_role("persona", "You are a probe.")
-  register_logic("dummy", function(state) list(status='ok'))
-  
+  register_logic("dummy", function(state) list(status = "ok"))
+
   wf <- list(
     graph = "graph TD\n  Root[\"Probe | type=llm | role_id=persona\"]\n  TargetA[\"A | type=logic | logic_id=dummy\"]\n  TargetB[\"B | type=logic | logic_id=dummy\"]\n  Root --> TargetA\n  Root --> TargetB",
     conditional_edges = list(

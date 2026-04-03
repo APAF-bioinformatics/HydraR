@@ -82,7 +82,7 @@ extract_params <- function(label_text) {
         key <- trimws(kv[1])
         val <- trimws(paste(kv[-1], collapse = "="))
         val_lower <- tolower(val)
-        
+
         # Handle list-based parameters
         if (key %in% c("agents_files", "skills_files")) {
           coerced_val <- trimws(strsplit(val, ",")[[1]])

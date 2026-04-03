@@ -26,7 +26,7 @@ test_that("GeminiCLIDriver correctly prepends system_prompt to prompt", {
       }
     )
   )
-  
+
   drv <- MockGeminiCLIDriver$new()
   res <- drv$test_logic("User Task", "System Prompt")
   expect_true(grepl("System Guidelines:", res))
@@ -47,11 +47,11 @@ test_that("ClaudeCodeDriver includes system_prompt in cli_opts", {
       }
     )
   )
-  
+
   drv <- MockClaudeDriver$new()
   # Claude driver uses format_cli_opts which converts system_prompt to --system-prompt
   drv$call("Hello", system_prompt = "Be helpful")
-  
+
   expect_true(any(grepl("--system-prompt", drv$captured_args)))
   expect_true(any(grepl("Be helpful", drv$captured_args)))
 })

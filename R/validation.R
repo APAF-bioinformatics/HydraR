@@ -75,8 +75,10 @@ check_resource_linking <- function(dag) {
       logic_id <- node$params$logic_id %||% node$params$role_id
       if (!is.null(logic_id)) {
         # Skip special 'merge' nodes which are handled by factory
-        if (node$label == "Merge Harmonizer") return()
-        
+        if (node$label == "Merge Harmonizer") {
+          return()
+        }
+
         if (is.null(get_logic(logic_id))) {
           errors <<- c(errors, sprintf("Node '%s': Logic ID '%s' not found in registry. Check your 'logic:' section.", node$id, logic_id))
         }
@@ -93,11 +95,11 @@ check_resource_linking <- function(dag) {
 #' @keywords internal
 check_edge_synchronization <- function(dag) {
   errors <- list()
-  
+
   # Get all static edges defined in Mermaid (stored in dag$edges)
   # Format: list(from, to, label)
   static_edges <- dag$edges
-  
+
   # Helper to check if a specific edge exists in static topology
   has_static_edge <- function(from, to) {
     purrr::some(static_edges, ~ .x$from == from && .x$to == to)
@@ -107,7 +109,7 @@ check_edge_synchronization <- function(dag) {
     # Get all outgoing edges defined in Mermaid for this node
     mermaid_targets <- purrr::keep(static_edges, ~ .x$from == node_id) |>
       purrr::map_chr(~ .x$to)
-    
+
     # 1. Verify that YAML targets actually have arrows in Mermaid
     # Check if_true
     if (!is.null(cfg$if_true)) {
@@ -115,24 +117,24 @@ check_edge_synchronization <- function(dag) {
         errors <<- c(errors, sprintf("Node '%s': YAML defines 'if_true: %s', but no matching arrow (-->) exists in the Mermaid graph.", node_id, cfg$if_true))
       }
     }
-    
+
     # Check if_false
     if (!is.null(cfg$if_false)) {
       if (!has_static_edge(node_id, cfg$if_false)) {
         errors <<- c(errors, sprintf("Node '%s': YAML defines 'if_false: %s', but no matching arrow (-->) exists in the Mermaid graph.", node_id, cfg$if_false))
       }
     }
-    
+
     # 2. Verify that Mermaid arrows for this node are all handled by YAML logic
     # (Prevent 'ghost' edges that are visually present but logically dead)
     logical_targets <- purrr::compact(list(cfg$if_true, cfg$if_false))
     unmanaged_edges <- setdiff(mermaid_targets, logical_targets)
-    
+
     # Allow 'error' edges if defined separately
     if (node_id %in% names(dag$error_edges)) {
       unmanaged_edges <- setdiff(unmanaged_edges, dag$error_edges[[node_id]])
     }
-    
+
     if (length(unmanaged_edges) > 0) {
       errors <<- c(errors, sprintf("Node '%s': Mermaid graph has extra edges to [%s] that are not handled by 'conditional_edges' in YAML.", node_id, paste(unmanaged_edges, collapse = ", ")))
     }
@@ -149,11 +151,15 @@ lint_workflow_logic <- function(wf) {
   errors <- list()
   warnings <- list()
 
-  if (is.null(wf$logic)) return(list(errors = list(), warnings = list()))
+  if (is.null(wf$logic)) {
+    return(list(errors = list(), warnings = list()))
+  }
 
   purrr::iwalk(wf$logic, function(code, name) {
-    if (!is.character(code)) return()
-    
+    if (!is.character(code)) {
+      return()
+    }
+
     # 1. Syntactic Parse Check (Hard Stop)
     parse_res <- tryCatch(
       {
@@ -165,7 +171,9 @@ lint_workflow_logic <- function(wf) {
         e
       }
     )
-    if (!is.null(parse_res)) return()
+    if (!is.null(parse_res)) {
+      return()
+    }
 
     # 2. APAF Rule G-25: No for-loops
     # Simple regex check for 'for(' or 'for '
@@ -178,17 +186,17 @@ lint_workflow_logic <- function(wf) {
     # If it's a code block that HydraR wraps, it implicitly uses 'state'
     # We can check if 'state' is mentioned in the code
     if (!grepl("\\bstate\\b", code) && !grepl("^\\{", trimws(code))) {
-       warnings <<- c(warnings, sprintf("Logic '%s': 'state' object is not referenced. Ensure your logic interacts with the AgentState.", name))
+      warnings <<- c(warnings, sprintf("Logic '%s': 'state' object is not referenced. Ensure your logic interacts with the AgentState.", name))
     }
 
     # 4. lintr integration (if available)
     if (requireNamespace("lintr", quietly = TRUE)) {
       l_res <- lintr::lint(text = code)
       if (length(l_res) > 0) {
-         # We limit to first 3 lints per block to avoid noise
-         purrr::walk(head(l_res, 3), function(l) {
-            warnings <<- c(warnings, sprintf("Logic '%s' [Lint]: %s (line %d)", name, l$message, l$line_number))
-         })
+        # We limit to first 3 lints per block to avoid noise
+        purrr::walk(head(l_res, 3), function(l) {
+          warnings <<- c(warnings, sprintf("Logic '%s' [Lint]: %s (line %d)", name, l$message, l$line_number))
+        })
       }
     }
   })
