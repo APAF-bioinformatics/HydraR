@@ -3,8 +3,8 @@
 # HydraR: Stateful Agentic Orchestration for R
 
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
-[![R-CMD-check](https://github.com/APAF-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/APAF-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml)
-[![Test Coverage](https://github.com/APAF-bioinformatics/HydraR/actions/workflows/test-coverage.yaml/badge.svg)](https://app.codecov.io/gh/APAF-bioinformatics/HydraR)
+[![R-CMD-check](https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main)](https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml)
+[![Test Coverage](https://github.com/apaf-bioinformatics/HydraR/actions/workflows/test-coverage.yaml/badge.svg)](https://app.codecov.io/gh/apaf-bioinformatics/HydraR)
 
 `HydraR` is a lightweight, state-of-the-art orchestrator for building general-purpose agentic workflows in R. It prioritizes **CLI-native LLM interactions**, **hardened state management**, and **graph-based execution** (supporting both Directed Acyclic Graphs and iterative loops).
 
@@ -45,25 +45,25 @@ devtools::install_github("apaf-bioinformatics/HydraR")
 
 ## 📖 Documentation & Manual
 
-The primary resource for learning `HydraR` is the **[Complete Instruction Manual](vignettes/manual.Rmd)**. 
+The primary resource for learning `HydraR` is the **[Complete Instruction Manual](https://verbose-adventure-923r8zn.pages.github.io/articles/manual.html)**. 
 
 ### Case Studies & Examples
 
-- **📍 [Sydney to Hong Kong Travel Planner](vignettes/hong_kong_travel.Rmd)**: High-fidelity orchestration using the `GeminiCLIDriver` to book a complex itinerary.
-- **💾 [Academic Research Assistant](vignettes/academic_research.Rmd)**: Demonstrates literature search and stateful summarization.
-- **🛡️ [Software Bug Assistant](vignettes/software_bug_assistant.Rmd)**: Shows how to orchestrate code analysis and fix suggestions.
-- **🛠️ [Creating Custom Drivers](vignettes/creating_drivers.Rmd)**: Developer guide on subclassing `AgentDriver` with Mocking and API support.
-- **🛡️ [Isolated Execution with Git Worktrees](vignettes/git_worktree_toy.Rmd)**: A toy program demonstrating safe, parallel file modifications using the Gemini CLI.
+- **📍 [Sydney to Hong Kong Travel Planner](https://verbose-adventure-923r8zn.pages.github.io/articles/hong_kong_travel.html)**: High-fidelity orchestration using the `GeminiCLIDriver` to book a complex itinerary.
+- **💾 [Academic Research Assistant](https://verbose-adventure-923r8zn.pages.github.io/articles/academic_research.html)**: Demonstrates literature search and stateful summarization.
+- **🛡️ [Software Bug Assistant](https://verbose-adventure-923r8zn.pages.github.io/articles/software_bug_assistant.html)**: Shows how to orchestrate code analysis and fix suggestions.
+- **🛠️ [Creating Custom Drivers](https://verbose-adventure-923r8zn.pages.github.io/articles/creating_drivers.html)**: Developer guide on subclassing `AgentDriver` with Mocking and API support.
+- **🛡️ [Isolated Execution with Git Worktrees](https://verbose-adventure-923r8zn.pages.github.io/articles/git_worktree_toy.html)**: A toy program demonstrating safe, parallel file modifications using the Gemini CLI.
 
 ### 🛠️ Technical Documentation
 
 For deep technical dives into the orchestration engine and developer tools, refer to the following manuals:
 
-- **[HydraR Orchestration Manual](notes/HydraR_Orchestration_Manual.md)**: YAML anatomy, role definitions, and MCP support.
-- **[HydraR Validation Reference](notes/HydraR_Validation_Reference.md)**: Full list of compile-time and runtime safety checks.
-- **[Mermaid Orchestration Cheatsheet](notes/mermaid_orchestration_cheatsheet.md)**: Reserved keywords and visual syntax for agent networks.
-- **[Useful Tools Manual](notes/useful_tools_manual.md)**: Diagnostic scripts for DuckDB state inspection and monitoring.
-- **[Integrating HydraR with `targets`](notes/how_to_integrate_with_target.md)**: Best practices for cached, interrupt-safe agentic pipelines.
+- **[HydraR Orchestration Manual](https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/HydraR_Orchestration_Manual.md)**: YAML anatomy, role definitions, and MCP support.
+- **[HydraR Validation Reference](https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/HydraR_Validation_Reference.md)**: Full list of compile-time and runtime safety checks.
+- **[Mermaid Orchestration Cheatsheet](https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/mermaid_orchestration_cheatsheet.md)**: Reserved keywords and visual syntax for agent networks.
+- **[Useful Tools Manual](https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/useful_tools_manual.md)**: Diagnostic scripts for DuckDB state inspection and monitoring.
+- **[Integrating HydraR with `targets`](https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/how_to_integrate_with_target.md)**: Best practices for cached, interrupt-safe agentic pipelines.
 
 ## 🤖 Use of Generative AI
 
@@ -80,7 +80,7 @@ For deep technical dives into the orchestration engine and developer tools, refe
 - **Enterprise APIs**: Secure connection to internal LLM endpoints via `httr2`.
 - **Mock Backends**: Deterministic drivers for unit testing complex DAG logic.
 
-Refer to the [Creating Custom Drivers](vignettes/creating_drivers.Rmd) guide for implementation details.
+Refer to the [Creating Custom Drivers](https://verbose-adventure-923r8zn.pages.github.io/articles/creating_drivers.html) guide for implementation details.
 
 ## 📊 Visualizing Execution
 

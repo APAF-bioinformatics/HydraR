@@ -270,4 +270,38 @@ Workflow manifests use specific YAML block scalars to manage multi-line strings 
 
 ---
 
+## 9. Model Context Protocol (MCP)
+
+HydraR supports the **Model Context Protocol (MCP)** via a pass-through architecture. This allows agents to leverage external tools (databases, APIs, local files) using native MCP clients built into CLI drivers.
+
+### 9.1 Pass-Through Architecture
+HydraR does not act as an MCP Client itself; instead, it orchestrates agents that may have their own MCP configurations. This keeps the R-based state management clean and decoupled from the specific tool-use implementations of the LLM provider.
+
+### 9.2 Noise Filtering
+Agent drivers (e.g., `gemini`, `claude`) are **MCP-aware**. They automatically strip MCP status messages and tool-use logs from the final model output to prevent them from corrupting the R code or state updates.
+*   **Filtered Patterns**: `Scheduling MCP`, `Executing MCP`, `Received tool update`, `Refreshed context`, etc.
+
+### 9.3 Configuration via `cli_opts`
+You can enable and configure MCP servers by passing provider-specific flags in the `cli_opts` of an `AgentLLMNode`.
+
+| Provider | Flag | Purpose |
+| :--- | :--- | :--- |
+| **Claude** | `mcp_config` | Path to a valid `claude_desktop_config.json`. |
+| **Gemini** | `allowed_mcp_server_names` | A list of permitted MCP server identifiers. |
+
+#### Example: Configuring an MCP SQL Server
+```yaml
+graph: |
+  graph TD
+    DBAgent["Query Node | type=llm | driver=claude | model=claude-3-5-sonnet-latest"]
+
+logic:
+  DBAgent:
+    cli_opts:
+      mcp_config: "/etc/hydrar/mcp/sql_config.json"
+      permission_mode: "bypassPermissions"
+```
+
+---
+
 <!-- APAF Bioinformatics | HydraR_Orchestration_Manual | Approved | 2026-04-03 -->
