@@ -7,17 +7,30 @@ library(HydraR)
 
 test_that("load_workflow() loads valid YAML and registers components", {
   yaml_file <- tempfile(fileext = ".yml")
-  content <- '
+
+  # Provide logic as a file to resolve it securely
+  logic_file <- tempfile(fileext = ".R")
+  writeLines("function(state) { list(status = 'success', output = 'hello') }", logic_file)
+
+  # Register a predefined function for logic instead of raw code string
+  register_logic("test_simple_logic", function(state) {
+    list(status = 'success', output = 'hello')
+  })
+
+  # Use double quotes and escape backslashes for the path
+  path_str <- gsub("\\\\", "/", logic_file)
+
+  content <- sprintf('
 graph: |
   graph TD
     A["Agent"] --> B["Logic"]
 roles:
   test_concierge: "You are a travel expert."
 logic:
-  test_simple_logic: "list(status = \'success\', output = \'hello\')"
+  test_simple_logic_ref: "%s"
 initial_state:
   city: "Sydney"
-'
+', path_str)
   writeLines(content, yaml_file)
 
   wf <- load_workflow(yaml_file)
@@ -30,7 +43,7 @@ initial_state:
   expect_equal(get_role("test_concierge"), "You are a travel expert.")
 
   # Check logic resolution
-  fn <- get_logic("test_simple_logic")
+  fn <- get_logic("test_simple_logic_ref")
   expect_true(is.function(fn))
 
   # Execute logic
@@ -38,6 +51,7 @@ initial_state:
   expect_equal(res$output, "hello")
 
   unlink(yaml_file)
+  unlink(logic_file)
 })
 
 test_that("resolve_logic_pattern handles Tier 1: External File", {
@@ -68,12 +82,9 @@ test_that("resolve_logic_pattern handles Tier 2: Existing Function", {
   rm("test_global_fn", envir = .GlobalEnv)
 })
 
-test_that("resolve_logic_pattern handles Tier 3: Anonymous Code", {
+test_that("resolve_logic_pattern throws error for insecure strings", {
   code <- "state$get('val') * 2"
-  fn <- HydraR:::resolve_logic_pattern(code)
-
-  mock_state <- R6::R6Class("MockState", public = list(get = function(x) 10))$new()
-  expect_equal(fn(mock_state), 20)
+  expect_error(HydraR:::resolve_logic_pattern(code), "Failed to resolve logic pattern securely")
 })
 
 test_that("load_workflow() errors on missing file or bad format", {
@@ -90,12 +101,5 @@ test_that("validate_workflow_schema warns on unknown keys", {
   expect_warning(HydraR:::validate_workflow_schema(data), "Unknown top-level keys")
 })
 
-test_that("Tier 3 code evaluation has access to 'state'", {
-  # This is critical for the "zero-R-code" snippets
-  fn <- HydraR:::resolve_logic_pattern("sprintf('Hello %s', state$get('name'))")
-
-  mock_state <- R6::R6Class("MockState", public = list(get = function(x) "World"))$new()
-  expect_equal(fn(mock_state), "Hello World")
-})
 
 # <!-- APAF Bioinformatics | test-workflow_loader.R | Approved | 2026-03-30 -->
