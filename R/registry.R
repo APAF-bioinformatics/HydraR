@@ -215,12 +215,8 @@ resolve_logic_pattern <- function(v) {
     return(get(v_trim, mode = "function"))
   }
 
-  # Tier 3: Anonymous Code Wrapper
-  # If it contains brackets, newlines, or assignment - treat as code
-  function(state) {
-    # Provide 'state' in evaluation environment
-    eval(parse(text = v), envir = list(state = state), enclos = parent.frame())
-  }
+  # If we reach here, the logic pattern could not be resolved securely
+  stop(sprintf("Failed to resolve logic pattern securely. Code injection via arbitrary strings is no longer supported. Please register the function or provide a valid R script path. Input: '%s'", v_trim))
 }
 
 #' Simple Workflow Schema Validator
@@ -262,14 +258,8 @@ resolve_test_pattern <- function(v) {
     return(get(v_trim, mode = "function"))
   }
 
-  # Anonymous Code Wrapper (expects 'out' as data, 'res' as full result)
-  function(res) {
-    if (!is.list(res)) {
-      return(FALSE)
-    }
-    out <- res$output
-    eval(parse(text = v), envir = list(out = out, res = res), enclos = parent.frame())
-  }
+  # If we reach here, the test pattern could not be resolved securely
+  stop(sprintf("Failed to resolve test pattern securely. Code injection via arbitrary strings is no longer supported. Please register the function or provide a valid R script path. Input: '%s'", v_trim))
 }
 
 # <!-- APAF Bioinformatics | registry.R | Approved | 2026-03-30 -->
