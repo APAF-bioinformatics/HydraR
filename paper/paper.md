@@ -35,17 +35,17 @@ The contemporary R ecosystem currently lacks a unified framework that provides b
 `HydraR` addresses three fundamental challenges in this domain:
 1. **Auditability**: It implements a centralized `AgentState` with persistent checkpointing (via DuckDB [@duckdb]), yielding a complete, verifiable audit trail of all LLM interactions and state mutations.
 2. **Filesystem Safety**: Leveraging Git Worktrees, `HydraR` isolates parallel agent executions into temporary branches, virtually eliminating data corruption and race conditions during concurrent operations.
-3. **Reproducible Orchestration**: By defining workflows via `Mermaid.js` syntax and `YAML` manifests, `HydraR` decouples orchestration logic from the underlying execution framework. This declarative approach creates portable, shareable agentic protocols, effortlessly bypassing the fragility typical of multi-language environments.
+3. **Reproducible Orchestration**: By defining workflows via `Mermaid.js` syntax and `YAML` manifests, `HydraR` decouples orchestration logic from the underlying execution framework. This declarative approach creates portable, shareable agentic protocols, effortlessly bypassing the added complexity typical when R is used to access multi-agent frameworks via `reticulate` [@reticulate].
 
 # State of the Field
 
-Although `reticulate` [@reticulate] enables R users to interface with Python frameworks like LangChain, doing so introduces a structural impedance mismatch when serializing complex R data objects across language boundaries. `HydraR` avoids this by building natively on the R6 object-oriented system [@R6], preserving the fidelity of statistical objects while allowing direct compatibility with R's integrated debugging tool chains. Furthermore, unlike `ellmer` [@ellmer] (which offers chat-centric workflows without DAG orchestration), and `gptstudio` [@gptstudio] (which serves as an IDE-centric coding assistant), `HydraR` is specifically engineered to manage the complete lifecycle of headless, parallel, multi-agent collaborations replete with robust state retention.
+Although `reticulate` [@reticulate] enables R users to interface with Python frameworks like LangChain, doing so introduces a structural impedance mismatch when serializing complex R data objects across language boundaries. `HydraR` avoids this by building natively on the `R6` object-oriented system [@R6], preserving the fidelity of statistical objects while allowing direct compatibility with R's integrated debugging tool chains. Furthermore, unlike `ellmer` [@ellmer] (which offers chat-centric workflows without DAG orchestration), and `gptstudio` [@gptstudio] (which serves as an IDE-centric coding assistant), `HydraR` is specifically engineered to manage the complete lifecycle of headless, parallel, multi-agent collaborations replete with robust state retention.
 
 # Software Design
 
-`HydraR` employs a highly modular R6 architecture spanning several key components:
+`HydraR` employs a highly modular `R6` architecture spanning several key components:
 - `AgentLLMNode` / `AgentLogicNode`: Encapsulate LLM-driven prompts and deterministic pure-R logic steps, respectively. They utilize pluggable `AgentDriver` backends for provider-agnostic model communication.
-- `AgentDAG`: The core orchestration engine that manages node dependencies, validates network topology (via `igraph` [@igraph]), and executes logic in parallel (via `furrr` [@furrr]). It features an integrated compiler-like Validation Engine that cross-references Mermaid topologies with YAML resource definitions and lints embedded R logic for compliance with safety standards (e.g., prohibiting imperative loops).
+- `AgentDAG`: The core orchestration engine that manages node dependencies, validates network topology (via `igraph` [@igraph]), and executes logic in parallel (via `furrr` [@furrr]). It features an integrated compiler-like Validation Engine that cross-references Mermaid topologies with `YAML` resource definitions and lints embedded R logic for compliance with safety standards (e.g., prohibiting imperative loops).
 - `AgentState`: A centralized state repository employing versioned history and custom reducers to systematically coordinate multi-agent outputs.
 - `WorktreeManager`: An engine that provisions isolated Git worktrees for parallel execution tasks, paired with an extensible `ConflictResolver` handling automated semantic resolution alongside human-in-the-loop task reconciliation.
 
@@ -101,7 +101,7 @@ results <- dag$run(initial_state = wf$initial_state)
 ```
 
 ## Parallel Sorting Algorithm Comparison
-This benchmarking example tasks three distinct LLM agents with simultaneously implementing different sorting algorithms. `HydraR` executes each task within an isolated Git worktree to aggressively uncouple filesystem side-effects and prevent merge conflicts. Following execution, a Merge Harmonizer noded systematically reconciles the independent branches back to the main state, preceding a terminal logic node that empirically benchmarks the aggregated algorithms across five continuous trials (\autoref{fig:sorting}).
+This benchmarking example tasks three distinct LLM agents with simultaneously implementing different sorting algorithms. `HydraR` executes each task within an isolated `Git worktree` to aggressively uncouple filesystem side-effects and prevent merge conflicts. Following execution, a Merge Harmonizer noded systematically reconciles the independent branches back to the main state, preceding a terminal logic node that empirically benchmarks the aggregated algorithms across five continuous trials (\autoref{fig:sorting}).
 
 ![Sorting Algorithm Performance Benchmark (1,000 elements over 5 trials).](figures/sorting_benchmark.pdf){#fig:sorting}
 
