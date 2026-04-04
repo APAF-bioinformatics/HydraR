@@ -10,7 +10,7 @@ render_workflow_file(file_path, output_file = NULL, status = FALSE, ...)
 \item{file_path}{String. Path to the YAML workflow file.}
 
 \item{output_file}{String. Optional path to save the diagram (e.g., "plot.png").
-Supported extensions: .png, .pdf, .jpg, .svg.}
+Supported extensions: .png, .pdf, .svg.}
 
 \item{status}{Logical. If TRUE, styling is applied (requires a valid trace log in the workflow state).}
 

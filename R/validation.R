@@ -241,7 +241,7 @@ validate_workflow_file <- function(file_path) {
 #'
 #' @param file_path String. Path to the YAML workflow file.
 #' @param output_file String. Optional path to save the diagram (e.g., "plot.png").
-#' Supported extensions: .png, .pdf, .jpg, .svg.
+#' Supported extensions: .png, .pdf, .svg.
 #' @param status Logical. If TRUE, styling is applied (requires a valid trace log in the workflow state).
 #' @param ... Additional arguments passed to `dag$run()`.
 #' @return A `DiagrammeR` htmlwidget if `output_file` is NULL, otherwise saves the file.
@@ -276,8 +276,8 @@ render_workflow_file <- function(file_path, output_file = NULL, status = FALSE, 
     "svg" = writeLines(svg_code, output_file),
     "pdf" = rsvg::rsvg_pdf(charToRaw(svg_code), output_file),
     "png" = rsvg::rsvg_png(charToRaw(svg_code), output_file),
-    "jpg" = rsvg::rsvg_jpg(charToRaw(svg_code), output_file),
-    "jpeg" = rsvg::rsvg_jpg(charToRaw(svg_code), output_file),
+    "jpg" = stop("JPEG export is not supported by 'rsvg'. Please use .png, .pdf, or .svg.", call. = FALSE),
+    "jpeg" = stop("JPEG export is not supported by 'rsvg'. Please use .png, .pdf, or .svg.", call. = FALSE),
     stop(sprintf("Unsupported output format: %s", ext))
   )
 
