@@ -1,4 +1,4 @@
-<img src="man/figures/hydrar_hero.png" width="150" align="right">
+<img src="man/figures/hydrar_hex_logo.png" width="150" align="right">
 
 # HydraR: Stateful Agentic Orchestration for R
 
