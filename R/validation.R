@@ -258,7 +258,7 @@ render_workflow_file <- function(file_path, output_file = NULL, status = FALSE, 
   }
 
   # Export logic (requires DiagrammeRsvg and rsvg)
-  # NOTE: We use grViz (Graphviz) for exports because DiagrammeRsvg::export_svg 
+  # NOTE: We use grViz (Graphviz) for exports because DiagrammeRsvg::export_svg
   # only supports Graphviz-based htmlwidgets, not Mermaid.
   if (!requireNamespace("DiagrammeRsvg", quietly = TRUE)) {
     stop("Package 'DiagrammeRsvg' is required for exporting diagrams.")
