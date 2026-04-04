@@ -1,10 +1,18 @@
-<img src="man/figures/hydrar_hex_logo.png" width="150" align="right">
-
-# HydraR: Stateful Agentic Orchestration for R
-
-[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
-[![R-CMD-check](https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main)](https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml)
-[![Test Coverage](https://github.com/apaf-bioinformatics/HydraR/actions/workflows/test-coverage.yaml/badge.svg)](https://app.codecov.io/gh/apaf-bioinformatics/HydraR)
+<table>
+  <tr>
+    <td width="80%">
+      <h1>HydraR: Stateful Agentic Orchestration for R</h1>
+      <p>
+        <a href="https://lifecycle.r-lib.org/articles/stages.html#stable"><img src="https://img.shields.io/badge/lifecycle-stable-green.svg" alt="Lifecycle: stable"></a>
+        <a href="https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml"><img src="https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main" alt="R-CMD-check"></a>
+        <a href="https://app.codecov.io/gh/apaf-bioinformatics/HydraR"><img src="https://github.com/apaf-bioinformatics/HydraR/actions/workflows/test-coverage.yaml/badge.svg" alt="Test Coverage"></a>
+      </p>
+    </td>
+    <td width="20%" align="center">
+      <img src="man/figures/hydrar_hex_logo.png" width="150" alt="HydraR Hex Logo">
+    </td>
+  </tr>
+</table>
 
 `HydraR` is a lightweight, state-of-the-art orchestrator for building general-purpose agentic workflows in R. It prioritizes **CLI-native LLM interactions**, **hardened state management**, and **graph-based execution** (supporting both Directed Acyclic Graphs and iterative loops).
 
