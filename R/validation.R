@@ -206,7 +206,7 @@ lint_workflow_logic <- function(wf) {
       l_res <- lintr::lint(text = code)
       if (length(l_res) > 0) {
         # We limit to first 3 lints per block to avoid noise
-        purrr::walk(head(l_res, 3), function(l) {
+        purrr::walk(utils::head(l_res, 3), function(l) {
           warnings <<- c(warnings, sprintf("Logic '%s' [Lint]: %s (line %d)", name, l$message, l$line_number))
         })
       }

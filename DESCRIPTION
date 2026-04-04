@@ -56,7 +56,13 @@ Suggests:
     withr,
     reticulate,
     DiagrammeR,
-    ggplot2
+    ggplot2,
+    DiagrammeRsvg,
+    lintr,
+    rsvg,
+    mockery,
+    RSQLite,
+    htmltools
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Collate: 

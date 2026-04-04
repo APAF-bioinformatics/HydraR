@@ -87,14 +87,17 @@ DriverRegistry <- R6::R6Class("DriverRegistry",
   )
 )
 
+# Package-internal environment for persistent state
+.HydraR_Internal <- new.env(parent = emptyenv())
+
 #' Global Driver Registry Accessor
 #' @return The global DriverRegistry instance.
 #' @export
 get_driver_registry <- function() {
-  if (!exists(".HydraR_DriverRegistry", envir = .GlobalEnv)) {
-    assign(".HydraR_DriverRegistry", DriverRegistry$new(), envir = .GlobalEnv)
+  if (!exists("driver_registry", envir = .HydraR_Internal)) {
+    assign("driver_registry", DriverRegistry$new(), envir = .HydraR_Internal)
   }
-  get(".HydraR_DriverRegistry", envir = .GlobalEnv)
+  get("driver_registry", envir = .HydraR_Internal)
 }
 
 # <!-- APAF Bioinformatics | driver_registry.R | Approved | 2026-03-29 -->

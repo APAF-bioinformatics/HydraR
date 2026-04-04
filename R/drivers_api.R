@@ -11,6 +11,8 @@
 #' @description
 #' Implementation of the OpenAI Chat Completions API.
 #'
+#' @importFrom httr2 request req_auth_bearer_token req_body_json req_retry req_perform resp_body_json resp_body_string resp_status_desc req_url_query req_headers
+#' @importFrom base64enc base64decode
 #' @export
 OpenAIAPIDriver <- R6::R6Class(
   "OpenAIAPIDriver",

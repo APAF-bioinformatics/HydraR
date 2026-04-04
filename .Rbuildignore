@@ -46,3 +46,15 @@
 ^gateway/
 ^man/.*\\.Rd$
 ^tools/
+^\\.agentignore$
+^\\.claudeignore$
+^\\.todoignore$
+^references\\.md$
+^scripts/
+^\.agentignore$
+^\.claudeignore$
+^\.todoignore$
+^references\.md$
+^scripts$
+^paper$
+^check\.log$
