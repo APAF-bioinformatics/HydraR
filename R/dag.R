@@ -683,7 +683,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
         } else {
           # DOT: Escape quotes in labels
           safe_lbl <- gsub("\"", "\\\"", lbl, fixed = TRUE)
-          
+
           # Handle status-based styling for DOT
           style_attr <- NULL
           if (status && !is.null(self$results[[node_id]])) {
@@ -696,7 +696,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
               style_attr <- "fillcolor=\"#fff9c4\", color=\"#fbc02d\""
             }
           }
-          
+
           attrs <- purrr::compact(list(sprintf("label=\"%s\"", safe_lbl), style_attr)) |> paste(collapse = ", ")
           sprintf("  %s [%s];", node_id, attrs)
         }
@@ -747,7 +747,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
           # DOT:
           lbl_attr <- if (show_edge_labels && !is.null(e$label)) sprintf("label=\"%s\"", e$label) else NULL
           style_attr <- NULL
-          
+
           # Highlight as TRAVERSED
           if (e$from %in% executed_nodes && e$to %in% executed_nodes) {
             color <- if (identical(e$type, "error")) "#e53935" else "#388e3c"
