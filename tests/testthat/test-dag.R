@@ -83,3 +83,20 @@ test_that("AgentDAG compile detects undefined nodes", {
 })
 
 # <!-- APAF Bioinformatics | test-dag.R | Approved | 2026-03-29 -->
+
+test_that("AgentDAG supports multiple explicitly set start nodes", {
+  dag <- AgentDAG$new()
+  dag$add_node(AgentNode$new("A"))
+  dag$add_node(AgentNode$new("B"))
+  dag$add_node(AgentNode$new("C"))
+  dag$add_edge("A", "C")
+  dag$add_edge("B", "C")
+  
+  # A and B are both roots. Setting both as start should silence warnings in compile.
+  dag$set_start_node(c("A", "B"))
+  expect_no_warning(dag$compile())
+  
+  # Setting only one should warn about the other being unreachable
+  dag$set_start_node("A")
+  expect_warning(dag$compile(), "Nodes unreachable from start node\\(s\\) \\[A\\]: B")
+})

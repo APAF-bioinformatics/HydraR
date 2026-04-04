@@ -74,17 +74,18 @@ AgentDAG <- R6::R6Class("AgentDAG",
       self$worktree_manager <- NULL
     },
 
-    #' Set Start Node
-    #' @param node_id String node ID.
+    #' Set Start Node(s)
+    #' @param node_ids Character vector of node IDs.
     #' @return The AgentDAG object (invisibly).
-    set_start_node = function(node_id) {
-      if (!is.character(node_id) || length(node_id) != 1) {
-        stop("node_id must be a single string.")
+    set_start_node = function(node_ids) {
+      if (!is.character(node_ids) || length(node_ids) < 1) {
+        stop("node_ids must be a character vector of node IDs.")
       }
-      if (!node_id %in% names(self$nodes)) {
-        stop(sprintf("Node '%s' not found in DAG. Add the node before setting it as start.", node_id))
+      missing_nodes <- setdiff(node_ids, names(self$nodes))
+      if (length(missing_nodes) > 0) {
+        stop(sprintf("Node(s) '%s' not found in DAG. Add the nodes before setting them as start.", paste(missing_nodes, collapse = ", ")))
       }
-      self$start_node <- node_id
+      self$start_node <- node_ids
       invisible(self)
     },
 
@@ -637,14 +638,14 @@ AgentDAG <- R6::R6Class("AgentDAG",
       ))
     },
 
-    #' @param type String. Type of plot (currently only "mermaid").
+    #' @param type String. Type of plot ("mermaid" or "grViz").
     #' @param status Logical. If TRUE, styling is applied to nodes/edges based on results.
     #' @param details Logical. If TRUE, node parameters are serialized into labels.
     #' @param include_params Character vector. Optional whitelist of parameters to show.
     #' @param show_edge_labels Logical. Whether to show labels on edges.
-    #' @return The mermaid string (invisibly).
+    #' @return The mermaid/dot string (invisibly).
     plot = function(type = "mermaid", status = FALSE, details = FALSE, include_params = NULL, show_edge_labels = TRUE) {
-      if (type != "mermaid") stop("Only 'mermaid' type is currently supported.")
+      if (!type %in% c("mermaid", "grViz")) stop("Only 'mermaid' and 'grViz' types are supported.")
 
       # 1. Define Nodes
       node_lines <- purrr::map_chr(names(self$nodes), function(node_id) {
@@ -657,13 +658,11 @@ AgentDAG <- R6::R6Class("AgentDAG",
           if (is.character(out_val) || is.numeric(out_val)) {
             lbl <- paste(lbl, sprintf("(%s)", as.character(out_val)), sep = " ")
           } else if (is.list(out_val) && !is.null(out_val$final_consensus)) {
-            # Special case for consensus results
             lbl <- paste(lbl, sprintf("[%s]", out_val$final_consensus), sep = " ")
           }
         }
 
         if (details && length(node$params) > 0) {
-          # Filter params if needed
           p_list <- if (is.null(include_params)) {
             node$params
           } else {
@@ -679,10 +678,29 @@ AgentDAG <- R6::R6Class("AgentDAG",
           }
         }
 
-        sprintf("  %s[\"%s\"]", node_id, lbl)
+        if (identical(type, "mermaid")) {
+          sprintf("  %s[\"%s\"]", node_id, lbl)
+        } else {
+          # DOT: Escape quotes in labels
+          safe_lbl <- gsub("\"", "\\\"", lbl, fixed = TRUE)
+          
+          # Handle status-based styling for DOT inside the node definition
+          style_attr <- ""
+          if (status && !is.null(self$results[[node_id]])) {
+            status_val <- self$results[[node_id]]$status %||% ""
+            if (identical(status_val, "success")) {
+              style_attr <- ", fillcolor=\"#c8e6c9\", color=\"#2e7d32\""
+            } else if (status_val %in% c("failed", "error")) {
+              style_attr <- ", fillcolor=\"#ff8a80\", color=\"#b71c1c\""
+            } else if (identical(status_val, "pause")) {
+              style_attr <- ", fillcolor=\"#fff9c4\", color=\"#fbc02d\""
+            }
+          }
+          sprintf("  %s [label=\"%s\"%s]", node_id, safe_lbl, style_attr)
+        }
       })
 
-      # 2. Collect All Possible Edges (for consistent indexing)
+      # 2. Collect All Possible Edges
       all_edges_list <- list()
 
       # Standard edges
@@ -695,7 +713,6 @@ AgentDAG <- R6::R6Class("AgentDAG",
       }
 
       # Conditional edges
-      # We sort keys to ensure deterministic ordering of indices
       sorted_cond_from <- sort(names(self$conditional_edges))
       purrr::walk(sorted_cond_from, function(from) {
         cond <- self$conditional_edges[[from]]
@@ -715,17 +732,37 @@ AgentDAG <- R6::R6Class("AgentDAG",
       })
 
       # Generate edge lines
-      edge_lines <- purrr::map_chr(all_edges_list, function(e) {
-        if (show_edge_labels && !is.null(e$label)) {
-          sprintf("  %s -- %s --> %s", e$from, e$label, e$to)
+      executed_nodes <- if (status && length(self$trace_log) > 0) purrr::map_chr(purrr::compact(self$trace_log), ~ .x$node) else character(0)
+
+      edge_lines <- purrr::imap_chr(all_edges_list, function(e, idx) {
+        if (identical(type, "mermaid")) {
+          if (show_edge_labels && !is.null(e$label)) {
+            sprintf("  %s -- %s --> %s", e$from, e$label, e$to)
+          } else {
+            sprintf("  %s --> %s", e$from, e$to)
+          }
         } else {
-          sprintf("  %s --> %s", e$from, e$to)
+          # DOT:
+          lbl_attr <- if (show_edge_labels && !is.null(e$label)) sprintf("label=\"%s\"", e$label) else ""
+          style_attr <- ""
+          
+          # Highlight as TRAVERSED
+          if (e$from %in% executed_nodes && e$to %in% executed_nodes) {
+             color <- if (identical(e$type, "error")) "#e53935" else "#388e3c"
+             style_attr <- sprintf("color=\"%s\", penwidth=3", color)
+          } else if (identical(e$type, "error")) {
+             style_attr <- "color=\"#e53935\", style=\"dashed\""
+          }
+          
+          attrs <- purrr::compact(list(lbl_attr, style_attr)) |> paste(collapse = ", ")
+          attr_str <- if (nzchar(attrs)) sprintf(" [%s]", attrs) else ""
+          sprintf("  %s -> %s%s", e$from, e$to, attr_str)
         }
       })
 
       extra_lines <- character()
-      if (status && length(self$results) > 0) {
-        # Class Definitions
+      if (identical(type, "mermaid") && status && length(self$results) > 0) {
+        # Class Definitions for Mermaid
         extra_lines <- c(
           "  classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;",
           "  classDef failure fill:#ff8a80,stroke:#b71c1c,stroke-width:2px;",
@@ -733,43 +770,31 @@ AgentDAG <- R6::R6Class("AgentDAG",
           "  classDef pause fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;"
         )
 
-        # Node styling
         purrr::iwalk(self$results, function(res, node_id) {
           status_val <- res$status %||% ""
           cls <- if (identical(status_val, "success")) "success" else if (status_val %in% c("failed", "error")) "failure" else if (identical(status_val, "pause")) "pause" else NULL
           if (!is.null(cls)) extra_lines <<- c(extra_lines, sprintf("  class %s %s", node_id, cls))
         })
 
-        # Edge highlighting (linkStyle)
-        # Identify traversed pairs from trace_log
         if (length(self$trace_log) > 0) {
-          executed_nodes <- purrr::map_chr(purrr::compact(self$trace_log), ~ .x$node)
-
           purrr::iwalk(all_edges_list, function(e, idx) {
-            # Highlight if it's an error edge (RED)
             if (identical(e$type, "error")) {
               extra_lines <<- c(extra_lines, sprintf("  linkStyle %d stroke:#e53935,stroke-width:2px,stroke-dasharray: 5 5;", idx - 1))
             }
-
-            # Highlight as TRAVERSED (Success sequence)
             if (e$from %in% executed_nodes && e$to %in% executed_nodes) {
-              # If it's a successful error path, we still make it green but keep it dashed maybe?
-              # For now, just follow execution path
               color <- if (identical(e$type, "error")) "#e53935" else "#388e3c"
               extra_lines <<- c(extra_lines, sprintf("  linkStyle %d stroke:%s,stroke-width:4px;", idx - 1, color))
-            }
-          })
-        } else {
-          # Even without results, style the error edges as red/dashed
-          purrr::iwalk(all_edges_list, function(e, idx) {
-            if (identical(e$type, "error")) {
-              extra_lines <<- c(extra_lines, sprintf("  linkStyle %d stroke:#e53935,stroke-width:2px,stroke-dasharray: 5 5;", idx - 1))
             }
           })
         }
       }
 
-      lines <- c("```mermaid", "graph TD", node_lines, edge_lines, extra_lines, "```")
+      if (identical(type, "mermaid")) {
+        lines <- c("```mermaid", "graph TD", node_lines, edge_lines, extra_lines, "```")
+      } else {
+        lines <- c("digraph {", "  rankdir=TD;", "  node [shape=box, style=filled, fontname=Helvetica, fillcolor=white];", node_lines, edge_lines, "}")
+      }
+      
       res <- paste(lines, collapse = "\n")
       cat(res, "\n")
       return(invisible(res))
@@ -818,11 +843,15 @@ AgentDAG <- R6::R6Class("AgentDAG",
 
       # Validation: Reachable nodes if start_node is set
       if (!is.null(self$start_node)) {
-        reachable <- igraph::bfs(self$graph, root = self$start_node, unreachable = FALSE)$order
-        reachable_names <- names(igraph::V(self$graph)[reachable[!is.na(reachable)]])
-        unreachable <- setdiff(names(self$nodes), reachable_names)
+        all_reachable <- character(0)
+        purrr::walk(self$start_node, function(root_id) {
+          reachable <- igraph::bfs(self$graph, root = root_id, unreachable = FALSE)$order
+          reachable_names <- names(igraph::V(self$graph)[reachable[!is.na(reachable)]])
+          all_reachable <<- unique(c(all_reachable, reachable_names))
+        })
+        unreachable <- setdiff(names(self$nodes), all_reachable)
         if (length(unreachable) > 0) {
-          warning(sprintf("Nodes unreachable from start node '%s': %s", self$start_node, paste(unreachable, collapse = ", ")))
+          warning(sprintf("Nodes unreachable from start node(s) [%s]: %s", paste(self$start_node, collapse = ", "), paste(unreachable, collapse = ", ")))
         }
       }
 

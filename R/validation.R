@@ -250,15 +250,16 @@ render_workflow_file <- function(file_path, output_file = NULL, status = FALSE, 
   wf <- load_workflow(file_path)
   dag <- spawn_dag(wf)
 
-  m_str <- dag$plot(status = status, ...)
-
   if (is.null(output_file)) {
+    m_str <- dag$plot(type = "mermaid", status = status, ...)
     # DiagrammeR::mermaid doesn't need the fences
     clean_m <- gsub("^```mermaid\\n|\\n```$", "", m_str)
     return(DiagrammeR::mermaid(clean_m))
   }
 
   # Export logic (requires DiagrammeRsvg and rsvg)
+  # NOTE: We use grViz (Graphviz) for exports because DiagrammeRsvg::export_svg 
+  # only supports Graphviz-based htmlwidgets, not Mermaid.
   if (!requireNamespace("DiagrammeRsvg", quietly = TRUE)) {
     stop("Package 'DiagrammeRsvg' is required for exporting diagrams.")
   }
@@ -266,8 +267,8 @@ render_workflow_file <- function(file_path, output_file = NULL, status = FALSE, 
     stop("Package 'rsvg' is required for exporting diagrams.")
   }
 
-  clean_m <- gsub("^```mermaid\\n|\\n```$", "", m_str)
-  widget <- DiagrammeR::mermaid(clean_m)
+  dot_str <- dag$plot(type = "grViz", status = status, ...)
+  widget <- DiagrammeR::grViz(dot_str)
   svg_code <- DiagrammeRsvg::export_svg(widget)
 
   ext <- tolower(tools::file_ext(output_file))
