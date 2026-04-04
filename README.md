@@ -1,4 +1,4 @@
-<img src="man/figures/hydrar_hero.png" width="150" align="right">
+<img src="man/figures/hydrar_hex_logo.png" width="150" align="right">
 
 # HydraR: Stateful Agentic Orchestration for R
 
@@ -43,17 +43,38 @@ You can install the development version from GitHub:
 devtools::install_github("apaf-bioinformatics/HydraR")
 ```
 
+### System Prerequisites
+
+`HydraR` drives external AI tools via their CLI interfaces. To use the full suite of drivers, ensure your chosen tools are installed and configured.
+
+The **Gemini CLI** (`npm install -g @google/gemini-cli`) is provided as an example. You'll then have to start the tool by typing `gemini` in the terminal and log into your Google account using the `/auth` command. You can choose to login using your Google account or provide an API key. Other CLI and API offerings have a similar setup; please refer to the manuals of those providers for information on how to set them up.
+
+### Environment Setup
+
+To use the API-based drivers, store your API keys in a `.Renviron` file in your project root to keep them secure and accessible to `HydraR`:
+
+```bash
+# .Renviron
+GOOGLE_API_KEY="your_google_api_key"
+GEMINI_API_KEY="your_gemini_api_key"
+ANTHROPIC_API_KEY="your_anthropic_api_key"
+OPENAI_API_KEY="your_openai_api_key"
+```
+
+> [!IMPORTANT]
+> Ensure `.Renviron` is added to your `.gitignore`, `.Rbuildignore`, and any AI ignore files (e.g., `.agentignore`, `.claudeignore`) to prevent accidental exposure of your secrets during agentic development.
+
 ## 📖 Documentation & Manual
 
 The primary resource for learning `HydraR` is the **[Complete Instruction Manual](vignettes/manual.Rmd)**. 
 
 ### Case Studies & Examples
 
-- **📍 [Sydney to Hong Kong Travel Planner](vignettes/hong_kong_travel.Rmd)**: High-fidelity orchestration using the `GeminiCLIDriver` to book a complex itinerary.
-- **💾 [Academic Research Assistant](vignettes/academic_research.Rmd)**: Demonstrates literature search and stateful summarization.
-- **🛡️ [Software Bug Assistant](vignettes/software_bug_assistant.Rmd)**: Shows how to orchestrate code analysis and fix suggestions.
-- **🛠️ [Creating Custom Drivers](vignettes/creating_drivers.Rmd)**: Developer guide on subclassing `AgentDriver` with Mocking and API support.
-- **🛡️ [Isolated Execution with Git Worktrees](vignettes/git_worktree_toy.Rmd)**: A toy program demonstrating safe, parallel file modifications using the Gemini CLI.
+- **📍 [Sydney to Hong Kong Travel Planner](vignettes/hong_kong_travel.Rmd)**: Demonstrates the **Zero-R-Code** orchestration pattern using YAML and Mermaid.
+- **🚀 [Parallel Sorting Benchmark](vignettes/sorting_benchmark.Rmd)**: Shows how to use **Git Worktrees** for isolated, parallel agent execution.
+- **💾 [State Persistence & Restart](vignettes/state_persistence.Rmd)**: Explains how to use the **DuckDB checkpointer** for resilient, resumable workflows.
+- **🛠️ [Creating Custom Drivers](vignettes/extending_hydrar.Rmd)**: Developer guide on subclassing `AgentDriver` for local LLMs or proprietary APIs.
+- **🎯 [Targets Integration](vignettes/targets_integration.Rmd)**: Explains how to build reproducible, cached pipelines using the `targets` package.
 
 ### 🛠️ Technical Documentation
 

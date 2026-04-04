@@ -205,8 +205,6 @@ When parallel isolated nodes converge, use a `MergeHarmonizer` (usually register
 
 ---
 
----
-
 ## 7. Validation & Compliance
 
 HydraR is designed for critical bioinformatics workflows and enforces a strict safety-first policy. Every time a workflow is loaded via `spawn_dag()`, it undergoes a holistic validation process.
@@ -217,11 +215,6 @@ HydraR checks your entire workflow for consistency:
 - **Topology Sync**: Ensures that your visual labels and YAML `conditional_edges` are perfectly synchronized. No "blind" logic branches are allowed.
 - **Syntactic Parsing**: All R code blocks are parsed at load-time. If a code block has a syntax error (e.g., missing bracket), HydraR will throw a hard stop before execution.
 
-### APAF Rule G-25 Enforcement
-To ensure reproducible and high-performance data processing, HydraR enforces the **"Zero-Tolerance for Imperative Loops"** policy.
-- **Linting**: If a `for` loop is detected in an R logic block, HydraR will issue a warning. 
-- **Recommendation**: Always use the `purrr` family (`map`, `walk`, `imap`) or `lapply()`.
-
 ### Static Analysis (Lintr)
 HydraR integrates with the `lintr` package to provide deep static analysis of your R logic, flagging potential issues like:
 - Undefined variables.
@@ -229,9 +222,8 @@ HydraR integrates with the `lintr` package to provide deep static analysis of yo
 - Stylistic inconsistencies.
 
 > [!TIP]
+> [!TIP]
 > Refer to the **[HydraR Validation Reference](file:///Users/ignatiuspang/Workings/2026/HydraR/notes/HydraR_Validation_Reference.md)** for a full list of all supported errors and warnings.
-
----
 
 > [!IMPORTANT]
 > **Deduplication**: Parameters are parsed from the **first** definition of a node ID in the Mermaid graph. Subsequent mentions of the ID inherit those settings.
@@ -241,7 +233,51 @@ HydraR integrates with the `lintr` package to provide deep static analysis of yo
 
 ---
 
-## 8. Advanced Syntax & Logic Resolution
+## 8. Workflow Utilities
+
+HydraR provides high-level functions to validate and visualize your workflows directly from their YAML source files.
+
+### 8.1 Syntax & Logic Validation
+
+Use `validate_workflow_file()` to perform a deep-integrated validation of your workflow before execution. This function checks:
+- **YAML Schema**: Basic structure and required keys.
+- **Topological Sync**: Arrows in Mermaid matching logical branches in YAML.
+- **R Logic Linting**: Syntax checks and APAF Rule G-25 compliance.
+
+```r
+library(HydraR)
+
+# Throws a detailed error report if validation fails
+validate_workflow_file("my_workflow.yml")
+```
+
+### 8.2 Architectural Visualization
+
+Use `render_workflow_file()` to generate high-fidelity diagrams of your agent networks. This is essential for auditing complex multi-agent flows.
+
+#### Interactive View (HTML)
+If no `output_file` is specified, the function returns a `DiagrammeR` widget for interactive viewing in RStudio.
+
+```r
+render_workflow_file("my_workflow.yml")
+```
+
+#### Image Export (PNG, PDF, SVG, JPG)
+To save a static snapshot of your architecture, provide an `output_file` with the desired extension.
+
+```r
+# Export to various high-fidelity formats
+render_workflow_file("my_workflow.yml", output_file = "architecture.png")
+render_workflow_file("my_workflow.yml", output_file = "architecture.pdf")
+render_workflow_file("my_workflow.yml", output_file = "architecture.svg")
+```
+
+> [!NOTE]
+> Image export requires the `DiagrammeRsvg` and `rsvg` packages to be installed.
+
+---
+
+## 9. Advanced Syntax & Logic Resolution
 
 ### 3-Tier Logic Resolution Strategy
 When you define a `logic_id` or `prompt_id`, HydraR resolves the value using a hierarchical strategy:

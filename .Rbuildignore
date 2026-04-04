@@ -46,3 +46,4 @@
 ^gateway/
 ^man/.*\\.Rd$
 ^tools/
+^\.Renviron$
