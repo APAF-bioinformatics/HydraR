@@ -19,7 +19,7 @@ An \`AgentState\` R6 object.
 
 - `schema`:
 
-  List. Expected types for state variables. Initialize AgentState
+  List. Expected types for state variables.
 
 ## Methods
 
@@ -37,6 +37,8 @@ An \`AgentState\` R6 object.
 
 - [`AgentState$update()`](#method-AgentState-update)
 
+- [`AgentState$update_from_node()`](#method-AgentState-update_from_node)
+
 - [`AgentState$to_list_serializable()`](#method-AgentState-to_list_serializable)
 
 - [`AgentState$clone()`](#method-AgentState-clone)
@@ -44,6 +46,8 @@ An \`AgentState\` R6 object.
 ------------------------------------------------------------------------
 
 ### Method `new()`
+
+Initialize AgentState
 
 #### Usage
 
@@ -150,7 +154,25 @@ TRUE if valid, throws error otherwise. Set a state variable directly
 
 - `updates`:
 
-  List of state updates. Export state for persistence (logic as names)
+  List of state updates. Update state from a node's output
+
+------------------------------------------------------------------------
+
+### Method `update_from_node()`
+
+#### Usage
+
+    AgentState$update_from_node(output, node_id)
+
+#### Arguments
+
+- `output`:
+
+  The output from the node.
+
+- `node_id`:
+
+  The ID of the node. Export state for persistence (logic as names)
 
 ------------------------------------------------------------------------
 

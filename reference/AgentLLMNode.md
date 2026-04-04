@@ -1,10 +1,10 @@
 # Agent LLM Node R6 Class
 
-A specialized AgentNode that executes LLM calls via a Driver.
+A node that uses an LLM driver for execution.
 
 ## Value
 
-An \`AgentLLMNode\` R6 object.
+An \`AgentLLMNode\` object.
 
 ## Super class
 
@@ -39,7 +39,15 @@ An \`AgentLLMNode\` R6 object.
 
 - `tools`:
 
-  List of AgentTool objects. Initialize AgentLLMNode
+  List of AgentTool objects.
+
+- `agents_files`:
+
+  Character vector. Paths to agents context files.
+
+- `skills_files`:
+
+  Character vector. Paths to skills context files.
 
 ## Methods
 
@@ -57,6 +65,8 @@ An \`AgentLLMNode\` R6 object.
 
 ### Method `new()`
 
+Initialize AgentLLMNode
+
 #### Usage
 
     AgentLLMNode$new(
@@ -67,7 +77,10 @@ An \`AgentLLMNode\` R6 object.
       cli_opts = list(),
       prompt_builder = NULL,
       tools = list(),
-      label = NULL
+      label = NULL,
+      params = list(),
+      agents_files = NULL,
+      skills_files = NULL
     )
 
 #### Arguments
@@ -102,7 +115,20 @@ An \`AgentLLMNode\` R6 object.
 
 - `label`:
 
-  Optional human-readable name. Run the LLM Node
+  Optional human-readable name.
+
+- `params`:
+
+  Optional list of parameters.
+
+- `agents_files`:
+
+  Optional character vector of paths to agents.md files.
+
+- `skills_files`:
+
+  Optional character vector of paths to skills.md files. Run the LLM
+  Node
 
 ------------------------------------------------------------------------
 
@@ -140,10 +166,6 @@ List with status, output, and metadata. Swap Driver at Runtime
 
   AgentDriver object or String ID.
 
-#### Returns
-
-The Node (invisibly).
-
 ------------------------------------------------------------------------
 
 ### Method `clone()`
@@ -164,7 +186,6 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-driver <- GeminiCLIDriver$new()
-node <- AgentLLMNode$new("research", role = "Researcher", driver = driver)
+node <- AgentLLMNode$new("chat", role = "helpful assistant")
 } # }
 ```

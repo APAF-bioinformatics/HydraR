@@ -5,14 +5,15 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Stateful Agentic Orchestration for R (CLI-First) • HydraR</title>
+<title>Stateful Agentic Orchestration for Scientific Reproducibility • HydraR</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Stateful Agentic Orchestration for R (CLI-First)">
-<meta name="description" content="A high-performance framework for orchestrating complex agentic workflows in R, specifically designed for scientific reproducibility. HydraR provides a robust, state-managed engine for Directed Acyclic Graphs (DAGs) and iterative loops, prioritizing CLI-native LLM interactions (e.g., Gemini, Claude, Copilot) and hardened state persistence (DuckDB/SQLite). It enables the creation of auditable, resumable, and scalable bioinformatics pipelines and automated research assistants with a single source of truth for all agentic decisions.">
-<meta property="og:description" content="A high-performance framework for orchestrating complex agentic workflows in R, specifically designed for scientific reproducibility. HydraR provides a robust, state-managed engine for Directed Acyclic Graphs (DAGs) and iterative loops, prioritizing CLI-native LLM interactions (e.g., Gemini, Claude, Copilot) and hardened state persistence (DuckDB/SQLite). It enables the creation of auditable, resumable, and scalable bioinformatics pipelines and automated research assistants with a single source of truth for all agentic decisions.">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet">
+<meta property="og:title" content="Stateful Agentic Orchestration for Scientific Reproducibility">
+<meta name="description" content="A high-performance framework for orchestrating complex agentic workflows in R, specifically designed for scientific reproducibility and auditability. HydraR provides a robust, state-managed engine for Directed Acyclic Graphs (DAGs) and iterative state machines, prioritizing CLI-native LLM interactions (e.g., Gemini, Claude, Copilot) and hardened state persistence (DuckDB/SQLite). It features isolated execution via Git Worktrees for parallel file-modifying tasks, autonomous quality control through integrated auditors, and human-readable visualization using Mermaid.js. Ideal for creating auditable, resumable research assistants and complex bioinformatics pipelines.">
+<meta property="og:description" content="A high-performance framework for orchestrating complex agentic workflows in R, specifically designed for scientific reproducibility and auditability. HydraR provides a robust, state-managed engine for Directed Acyclic Graphs (DAGs) and iterative state machines, prioritizing CLI-native LLM interactions (e.g., Gemini, Claude, Copilot) and hardened state persistence (DuckDB/SQLite). It features isolated execution via Git Worktrees for parallel file-modifying tasks, autonomous quality control through integrated auditors, and human-readable visualization using Mermaid.js. Ideal for creating auditable, resumable research assistants and complex bioinformatics pipelines.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">HydraR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,36 +32,19 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="articles/hong_kong_travel.html">Get Started</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Manual</h6></li>
-    <li><a class="dropdown-item" href="articles/manual.html">HydraR: The Complete Instruction Manual</a></li>
-    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Examples</h6></li>
-    <li><a class="dropdown-item" href="articles/academic_research.html">Agentic Academic Researcher</a></li>
-    <li><a class="dropdown-item" href="articles/blog_writer.html">Agentic Blog Writer</a></li>
-    <li><a class="dropdown-item" href="articles/data_science.html">Agentic Data Science Assistant</a></li>
-    <li><a class="dropdown-item" href="articles/hello_world_agent.html">Hello World: Building an Agentic Loop with HydraR</a></li>
-    <li><a class="dropdown-item" href="articles/personalized_shopping.html">Agentic Personalized Shopping Assistant</a></li>
-    <li><a class="dropdown-item" href="articles/software_bug_assistant.html">Agentic Software Bug Assistant</a></li>
-    <li><a class="dropdown-item" href="articles/story_teller.html">Agentic Story Teller</a></li>
-    <li><a class="dropdown-item" href="articles/gemini_cli_demo.html">Gemini CLI Driver Demo</a></li>
-    <li><a class="dropdown-item" href="articles/hello_world_logic.html">Hello World Logic Nodes</a></li>
-    <li><a class="dropdown-item" href="articles/parameterized_mermaid.html">Advanced Mermaid Parameters</a></li>
-    <li><a class="dropdown-item" href="articles/round_trip_demo.html">Mermaid Round-Trip Visualization</a></li>
-    <li><a class="dropdown-item" href="articles/distributed_communication.html">Distributed Consensus Simulation</a></li>
+    <li><a class="dropdown-item" href="articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
     <li><a class="dropdown-item" href="articles/targets_integration.html">Reproducible Agentic Pipelines with targets</a></li>
-    <li><a class="dropdown-item" href="articles/creating_drivers.html">Creating Custom Agent Drivers</a></li>
-    <li><a class="dropdown-item" href="articles/git_worktree_toy.html">Isolated Execution with Git Worktrees</a></li>
+    <li><a class="dropdown-item" href="articles/extending_hydrar.html">Creating Custom Agent Drivers</a></li>
+    <li><a class="dropdown-item" href="articles/state_persistence.html">State Persistence &amp; Restart: Resilient Workflows</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -74,15 +58,31 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9"><div class="section level1">
+  <main id="main" class="col-md-9"><p><img src="reference/figures/hydrar_hex_logo.png" width="150" align="right"></p>
+<div class="section level1">
 <div class="page-header"><h1 id="hydrar-stateful-agentic-orchestration-for-r">HydraR: Stateful Agentic Orchestration for R<a class="anchor" aria-label="anchor" href="#hydrar-stateful-agentic-orchestration-for-r"></a>
 </h1></div>
-<p><a href="https://github.com/APAF-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml"><img src="https://github.com/APAF-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a> <a href="https://app.codecov.io/gh/APAF-bioinformatics/HydraR" class="external-link"><img src="https://github.com/APAF-bioinformatics/HydraR/actions/workflows/test-coverage.yaml/badge.svg" alt="Test Coverage"></a></p>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-green.svg" alt="Lifecycle: stable"></a> <a href="https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main" alt="R-CMD-check"></a> <a href="https://app.codecov.io/gh/apaf-bioinformatics/HydraR" class="external-link"><img src="https://github.com/apaf-bioinformatics/HydraR/actions/workflows/test-coverage.yaml/badge.svg" alt="Test Coverage"></a></p>
 <p><code>HydraR</code> is a lightweight, state-of-the-art orchestrator for building general-purpose agentic workflows in R. It prioritizes <strong>CLI-native LLM interactions</strong>, <strong>hardened state management</strong>, and <strong>graph-based execution</strong> (supporting both Directed Acyclic Graphs and iterative loops).</p>
 <div class="section level2">
 <h2 id="why-hydrar">Why HydraR?<a class="anchor" aria-label="anchor" href="#why-hydrar"></a>
 </h2>
 <p>Standard agentic frameworks often rely heavily on brittle API wrappers and volatile state. <code>HydraR</code> is built for durability and reproducibility: - <strong>CLI-First</strong>: Directly drive high-performance CLI tools like <code>gemini-cli</code>, <code>claude-code</code>, or <code>gh copilot</code>. - <strong>Hardened State</strong>: Implements a robust state machine with persistent checkpointing (DuckDB/SQLite). - <strong>Graph-Native</strong>: Design complex logic transitions and loops with built-in validation.</p>
+</div>
+<div class="section level2">
+<h2 id="id_-ecosystem--similar-packages">🌐 Ecosystem &amp; Similar Packages<a class="anchor" aria-label="anchor" href="#id_-ecosystem--similar-packages"></a>
+</h2>
+<p><code>HydraR</code> is an <strong>orchestrator</strong>, not a low-level API wrapper. While many excellent packages focus on the communication layer, <code>HydraR</code> focuses on the <strong>lifecycle, state, and file-system isolation</strong> of multi-agent workflows.</p>
+<ul>
+<li>
+<strong><a href="https://github.com/tidyverse/ellmer" class="external-link">ellmer</a></strong>: Focuses on high-level UI/API interaction with LLMs. <code>HydraR</code> can use <code>ellmer</code> (or direct CLI calls) as a backend driver within a larger managed graph.</li>
+<li>
+<strong><a href="https://github.com/simonpcouch/mall" class="external-link">mall</a></strong>: Provides a concise syntax for data-mapping LLM calls. <code>HydraR</code> is designed for more complex, stateful research pipelines with cyclic dependencies.</li>
+<li>
+<strong><a href="https://github.com/MichelNivard/gptstudio" class="external-link">gptstudio</a></strong>: Tooling for IDE-centric coding assistance. <code>HydraR</code> is built for reproducible, non-interactive pipelines and automation.</li>
+<li>
+<strong><a href="https://rstudio.github.io/reticulate/" class="external-link">reticulate</a></strong>: While <code>HydraR</code> is R-native, it leverages <code>reticulate</code> to drive Python-based agentic tools (like <code>gemini-cli</code>) while maintaining the orchestration state in R.</li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="key-features">Key Features<a class="anchor" aria-label="anchor" href="#key-features"></a>
@@ -111,33 +111,82 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/install-deprecated.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"apaf-bioinformatics/HydraR"</span><span class="op">)</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="system-prerequisites">System Prerequisites<a class="anchor" aria-label="anchor" href="#system-prerequisites"></a>
+</h3>
+<p><code>HydraR</code> drives external AI tools via their CLI interfaces. To use the full suite of drivers, ensure your chosen tools are installed and configured.</p>
+<p>The <strong>Gemini CLI</strong> (<code>npm install -g @google/gemini-cli</code>) is provided as an example. You’ll then have to start the tool by typing <code>gemini</code> in the terminal and log into your Google account using the <code>/auth</code> command. You can choose to login using your Google account or provide an API key. Other CLI and API offerings have a similar setup; please refer to the manuals of those providers for information on how to set them up.</p>
+</div>
+<div class="section level3">
+<h3 id="environment-setup">Environment Setup<a class="anchor" aria-label="anchor" href="#environment-setup"></a>
+</h3>
+<p>To use the API-based drivers, store your API keys in a <code>.Renviron</code> file in your project root to keep them secure and accessible to <code>HydraR</code>:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># .Renviron</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="va">GOOGLE_API_KEY</span><span class="op">=</span><span class="st">"your_google_api_key"</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="va">GEMINI_API_KEY</span><span class="op">=</span><span class="st">"your_gemini_api_key"</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="va">ANTHROPIC_API_KEY</span><span class="op">=</span><span class="st">"your_anthropic_api_key"</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="va">OPENAI_API_KEY</span><span class="op">=</span><span class="st">"your_openai_api_key"</span></span></code></pre></div>
+<blockquote>
+<p>[!IMPORTANT] Ensure <code>.Renviron</code> is added to your <code>.gitignore</code>, <code>.Rbuildignore</code>, and any AI ignore files (e.g., <code>.agentignore</code>, <code>.claudeignore</code>) to prevent accidental exposure of your secrets during agentic development.</p>
+</blockquote>
+</div>
 </div>
 <div class="section level2">
 <h2 id="id_-documentation--manual">📖 Documentation &amp; Manual<a class="anchor" aria-label="anchor" href="#id_-documentation--manual"></a>
 </h2>
-<p>The primary resource for learning <code>HydraR</code> is the <strong><a href="file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/manual.Rmd">Complete Instruction Manual</a></strong>.</p>
+<p>The primary resource for learning <code>HydraR</code> is the <strong><a href="vignettes/manual.Rmd">Complete Instruction Manual</a></strong>.</p>
 <div class="section level3">
 <h3 id="case-studies--examples">Case Studies &amp; Examples<a class="anchor" aria-label="anchor" href="#case-studies--examples"></a>
 </h3>
 <ul>
 <li>
-<strong>📍 <a href="file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/hong_kong_travel.Rmd">Sydney to Hong Kong Travel Planner</a></strong>: High-fidelity orchestration using the <code>GeminiCLIDriver</code> to book a complex itinerary.</li>
+<strong>📍 <a href="vignettes/hong_kong_travel.Rmd">Sydney to Hong Kong Travel Planner</a></strong>: Demonstrates the <strong>Zero-R-Code</strong> orchestration pattern using YAML and Mermaid.</li>
 <li>
-<strong>💾 <a href="file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/academic_research.Rmd">Academic Research Assistant</a></strong>: Demonstrates literature search and stateful summarization.</li>
+<strong>🚀 <a href="vignettes/sorting_benchmark.Rmd">Parallel Sorting Benchmark</a></strong>: Shows how to use <strong>Git Worktrees</strong> for isolated, parallel agent execution.</li>
 <li>
-<strong>🛡️ <a href="file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/software_bug_assistant.Rmd">Software Bug Assistant</a></strong>: Shows how to orchestrate code analysis and fix suggestions.</li>
+<strong>💾 <a href="vignettes/state_persistence.Rmd">State Persistence &amp; Restart</a></strong>: Explains how to use the <strong>DuckDB checkpointer</strong> for resilient, resumable workflows.</li>
 <li>
-<strong>🛠️ <a href="file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/creating_drivers.Rmd">Creating Custom Drivers</a></strong>: Developer guide on subclassing <code>AgentDriver</code> with Mocking and API support.</li>
+<strong>🛠️ <a href="vignettes/extending_hydrar.Rmd">Creating Custom Drivers</a></strong>: Developer guide on subclassing <code>AgentDriver</code> for local LLMs or proprietary APIs.</li>
 <li>
-<strong>🛡️ <a href="file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/git_worktree_toy.Rmd">Isolated Execution with Git Worktrees</a></strong>: A toy program demonstrating safe, parallel file modifications using the Gemini CLI.</li>
+<strong>🎯 <a href="vignettes/targets_integration.Rmd">Targets Integration</a></strong>: Explains how to build reproducible, cached pipelines using the <code>targets</code> package.</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="id_️-technical-documentation">🛠️ Technical Documentation<a class="anchor" aria-label="anchor" href="#id_%EF%B8%8F-technical-documentation"></a>
+</h3>
+<p>For deep technical dives into the orchestration engine and developer tools, refer to the following manuals:</p>
+<ul>
+<li>
+<strong><a href="https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/HydraR_Orchestration_Manual.md" class="external-link">HydraR Orchestration Manual</a></strong>: YAML anatomy, role definitions, and MCP support.</li>
+<li>
+<strong><a href="https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/HydraR_Validation_Reference.md" class="external-link">HydraR Validation Reference</a></strong>: Full list of compile-time and runtime safety checks.</li>
+<li>
+<strong><a href="https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/mermaid_orchestration_cheatsheet.md" class="external-link">Mermaid Orchestration Cheatsheet</a></strong>: Reserved keywords and visual syntax for agent networks.</li>
+<li>
+<strong><a href="https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/useful_tools_manual.md" class="external-link">Useful Tools Manual</a></strong>: Diagnostic scripts for DuckDB state inspection and monitoring.</li>
+<li>
+<strong><a href="https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/how_to_integrate_with_target.md" class="external-link">Integrating HydraR with <code>targets</code></a></strong>: Best practices for cached, interrupt-safe agentic pipelines.</li>
 </ul>
 </div>
 </div>
 <div class="section level2">
+<h2 id="id_-use-of-generative-ai">🤖 Use of Generative AI<a class="anchor" aria-label="anchor" href="#id_-use-of-generative-ai"></a>
+</h2>
+<ul>
+<li><label><input type="checkbox" checked><strong>Generative AI tools were used to produce material in this submission.</strong></label></li>
+<li>
+<strong>AI-Aided Development</strong>: Large Language Models were used to implement specific logic blocks, boilerplate code, and unit tests. Every line of AI-generated code has been manually reviewed and verified by the authors.</li>
+<li>
+<strong>Agentic Orchestration</strong>: This package is explicitly designed for the orchestration of autonomous AI agents.</li>
+<li>For a detailed disclosure of AI usage, please refer to the <strong><a href="agents.html">agents.md</a></strong> file.</li>
+<li>For architectural rationale and design tradeoffs, please refer to the <strong><a href="DESIGN.html">DESIGN.md</a></strong> file.</li>
+</ul>
+</div>
+<div class="section level2">
 <h2 id="custom-drivers">Custom Drivers<a class="anchor" aria-label="anchor" href="#custom-drivers"></a>
 </h2>
-<p><code>HydraR</code> is provider-agnostic. You can extend the framework by creating custom R6 classes that inherit from <code>AgentDriver</code>. This allows you to drive: - <strong>Local LLMs</strong>: Integration with specialized local CLI wrappers. - <strong>Enterprise APIs</strong>: Secure connection to internal LLM endpoints via <code>httr2</code>. - <strong>Mock Backends</strong>: Deterministic drivers for unit testing complex DAG logic.</p>
-<p>Refer to the <a href="file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/creating_drivers.Rmd">Creating Custom Drivers</a> guide for implementation details.</p>
+<p><code>HydraR</code> is provider-agnostic. You can extend the framework by creating custom <code>R6</code> classes that inherit from <code>AgentDriver</code>. This allows you to drive: - <strong>Local LLMs</strong>: Integration with specialized local CLI wrappers. - <strong>Enterprise APIs</strong>: Secure connection to internal LLM endpoints via <code>httr2</code>. - <strong>Mock Backends</strong>: Deterministic drivers for unit testing complex DAG logic.</p>
+<p>Refer to the <a href="vignettes/creating_drivers.Rmd">Creating Custom Drivers</a> guide for implementation details.</p>
 </div>
 <div class="section level2">
 <h2 id="id_-visualizing-execution">📊 Visualizing Execution<a class="anchor" aria-label="anchor" href="#id_-visualizing-execution"></a>
@@ -147,7 +196,7 @@
 <h3 id="interactive-rendering-in-r">Interactive Rendering in R<a class="anchor" aria-label="anchor" href="#interactive-rendering-in-r"></a>
 </h3>
 <p>We recommend using the <a href="https://dgritree.github.io/DiagrammeR/" class="external-link"><code>DiagrammeR</code></a> package to render your DAGs directly in the RStudio Viewer:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rich-iannone.github.io/DiagrammeR/" class="external-link">DiagrammeR</a></span><span class="op">)</span></span>
 <span></span>
@@ -164,7 +213,7 @@
 <h3 id="mermaid-round-trip">Mermaid Round-Trip<a class="anchor" aria-label="anchor" href="#mermaid-round-trip"></a>
 </h3>
 <p>You can also define your agentic workflows using pure Mermaid syntax and convert them directly into R objects:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mermaid</span> <span class="op">&lt;-</span> <span class="st">"graph TD\n  Start --&gt; End"</span></span>
 <span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/mermaid_to_dag.html">mermaid_to_dag</a></span><span class="op">(</span><span class="va">mermaid</span>, <span class="va">my_node_factory</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -172,7 +221,7 @@
 <div class="section level2">
 <h2 id="hello-world-example">“Hello World” Example<a class="anchor" aria-label="anchor" href="#hello-world-example"></a>
 </h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 1. Define a simple logic node</span></span>
@@ -201,11 +250,12 @@
 <div class="section level2">
 <h2 id="apaf-standards">APAF Standards<a class="anchor" aria-label="anchor" href="#apaf-standards"></a>
 </h2>
-<p>This project adheres to the <strong>APAF Bioinformatics</strong> standards for agentic reproducibility and software hardness.</p>
+<p>This project adheres to the <strong>APAF Bioinformatics</strong> standards for agentic reproducibility and software hardness. All development followed a “Human-in-the-loop” pattern for AI-assisted contributions.</p>
 <hr>
-<!-- APAF Bioinformatics | HydraR | Approved | 2026-03-29 -->
+<!-- APAF Bioinformatics | HydraR | Approved | 2026-03-31 -->
 </div>
 </div>
+
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
@@ -217,8 +267,7 @@
 <div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li>LGPL (&gt;= 3) + file <a href="LICENSE-text.html">LICENSE</a>
-</li>
+<li>LGPL (&gt;= 3)</li>
 </ul>
 </div>
 
@@ -239,7 +288,7 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Ignatius Pang <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0001-9703-5741" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Chi Nam Ignatius Pang <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0001-9703-5741" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 <li>Aidan Tay <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0003-1315-4896" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 <li><a href="authors.html">More about authors...</a></li>
 </ul>
@@ -252,7 +301,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Ignatius Pang, Aidan Tay.</p>
+  <p>Developed by Chi Nam Ignatius Pang, Aidan Tay.</p>
 </div>
 
 <div class="pkgdown-footer-right">

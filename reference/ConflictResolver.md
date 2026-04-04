@@ -15,8 +15,7 @@ A \`ConflictResolver\` R6 object.
 
 - `driver`:
 
-  AgentDriver. The driver to use for "llm" strategy. Initialize
-  ConflictResolver
+  AgentDriver. The driver to use for "llm" strategy.
 
 ## Methods
 
@@ -31,6 +30,8 @@ A \`ConflictResolver\` R6 object.
 ------------------------------------------------------------------------
 
 ### Method `new()`
+
+Initialize ConflictResolver
 
 #### Usage
 

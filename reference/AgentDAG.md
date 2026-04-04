@@ -21,6 +21,10 @@ An \`AgentDAG\` R6 object.
 
   List. Conditional transition logic.
 
+- `error_edges`:
+
+  List. Failover transition logic.
+
 - `results`:
 
   List. Execution results for each node.
@@ -63,6 +67,8 @@ An \`AgentDAG\` R6 object.
 
 - [`AgentDAG$add_conditional_edge()`](#method-AgentDAG-add_conditional_edge)
 
+- [`AgentDAG$add_error_edge()`](#method-AgentDAG-add_error_edge)
+
 - [`AgentDAG$run()`](#method-AgentDAG-run)
 
 - [`AgentDAG$.run_linear()`](#method-AgentDAG-.run_linear)
@@ -70,6 +76,10 @@ An \`AgentDAG\` R6 object.
 - [`AgentDAG$.run_iterative()`](#method-AgentDAG-.run_iterative)
 
 - [`AgentDAG$plot()`](#method-AgentDAG-plot)
+
+- [`AgentDAG$get_terminal_nodes()`](#method-AgentDAG-get_terminal_nodes)
+
+- [`AgentDAG$get_start_nodes()`](#method-AgentDAG-get_start_nodes)
 
 - [`AgentDAG$compile()`](#method-AgentDAG-compile)
 
@@ -83,7 +93,7 @@ An \`AgentDAG\` R6 object.
 
 ### Method `new()`
 
-Initialize AgentDAG Set Start Node
+Initialize AgentDAG Set Start Node(s)
 
 #### Usage
 
@@ -95,13 +105,17 @@ Initialize AgentDAG Set Start Node
 
 #### Usage
 
-    AgentDAG$set_start_node(node_id)
+    AgentDAG$set_start_node(node_ids)
 
 #### Arguments
 
-- `node_id`:
+- `node_ids`:
 
-  String node ID. Add a Node
+  Character vector of node IDs.
+
+#### Returns
+
+The AgentDAG object (invisibly). Add a Node
 
 ------------------------------------------------------------------------
 
@@ -115,7 +129,11 @@ Initialize AgentDAG Set Start Node
 
 - `node`:
 
-  AgentNode object. Add an Edge
+  AgentNode object.
+
+#### Returns
+
+The AgentDAG object (invisibly). Add an Edge
 
 ------------------------------------------------------------------------
 
@@ -137,8 +155,11 @@ Initialize AgentDAG Set Start Node
 
 - `label`:
 
-  Optional string label for the edge. Add a Conditional Edge (Loop
-  Support)
+  Optional string label for the edge.
+
+#### Returns
+
+The AgentDAG object (invisibly). Add a Conditional Edge (Loop Support)
 
 ------------------------------------------------------------------------
 
@@ -146,7 +167,12 @@ Initialize AgentDAG Set Start Node
 
 #### Usage
 
-    AgentDAG$add_conditional_edge(from, test, if_true, if_false = NULL)
+    AgentDAG$add_conditional_edge(
+      from,
+      test = NULL,
+      if_true = NULL,
+      if_false = NULL
+    )
 
 #### Arguments
 
@@ -160,12 +186,34 @@ Initialize AgentDAG Set Start Node
 
 - `if_true`:
 
-  String node ID (next node if test is TRUE) or NULL to stop.
+  String node ID (next node if test is TRUE) or NULL.
 
 - `if_false`:
 
-  String node ID (next node if test is FALSE) or NULL to stop. Run the
-  Graph
+  String node ID (next node if test is FALSE) or NULL. Add an Error Edge
+  (Failover Support)
+
+------------------------------------------------------------------------
+
+### Method `add_error_edge()`
+
+#### Usage
+
+    AgentDAG$add_error_edge(from, to)
+
+#### Arguments
+
+- `from`:
+
+  String node ID.
+
+- `to`:
+
+  String node ID.
+
+#### Returns
+
+The AgentDAG object (invisibly). Run the Graph
 
 ------------------------------------------------------------------------
 
@@ -183,6 +231,7 @@ Initialize AgentDAG Set Start Node
       repo_root = getwd(),
       cleanup_policy = "auto",
       fail_if_dirty = TRUE,
+      packages = c("withr"),
       ...
     )
 
@@ -224,6 +273,10 @@ Initialize AgentDAG Set Start Node
 - `fail_if_dirty`:
 
   Logical. Whether to fail if repo has uncommitted changes.
+
+- `packages`:
+
+  Character vector. Packages to load in parallel workers.
 
 - `...`:
 
@@ -296,7 +349,8 @@ Execution result list. Internal: Iterative Execution
       thread_id = NULL,
       resume_from = NULL,
       step_count = 0,
-      fail_if_dirty = TRUE
+      fail_if_dirty = TRUE,
+      packages = c("withr")
     )
 
 #### Arguments
@@ -325,6 +379,10 @@ Execution result list. Internal: Iterative Execution
 
   Logical.
 
+- `packages`:
+
+  Character vector. Packages to load in parallel workers.
+
 ------------------------------------------------------------------------
 
 ### Method [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
@@ -343,7 +401,7 @@ Execution result list. Internal: Iterative Execution
 
 - `type`:
 
-  String. Type of plot (currently only "mermaid").
+  String. Type of plot ("mermaid" or "grViz").
 
 - `status`:
 
@@ -363,7 +421,35 @@ Execution result list. Internal: Iterative Execution
 
 #### Returns
 
-The mermaid string (invisibly). Compile the Graph
+The mermaid/dot string (invisibly). Get Terminal Nodes
+
+------------------------------------------------------------------------
+
+### Method `get_terminal_nodes()`
+
+Identifies nodes with no outgoing edges.
+
+#### Usage
+
+    AgentDAG$get_terminal_nodes()
+
+#### Returns
+
+Character vector of node IDs. Get Start Nodes (Roots)
+
+------------------------------------------------------------------------
+
+### Method `get_start_nodes()`
+
+Identifies nodes with no incoming edges.
+
+#### Usage
+
+    AgentDAG$get_start_nodes()
+
+#### Returns
+
+Character vector of node IDs. Compile the Graph
 
 ------------------------------------------------------------------------
 
@@ -438,4 +524,12 @@ The objects of this class are cloneable with this method.
 dag <- AgentDAG$new()
 node <- AgentLogicNode$new("start", function(state) list(status = "success"))
 dag$add_node(node)
+if (FALSE) { # \dontrun{
+dag <- AgentDAG$new()
+dag$add_node(AgentNode$new("A"))
+dag$add_node(AgentNode$new("B"))
+dag$add_edge("A", "B")
+dag$set_start_node("A")
+dag$compile()
+} # }
 ```

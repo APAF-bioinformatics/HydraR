@@ -1,0 +1,90 @@
+# JSONL Message Log R6 Class
+
+Persists messages to a JSON Lines file. Atomic file appending ensures
+that multiple parallel worktree processes can log messages without
+locking conflicts.
+
+## Super class
+
+[`HydraR::MessageLog`](https://github.com/APAF-bioinformatics/HydraR/reference/MessageLog.md)
+-\> `JSONLMessageLog`
+
+## Public fields
+
+- `path`:
+
+  String. Path to JSONL file.
+
+## Methods
+
+### Public methods
+
+- [`JSONLMessageLog$new()`](#method-JSONLMessageLog-new)
+
+- [`JSONLMessageLog$log()`](#method-JSONLMessageLog-log)
+
+- [`JSONLMessageLog$get_all()`](#method-JSONLMessageLog-get_all)
+
+- [`JSONLMessageLog$clone()`](#method-JSONLMessageLog-clone)
+
+------------------------------------------------------------------------
+
+### Method `new()`
+
+Initialize JSONLMessageLog.
+
+#### Usage
+
+    JSONLMessageLog$new(path = tempfile(fileext = ".jsonl"))
+
+#### Arguments
+
+- `path`:
+
+  String.
+
+------------------------------------------------------------------------
+
+### Method [`log()`](https://rdrr.io/r/base/Log.html)
+
+Store a message (atomic append).
+
+#### Usage
+
+    JSONLMessageLog$log(msg)
+
+#### Arguments
+
+- `msg`:
+
+  List. Message object.
+
+------------------------------------------------------------------------
+
+### Method `get_all()`
+
+Get all logs.
+
+#### Usage
+
+    JSONLMessageLog$get_all()
+
+#### Returns
+
+List of logs.
+
+------------------------------------------------------------------------
+
+### Method `clone()`
+
+The objects of this class are cloneable with this method.
+
+#### Usage
+
+    JSONLMessageLog$clone(deep = FALSE)
+
+#### Arguments
+
+- `deep`:
+
+  Whether to make a deep clone.

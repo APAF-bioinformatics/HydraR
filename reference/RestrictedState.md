@@ -13,9 +13,13 @@ node_id. Implements "True Privacy" for inter-agent communication.
 
   String. The ID of the currently executing node.
 
+- `read_only`:
+
+  Logical. If TRUE, set() and update() are blocked.
+
 - `logger`:
 
-  MessageLog. Audit log for communication. Initialize RestrictedState
+  MessageLog. Audit log for communication.
 
 ## Methods
 
@@ -43,9 +47,11 @@ node_id. Implements "True Privacy" for inter-agent communication.
 
 ### Method `new()`
 
+Initialize RestrictedState
+
 #### Usage
 
-    RestrictedState$new(state, node_id, logger = NULL)
+    RestrictedState$new(state, node_id, logger = NULL, read_only = FALSE)
 
 #### Arguments
 
@@ -59,7 +65,11 @@ node_id. Implements "True Privacy" for inter-agent communication.
 
 - `logger`:
 
-  Optional MessageLog object. Restricted Get
+  Optional MessageLog object.
+
+- `read_only`:
+
+  Logical. If TRUE, blocks all write operations. Restricted Get
 
 ------------------------------------------------------------------------
 

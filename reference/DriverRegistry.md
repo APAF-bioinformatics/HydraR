@@ -11,7 +11,7 @@ A \`DriverRegistry\` R6 object.
 
 - `drivers`:
 
-  List. Storage for registered drivers. Initialize DriverRegistry
+  List. Storage for registered drivers.
 
 ## Methods
 
@@ -34,6 +34,8 @@ A \`DriverRegistry\` R6 object.
 ------------------------------------------------------------------------
 
 ### Method `new()`
+
+Initialize DriverRegistry
 
 #### Usage
 

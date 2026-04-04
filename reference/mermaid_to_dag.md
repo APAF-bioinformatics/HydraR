@@ -5,7 +5,7 @@ Create AgentDAG from Mermaid
 ## Usage
 
 ``` r
-mermaid_to_dag(mermaid_str, node_factory)
+mermaid_to_dag(mermaid_str, node_factory = auto_node_factory())
 ```
 
 ## Arguments
@@ -16,7 +16,8 @@ mermaid_to_dag(mermaid_str, node_factory)
 
 - node_factory:
 
-  Function(id, label) -\> AgentNode.
+  Function(id, label) -\> AgentNode. Defaults to
+  \`auto_node_factory()\`.
 
 ## Value
 
