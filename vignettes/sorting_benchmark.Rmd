@@ -101,46 +101,13 @@ results <- compiled_dag$run(
   fail_if_dirty = FALSE,
   packages = c("withr", "HydraR", "ggplot2")
 )
-#> Warning in self$compile(): Multiple potential start nodes found (bubble, quick,
-#> merge). Use set_start_node() to disambiguate.
-#> Graph compiled successfully.
-#> [2026-04-05 00:48:17] [Worktree] Initializing WorktreeManager for thread: run-e1bdb368
-#> [2026-04-05 00:48:17] [Parallel] Executing 3 nodes in isolated worktrees using furrr...
-#> Warning: package ‘purrr’ was built under R version 4.5.2
-#> Warning: package ‘ggplot2’ was built under R version 4.5.2
-#> Warning: package ‘purrr’ was built under R version 4.5.2
-#> Warning: package ‘ggplot2’ was built under R version 4.5.2
-#> Warning: package ‘purrr’ was built under R version 4.5.2
-#> Warning: package ‘ggplot2’ was built under R version 4.5.2
-#> [2026-04-05 00:49:19] [Parallel] Executing 1 nodes in isolated worktrees using furrr...
-#>    [merger] Executing R logic...
-#> [merger] Starting merge of 3 branches into main...
-#>    [merger] Merging branch: hydra/run-e1bdb368/bubble-cb0cbf6a
-#>    [merger] Merging branch: hydra/run-e1bdb368/quick-1271eb50
-#>    [merger] Merging branch: hydra/run-e1bdb368/merge-d0910769
-#> [2026-04-05 00:49:19] [Parallel] Executing 1 nodes in isolated worktrees using furrr...
-#>    [benchmark] Executing R logic...
-#> [Benchmark] Running on branch: hydra/run-e1bdb368/benchmark-de4ba7ec
-#> [Benchmark] Found 3 algorithm files: bubble_sort.R, merge_sort.R, quick_sort.R
-#> Warning in value[[3L]](cond): [Benchmark] Failed to source bubble_sort.R:
-#> attempt to use zero-length variable name
-#> Warning in value[[3L]](cond): [Benchmark] Failed to source merge_sort.R: merge_sort.R:19:1: unexpected '}'
-#> 18:   return(merged_vec)
-#> 19: }
-#>     ^
-#> Warning in value[[3L]](cond): [Benchmark] Failed to source quick_sort.R:
-#> attempt to use zero-length variable name
-#> [2026-04-05 00:49:20] [Parallel] Executing 1 nodes in isolated worktrees using furrr...
-#>    [plot] Executing R logic...
 
 # 6. Save Execution Trace
 compiled_dag$save_trace("sorting_trace.json")
 #> [Saved] Saved execution trace to: sorting_trace.json
 ```
 
----
-
-## 🧘 Summary
+## Summary
 
 By using **Declarative Mermaid Nodes** with `auto_node_factory()`, we:
 1.  **Eliminated Boilerplate**: No hand-written node factory — the Mermaid graph IS the specification.

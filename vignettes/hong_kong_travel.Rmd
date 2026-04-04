@@ -58,91 +58,15 @@ With the registries populated by the loader, we simply pass the graph and the un
 
 ``` r
 dag <- spawn_dag(wf, auto_node_factory())
-#> [HydraR Warning] Logic 'plan_prompt': 'state' object is not referenced. Ensure your logic interacts with the AgentState.
-#> [HydraR Warning] Logic 'plan_prompt' [Lint]: Put spaces around all infix operators. (line 1)
-#> [HydraR Warning] Logic 'image_prompt': 'state' object is not referenced. Ensure your logic interacts with the AgentState.
-#> [HydraR Warning] Logic 'image_prompt' [Lint]: Put spaces around all infix operators. (line 1)
-#> [HydraR Warning] Logic 'validate_constraints': 'state' object is not referenced. Ensure your logic interacts with the AgentState.
-#> [HydraR Warning] Logic 'validate_constraints' [Lint]: Put spaces around all infix operators. (line 1)
-#> [HydraR Warning] Logic 'check_image_status': 'state' object is not referenced. Ensure your logic interacts with the AgentState.
-#> [HydraR Warning] Logic 'check_image_status' [Lint]: Put spaces around all infix operators. (line 1)
-#> [HydraR Warning] Logic 'generate_and_save_images': 'state' object is not referenced. Ensure your logic interacts with the AgentState.
-#> [HydraR Warning] Logic 'generate_and_save_images' [Lint]: Put spaces around all infix operators. (line 1)
-#> [HydraR Warning] Logic 'provide_template': 'state' object is not referenced. Ensure your logic interacts with the AgentState.
-#> [HydraR Warning] Logic 'provide_template' [Lint]: Put spaces around all infix operators. (line 1)
-#> [HydraR Warning] Logic 'format_pamphlet': 'state' object is not referenced. Ensure your logic interacts with the AgentState.
-#> [HydraR Warning] Logic 'format_pamphlet' [Lint]: Put spaces around all infix operators. (line 1)
-#> [HydraR Warning] Logic 'save_itinerary': 'state' object is not referenced. Ensure your logic interacts with the AgentState.
-#> [HydraR Warning] Logic 'save_itinerary' [Lint]: Put spaces around all infix operators. (line 1)
-#> Warning in dag$compile(): Potential infinite loop detected: graph contains
-#> cycles. Ensure conditional edges have exit conditions.
-#> Graph compiled successfully.
 ```
 
 ## Visualizing the Workflow
 
 We can view the agent's logic directly using Mermaid.js syntax.
-
-
-```` r
+```{r}
 cat("```mermaid\n")
-````
-
-```mermaid
-
-``` r
 cat(dag$plot(type = "mermaid", details = TRUE))
-```
-
-```mermaid
-graph TD
-  Planner["Travel Planner | type=llm | role_id=travel_concierge | driver=gemini_api | model=gemini-3.1-flash-lite-preview | prompt_id=plan_prompt"]
-  Validator["Constraint Auditor | type=logic | logic_id=validate_constraints | retries=3"]
-  ImageGate["Image Gate | type=logic | logic_id=check_image_status"]
-  ImageGenerator["Image Generator | type=logic | logic_id=generate_and_save_images"]
-  TemplateManager["Template Provider | type=logic | logic_id=provide_template"]
-  PamphletFormatter["Pamphlet Formatter | type=logic | logic_id=format_pamphlet"]
-  Finalizer["Itinerary Saver | type=logic | logic_id=save_itinerary"]
-  Planner --> Validator
-  Validator --> Planner
-  Validator --> ImageGate
-  ImageGate --> ImageGenerator
-  ImageGate --> TemplateManager
-  ImageGenerator --> TemplateManager
-  TemplateManager --> PamphletFormatter
-  PamphletFormatter --> Finalizer
-  ImageGate -- Test --> ImageGenerator
-  ImageGate -- Fail --> TemplateManager
-  Validator -- Test --> ImageGate
-  Validator -- Fail --> Planner
-``` 
-```mermaid
-graph TD
-  Planner["Travel Planner | type=llm | role_id=travel_concierge | driver=gemini_api | model=gemini-3.1-flash-lite-preview | prompt_id=plan_prompt"]
-  Validator["Constraint Auditor | type=logic | logic_id=validate_constraints | retries=3"]
-  ImageGate["Image Gate | type=logic | logic_id=check_image_status"]
-  ImageGenerator["Image Generator | type=logic | logic_id=generate_and_save_images"]
-  TemplateManager["Template Provider | type=logic | logic_id=provide_template"]
-  PamphletFormatter["Pamphlet Formatter | type=logic | logic_id=format_pamphlet"]
-  Finalizer["Itinerary Saver | type=logic | logic_id=save_itinerary"]
-  Planner --> Validator
-  Validator --> Planner
-  Validator --> ImageGate
-  ImageGate --> ImageGenerator
-  ImageGate --> TemplateManager
-  ImageGenerator --> TemplateManager
-  TemplateManager --> PamphletFormatter
-  PamphletFormatter --> Finalizer
-  ImageGate -- Test --> ImageGenerator
-  ImageGate -- Fail --> TemplateManager
-  Validator -- Test --> ImageGate
-  Validator -- Fail --> Planner
-```
-
-```` r
 cat("\n```\n")
-````
-
 ```
 
 ## Execution
@@ -314,5 +238,5 @@ This workflow demonstrates how `HydraR` enables **Truly Zero-R-Code** definition
 2. **Reduced Boilerplate**: `load_workflow()` handles all registration and state parsing.
 3. **Maintainable**: Logic and roles are separated from the R execution engine.
 
----
+
 <!-- APAF Bioinformatics | hong_kong_travel.Rmd | Approved | 2026-03-30 -->
