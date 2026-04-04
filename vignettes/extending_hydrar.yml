@@ -12,8 +12,6 @@ roles:
     process complex biological datasets and provide concise summaries.
 
 logic:
-  spec_prompt: >
-    sprintf("Process and summarize the following biological data: %s", state$get("input"))
 
 start_node: A
 

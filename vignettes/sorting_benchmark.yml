@@ -19,69 +19,9 @@ roles:
     no markdown blocks.
 
 logic:
-  run_benchmark: |
-    # Ensure current branch is up to date (usually main)
-    curr_branch <- system("git branch --show-current", intern = TRUE)
-    message(sprintf("[Benchmark] Running on branch: %s", curr_branch))
+  run_benchmark: "logic/run_benchmark.R"
 
-    # Source all generated files
-    files <- list.files(pattern = "_sort.R")
-    message(sprintf("[Benchmark] Found %d algorithm files: %s",
-      length(files), paste(files, collapse = ", ")))
-
-    # Use tryCatch to skip corrupted files (e.g. from LLM noise)
-    purrr::walk(files, function(f) {
-      tryCatch(source(f), error = function(e) {
-        warning(sprintf("[Benchmark] Failed to source %s: %s", f, e$message))
-      })
-    })
-
-    # Benchmark parameters
-    n_elements <- 1000
-    n_trials <- 5
-    methods <- c("bubble", "quick", "merge")
-
-    results_df <- purrr::map_df(methods, function(m) {
-      func_name <- paste0(m, "_sort")
-      if (!exists(func_name)) return(NULL)
-      func <- get(func_name)
-
-      times <- purrr::map_dbl(seq_len(n_trials), function(i) {
-        test_data <- rnorm(n_elements)
-        start <- Sys.time()
-        func(test_data)
-        as.numeric(difftime(Sys.time(), start, units = "secs"))
-      })
-
-      data.frame(method = m, time = times)
-    })
-
-    list(status = "success", output = results_df)
-
-  run_plot: |
-    df <- state$get("benchmark")
-    if (is.null(df) || nrow(df) == 0) {
-      return(list(status = "failed", output = NULL, error = "No benchmark data found."))
-    }
-
-    # Suppress graphics device warnings
-    pdf(NULL)
-    on.exit(if (dev.cur() > 1) dev.off())
-
-    p <- ggplot2::ggplot(df, ggplot2::aes(
-      x = .data$method, y = .data$time, fill = .data$method
-    )) +
-      ggplot2::geom_boxplot() +
-      ggplot2::theme_minimal() +
-      ggplot2::labs(
-        title = "Sorting Algorithm Performance",
-        y = "Time (seconds)", x = "Algorithm"
-      )
-
-    pdf(file = "sorting_benchmark.pdf")
-    print(p)
-    dev.off()
-    list(status = "success", output = "Plot rendered.")
+  run_plot: "logic/run_plot.R"
 
 graph: |
   graph TD

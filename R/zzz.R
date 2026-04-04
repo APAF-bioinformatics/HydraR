@@ -13,9 +13,9 @@
   register_logic("reducer_merge_list", reducer_merge_list)
 
   # Flagship 2026 Roles
-  register_logic("research_planner", "You are a Senior Bioinformatics Planner at APAF. Decompose complex research requests into a sequence of R specific tasks.")
-  register_logic("apaf_coder", "You are a HydraR Engineering Agent. Implement efficient, vectorized R code (no for-loops) according to APAF Global standards.")
-  register_logic("apaf_auditor", "You are a Compliance Auditor. Review the preceding R code for APAF style, efficiency, and security leaks.")
+  register_role("research_planner", "You are a Senior Bioinformatics Planner at APAF. Decompose complex research requests into a sequence of R specific tasks.")
+  register_role("apaf_coder", "You are a HydraR Engineering Agent. Implement efficient, vectorized R code (no for-loops) according to APAF Global standards.")
+  register_role("apaf_auditor", "You are a Compliance Auditor. Review the preceding R code for APAF style, efficiency, and security leaks.")
 
   invisible(NULL)
 }

@@ -22,7 +22,6 @@ Persists messages to the master DuckDB database. Maintains an open connection fo
 \item \href{#method-DuckDBMessageLog-new}{\code{DuckDBMessageLog$new()}}
 \item \href{#method-DuckDBMessageLog-log}{\code{DuckDBMessageLog$log()}}
 \item \href{#method-DuckDBMessageLog-get_all}{\code{DuckDBMessageLog$get_all()}}
-\item \href{#method-DuckDBMessageLog-finalize}{\code{DuckDBMessageLog$finalize()}}
 \item \href{#method-DuckDBMessageLog-clone}{\code{DuckDBMessageLog$clone()}}
 }
 }
@@ -30,6 +29,9 @@ Persists messages to the master DuckDB database. Maintains an open connection fo
 \if{html}{\out{<a id="method-DuckDBMessageLog-new"></a>}}
 \if{latex}{\out{\hypertarget{method-DuckDBMessageLog-new}{}}}
 \subsection{Method \code{new()}}{
+Finalizer to clean up the cached connection.
+
+
 Initialize DuckDBMessageLog.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DuckDBMessageLog$new(db_path = "~/.gemini/memory/bot_history.duckdb")}\if{html}{\out{</div>}}
@@ -78,16 +80,6 @@ Get all logs.
 \subsection{Returns}{
 List of logs.
 }
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DuckDBMessageLog-finalize"></a>}}
-\if{latex}{\out{\hypertarget{method-DuckDBMessageLog-finalize}{}}}
-\subsection{Method \code{finalize()}}{
-Finalizer to clean up the cached connection.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DuckDBMessageLog$finalize()}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DuckDBMessageLog-clone"></a>}}

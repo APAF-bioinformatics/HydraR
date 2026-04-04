@@ -23,7 +23,7 @@ AgentBashNode <- R6::R6Class("AgentBashNode",
     #' @field env_vars Named list. Environment variables to inject.
     env_vars = NULL,
 
-    #' Initialize
+    #' Initialize Bash Node
     #' @param id Node ID
     #' @param label Node Label
     #' @param script String or Function(state) returning a string.
@@ -89,7 +89,6 @@ AgentPythonNode <- R6::R6Class("AgentPythonNode",
     #' @field engine Character. Execution engine ("system2" or "reticulate").
     engine = NULL,
 
-    #' Initialize
     #' @param id Node ID
     #' @param label Node Label
     #' @param script String or Function(state) returning a string.

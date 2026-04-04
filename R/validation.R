@@ -195,7 +195,9 @@ lint_workflow_logic <- function(wf) {
     # If the code looks like a function(state), check it
     # If it's a code block that HydraR wraps, it implicitly uses 'state'
     # We can check if 'state' is mentioned in the code
-    if (!grepl("\\bstate\\b", code) && !grepl("^\\{", trimws(code))) {
+    # SKIP if it's a simple identifier (alphanumeric only, no spaces/parens)
+    is_simple_id <- grepl("^[a-zA-Z0-9_]+$", v_trim)
+    if (!is_simple_id && !grepl("\\bstate\\b", code) && !grepl("^\\{", trimws(code))) {
       warnings <<- c(warnings, sprintf("Logic '%s': 'state' object is not referenced. Ensure your logic interacts with the AgentState.", name))
     }
 
