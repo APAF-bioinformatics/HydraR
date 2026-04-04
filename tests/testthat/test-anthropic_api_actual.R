@@ -31,16 +31,13 @@ test_that("AnthropicAPIDriver can execute a simple prompt via API", {
   expect_true(inherits(drv, "AnthropicAPIDriver"))
 
   # Execute a simple prompt
-  res <- tryCatch(
-    {
-      withr::with_options(list(timeout = 30), {
-        drv$call("echo 'hello api' and nothing else")
-      })
-    },
-    error = function(e) {
-      skip(paste("Anthropic API call failed:", e$message))
-    }
-  )
+  res <- tryCatch({
+    withr::with_options(list(timeout = 30), {
+      drv$call("echo 'hello api' and nothing else")
+    })
+  }, error = function(e) {
+    skip(paste("Anthropic API call failed:", e$message))
+  })
 
   # Validation
   expect_type(res, "character")

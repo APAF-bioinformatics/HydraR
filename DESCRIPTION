@@ -56,8 +56,6 @@ Suggests:
     withr,
     reticulate,
     DiagrammeR,
-    DiagrammeRsvg,
-    rsvg,
     ggplot2
 VignetteBuilder: knitr
 Config/testthat/edition: 3

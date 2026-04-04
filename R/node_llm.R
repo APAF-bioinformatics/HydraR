@@ -179,8 +179,6 @@ AgentLLMNode <- R6::R6Class("AgentLLMNode",
 
     #' Swap Driver at Runtime
     #' @param driver AgentDriver object or String ID.
-    #' @return The Node (invisibly).
-    #' @export
     swap_driver = function(driver) {
       if (is.character(driver)) {
         registry <- get_driver_registry()

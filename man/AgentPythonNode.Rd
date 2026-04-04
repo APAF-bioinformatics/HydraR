@@ -14,8 +14,7 @@ Executes a python script via system python or reticulate.
 \describe{
 \item{\code{script}}{Character string or Function. The python script to execute.}
 
-\item{\code{engine}}{Character. Execution engine ("system2" or "reticulate").
-Initialize}
+\item{\code{engine}}{Character. Execution engine ("system2" or "reticulate").}
 }
 \if{html}{\out{</div>}}
 }

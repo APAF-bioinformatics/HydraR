@@ -26,25 +26,22 @@ test_that("OllamaDriver can execute a simple prompt with smollm2:135m", {
   expect_true(inherits(drv, "OllamaDriver"))
 
   # Use a very simple prompt
-  res <- tryCatch(
-    {
-      withr::with_options(list(timeout = 30), {
-        # Ask for something very simple
-        drv$call("Say 'hello world' and nothing else")
-      })
-    },
-    error = function(e) {
-      skip(paste("Ollama call failed or timed out:", e$message))
-    }
-  )
+  res <- tryCatch({
+    withr::with_options(list(timeout = 30), {
+      # Ask for something very simple
+      drv$call("Say 'hello world' and nothing else")
+    })
+  }, error = function(e) {
+    skip(paste("Ollama call failed or timed out:", e$message))
+  })
 
   # Validation: result should not be empty
   expect_type(res, "character")
   expect_true(nchar(res) > 0)
-
+  
   # Check if it contains 'hello' (smollm2 might not follow 'and nothing else' perfectly)
   expect_true(grepl("hello", res, ignore.case = TRUE))
-
+  
   message(sprintf("\n[Ollama Test] Output: %s", res))
 })
 

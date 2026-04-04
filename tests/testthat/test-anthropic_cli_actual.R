@@ -27,22 +27,19 @@ test_that("AnthropicCLIDriver can execute a simple prompt", {
 
   # Use a very simple prompt that should return a predictable result
   # We use a timeout to prevent hanging
-  res <- tryCatch(
-    {
-      withr::with_options(list(timeout = 30), {
-        # Ask for something very simple
-        drv$call("echo 'hello world' and nothing else")
-      })
-    },
-    error = function(e) {
-      skip(paste("Claude Code CLI call failed or timed out:", e$message))
-    }
-  )
+  res <- tryCatch({
+    withr::with_options(list(timeout = 30), {
+      # Ask for something very simple
+      drv$call("echo 'hello world' and nothing else")
+    })
+  }, error = function(e) {
+    skip(paste("Claude Code CLI call failed or timed out:", e$message))
+  })
 
   # Validation: result should not be empty
   expect_type(res, "character")
   expect_true(nchar(res) > 0)
-
+  
   # Check if it contains 'hello world'
   expect_true(grepl("hello world", res, ignore.case = TRUE))
 })

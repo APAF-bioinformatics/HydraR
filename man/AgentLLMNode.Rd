@@ -136,9 +136,6 @@ Swap Driver at Runtime
 }
 \if{html}{\out{</div>}}
 }
-\subsection{Returns}{
-The Node (invisibly).
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AgentLLMNode-clone"></a>}}

@@ -15,7 +15,7 @@ Executes a raw bash script. Can run within an isolated worktree if configured.
 \item{\code{script}}{Character string or Function. The bash script to execute.}
 
 \item{\code{env_vars}}{Named list. Environment variables to inject.
-Initialize}
+Initialize Bash Node}
 }
 \if{html}{\out{</div>}}
 }

@@ -26,17 +26,14 @@ test_that("OpenAIAPIDriver can execute a simple prompt via API", {
   expect_true(inherits(drv, "OpenAIAPIDriver"))
 
   # Execute a simple prompt
-  res <- tryCatch(
-    {
-      withr::with_options(list(timeout = 30), {
-        # Ask for something very simple
-        drv$call("echo 'hello openai' and nothing else")
-      })
-    },
-    error = function(e) {
-      skip(paste("OpenAI API call failed:", e$message))
-    }
-  )
+  res <- tryCatch({
+    withr::with_options(list(timeout = 30), {
+      # Ask for something very simple
+      drv$call("echo 'hello openai' and nothing else")
+    })
+  }, error = function(e) {
+    skip(paste("OpenAI API call failed:", e$message))
+  })
 
   # Validation
   expect_type(res, "character")

@@ -1,3 +1,14 @@
+# ==============================================================
+# APAF Bioinformatics | Macquarie University
+# File:        test-declarative_loops.R
+# Author:      APAF Agentic Workflow
+# Purpose:     Verify Loops and Conditional Edges in Declarative Workflows
+# License:     LGPL (>= 3) (see LICENSE)
+# ==============================================================
+
+library(testthat)
+library(HydraR)
+
 test_that("Declarative conditional edges work via spawn_dag", {
   # Create a dummy workflow with a loop
   wf_yml <- "
@@ -25,17 +36,17 @@ logic:
   writeLines(wf_yml, tmp_file)
 
   # Pre-register for security Tier 2
-  register_logic("logic_a", function(state) list(status = "success", output = "a_done"))
+  register_logic("logic_a", function(state) list(status = 'success', output = 'a_done'))
   register_logic("logic_b", function(state) {
-    count <- state$get("count") %||% 0
-    state$set("count", count + 1)
+    count <- state$get('count') %||% 0
+    state$set('count', count + 1)
     if (count < 1) {
-      list(status = "success", output = list(ok = FALSE))
+      list(status = 'success', output = list(ok = FALSE))
     } else {
-      list(status = "success", output = list(ok = TRUE))
+      list(status = 'success', output = list(ok = TRUE))
     }
   })
-  register_logic("check_ok", function(out) isTRUE(out$ok))
+  register_logic("check_ok", function(out) isTRUE(out$output$ok))
 
   # Use load_workflow which SHOULD register the logic
   wf <- load_workflow(tmp_file)
@@ -43,9 +54,9 @@ logic:
   # Verify registration
   expect_true("logic_a" %in% list_logic())
 
-  dag <- spawn_dag(wf)
-
-  res <- dag$run(initial_state = list(), max_steps = 10)
+  # Suppress cycle warnings as this test intentionally uses a loop
+  dag <- suppressWarnings(spawn_dag(wf))
+  res <- suppressWarnings(dag$run(initial_state = list(), max_steps = 10))
 
   expect_equal(res$status, "completed")
   expect_true(dag$state$get("count") >= 2)
@@ -65,7 +76,10 @@ test_that("Declarative conditional edges handle named functions", {
     )
   )
 
-  dag <- spawn_dag(wf)
-  res <- dag$run(initial_state = list())
+  # Suppress cycle warnings as this test intentionally uses a loop
+  dag <- suppressWarnings(spawn_dag(wf))
+  res <- suppressWarnings(dag$run(initial_state = list()))
   expect_equal(res$status, "completed")
 })
+
+# <!-- APAF Bioinformatics | test-declarative_loops.R | Approved | 2026-04-04 -->

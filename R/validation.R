@@ -195,7 +195,9 @@ lint_workflow_logic <- function(wf) {
     # If the code looks like a function(state), check it
     # If it's a code block that HydraR wraps, it implicitly uses 'state'
     # We can check if 'state' is mentioned in the code
-    if (!grepl("\\bstate\\b", code) && !grepl("^\\{", trimws(code))) {
+    # SKIP if it's a simple identifier (alphanumeric only, no spaces/parens)
+    is_simple_id <- grepl("^[a-zA-Z0-9_]+$", v_trim)
+    if (!is_simple_id && !grepl("\\bstate\\b", code) && !grepl("^\\{", trimws(code))) {
       warnings <<- c(warnings, sprintf("Logic '%s': 'state' object is not referenced. Ensure your logic interacts with the AgentState.", name))
     }
 
@@ -212,89 +214,6 @@ lint_workflow_logic <- function(wf) {
   })
 
   list(errors = errors, warnings = warnings)
-}
-
-# --- Public Utility Functions ---
-
-#' Validate Workflow File Syntax and Consistency
-#'
-#' @description
-#' A high-level helper that performs a comprehensive check on a YAML/JSON workflow file.
-#' This includes schema validation, topological consistency checks (Mermaid vs YAML),
-#' and R logic syntax linting.
-#'
-#' @param file_path String. Path to the workflow definition file.
-#' @return Logical TRUE if valid (invisibly). Throws a detailed error on failure.
-#' @export
-validate_workflow_file <- function(file_path) {
-  # 1. Load the workflow (performs schema validation)
-  wf <- load_workflow(file_path)
-
-  # 2. Spawn the DAG (performs deep validation via validate_workflow_full)
-  dag <- spawn_dag(wf)
-
-  # 3. Explicit check (redundant but confirms success)
-  validate_workflow_full(dag, wf)
-
-  invisible(TRUE)
-}
-
-#' Render Workflow Diagram from File
-#'
-#' @description
-#' Loads a workflow from a file and renders its architecture as a Mermaid diagram.
-#' Supports high-fidelity exports to various image formats.
-#'
-#' @param file_path String. Path to the YAML workflow file.
-#' @param output_file String. Optional path to save the diagram (e.g., "plot.png").
-#'   Supported extensions: .png, .pdf, .jpg, .svg.
-#' @param status Logical. If TRUE, styling is applied (requires a valid trace log in the workflow state).
-#' @param ... Additional arguments passed to `dag$run()`.
-#'
-#' @return A `DiagrammeR` htmlwidget if `output_file` is NULL, otherwise saves the file.
-#' @export
-render_workflow_file <- function(file_path, output_file = NULL, status = FALSE, ...) {
-  # 1. Load and Spawn
-  wf <- load_workflow(file_path)
-  dag <- spawn_dag(wf)
-
-  # 2. Generate Mermaid String
-  mermaid_str <- dag$plot(type = "mermaid", status = status, ...)
-
-  # 3. Handle Rendering
-  if (!requireNamespace("DiagrammeR", quietly = TRUE)) {
-    stop("Package 'DiagrammeR' is required for rendering workflows. Please install it.")
-  }
-
-  # Strip the md fences before passing to DiagrammeR
-  clean_mermaid <- gsub("^```mermaid\\s*\\n?|\\n?```$", "", mermaid_str)
-  widget <- DiagrammeR::mermaid(clean_mermaid)
-
-  if (is.null(output_file)) {
-    return(widget)
-  }
-
-  # 4. Handle Export
-  ext <- tolower(tools::file_ext(output_file))
-  if (ext == "") stop("output_file must have an extension (e.g., .png, .pdf).")
-
-  if (!requireNamespace("DiagrammeRsvg", quietly = TRUE) || !requireNamespace("rsvg", quietly = TRUE)) {
-    stop("Packages 'DiagrammeRsvg' and 'rsvg' are required for exporting diagrams. Please install them.")
-  }
-
-  # Use raw export_svg to get the string
-  svg_code <- DiagrammeRsvg::export_svg(widget)
-
-  switch(ext,
-    "svg" = writeLines(svg_code, output_file),
-    "png" = rsvg::rsvg_png(charToRaw(svg_code), file = output_file),
-    "pdf" = rsvg::rsvg_pdf(charToRaw(svg_code), file = output_file),
-    "jpg" = ,
-    "jpeg" = rsvg::rsvg_jpg(charToRaw(svg_code), file = output_file),
-    stop(sprintf("Unsupported export format: .%s", ext))
-  )
-
-  invisible(output_file)
 }
 
 # <!-- APAF Bioinformatics | validation.R | Approved | 2026-04-03 -->
