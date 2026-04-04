@@ -17,8 +17,7 @@ A node that maps over a list in the state and performs an operation.
 \describe{
 \item{\code{map_key}}{String. Key in state to map over.}
 
-\item{\code{logic_fn}}{Function(item, state) -> List(status, output).
-Initialize AgentMapNode}
+\item{\code{logic_fn}}{Function(item, state) -> List(status, output).}
 }
 \if{html}{\out{</div>}}
 }
@@ -34,6 +33,7 @@ Initialize AgentMapNode}
 \if{html}{\out{<a id="method-AgentMapNode-new"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentMapNode-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize AgentMapNode
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentMapNode$new(id, map_key, logic_fn, label = NULL, params = list())}\if{html}{\out{</div>}}
 }

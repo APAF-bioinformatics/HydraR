@@ -36,8 +36,7 @@ node <- AgentLLMNode$new("chat", role = "helpful assistant")
 
 \item{\code{agents_files}}{Character vector. Paths to agents context files.}
 
-\item{\code{skills_files}}{Character vector. Paths to skills context files.
-Initialize AgentLLMNode}
+\item{\code{skills_files}}{Character vector. Paths to skills context files.}
 }
 \if{html}{\out{</div>}}
 }
@@ -54,6 +53,7 @@ Initialize AgentLLMNode}
 \if{html}{\out{<a id="method-AgentLLMNode-new"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentLLMNode-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize AgentLLMNode
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentLLMNode$new(
   id,

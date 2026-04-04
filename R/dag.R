@@ -59,8 +59,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
     #' @field worktree_manager WorktreeManager. Optional isolation manager.
     worktree_manager = NULL,
 
-    #' @description
-    #' Initialize AgentDAG
+    #' @description Initialize AgentDAG
     initialize = function() {
       self$nodes <- list()
       self$edges <- list()

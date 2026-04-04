@@ -12,8 +12,7 @@ Implementation of the OpenAI Chat Completions API.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{api_url}}{String. Base URL.
-Initialize OpenAIAPIDriver}
+\item{\code{api_url}}{String. Base URL.}
 }
 \if{html}{\out{</div>}}
 }
@@ -41,6 +40,7 @@ Initialize OpenAIAPIDriver}
 \if{html}{\out{<a id="method-OpenAIAPIDriver-new"></a>}}
 \if{latex}{\out{\hypertarget{method-OpenAIAPIDriver-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize OpenAIAPIDriver
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{OpenAIAPIDriver$new(
   id = "openai_api",

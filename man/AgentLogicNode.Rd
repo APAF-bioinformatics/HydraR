@@ -18,8 +18,7 @@ node <- AgentLogicNode$new("start", function(state) list(status = "success"))
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{logic_fn}}{Function(state) -> List(status, output).
-Initialize AgentLogicNode}
+\item{\code{logic_fn}}{Function(state) -> List(status, output).}
 }
 \if{html}{\out{</div>}}
 }
@@ -35,6 +34,7 @@ Initialize AgentLogicNode}
 \if{html}{\out{<a id="method-AgentLogicNode-new"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentLogicNode-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize AgentLogicNode
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentLogicNode$new(id, logic_fn, label = NULL, params = list())}\if{html}{\out{</div>}}
 }

@@ -22,7 +22,7 @@ AgentLogicNode <- R6::R6Class("AgentLogicNode",
     #' @field logic_fn Function(state) -> List(status, output).
     logic_fn = NULL,
 
-    #' Initialize AgentLogicNode
+    #' @description Initialize AgentLogicNode
     #' @param id Unique identifier.
     #' @param logic_fn Function that takes an AgentState object and returns a list.
     #' @param label Optional human-readable name.

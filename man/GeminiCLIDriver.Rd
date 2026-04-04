@@ -12,8 +12,7 @@ Driver for the 'gemini' CLI tool.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{model}}{String. Default model. Omit to use CLI default.
-Initialize GeminiCLIDriver}
+\item{\code{model}}{String. Default model. Omit to use CLI default.}
 }
 \if{html}{\out{</div>}}
 }
@@ -41,6 +40,7 @@ Initialize GeminiCLIDriver}
 \if{html}{\out{<a id="method-GeminiCLIDriver-new"></a>}}
 \if{latex}{\out{\hypertarget{method-GeminiCLIDriver-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize GeminiCLIDriver
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GeminiCLIDriver$new(
   id = "gemini_cli",

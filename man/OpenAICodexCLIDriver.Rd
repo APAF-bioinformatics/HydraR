@@ -4,6 +4,11 @@
 \alias{OpenAICodexCLIDriver}
 \title{OpenAI Codex CLI Driver}
 \description{
+OpenAI Codex CLI Driver
+
+OpenAI Codex CLI Driver
+}
+\details{
 Supports the official `codex` CLI (v0.118+).
 }
 \section{Super class}{
@@ -33,6 +38,7 @@ Supports the official `codex` CLI (v0.118+).
 \if{html}{\out{<a id="method-OpenAICodexCLIDriver-new"></a>}}
 \if{latex}{\out{\hypertarget{method-OpenAICodexCLIDriver-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize OpenAICodexCLIDriver
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{OpenAICodexCLIDriver$new(
   id = "codex_cli",

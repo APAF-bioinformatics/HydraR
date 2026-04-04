@@ -17,8 +17,7 @@ Driver for Google Gemini's multimodal image generation (2026 models).
 \describe{
 \item{\code{output_dir}}{String. Directory to save generated images.}
 
-\item{\code{aspect_ratio}}{String. Default "16:9".
-Initialize GeminiImageDriver}
+\item{\code{aspect_ratio}}{String. Default "16:9".}
 }
 \if{html}{\out{</div>}}
 }
@@ -46,6 +45,7 @@ Initialize GeminiImageDriver}
 \if{html}{\out{<a id="method-GeminiImageDriver-new"></a>}}
 \if{latex}{\out{\hypertarget{method-GeminiImageDriver-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize GeminiImageDriver
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GeminiImageDriver$new(
   id = "gemini_image",

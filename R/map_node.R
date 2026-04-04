@@ -21,7 +21,7 @@ AgentMapNode <- R6::R6Class("AgentMapNode",
     #' @field logic_fn Function(item, state) -> List(status, output).
     logic_fn = NULL,
 
-    #' Initialize AgentMapNode
+    #' @description Initialize AgentMapNode
     #' @param id Unique identifier.
     #' @param map_key String identifier for state retrieval.
     #' @param logic_fn Mapping function.

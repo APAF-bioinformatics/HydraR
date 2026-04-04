@@ -36,7 +36,7 @@ AgentDriver <- R6::R6Class("AgentDriver",
     #' @field repo_root String. Path to the main repository root (for root-locked CLIs).
     repo_root = NULL,
 
-    #' Initialize AgentDriver
+    #' @description Initialize AgentDriver
     #' @param id Unique identifier.
     #' @param provider String. Provider name.
     #' @param model_name String. Model identifier.

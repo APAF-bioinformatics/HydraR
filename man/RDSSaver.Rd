@@ -14,8 +14,7 @@ No external dependencies required.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{dir}}{String. Directory to store .rds checkpoint files.
-Initialize RDSSaver}
+\item{\code{dir}}{String. Directory to store .rds checkpoint files.}
 }
 \if{html}{\out{</div>}}
 }
@@ -32,6 +31,7 @@ Initialize RDSSaver}
 \if{html}{\out{<a id="method-RDSSaver-new"></a>}}
 \if{latex}{\out{\hypertarget{method-RDSSaver-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize RDSSaver
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{RDSSaver$new(dir = "checkpoints")}\if{html}{\out{</div>}}
 }

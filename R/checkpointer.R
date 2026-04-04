@@ -46,7 +46,7 @@ MemorySaver <- R6::R6Class("MemorySaver",
     #' @field storage Environment. Stores the states.
     storage = NULL,
 
-    #' Initialize MemorySaver
+    #' @description Initialize MemorySaver
     #' @description
     #' Creates a new environment for in-memory checkpoint storage.
     initialize = function() {
@@ -108,7 +108,7 @@ RDSSaver <- R6::R6Class("RDSSaver",
     #' @field dir String. Directory to store .rds checkpoint files.
     dir = NULL,
 
-    #' Initialize RDSSaver
+    #' @description Initialize RDSSaver
     #' @param dir String. Directory path for checkpoint files.
     initialize = function(dir = "checkpoints") {
       self$dir <- dir
@@ -176,7 +176,7 @@ DuckDBSaver <- R6::R6Class("DuckDBSaver",
     #' @field table_name String.
     table_name = "agent_checkpoints",
 
-    #' Initialize DuckDBSaver
+    #' @description Initialize DuckDBSaver
     #' @param con DBIConnection. Optional if db_path is provided.
     #' @param db_path String path to DuckDB file. Optional if con is provided.
     #' @param table_name Name of the table to store checkpoints in.

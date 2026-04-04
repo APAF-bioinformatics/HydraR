@@ -15,8 +15,7 @@ Driver for Google Gemini (AI Studio) API.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{api_base}}{String. Base URL.
-Initialize GeminiAPIDriver}
+\item{\code{api_base}}{String. Base URL.}
 }
 \if{html}{\out{</div>}}
 }
@@ -44,6 +43,7 @@ Initialize GeminiAPIDriver}
 \if{html}{\out{<a id="method-GeminiAPIDriver-new"></a>}}
 \if{latex}{\out{\hypertarget{method-GeminiAPIDriver-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize GeminiAPIDriver
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GeminiAPIDriver$new(
   id = "gemini_api",

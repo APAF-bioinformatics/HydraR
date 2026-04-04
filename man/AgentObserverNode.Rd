@@ -16,8 +16,7 @@ Its output does not modify the primary AgentState.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{observe_fn}}{Function(state) -> void.
-Initialize AgentObserverNode}
+\item{\code{observe_fn}}{Function(state) -> void.}
 }
 \if{html}{\out{</div>}}
 }
@@ -33,6 +32,7 @@ Initialize AgentObserverNode}
 \if{html}{\out{<a id="method-AgentObserverNode-new"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentObserverNode-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize AgentObserverNode
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentObserverNode$new(id, observe_fn, label = NULL, params = list())}\if{html}{\out{</div>}}
 }

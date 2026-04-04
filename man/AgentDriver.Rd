@@ -29,8 +29,7 @@ driver <- AgentDriver$new(id = "test", provider = "mock")
 
 \item{\code{working_dir}}{String. Optional path to the working directory/worktree.}
 
-\item{\code{repo_root}}{String. Path to the main repository root (for root-locked CLIs).
-Initialize AgentDriver}
+\item{\code{repo_root}}{String. Path to the main repository root (for root-locked CLIs).}
 }
 \if{html}{\out{</div>}}
 }
@@ -52,6 +51,7 @@ Initialize AgentDriver}
 \if{html}{\out{<a id="method-AgentDriver-new"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentDriver-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize AgentDriver
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentDriver$new(
   id,

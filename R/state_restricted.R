@@ -25,7 +25,7 @@ RestrictedState <- R6::R6Class("RestrictedState",
     #' @field logger MessageLog. Audit log for communication.
     logger = NULL,
 
-    #' Initialize RestrictedState
+    #' @description Initialize RestrictedState
     #' @param state AgentState object.
     #' @param node_id String node ID.
     #' @param logger Optional MessageLog object.

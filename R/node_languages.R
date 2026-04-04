@@ -23,7 +23,7 @@ AgentBashNode <- R6::R6Class("AgentBashNode",
     #' @field env_vars Named list. Environment variables to inject.
     env_vars = NULL,
 
-    #' Initialize Bash Node
+    #' @description Initialize Bash Node
     #' @param id Node ID
     #' @param label Node Label
     #' @param script String or Function(state) returning a string.

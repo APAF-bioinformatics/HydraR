@@ -20,7 +20,7 @@ DriverRegistry <- R6::R6Class("DriverRegistry",
     #' @field drivers List. Storage for registered drivers.
     drivers = list(),
 
-    #' Initialize DriverRegistry
+    #' @description Initialize DriverRegistry
     #' @return A new `DriverRegistry` object.
     initialize = function() {
       self$drivers <- list()
