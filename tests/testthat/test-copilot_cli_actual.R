@@ -28,13 +28,16 @@ test_that("CopilotCLIDriver can execute a simple prompt", {
 
   # Use a very simple prompt that should return a predictable shell command
   # We use a timeout to prevent hanging the test suite
-  res <- tryCatch({
-    withr::with_options(list(timeout = 10), {
-      drv$call("echo hello world")
-    })
-  }, error = function(e) {
-    skip(paste("Copilot CLI call failed or timed out:", e$message))
-  })
+  res <- tryCatch(
+    {
+      withr::with_options(list(timeout = 10), {
+        drv$call("echo hello world")
+      })
+    },
+    error = function(e) {
+      skip(paste("Copilot CLI call failed or timed out:", e$message))
+    }
+  )
 
   # Validation: result should not be empty
   expect_type(res, "character")

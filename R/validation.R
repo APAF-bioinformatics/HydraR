@@ -289,7 +289,8 @@ render_workflow_file <- function(file_path, output_file = NULL, status = FALSE, 
     "svg" = writeLines(svg_code, output_file),
     "png" = rsvg::rsvg_png(charToRaw(svg_code), file = output_file),
     "pdf" = rsvg::rsvg_pdf(charToRaw(svg_code), file = output_file),
-    "jpg" = , "jpeg" = rsvg::rsvg_jpg(charToRaw(svg_code), file = output_file),
+    "jpg" = ,
+    "jpeg" = rsvg::rsvg_jpg(charToRaw(svg_code), file = output_file),
     stop(sprintf("Unsupported export format: .%s", ext))
   )
 
