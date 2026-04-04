@@ -119,142 +119,242 @@ journey)</p>
 and the universal <code><a href="../reference/auto_node_factory.html">auto_node_factory()</a></code> to
 <code><a href="../reference/mermaid_to_dag.html">mermaid_to_dag()</a></code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spawn_dag.html">spawn_dag</a></span><span class="op">(</span><span class="va">wf</span>, <span class="fu"><a href="../reference/auto_node_factory.html">auto_node_factory</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spawn_dag.html">spawn_dag</a></span><span class="op">(</span><span class="va">wf</span>, <span class="fu"><a href="../reference/auto_node_factory.html">auto_node_factory</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [HydraR Warning] Logic 'plan_prompt': 'state' object is not referenced. Ensure your logic interacts with the AgentState.</span></span>
+<span><span class="co">#&gt; [HydraR Warning] Logic 'plan_prompt' [Lint]: Put spaces around all infix operators. (line 1)</span></span>
+<span><span class="co">#&gt; [HydraR Warning] Logic 'image_prompt': 'state' object is not referenced. Ensure your logic interacts with the AgentState.</span></span>
+<span><span class="co">#&gt; [HydraR Warning] Logic 'image_prompt' [Lint]: Put spaces around all infix operators. (line 1)</span></span>
+<span><span class="co">#&gt; [HydraR Warning] Logic 'validate_constraints': 'state' object is not referenced. Ensure your logic interacts with the AgentState.</span></span>
+<span><span class="co">#&gt; [HydraR Warning] Logic 'validate_constraints' [Lint]: Put spaces around all infix operators. (line 1)</span></span>
+<span><span class="co">#&gt; [HydraR Warning] Logic 'check_image_status': 'state' object is not referenced. Ensure your logic interacts with the AgentState.</span></span>
+<span><span class="co">#&gt; [HydraR Warning] Logic 'check_image_status' [Lint]: Put spaces around all infix operators. (line 1)</span></span>
+<span><span class="co">#&gt; [HydraR Warning] Logic 'generate_and_save_images': 'state' object is not referenced. Ensure your logic interacts with the AgentState.</span></span>
+<span><span class="co">#&gt; [HydraR Warning] Logic 'generate_and_save_images' [Lint]: Put spaces around all infix operators. (line 1)</span></span>
+<span><span class="co">#&gt; [HydraR Warning] Logic 'provide_template': 'state' object is not referenced. Ensure your logic interacts with the AgentState.</span></span>
+<span><span class="co">#&gt; [HydraR Warning] Logic 'provide_template' [Lint]: Put spaces around all infix operators. (line 1)</span></span>
+<span><span class="co">#&gt; [HydraR Warning] Logic 'format_pamphlet': 'state' object is not referenced. Ensure your logic interacts with the AgentState.</span></span>
+<span><span class="co">#&gt; [HydraR Warning] Logic 'format_pamphlet' [Lint]: Put spaces around all infix operators. (line 1)</span></span>
+<span><span class="co">#&gt; [HydraR Warning] Logic 'save_itinerary': 'state' object is not referenced. Ensure your logic interacts with the AgentState.</span></span>
+<span><span class="co">#&gt; [HydraR Warning] Logic 'save_itinerary' [Lint]: Put spaces around all infix operators. (line 1)</span></span>
+<span><span class="co">#&gt; Warning in dag$compile(): Potential infinite loop detected: graph contains</span></span>
+<span><span class="co">#&gt; cycles. Ensure conditional edges have exit conditions.</span></span>
+<span><span class="co">#&gt; Graph compiled successfully.</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="visualizing-the-workflow">Visualizing the Workflow<a class="anchor" aria-label="anchor" href="#visualizing-the-workflow"></a>
 </h2>
 <p>We can view the agent’s logic directly using Mermaid.js syntax.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"```mermaid\n"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>type <span class="op">=</span> <span class="st">"mermaid"</span>, details <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n```\n"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="execution">Execution<a class="anchor" aria-label="anchor" href="#execution"></a>
-</h2>
-<p>When we run the DAG, we use the <code>initial_state</code> extracted
-from the YAML file. No manual R list creation is required.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Register a checkpointer for durability</span></span>
-<span><span class="va">checkpointer</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/DuckDBSaver.html">DuckDBSaver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>db_path <span class="op">=</span> <span class="st">"travel_booking.duckdb"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Run the orchestration using the state from YAML</span></span>
-<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span></span>
-<span>  initial_state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/append.html" class="external-link">append</a></span><span class="op">(</span><span class="va">wf</span><span class="op">$</span><span class="va">initial_state</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    force_regenerate_images <span class="op">=</span> <span class="va">FORCE_REGENERATE_IMAGES</span>,</span>
-<span>    aspect_ratio <span class="op">=</span> <span class="va">ASPECT_RATIO</span></span>
-<span>  <span class="op">)</span><span class="op">)</span>,</span>
-<span>  max_steps <span class="op">=</span> <span class="fl">15</span>,</span>
-<span>  checkpointer <span class="op">=</span> <span class="va">checkpointer</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Display final itinerary</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n\n### Generated Itinerary\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; ### Generated Itinerary</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"Planner"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ## Sydney to Hong Kong: A 7-Day Cultural &amp; Culinary Escape</span></span>
-<span><span class="co">#&gt; **Travel Dates:** May 26, 2026 – June 1, 2026</span></span>
-<span><span class="co">#&gt; **Airline:** Qantas (Direct flight SYD-HKG)</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; This itinerary balances Hong Kong’s high-energy urban landscape with the tranquil, traditional charm of the outlying islands.</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; ---</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; ### **Day 1: Arrival &amp; The Harbor Glow (May 26)**</span></span>
-<span><span class="co">#&gt; *   **Arrival:** Land at HKG via Qantas. Take the Airport Express to Central.</span></span>
-<span><span class="co">#&gt; *   **Check-in:** Stay in **Central or Sheung Wan** for the best access to transportation.</span></span>
-<span><span class="co">#&gt; *   **Evening:** Walk the **Tsim Sha Tsui Promenade**. Take the Star Ferry across the harbor at sunset to see the city lights spark to life.</span></span>
-<span><span class="co">#&gt; *   **Dinner:** **The Spaghetti House (TST Branch)** – A local Hong Kong institution. Enjoy their signature fusion pasta dishes that have been a city staple for decades.</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; ### **Day 2: The Peak &amp; Colonial History (May 27)**</span></span>
-<span><span class="co">#&gt; *   **Morning:** Take the **Peak Tram** to Victoria Peak for the iconic skyline panorama. Walk the Lugard Road circular path.</span></span>
-<span><span class="co">#&gt; *   **Lunch:** Dim Sum at **Luk Yu Tea House** (Central) – one of the oldest and most traditional tea houses in Hong Kong.</span></span>
-<span><span class="co">#&gt; *   **Afternoon:** Explore the **Man Mo Temple** and wander the antique shops of **Cat Street**.</span></span>
-<span><span class="co">#&gt; *   **Dinner:** Enjoy authentic Cantonese Roast Goose at **Yat Lok** (Michelin-starred, no-frills).</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; ### **Day 3: The Slow Life – Cheung Chau Island (May 28)**</span></span>
-<span><span class="co">#&gt; *   **Morning:** Take a ferry from **Central Pier 5** to Cheung Chau (approx. 45-60 mins).</span></span>
-<span><span class="co">#&gt; *   **Activities:** Rent a bicycle and ride around the island’s northern and southern loops. Visit the **Pak Tai Temple** and hike to the **Mini Great Wall** for coastal views.</span></span>
-<span><span class="co">#&gt; *   **Lunch:** Seafood street food. You must try the **Giant Fishball** and the **Mango Mochi**—both local island specialties.</span></span>
-<span><span class="co">#&gt; *   **Dinner:** Dine at one of the open-air seafood restaurants along the **Cheung Chau Praya**. Pick a live fish from the tanks and have it steamed with ginger and scallion.</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; ### **Day 4: Markets &amp; Street Food Exploration (May 29)**</span></span>
-<span><span class="co">#&gt; *   **Morning:** Head to **Mong Kok**. Wander the **Goldfish Market** and the **Flower Market**.</span></span>
-<span><span class="co">#&gt; *   **Lunch:** **Tim Ho Wan** (The original dim sum specialist). Expect a queue, but it’s well worth the wait for the baked BBQ pork buns.</span></span>
-<span><span class="co">#&gt; *   **Afternoon:** Explore the **Ladies' Market** and the **Temple Street Night Market** (as it sets up).</span></span>
-<span><span class="co">#&gt; *   **Dinner:** Street food crawl in **Jordan/Mong Kok**. Try *Curry Fish Balls, Stinky Tofu (if you're brave!), and Pineapple Bun with butter* from a local *cha chaan teng*.</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; ### **Day 5: Lantau Island &amp; The Giant Buddha (May 30)**</span></span>
-<span><span class="co">#&gt; *   **Morning:** Take the MTR to Tung Chung and ride the **Ngong Ping 360 Cable Car**.</span></span>
-<span><span class="co">#&gt; *   **Activities:** Visit the **Tian Tan Buddha** and **Po Lin Monastery**. Take a bus down to **Tai O Fishing Village** to see the traditional stilt houses.</span></span>
-<span><span class="co">#&gt; *   **Dinner:** Back in the city, visit a high-end noodle shop like **Mak’s Noodle** for their legendary shrimp wonton soup.</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; ### **Day 6: Art &amp; Modern Luxury (May 31)**</span></span>
-<span><span class="co">#&gt; *   **Morning:** Visit **M+ Museum** or the **Hong Kong Palace Museum** in the West Kowloon Cultural District.</span></span>
-<span><span class="co">#&gt; *   **Lunch:** **The Spaghetti House** (Optional: Revisit for a casual lunch if you enjoyed their unique Hong Kong-style fusion menu).</span></span>
-<span><span class="co">#&gt; *   **Afternoon:** Last-minute shopping in **Causeway Bay** or a quiet stroll through **Hong Kong Park**.</span></span>
-<span><span class="co">#&gt; *   **Evening:** Farewell Dinner at a rooftop bar in Central, such as **Sevva** or **Popinjays**, to toast to the harbor one last time.</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; ### **Day 7: Departure (June 1)**</span></span>
-<span><span class="co">#&gt; *   **Morning:** Grab a traditional breakfast of milk tea and toast at a local *cha chaan teng* near your hotel.</span></span>
-<span><span class="co">#&gt; *   **Afternoon:** Take the Airport Express to HKG for your return Qantas flight to Sydney.</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; ---</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; ### **Concierge Notes:**</span></span>
-<span><span class="co">#&gt; *   **Transport:** Purchase an **Octopus Card** immediately upon arrival. It works for all MTR, ferries, trams, and buses.</span></span>
-<span><span class="co">#&gt; *   **Reservations:** For high-end dining, book 2-3 weeks in advance. For *The Spaghetti House* or local noodle shops, walk-ins are standard.</span></span>
-<span><span class="co">#&gt; *   **Weather:** June marks the beginning of the humid summer season. Pack light, breathable fabrics and always carry an umbrella for sudden tropical showers.</span></span>
-<span><span class="co">#&gt; *   **Connectivity:** Download the **"MTR Mobile"** and **"OpenRice"** (the local version of Yelp/TripAdvisor) to navigate and find the best food spots in real-time.</span></span>
-<span></span>
-<span><span class="co"># Display Constraint Audit Report</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n\n### Constraint Audit Report\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; ### Constraint Audit Report</span></span>
-<span><span class="va">report</span> <span class="op">&lt;-</span> <span class="va">results</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"report"</span><span class="op">)</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">report</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">report</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"No audit report available."</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="co">#&gt; ### Constraint Audit Report</span></span>
-<span><span class="co">#&gt; Date: 2026-04-05 00:48:07.357547</span></span>
-<span><span class="co">#&gt; - [x] Cheung Chau Island</span></span>
-<span><span class="co">#&gt; - [x] Spaghetti House</span></span>
-<span><span class="co">#&gt; - [x] Local Cuisine</span></span>
-<span></span>
-<span><span class="co"># Display Pamphlet (HTML)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n\n### Formatted Pamphlet (HTML Fragment)\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; ### Formatted Pamphlet (HTML Fragment)</span></span>
-<span><span class="va">pamphlet_html</span> <span class="op">&lt;-</span> <span class="va">results</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"PamphletFormatter"</span><span class="op">)</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">pamphlet_html</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu">htmltools</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/htmltools/reference/HTML.html" class="external-link">HTML</a></span><span class="op">(</span><span class="va">pamphlet_html</span><span class="op">)</span></span>
-<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Pamphlet not generated."</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="co">#&gt; Pamphlet not generated.</span></span>
-<span></span>
-<span><span class="co"># List Artifacts</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n\n### Generated Artifacts\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; ### Generated Artifacts</span></span>
-<span><span class="va">artifacts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">"hong_kong|validation_report"</span><span class="op">)</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">artifacts</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"- "</span>, <span class="va">artifacts</span>, collapse <span class="op">=</span> <span class="st">"\n"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"No artifacts found."</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="co">#&gt; -  hong_kong_pamphlet.html</span></span>
-<span><span class="co">#&gt; -  hong_kong_travel.Rmd</span></span>
-<span><span class="co">#&gt; -  hong_kong_travel.Rmd.orig</span></span>
-<span><span class="co">#&gt; -  hong_kong_travel.yml</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"```mermaid\n"</span><span class="op">)</span></span></code></pre></div>
+<pre class="mermaid"><code>
+``` r
+cat(dag$plot(type = "mermaid", details = TRUE))</code></pre>
+<pre class="mermaid"><code>graph TD
+  Planner["Travel Planner | type=llm | role_id=travel_concierge | driver=gemini_api | model=gemini-3.1-flash-lite-preview | prompt_id=plan_prompt"]
+  Validator["Constraint Auditor | type=logic | logic_id=validate_constraints | retries=3"]
+  ImageGate["Image Gate | type=logic | logic_id=check_image_status"]
+  ImageGenerator["Image Generator | type=logic | logic_id=generate_and_save_images"]
+  TemplateManager["Template Provider | type=logic | logic_id=provide_template"]
+  PamphletFormatter["Pamphlet Formatter | type=logic | logic_id=format_pamphlet"]
+  Finalizer["Itinerary Saver | type=logic | logic_id=save_itinerary"]
+  Planner --&gt; Validator
+  Validator --&gt; Planner
+  Validator --&gt; ImageGate
+  ImageGate --&gt; ImageGenerator
+  ImageGate --&gt; TemplateManager
+  ImageGenerator --&gt; TemplateManager
+  TemplateManager --&gt; PamphletFormatter
+  PamphletFormatter --&gt; Finalizer
+  ImageGate -- Test --&gt; ImageGenerator
+  ImageGate -- Fail --&gt; TemplateManager
+  Validator -- Test --&gt; ImageGate
+  Validator -- Fail --&gt; Planner</code></pre>
+<pre class="mermaid"><code>graph TD
+  Planner["Travel Planner | type=llm | role_id=travel_concierge | driver=gemini_api | model=gemini-3.1-flash-lite-preview | prompt_id=plan_prompt"]
+  Validator["Constraint Auditor | type=logic | logic_id=validate_constraints | retries=3"]
+  ImageGate["Image Gate | type=logic | logic_id=check_image_status"]
+  ImageGenerator["Image Generator | type=logic | logic_id=generate_and_save_images"]
+  TemplateManager["Template Provider | type=logic | logic_id=provide_template"]
+  PamphletFormatter["Pamphlet Formatter | type=logic | logic_id=format_pamphlet"]
+  Finalizer["Itinerary Saver | type=logic | logic_id=save_itinerary"]
+  Planner --&gt; Validator
+  Validator --&gt; Planner
+  Validator --&gt; ImageGate
+  ImageGate --&gt; ImageGenerator
+  ImageGate --&gt; TemplateManager
+  ImageGenerator --&gt; TemplateManager
+  TemplateManager --&gt; PamphletFormatter
+  PamphletFormatter --&gt; Finalizer
+  ImageGate -- Test --&gt; ImageGenerator
+  ImageGate -- Fail --&gt; TemplateManager
+  Validator -- Test --&gt; ImageGate
+  Validator -- Fail --&gt; Planner</code></pre>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n```\n"</span><span class="op">)</span></span></code></pre></div>
+<pre><code>
+## Execution
+
+When we run the DAG, we use the `initial_state` extracted from the YAML file. No manual R list creation is required.
+
+
+``` r
+# Register a checkpointer for durability
+checkpointer &lt;- DuckDBSaver$new(db_path = "travel_booking.duckdb")
+
+# Run the orchestration using the state from YAML
+results &lt;- dag$run(
+  initial_state = append(wf$initial_state, list(
+    force_regenerate_images = FORCE_REGENERATE_IMAGES,
+    aspect_ratio = ASPECT_RATIO
+  )),
+  max_steps = 15,
+  checkpointer = checkpointer
+)
+#&gt; Warning in self$compile(): Potential infinite loop detected: graph contains
+#&gt; cycles. Ensure conditional edges have exit conditions.
+#&gt; Graph compiled successfully.
+#&gt; [2026-04-05 09:38:18] [DEBUG] Queue: Planner | Running: Planner
+#&gt; DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
+#&gt; [2026-04-05 09:38:26] [DEBUG] Queue: Validator | Running: Validator
+#&gt;    [Validator] Executing R logic...
+#&gt; [2026-04-05 09:38:26] [DEBUG] Queue: Planner | Running: Planner
+#&gt; DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
+#&gt; [2026-04-05 09:38:31] [DEBUG] Queue: Validator | Running: Validator
+#&gt;    [Validator] Executing R logic...
+#&gt; [2026-04-05 09:38:31] [DEBUG] Queue: Planner | Running: Planner
+#&gt; DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
+#&gt; [2026-04-05 09:38:39] [DEBUG] Queue: Validator | Running: Validator
+#&gt;    [Validator] Executing R logic...
+#&gt; [2026-04-05 09:38:39] [DEBUG] Queue: Planner | Running: Planner
+#&gt; DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
+#&gt; [2026-04-05 09:38:47] [DEBUG] Queue: Validator | Running: Validator
+#&gt;    [Validator] Executing R logic...
+#&gt; [2026-04-05 09:38:47] [DEBUG] Queue: Planner | Running: Planner
+#&gt; DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
+#&gt; [2026-04-05 09:38:55] [DEBUG] Queue: Validator | Running: Validator
+#&gt;    [Validator] Executing R logic...
+#&gt; [2026-04-05 09:38:55] [DEBUG] Queue: Planner | Running: Planner
+#&gt; DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
+#&gt; [2026-04-05 09:39:03] [DEBUG] Queue: Validator | Running: Validator
+#&gt;    [Validator] Executing R logic...
+#&gt; [2026-04-05 09:39:03] [DEBUG] Queue: Planner | Running: Planner
+#&gt; DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
+#&gt; [2026-04-05 09:39:08] [DEBUG] Queue: Validator | Running: Validator
+#&gt;    [Validator] Executing R logic...
+#&gt; [2026-04-05 09:39:08] [DEBUG] Queue: Planner | Running: Planner
+#&gt; DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
+#&gt; Warning in self$.run_iterative(max_steps, checkpointer, thread_id, resume_from,
+#&gt; : Reached max_steps.
+
+# Display final itinerary
+cat("\n\n### Generated Itinerary\n")
+#&gt; 
+#&gt; 
+#&gt; ### Generated Itinerary
+cat(as.character(results$state$get("Planner")))
+#&gt; Hello! As your travel concierge, I am delighted to curate this itinerary for your Hong Kong escape. Travelling on Qantas (likely the direct SYD-HKG overnight flight), you will arrive refreshed and ready to experience the vibrant pulse of the city.
+#&gt; 
+#&gt; ### **Flight Summary (Proposed)**
+#&gt; *   **Departure:** May 26, 2026 – QF127 (Sydney to Hong Kong)
+#&gt; *   **Return:** June 1, 2026 – QF128 (Hong Kong to Sydney)
+#&gt; 
+#&gt; ---
+#&gt; 
+#&gt; ### **Itinerary: May 26 – June 1, 2026**
+#&gt; 
+#&gt; #### **Day 1: Arrival &amp; The Harbor Glow (May 27)**
+#&gt; *   **Morning:** Arrive at HKIA. Take the Airport Express to Central/Kowloon. Drop bags at your hotel.
+#&gt; *   **Afternoon:** Head to the **Tsim Sha Tsui Promenade**. Walk the Avenue of Stars for the classic skyline view.
+#&gt; *   **Evening:** Enjoy a welcome dinner at a local **Cha Chaan Teng** (Hong Kong-style tea restaurant) like *Lan Fong Yuen* to get an authentic taste of HK milk tea and pork chop buns.
+#&gt; *   **Night:** Watch the "Symphony of Lights" at 8:00 PM.
+#&gt; 
+#&gt; #### **Day 2: Cultural Exploration &amp; Comfort Food (May 28)**
+#&gt; *   **Morning:** Take the Mid-Levels Escalator up to the **Man Mo Temple** in Sheung Wan.
+#&gt; *   **Lunch:** Visit **The Spaghetti House** (Tsim Sha Tsui or Causeway Bay branch) for a nostalgic lunch. Their "HK-Western" fusion style is a unique local staple.
+#&gt; *   **Afternoon:** Wander through the antique shops on Hollywood Road and the PMQ creative hub.
+#&gt; *   **Evening:** Dim Sum dinner at *Tim Ho Wan* or *Luk Yu Tea House*.
+#&gt; 
+#&gt; #### **Day 3: The Island Escape – Cheung Chau (May 29)**
+#&gt; *   **Morning:** Head to Central Pier 5. Catch the "Fast Ferry" (approx. 35 mins) to **Cheung Chau Island**.
+#&gt; *   **Activities:** 
+#&gt;     *   Rent a bicycle to tour the island. 
+#&gt;     *   Visit the **Pak Tai Temple**. 
+#&gt;     *   Walk the "Mini Great Wall" hiking trail for coastal views. 
+#&gt;     *   Stop at **Cheung Po Tsai Cave**.
+#&gt; *   **Lunch:** Enjoy fresh local seafood at one of the open-air restaurants along the Cheung Chau Praya. Don’t leave without trying the famous **"Mango Mochi."**
+#&gt; *   **Evening:** Return to HK Island and enjoy a quiet dinner in Soho.
+#&gt; 
+#&gt; #### **Day 4: Peaks and Markets (May 30)**
+#&gt; *   **Morning:** Take the **Peak Tram** to Victoria Peak. Walk the Lugard Road circular path for the best photos.
+#&gt; *   **Lunch:** Casual dim sum or noodles at *Mak’s Noodle* (famous for wonton soup).
+#&gt; *   **Afternoon:** Head to Mong Kok. Explore the **Goldfish Market**, **Ladies Market**, and **Fa Yuen Street (Sneaker Street)**.
+#&gt; *   **Dinner:** Dive into local street food—try curry fish balls, stinky tofu (if you're brave!), and egg waffles (*gai daan jai*).
+#&gt; 
+#&gt; #### **Day 5: Heritage &amp; Harbor Crossings (May 31)**
+#&gt; *   **Morning:** Take the **Star Ferry** from Central to Tsim Sha Tsui (the most scenic $0.50 trip in the world).
+#&gt; *   **Afternoon:** Visit the **Hong Kong Museum of History** to understand the city's unique evolution.
+#&gt; *   **Dinner:** A final, grand Cantonese banquet at *Maxim’s Palace* (City Hall) to experience traditional push-cart dim sum overlooking the harbor.
+#&gt; 
+#&gt; #### **Day 6: Departure (June 1)**
+#&gt; *   **Morning:** A final stroll through Hong Kong Park and the Edward Youde Aviary.
+#&gt; *   **Lunch:** One last meal at a local congee shop—*Sang Kee Congee* in Sheung Wan is excellent for a hearty, comforting breakfast/lunch.
+#&gt; *   **Afternoon:** Head to the airport via Airport Express for your Qantas flight home.
+#&gt; 
+#&gt; ---
+#&gt; 
+#&gt; ### **Concierge Tips for Your Trip:**
+#&gt; 1.  **Transport:** Purchase an **Octopus Card** immediately upon arrival at the airport. It is essential for MTR, ferries, trams, and even convenience store purchases.
+#&gt; 2.  **Dining:** The Spaghetti House is a local chain that offers a familiar, comforting atmosphere—perfect for a relaxed lunch during a busy day of sightseeing.
+#&gt; 3.  **Weather:** Early June in Hong Kong is warm and humid. Pack light, breathable fabrics and an umbrella for the occasional tropical shower.
+#&gt; 4.  **Booking:** For *Maxim’s Palace*, ensure you arrive early or have your hotel concierge make a reservation, as it is very popular with both locals and tourists. 
+#&gt; 
+#&gt; **Safe travels! Let me know if you would like me to adjust any activities or restaurant preferences.**
+
+# Display Constraint Audit Report
+cat("\n\n### Constraint Audit Report\n")
+#&gt; 
+#&gt; 
+#&gt; ### Constraint Audit Report
+report &lt;- results$state$get("report")
+if (!is.null(report)) {
+  cat(as.character(report))
+} else {
+  cat("No audit report available.")
+}
+#&gt; ### Constraint Audit Report
+#&gt; Date: 2026-04-05 09:39:08.884536
+#&gt; - [x] Cheung Chau Island
+#&gt; - [x] Spaghetti House
+#&gt; - [ ] Local Cuisine
+
+# Display Pamphlet (HTML)
+cat("\n\n### Formatted Pamphlet (HTML Fragment)\n")
+#&gt; 
+#&gt; 
+#&gt; ### Formatted Pamphlet (HTML Fragment)
+pamphlet_html &lt;- results$state$get("PamphletFormatter")
+if (!is.null(pamphlet_html)) {
+  htmltools::HTML(pamphlet_html)
+} else {
+  cat("Pamphlet not generated.")
+}
+#&gt; Pamphlet not generated.
+
+# List Artifacts
+cat("\n\n### Generated Artifacts\n")
+#&gt; 
+#&gt; 
+#&gt; ### Generated Artifacts
+artifacts &lt;- list.files(pattern = "hong_kong|validation_report")
+if (length(artifacts) &gt; 0) {
+  cat(paste("- ", artifacts, collapse = "\n"))
+} else {
+  cat("No artifacts found.")
+}
+#&gt; -  hong_kong_pamphlet.html
+#&gt; -  hong_kong_travel.Rmd
+#&gt; -  hong_kong_travel.Rmd.orig
+#&gt; -  hong_kong_travel.yml</code></pre>
 </div>
 <div class="section level2">
 <h2 id="conclusion">Conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>
@@ -266,6 +366,7 @@ and Mermaid, making it portable. 2. <strong>Reduced
 Boilerplate</strong>: <code><a href="../reference/load_workflow.html">load_workflow()</a></code> handles all
 registration and state parsing. 3. <strong>Maintainable</strong>: Logic
 and roles are separated from the R execution engine.</p>
+<hr>
 <!-- APAF Bioinformatics | hong_kong_travel.Rmd | Approved | 2026-03-30 -->
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

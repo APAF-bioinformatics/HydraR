@@ -166,13 +166,47 @@ declarative YAML file. This follows the
 <span>  fail_if_dirty <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"withr"</span>, <span class="st">"HydraR"</span>, <span class="st">"ggplot2"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in self$compile(): Multiple potential start nodes found (bubble, quick,</span></span>
+<span><span class="co">#&gt; merge). Use set_start_node() to disambiguate.</span></span>
+<span><span class="co">#&gt; Graph compiled successfully.</span></span>
+<span><span class="co">#&gt; [2026-04-05 09:39:18] [Worktree] Initializing WorktreeManager for thread: run-227c23b3</span></span>
+<span><span class="co">#&gt; [2026-04-05 09:39:18] [Parallel] Executing 3 nodes in isolated worktrees using furrr...</span></span>
+<span><span class="co">#&gt; Warning: package ‘purrr’ was built under R version 4.5.2</span></span>
+<span><span class="co">#&gt; Warning: package ‘ggplot2’ was built under R version 4.5.2</span></span>
+<span><span class="co">#&gt; Warning: package ‘purrr’ was built under R version 4.5.2</span></span>
+<span><span class="co">#&gt; Warning: package ‘ggplot2’ was built under R version 4.5.2</span></span>
+<span><span class="co">#&gt; Warning: package ‘purrr’ was built under R version 4.5.2</span></span>
+<span><span class="co">#&gt; Warning: package ‘ggplot2’ was built under R version 4.5.2</span></span>
+<span><span class="co">#&gt; [2026-04-05 09:40:04] [Parallel] Executing 1 nodes in isolated worktrees using furrr...</span></span>
+<span><span class="co">#&gt;    [merger] Executing R logic...</span></span>
+<span><span class="co">#&gt; [merger] Starting merge of 3 branches into main...</span></span>
+<span><span class="co">#&gt;    [merger] Merging branch: hydra/run-227c23b3/bubble-cdf17921</span></span>
+<span><span class="co">#&gt;    [merger] Merging branch: hydra/run-227c23b3/quick-e3f63443</span></span>
+<span><span class="co">#&gt;    [merger] Merging branch: hydra/run-227c23b3/merge-d0a308b1</span></span>
+<span><span class="co">#&gt; [2026-04-05 09:40:04] [Parallel] Executing 1 nodes in isolated worktrees using furrr...</span></span>
+<span><span class="co">#&gt;    [benchmark] Executing R logic...</span></span>
+<span><span class="co">#&gt; [Benchmark] Running on branch: hydra/run-227c23b3/benchmark-e5487a8e</span></span>
+<span><span class="co">#&gt; [Benchmark] Found 3 algorithm files: bubble_sort.R, merge_sort.R, quick_sort.R</span></span>
+<span><span class="co">#&gt; Warning in value[[3L]](cond): [Benchmark] Failed to source bubble_sort.R:</span></span>
+<span><span class="co">#&gt; attempt to use zero-length variable name</span></span>
+<span><span class="co">#&gt; Warning in value[[3L]](cond): [Benchmark] Failed to source merge_sort.R: merge_sort.R:18:1: unexpected '}'</span></span>
+<span><span class="co">#&gt; 17:   return(merged_vec)</span></span>
+<span><span class="co">#&gt; 18: }</span></span>
+<span><span class="co">#&gt;     ^</span></span>
+<span><span class="co">#&gt; Warning in value[[3L]](cond): [Benchmark] Failed to source quick_sort.R: quick_sort.R:19:1: unexpected '}'</span></span>
+<span><span class="co">#&gt; 18:   c(quick_sort(less), equal, quick_sort(greater))</span></span>
+<span><span class="co">#&gt; 19: }</span></span>
+<span><span class="co">#&gt;     ^</span></span>
+<span><span class="co">#&gt; [2026-04-05 09:40:04] [Parallel] Executing 1 nodes in isolated worktrees using furrr...</span></span>
+<span><span class="co">#&gt;    [plot] Executing R logic...</span></span>
 <span></span>
 <span><span class="co"># 6. Save Execution Trace</span></span>
 <span><span class="va">compiled_dag</span><span class="op">$</span><span class="fu">save_trace</span><span class="op">(</span><span class="st">"sorting_trace.json"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [Saved] Saved execution trace to: sorting_trace.json</span></span></code></pre></div>
+<hr>
 </div>
 <div class="section level2">
-<h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
+<h2 id="summary">🧘 Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
 </h2>
 <p>By using <strong>Declarative Mermaid Nodes</strong> with
 <code><a href="../reference/auto_node_factory.html">auto_node_factory()</a></code>, we: 1. <strong>Eliminated

@@ -57,12 +57,12 @@ res1 <- dag$run(
   initial_state = list(fixed = FALSE)
 )
 #> Graph compiled successfully.
-#> [2026-04-05 00:49:20] [Iteration] Restored state from checkpoint for thread: session-001
-#> [2026-04-05 00:49:20] [Linear] Running Node: Step1
+#> [2026-04-05 09:40:04] [Iteration] Restored state from checkpoint for thread: session-001
+#> [2026-04-05 09:40:04] [Linear] Running Node: Step1
 #>    [Step1] Executing R logic...
-#> [2026-04-05 00:49:20] [Linear] Running Node: Step2
+#> [2026-04-05 09:40:04] [Linear] Running Node: Step2
 #>    [Step2] Executing R logic...
-#> [2026-04-05 00:49:20] [Linear] Running Node: Step3
+#> [2026-04-05 09:40:04] [Linear] Running Node: Step3
 #>    [Step3] Executing R logic...
 
 print(res1$status) # "PAUSE"
@@ -84,11 +84,11 @@ final_results <- dag$run(
   resume_from = "Step2"
 )
 #> Graph compiled successfully.
-#> [2026-04-05 00:49:20] [Iteration] Restored state from checkpoint for thread: session-001
-#> [2026-04-05 00:49:20] [Resuming] Linear DAG Execution from node: Step2
-#> [2026-04-05 00:49:20] [Linear] Running Node: Step2
+#> [2026-04-05 09:40:04] [Iteration] Restored state from checkpoint for thread: session-001
+#> [2026-04-05 09:40:04] [Resuming] Linear DAG Execution from node: Step2
+#> [2026-04-05 09:40:04] [Linear] Running Node: Step2
 #>    [Step2] Executing R logic...
-#> [2026-04-05 00:49:20] [Linear] Running Node: Step3
+#> [2026-04-05 09:40:04] [Linear] Running Node: Step3
 #>    [Step3] Executing R logic...
 
 # Step 1 was skipped; the process started from Step 2!
