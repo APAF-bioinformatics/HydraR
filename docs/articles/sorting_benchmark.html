@@ -21,7 +21,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">HydraR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,31 +35,14 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Manual</h6></li>
-    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Instruction Manual</a></li>
-    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Examples</h6></li>
-    <li><a class="dropdown-item" href="../articles/academic_research.html">Agentic Academic Researcher</a></li>
-    <li><a class="dropdown-item" href="../articles/blog_writer.html">Agentic Blog Writer</a></li>
-    <li><a class="dropdown-item" href="../articles/data_science.html">Agentic Data Science Assistant</a></li>
-    <li><a class="dropdown-item" href="../articles/hello_world_agent.html">Hello World: Building an Agentic Loop with HydraR</a></li>
-    <li><a class="dropdown-item" href="../articles/personalized_shopping.html">Agentic Personalized Shopping Assistant</a></li>
-    <li><a class="dropdown-item" href="../articles/software_bug_assistant.html">Agentic Software Bug Assistant</a></li>
-    <li><a class="dropdown-item" href="../articles/story_teller.html">Agentic Story Teller</a></li>
-    <li><a class="dropdown-item" href="../articles/gemini_cli_demo.html">Gemini CLI Driver Demo</a></li>
-    <li><a class="dropdown-item" href="../articles/hello_world_logic.html">Hello World Logic Nodes</a></li>
-    <li><a class="dropdown-item" href="../articles/parameterized_mermaid.html">Advanced Mermaid Parameters</a></li>
-    <li><a class="dropdown-item" href="../articles/round_trip_demo.html">Mermaid Round-Trip Visualization</a></li>
-    <li><a class="dropdown-item" href="../articles/distributed_communication.html">Distributed Consensus Simulation</a></li>
-    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
     <li><a class="dropdown-item" href="../articles/targets_integration.html">Reproducible Agentic Pipelines with targets</a></li>
-    <li><a class="dropdown-item" href="../articles/creating_drivers.html">Creating Custom Agent Drivers</a></li>
-    <li><a class="dropdown-item" href="../articles/git_worktree_toy.html">Isolated Execution with Git Worktrees</a></li>
+    <li><a class="dropdown-item" href="../articles/extending_hydrar.html">Creating Custom Agent Drivers</a></li>
+    <li><a class="dropdown-item" href="../articles/state_persistence.html">State Persistence &amp; Restart: Resilient Workflows</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -115,10 +98,18 @@ Git repository.</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://withr.r-lib.org" class="external-link">withr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: package 'ggplot2' was built under R version 4.5.2</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://future.futureverse.org" class="external-link">future</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/DavisVaughan/furrr" class="external-link">furrr</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Ensure Gemini CLI path is configured (Environment variables are inherited by workers)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>HYDRAR_GEMINI_PATH <span class="op">=</span> <span class="st">"/opt/homebrew/bin/gemini"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Define the repository root for worktrees</span></span>
+<span><span class="va">repo_root</span> <span class="op">&lt;-</span> <span class="st">"."</span></span>
 <span></span>
 <span><span class="co"># 0. Setup Parallel Execution (for Worktree Isolation)</span></span>
-<span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">multisession</span>, workers <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="va"><a href="https://future.futureverse.org/reference/multisession.html" class="external-link">multisession</a></span>, workers <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>future.rng.onMisuse <span class="op">=</span> <span class="st">"ignore"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 1. Create a temporary folder</span></span>
@@ -128,216 +119,70 @@ Git repository.</p>
 <span></span>
 <span><span class="co"># 2. Initialize Git and a README</span></span>
 <span><span class="fu">withr</span><span class="fu">::</span><span class="fu"><a href="https://withr.r-lib.org/reference/with_dir.html" class="external-link">with_dir</a></span><span class="op">(</span><span class="va">repo_root</span>, <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/system.html" class="external-link">system</a></span><span class="op">(</span><span class="st">"git init -b main"</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/system.html" class="external-link">system</a></span><span class="op">(</span><span class="st">"git config user.email 'apaf@example.com'"</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/system.html" class="external-link">system</a></span><span class="op">(</span><span class="st">"git config user.name 'APAF Agent'"</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/system.html" class="external-link">system</a></span><span class="op">(</span><span class="st">"git config commit.gpgsign false"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/system2.html" class="external-link">system2</a></span><span class="op">(</span><span class="st">"git"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"init"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/system2.html" class="external-link">system2</a></span><span class="op">(</span><span class="st">"git"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"config"</span>, <span class="st">"user.email"</span>, <span class="st">"apaf@example.com"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/system2.html" class="external-link">system2</a></span><span class="op">(</span><span class="st">"git"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"config"</span>, <span class="st">"user.name"</span>, <span class="st">"APAF Agent"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/system2.html" class="external-link">system2</a></span><span class="op">(</span><span class="st">"git"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"config"</span>, <span class="st">"commit.gpgsign"</span>, <span class="st">"false"</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="st">"# Sorting Benchmark"</span>, <span class="st">"README.md"</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/system.html" class="external-link">system</a></span><span class="op">(</span><span class="st">"git add README.md"</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/system.html" class="external-link">system</a></span><span class="op">(</span><span class="st">"git commit -m 'Initial commit'"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/system2.html" class="external-link">system2</a></span><span class="op">(</span><span class="st">"git"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"add"</span>, <span class="st">"README.md"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/system2.html" class="external-link">system2</a></span><span class="op">(</span><span class="st">"git"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"commit"</span>, <span class="st">"-m"</span>, <span class="st">"Initial_commit"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/system2.html" class="external-link">system2</a></span><span class="op">(</span><span class="st">"git"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"branch"</span>, <span class="st">"-M"</span>, <span class="st">"main"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="step-2-define-logic-and-architecture">🧠 Step 2: Define Logic and Architecture<a class="anchor" aria-label="anchor" href="#step-2-define-logic-and-architecture"></a>
+<h2 id="step-2-declarative-workflow-loading">🧠 Step 2: Declarative Workflow Loading<a class="anchor" aria-label="anchor" href="#step-2-declarative-workflow-loading"></a>
 </h2>
-<p>We decouple our workflow logic into a central registry. This keeps
-our prompt engineering and implementation details separate from the DAG
-architecture.</p>
-<div class="section level3">
-<h3 id="the-logic-registry">The Logic Registry<a class="anchor" aria-label="anchor" href="#the-logic-registry"></a>
-</h3>
+<p>Rather than registering roles and logic manually in R, we now define
+the entire workflow architecture (graph, prompts, logic) in a single
+declarative YAML file. This follows the
+<strong>APAF-Agentic-Standard</strong> for Zero-R-Code definitions.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sorting_registry</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="co"># 1. Agent Roles</span></span>
-<span>  roles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    bubble <span class="op">=</span> <span class="st">"Write an R function named `bubble_sort` that takes a numeric vector and returns it sorted using the bubble sort algorithm. Output ONLY the code, no markdown blocks."</span>,</span>
-<span>    quick <span class="op">=</span> <span class="st">"Write an R function named `quick_sort` that takes a numeric vector and returns it sorted using the quick sort algorithm. Output ONLY the code, no markdown blocks."</span>,</span>
-<span>    merge <span class="op">=</span> <span class="st">"Write an R function named `merge_sort` that takes a numeric vector and returns it sorted using the merge sort algorithm. Output ONLY the code, no markdown blocks."</span></span>
-<span>  <span class="op">)</span>,</span>
+<code class="sourceCode R"><span><span class="co"># 1. Load the workflow manifest</span></span>
+<span><span class="va">wf</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/load_workflow.html">load_workflow</a></span><span class="op">(</span><span class="st">"sorting_benchmark.yml"</span><span class="op">)</span></span>
 <span></span>
-<span>  <span class="co"># 2. Mock Fallbacks (for when LLM is unavailable)</span></span>
-<span>  mocks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    bubble <span class="op">=</span> <span class="st">"bubble_sort &lt;- function(x) {</span></span>
-<span><span class="st">      n &lt;- length(x)</span></span>
-<span><span class="st">      for (i in 1:(n - 1)) {</span></span>
-<span><span class="st">        for (j in 1:(n - i)) {</span></span>
-<span><span class="st">          if (x[j] &gt; x[j + 1]) {</span></span>
-<span><span class="st">            tmp &lt;- x[j]</span></span>
-<span><span class="st">            x[j] &lt;- x[j + 1]</span></span>
-<span><span class="st">            x[j + 1] &lt;- tmp</span></span>
-<span><span class="st">          }</span></span>
-<span><span class="st">        }</span></span>
-<span><span class="st">      }</span></span>
-<span><span class="st">      return(x)</span></span>
-<span><span class="st">    }"</span>,</span>
-<span>    quick <span class="op">=</span> <span class="st">"quick_sort &lt;- function(x) {</span></span>
-<span><span class="st">      if (length(x) &lt;= 1) return(x)</span></span>
-<span><span class="st">      pivot &lt;- x[1]</span></span>
-<span><span class="st">      rest &lt;- x[-1]</span></span>
-<span><span class="st">      sv &lt;- rest[rest &lt; pivot]</span></span>
-<span><span class="st">      gv &lt;- rest[rest &gt;= pivot]</span></span>
-<span><span class="st">      return(c(quick_sort(sv), pivot, quick_sort(gv)))</span></span>
-<span><span class="st">    }"</span>,</span>
-<span>    merge <span class="op">=</span> <span class="st">"merge_sort &lt;- function(x) {</span></span>
-<span><span class="st">      if (length(x) &lt;= 1) return(x)</span></span>
-<span><span class="st">      m &lt;- length(x) %/% 2</span></span>
-<span><span class="st">      l &lt;- merge_sort(x[1:m])</span></span>
-<span><span class="st">      r &lt;- merge_sort(x[(m+1):length(x)])</span></span>
-<span><span class="st">      res &lt;- numeric(length(x))</span></span>
-<span><span class="st">      li &lt;- 1; ri &lt;- 1; i &lt;- 1</span></span>
-<span><span class="st">      while(li &lt;= length(l) &amp;&amp; ri &lt;= length(r)) {</span></span>
-<span><span class="st">        if(l[li] &lt;= r[ri]) { res[i] &lt;- l[li]; li &lt;- li + 1 }</span></span>
-<span><span class="st">        else { res[i] &lt;- r[ri]; ri &lt;- ri + 1 }</span></span>
-<span><span class="st">        i &lt;- i + 1</span></span>
-<span><span class="st">      }</span></span>
-<span><span class="st">      if(li &lt;= length(l)) res[i:length(x)] &lt;- l[li:length(l)]</span></span>
-<span><span class="st">      if(ri &lt;= length(r)) res[i:length(x)] &lt;- r[ri:length(r)]</span></span>
-<span><span class="st">      return(res)</span></span>
-<span><span class="st">    }"</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="the-node-factory">The Node Factory<a class="anchor" aria-label="anchor" href="#the-node-factory"></a>
-</h3>
-<p>The factory dynamically resolves Mermaid nodes into
-<code>HydraR</code> node objects. It handles the “Failsafe” logic by
-falling back to mocks if the LLM driver is unavailable.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sorting_node_factory</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">id</span>, <span class="va">label</span>, <span class="va">params</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="co"># 1. Merge Harmonization</span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">id</span> <span class="op">==</span> <span class="st">"merger"</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="../reference/create_merge_harmonizer.html">create_merge_harmonizer</a></span><span class="op">(</span>id <span class="op">=</span> <span class="va">id</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="op">}</span></span>
+<span><span class="co"># 2. Extract components</span></span>
+<span><span class="va">mermaid_graph</span> <span class="op">&lt;-</span> <span class="va">wf</span><span class="op">$</span><span class="va">graph</span></span>
+<span><span class="va">initial_state</span> <span class="op">&lt;-</span> <span class="va">wf</span><span class="op">$</span><span class="va">initial_state</span></span>
 <span></span>
-<span>  <span class="co"># 2. Benchmarking Node</span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">id</span> <span class="op">==</span> <span class="st">"benchmark"</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">id</span>, <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
-<span>      <span class="co"># Ensure worktree is synced with the merged main branch</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/system.html" class="external-link">system</a></span><span class="op">(</span><span class="st">"git checkout main"</span>, ignore.stdout <span class="op">=</span> <span class="cn">TRUE</span>, ignore.stderr <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co"># 3. Inject dynamic environment variables into initial state</span></span>
+<span><span class="va">initial_state</span><span class="op">$</span><span class="va">repo_root</span> <span class="op">&lt;-</span> <span class="va">repo_root</span></span>
 <span></span>
-<span>      <span class="co"># Source all generated files</span></span>
-<span>      <span class="va">files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">"_sort.R"</span><span class="op">)</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"[Benchmark] Found %d algorithm files: %s"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">files</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">files</span>, collapse <span class="op">=</span> <span class="st">", "</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span>      <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">walk</a></span><span class="op">(</span><span class="va">files</span>, <span class="va">source</span><span class="op">)</span></span>
-<span></span>
-<span>      <span class="co"># Benchmark parameters</span></span>
-<span>      <span class="va">n_elements</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
-<span>      <span class="va">n_trials</span> <span class="op">&lt;-</span> <span class="fl">5</span></span>
-<span>      <span class="va">methods</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bubble"</span>, <span class="st">"quick"</span>, <span class="st">"merge"</span><span class="op">)</span></span>
-<span></span>
-<span>      <span class="va">results_df</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map_dfr.html" class="external-link">map_df</a></span><span class="op">(</span><span class="va">methods</span>, <span class="kw">function</span><span class="op">(</span><span class="va">m</span><span class="op">)</span> <span class="op">{</span></span>
-<span>        <span class="va">func_name</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">m</span>, <span class="st">"_sort"</span><span class="op">)</span></span>
-<span>        <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/exists.html" class="external-link">exists</a></span><span class="op">(</span><span class="va">func_name</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>          <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="cn">NULL</span><span class="op">)</span></span>
-<span>        <span class="op">}</span></span>
-<span>        <span class="va">func</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/get.html" class="external-link">get</a></span><span class="op">(</span><span class="va">func_name</span><span class="op">)</span></span>
-<span></span>
-<span>        <span class="va">times</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_dbl</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">n_trials</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
-<span>          <span class="va">test_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n_elements</span><span class="op">)</span></span>
-<span>          <span class="va">start</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>          <span class="fu">func</span><span class="op">(</span><span class="va">test_data</span><span class="op">)</span></span>
-<span>          <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/difftime.html" class="external-link">difftime</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">start</span>, units <span class="op">=</span> <span class="st">"secs"</span><span class="op">)</span><span class="op">)</span></span>
-<span>        <span class="op">}</span><span class="op">)</span></span>
-<span></span>
-<span>        <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>method <span class="op">=</span> <span class="va">m</span>, time <span class="op">=</span> <span class="va">times</span><span class="op">)</span></span>
-<span>      <span class="op">}</span><span class="op">)</span></span>
-<span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"success"</span>, output <span class="op">=</span> <span class="va">results_df</span><span class="op">)</span></span>
-<span>    <span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="op">}</span></span>
-<span></span>
-<span>  <span class="co"># 3. Visualization Node</span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">id</span> <span class="op">==</span> <span class="st">"plot"</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">id</span>, <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
-<span>      <span class="va">df</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"benchmark"</span><span class="op">)</span></span>
-<span>      <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="op">||</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span>        <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"failed"</span>, output <span class="op">=</span> <span class="cn">NULL</span>, error <span class="op">=</span> <span class="st">"No benchmark data found."</span><span class="op">)</span><span class="op">)</span></span>
-<span>      <span class="op">}</span></span>
-<span></span>
-<span>      <span class="co"># Suppress graphics device warnings by opening a null device</span></span>
-<span>      <span class="co"># This prevents future-related warnings in parallel workers</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf</a></span><span class="op">(</span><span class="cn">NULL</span><span class="op">)</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.cur</a></span><span class="op">(</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span>      <span class="co"># Use .data pronoun to avoid 'no visible binding' warnings</span></span>
-<span>      <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">method</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">time</span>, fill <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">method</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Sorting Algorithm Performance"</span>, y <span class="op">=</span> <span class="st">"Time (seconds)"</span>, x <span class="op">=</span> <span class="st">"Algorithm"</span><span class="op">)</span></span>
-<span></span>
-<span>      <span class="co"># In a real vignette, we'd return the plot object</span></span>
-<span>      <span class="co"># But here we show it.</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">"sorting_benchmark.pdf"</span><span class="op">)</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"success"</span>, output <span class="op">=</span> <span class="st">"Plot rendered."</span><span class="op">)</span></span>
-<span>    <span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="op">}</span></span>
-<span></span>
-<span>  <span class="co"># 4. Sorting Agents (Parallel) using hardened AgentLLMNode</span></span>
-<span>  <span class="co"># The parameters are parsed from the Mermaid string below</span></span>
-<span>  <span class="va"><a href="../reference/AgentLLMNode.html">AgentLLMNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">id</span>,</span>
-<span>    role <span class="op">=</span> <span class="va">sorting_registry</span><span class="op">$</span><span class="va">roles</span><span class="op">[[</span><span class="va">id</span><span class="op">]</span><span class="op">]</span>,</span>
-<span>    driver <span class="op">=</span> <span class="va"><a href="../reference/GeminiCLIDriver.html">GeminiCLIDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>model <span class="op">=</span> <span class="st">"gemini-2.5-flash"</span><span class="op">)</span>,</span>
-<span>    label <span class="op">=</span> <span class="va">label</span>,</span>
-<span>    params <span class="op">=</span> <span class="va">params</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<hr>
-</div>
-</div>
-<div class="section level2">
-<h2 id="step-3-orchestration-and-execution">🤖 Step 3: Orchestration and Execution<a class="anchor" aria-label="anchor" href="#step-3-orchestration-and-execution"></a>
-</h2>
-<p>We define our parallel DAG using Mermaid syntax. By connecting
-multiple agents to the <code>merger</code> node, <code>HydraR</code>
-knows to execute them in isolated worktrees.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># 1. Define the Mermaid Architecture</span></span>
-<span><span class="co"># output_format=r triggers automatic code extraction in AgentLLMNode</span></span>
-<span><span class="co"># output_path ensures the extracted code is persisted to the filesystem</span></span>
-<span><span class="va">mermaid_graph</span> <span class="op">&lt;-</span> <span class="st">'</span></span>
-<span><span class="st">graph TD</span></span>
-<span><span class="st">    bubble["Bubble Agent | output_format=r | output_path=bubble_sort.R"] --&gt; merger</span></span>
-<span><span class="st">    quick["Quick Agent | output_format=r | output_path=quick_sort.R"] --&gt; merger</span></span>
-<span><span class="st">    merge["Merge Agent | output_format=r | output_path=merge_sort.R"] --&gt; merger</span></span>
-<span><span class="st">    merger["Merge Harmonizer"] --&gt; benchmark</span></span>
-<span><span class="st">    benchmark["Benchmark Performance"] --&gt; plot</span></span>
-<span><span class="st">    plot["Visualize Results"]</span></span>
-<span><span class="st">'</span></span>
-<span></span>
-<span><span class="co"># 2. Instantiate and Compile</span></span>
-<span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="va">AgentDAG</span><span class="op">$</span><span class="fu">from_mermaid</span><span class="op">(</span><span class="va">mermaid_graph</span>, node_factory <span class="op">=</span> <span class="va">sorting_node_factory</span><span class="op">)</span></span>
+<span><span class="co"># 4. Instantiate and Compile</span></span>
+<span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="va">AgentDAG</span><span class="op">$</span><span class="fu">from_mermaid</span><span class="op">(</span><span class="va">mermaid_graph</span>, node_factory <span class="op">=</span> <span class="fu"><a href="../reference/auto_node_factory.html">auto_node_factory</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">compiled_dag</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">compile</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in dag$compile(): Multiple potential start nodes found (bubble, quick,</span></span>
+<span><span class="co">#&gt; merge). Use set_start_node() to disambiguate.</span></span>
+<span><span class="co">#&gt; Graph compiled successfully.</span></span>
 <span></span>
-<span><span class="co"># 3. Run with Worktree Isolation</span></span>
-<span><span class="co"># use_worktrees = TRUE activates the WorktreeManager</span></span>
+<span><span class="co"># 5. Run with Worktree Isolation</span></span>
+<span><span class="co"># Ensure workers inherit our environment (for API keys and PATH)</span></span>
+<span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="va"><a href="https://future.futureverse.org/reference/multisession.html" class="external-link">multisession</a></span>, workers <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span></span>
 <span><span class="va">results</span> <span class="op">&lt;-</span> <span class="va">compiled_dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span></span>
-<span>  initial_state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>input <span class="op">=</span> <span class="st">"Start sorting benchmark"</span>, repo_root <span class="op">=</span> <span class="va">repo_root</span><span class="op">)</span>,</span>
+<span>  initial_state <span class="op">=</span> <span class="va">initial_state</span>,</span>
 <span>  use_worktrees <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  repo_root <span class="op">=</span> <span class="va">repo_root</span>,</span>
 <span>  fail_if_dirty <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"withr"</span>, <span class="st">"HydraR"</span>, <span class="st">"ggplot2"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 4. Save Execution Trace</span></span>
-<span><span class="va">compiled_dag</span><span class="op">$</span><span class="fu">save_trace</span><span class="op">(</span><span class="st">"sorting_trace.json"</span><span class="op">)</span></span></code></pre></div>
-<hr>
+<span><span class="co"># 6. Save Execution Trace</span></span>
+<span><span class="va">compiled_dag</span><span class="op">$</span><span class="fu">save_trace</span><span class="op">(</span><span class="st">"sorting_trace.json"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [Saved] Saved execution trace to: sorting_trace.json</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="summary">🧘 Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
+<h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
 </h2>
-<p>By using <strong>Git Worktrees</strong>, we successfully: 1.
-<strong>Eliminated State Corruption</strong>: Three agents modified the
-codebase simultaneously without interfering with each other. 2.
-<strong>Automated Conflict Resolution</strong>: The
-<code>MergeHarmonizer</code> handled the integration of disparate
-branches into the main codebase. 3. <strong>End-to-End
-Validation</strong>: We used the generated code immediately in a
-downstream benchmarking task, closing the loop between “Agent Action”
-and “Scientific Result.”</p>
+<p>By using <strong>Declarative Mermaid Nodes</strong> with
+<code><a href="../reference/auto_node_factory.html">auto_node_factory()</a></code>, we: 1. <strong>Eliminated
+Boilerplate</strong>: No hand-written node factory — the Mermaid graph
+IS the specification. 2. <strong>Eliminated State Corruption</strong>:
+Three agents modified the codebase simultaneously via isolated Git
+Worktrees. 3. <strong>Automated Conflict Resolution</strong>: The
+<code>MergeHarmonizer</code> handled integration of branches. 4.
+<strong>End-to-End Validation</strong>: Generated code was benchmarked
+immediately downstream.</p>
 <hr>
 <!-- APAF Bioinformatics | sorting_benchmark.Rmd | Approved | 2026-03-30 -->
 </div>
@@ -348,7 +193,7 @@ and “Scientific Result.”</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Ignatius Pang, Aidan Tay.</p>
+  <p>Developed by Chi Nam Ignatius Pang, Aidan Tay.</p>
 </div>
 
 <div class="pkgdown-footer-right">

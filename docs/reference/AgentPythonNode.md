@@ -15,7 +15,7 @@ Executes a python script via system python or reticulate.
 
 - `engine`:
 
-  Character. Execution engine ("system2" or "reticulate"). Initialize
+  Character. Execution engine ("system2" or "reticulate").
 
 ## Methods
 

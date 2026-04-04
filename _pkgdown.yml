@@ -10,7 +10,7 @@ navbar:
     right: [github]
   components:
       text: Get Started
-      href: articles/manual.html
+      href: articles/hong_kong_travel.html
 
 reference:
   - title: Core Orchestration
@@ -20,10 +20,13 @@ reference:
       - AgentNode
       - AgentState
   - title: Agent Nodes
-    desc: Specialized nodes for LLM interaction and logical routing.
+    desc: Specialized nodes for LLM interaction, logical routing, and scaling.
     contents:
       - AgentLLMNode
       - AgentLogicNode
+      - AgentRouterNode
+      - AgentMapNode
+      - AgentObserverNode
       - AgentBashNode
       - AgentPythonNode
       - add_llm_node
@@ -31,6 +34,7 @@ reference:
       - dag_add_llm_node
       - dag_add_logic_node
       - standard_node_factory
+      - auto_node_factory
   - title: Parallelism & Merge Harmonization
     desc: Infrastructure for isolated execution and conflict resolution.
     contents:
@@ -44,21 +48,29 @@ reference:
       - AgentDriver
       - GeminiCLIDriver
       - GeminiAPIDriver
+      - GeminiImageDriver
       - OpenAIAPIDriver
       - AnthropicAPIDriver
       - OllamaDriver
       - AnthropicCLIDriver
       - CopilotCLIDriver
-  - title: Dynamic Driver & Logic Registry
-    desc: Tools for hot-swapping drivers and registering domain-specific logic.
+      - OpenAICodexCLIDriver
+  - title: Dynamic Registry & Workflow Lifecycle
+    desc: Tools for hot-swapping drivers, registering domain-specific logic, and spawning DAGs.
     contents:
       - DriverRegistry
       - get_driver_registry
       - list_logic
       - get_logic
       - register_logic
+      - get_agent_roles
+      - get_role
+      - register_role
+      - resolve_default_driver
+      - spawn_dag
+      - load_workflow
   - title: Messaging & Persistence
-    desc: State persistence and inter-node messaging infrastructure.
+    desc: State persistence, inter-node messaging, and telemetry infrastructure.
     contents:
       - MessageLog
       - MemoryMessageLog
@@ -68,50 +80,36 @@ reference:
       - MemorySaver
       - DuckDBSaver
       - RDSSaver
+      - init_bot_history
   - title: Utilities & Parsing
-    desc: Helper functions for mermaid visualization and code extraction.
+    desc: Helper functions for mermaid visualization, validation, and maintenance.
     contents:
       - AgentTool
       - dag_create
       - parse_mermaid
       - mermaid_to_dag
       - extract_r_code_advanced
+      - is_named_list
       - format_toolset
       - reducer_merge_list
       - reducer_append
+      - validate_workflow_file
+      - validate_workflow_full
+      - render_workflow_file
+      - cleanup_jules_branches
 
 articles:
-  - title: Instruction Manual
-    navbar: Manual
-    contents:
-      - manual
   - title: Case Studies
     navbar: Case Studies
     contents:
       - hong_kong_travel
       - sorting_benchmark
-  - title: Examples Gallery
-    navbar: Examples
-    contents:
-      - academic_research
-      - blog_writer
-      - data_science
-      - hello_world_agent
-      - personalized_shopping
-      - software_bug_assistant
-      - story_teller
-      - gemini_cli_demo
-      - hello_world_logic
-      - parameterized_mermaid
-      - round_trip_demo
-      - distributed_communication
   - title: Developer Guides
     navbar: Guides
     contents:
       - targets_integration
-      - creating_drivers
-      - git_worktree_toy
-      - reprex_duckdb
+      - extending_hydrar
+      - state_persistence
 
 ---
 <!-- APAF Bioinformatics | HydraR | Approved | 2026-03-29 -->

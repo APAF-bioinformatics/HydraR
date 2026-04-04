@@ -15,31 +15,14 @@ only runs if its inputs (data, prompts, or code) change.
 ### Example: Literature Synthesis Pipeline
 
 Imagine a pipeline where we first fetch raw data, and then an agent
-summarizes it.
+summarizes it. We define the agent’s logic in `targets_integration.yml`.
 
 ``` r
 
 library(targets)
 library(HydraR)
 
-# 1. Define your registry components
-summarize_logic_registry <- list(
-  logic = list(
-    summarizer = function(state, params = NULL) {
-      text <- state$get("raw_text")
-      # Simulate LLM call
-      summary <- paste("Summary of:", substr(text, 1, 50), "...")
-      list(status = "SUCCESS", output = list(summary = summary))
-    }
-  )
-)
-
-# 2. Define a factory for the target
-summarize_factory <- function(id, label, params) {
-  AgentLogicNode$new(id = id, label = label, logic_fn = summarize_logic_registry$logic[[id]])
-}
-
-# 3. Define your _targets.R file
+# _targets.R
 list(
   tar_target(
     raw_document,
@@ -49,18 +32,20 @@ list(
   tar_target(
     agent_results,
     {
-      # Build the DAG from Mermaid
-      mermaid_spec <- "graph TD; summarizer[Summarize Finding]"
-      dag <- AgentDAG$from_mermaid(mermaid_spec, node_factory = summarize_factory)
+      # 1. Load the workflow definition from YAML
+      wf <- load_workflow("targets_integration.yml")
       
-      # Run the DAG with data from the previous target
+      # 2. Spawn the DAG
+      dag <- spawn_dag(wf)
+      
+      # 3. Run with data from 'raw_document'
       dag$run(initial_state = list(raw_text = raw_document))
     }
   ),
   
   tar_target(
     final_summary,
-    agent_results$results$summarizer$output$summary
+    agent_results$state$get("summarizer")
   )
 )
 ```
@@ -78,7 +63,7 @@ haven’t changed, saving you tokens and time.
 If you modify a system prompt or a tool function that your agent uses,
 `targets` will detect the change and re-run the agent automatically.
 This ensures your scientific results are always in sync with your latest
-agent configurations.
+configurations.
 
 ### 3. Resilience and Resumption
 
@@ -86,27 +71,6 @@ agent configurations.
 `targets` manages the high-level cache, `HydraR` can manage the internal
 state of the agent. If a large DAG fails at step 50, you can resume from
 the `HydraR` checkpoint within the same target execution.
-
-## Advanced Pattern: Branching Agents
-
-You can use `targets` dynamic branching to run multiple specialized
-agents in parallel across a dataset.
-
-``` r
-
-list(
-  tar_target(
-    research_topics,
-    c("LLM safety", "Single-cell sequencing", "DAG orchestration")
-  ),
-  
-  tar_target(
-    topic_summaries,
-    run_research_dag(research_topics),
-    pattern = map(research_topics)
-  )
-)
-```
 
 ## Conclusion
 

@@ -16,7 +16,7 @@ configured.
 
 - `env_vars`:
 
-  Named list. Environment variables to inject. Initialize
+  Named list. Environment variables to inject.
 
 ## Methods
 
@@ -31,6 +31,8 @@ configured.
 ------------------------------------------------------------------------
 
 ### Method `new()`
+
+Initialize Bash Node
 
 #### Usage
 

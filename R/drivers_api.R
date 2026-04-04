@@ -316,6 +316,9 @@ GeminiImageDriver <- R6::R6Class("GeminiImageDriver",
     },
 
     #' Call Gemini Image API (Multimodal Unified)
+    #'
+    #' @description
+    #' Sends a prompt to Gemini for image generation.
     #' @param prompt String. Image prompt.
     #' @param model String. Optional override.
     #' @param system_prompt String. Optional system prompt.

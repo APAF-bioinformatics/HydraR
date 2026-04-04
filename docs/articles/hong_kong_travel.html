@@ -21,7 +21,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">HydraR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,31 +35,14 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Manual</h6></li>
-    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Instruction Manual</a></li>
-    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Examples</h6></li>
-    <li><a class="dropdown-item" href="../articles/academic_research.html">Agentic Academic Researcher</a></li>
-    <li><a class="dropdown-item" href="../articles/blog_writer.html">Agentic Blog Writer</a></li>
-    <li><a class="dropdown-item" href="../articles/data_science.html">Agentic Data Science Assistant</a></li>
-    <li><a class="dropdown-item" href="../articles/hello_world_agent.html">Hello World: Building an Agentic Loop with HydraR</a></li>
-    <li><a class="dropdown-item" href="../articles/personalized_shopping.html">Agentic Personalized Shopping Assistant</a></li>
-    <li><a class="dropdown-item" href="../articles/software_bug_assistant.html">Agentic Software Bug Assistant</a></li>
-    <li><a class="dropdown-item" href="../articles/story_teller.html">Agentic Story Teller</a></li>
-    <li><a class="dropdown-item" href="../articles/gemini_cli_demo.html">Gemini CLI Driver Demo</a></li>
-    <li><a class="dropdown-item" href="../articles/hello_world_logic.html">Hello World Logic Nodes</a></li>
-    <li><a class="dropdown-item" href="../articles/parameterized_mermaid.html">Advanced Mermaid Parameters</a></li>
-    <li><a class="dropdown-item" href="../articles/round_trip_demo.html">Mermaid Round-Trip Visualization</a></li>
-    <li><a class="dropdown-item" href="../articles/distributed_communication.html">Distributed Consensus Simulation</a></li>
-    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
     <li><a class="dropdown-item" href="../articles/targets_integration.html">Reproducible Agentic Pipelines with targets</a></li>
-    <li><a class="dropdown-item" href="../articles/creating_drivers.html">Creating Custom Agent Drivers</a></li>
-    <li><a class="dropdown-item" href="../articles/git_worktree_toy.html">Isolated Execution with Git Worktrees</a></li>
+    <li><a class="dropdown-item" href="../articles/extending_hydrar.html">Creating Custom Agent Drivers</a></li>
+    <li><a class="dropdown-item" href="../articles/state_persistence.html">State Persistence &amp; Restart: Resilient Workflows</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -88,201 +71,202 @@
 
     
     
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Toggle for slow/expensive and potentially rate-limited AI figure generation</span></span>
+<span><span class="co"># Set to TRUE to force-regenerate the images, otherwise uses existing ones.</span></span>
+<span><span class="va">FORCE_REGENERATE_IMAGES</span> <span class="op">&lt;-</span> <span class="cn">FALSE</span></span>
+<span><span class="va">ASPECT_RATIO</span> <span class="op">&lt;-</span> <span class="st">"16:9"</span></span>
+<span></span>
+<span></span>
+<span><span class="co">## If you want to regenerate the images, you'll need to turn FORCE_REGENERATE_IMAGES to TRUE</span></span>
+<span><span class="co">## and also set the GEMINI_API_KEY environment variable in .Renviron file.</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>This vignette demonstrates how to use <code>HydraR</code> to
-orchestrate a high-fidelity travel planning workflow. Unlike simple
-mock-based agents, we will use the <code>GeminiCLIDriver</code> to drive
-real-world logic transitions, state management, and persistence for a
-complex itinerary.</p>
-<p>We will plan a trip from <strong>Sydney (SYD)</strong> to
-<strong>Hong Kong (HKG)</strong> with specific airline and activity
-constraints.</p>
-</div>
-<div class="section level2">
-<h2 id="scenario-requirements">Scenario Requirements<a class="anchor" aria-label="anchor" href="#scenario-requirements"></a>
-</h2>
-<ul>
-<li>
-<strong>Route</strong>: Sydney to Hong Kong (Departure: 29th May
-2026, Return: 5th June 2026).</li>
-<li>
-<strong>Airline</strong>: Qantas (Required).</li>
-<li>
-<strong>Activities</strong>: Visit Cheung Chau Island, dine at
-Spaghetti House, and sample local Cantonese cuisine.</li>
-<li>
-<strong>Goal</strong>: Generate a structured 3-day itinerary that
-respects these constraints.</li>
-</ul>
+<p>This vignette demonstrates the <strong>Zero-R-Code</strong>
+orchestration pattern using <code>HydraR</code>. Instead of defining
+roles, logic, and state in R blocks, we define the entire workflow in a
+single <code>workflow.yml</code> file.</p>
+<p>The R environment acts purely as an
+<strong>interpreter/compiler</strong> for the language-independent
+manifest.</p>
 </div>
 <div class="section level2">
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
-<p>First, load the HydraR library. Since we’re using the <strong>Node
-Factory</strong> pattern with Mermaid, drivers are instantiated
-on-demand during DAG creation.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<p>First, load the HydraR library.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="defining-the-workflow-components">Defining the Workflow Components<a class="anchor" aria-label="anchor" href="#defining-the-workflow-components"></a>
+<h2 id="loading-the-workflow-declarative-yaml">Loading the Workflow (Declarative YAML)<a class="anchor" aria-label="anchor" href="#loading-the-workflow-declarative-yaml"></a>
 </h2>
-<p>To keep our architecture clean, we store all workflow
-components—initial configuration, LLM prompts, and deterministic
-logic—in a central registry.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">travel_logic_registry</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="co"># 0. Initial State Configuration</span></span>
-<span>  initial_state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    origin <span class="op">=</span> <span class="st">"Sydney"</span>,</span>
-<span>    destination <span class="op">=</span> <span class="st">"Hong Kong"</span>,</span>
-<span>    departure_date <span class="op">=</span> <span class="st">"2026-05-26"</span>,</span>
-<span>    return_date <span class="op">=</span> <span class="st">"2026-06-01"</span>,</span>
-<span>    airline <span class="op">=</span> <span class="st">"Qantas"</span>,</span>
-<span>    must_include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cheung Chau Island"</span>, <span class="st">"Spaghetti House"</span>, <span class="st">"Local Cuisine"</span><span class="op">)</span>,</span>
-<span>    itinerary_draft <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    validation_passed <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span>  <span class="op">)</span>,</span>
-<span></span>
-<span>  <span class="co"># 1. The itinerary generation prompt</span></span>
-<span>  plan_itinerary <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span></span>
-<span>      <span class="st">"Plan a 3-day trip from %s to %s. Dates: %s to %s. Airline: %s. Must include: %s."</span>,</span>
-<span>      <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"origin"</span><span class="op">)</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"destination"</span><span class="op">)</span>,</span>
-<span>      <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"departure_date"</span><span class="op">)</span>, <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"return_date"</span><span class="op">)</span>,</span>
-<span>      <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"airline"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"must_include"</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">", "</span><span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">}</span>,</span>
-<span></span>
-<span>  <span class="co"># 2. The constraint validation logic</span></span>
-<span>  validate_constraints <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">itinerary</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"Planner"</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/Control.html" class="external-link">%||%</a></span> <span class="st">""</span></span>
-<span>    <span class="va">must_include</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"must_include"</span><span class="op">)</span></span>
-<span>    <span class="va">found</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">must_include</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">itinerary</span>, ignore.case <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="va">found</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"SUCCESS"</span>, output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>validation_passed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
-<span>    <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>      <span class="va">missing</span> <span class="op">&lt;-</span> <span class="va">must_include</span><span class="op">[</span><span class="op">!</span><span class="va">found</span><span class="op">]</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"SUCCESS"</span>, output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>        validation_passed <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>        message <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Missing:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">missing</span>, collapse <span class="op">=</span> <span class="st">", "</span><span class="op">)</span><span class="op">)</span></span>
-<span>      <span class="op">)</span><span class="op">)</span></span>
-<span>    <span class="op">}</span></span>
-<span>  <span class="op">}</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="defining-the-workflow-mermaid-as-source">Defining the Workflow (Mermaid-as-Source)<a class="anchor" aria-label="anchor" href="#defining-the-workflow-mermaid-as-source"></a>
-</h2>
-<p>We define the entire orchestration using Mermaid syntax. Parameters
-like <code>role</code> and <code>driver</code> are baked directly into
-the graph.</p>
+<p>We use <code><a href="../reference/load_workflow.html">load_workflow()</a></code> to ingest the entire definition
+from <code>hong_kong_travel.yml</code>. This file contains the: 1.
+<strong>Mermaid Graph</strong> (Source of truth for DAG architecture) 2.
+<strong>LLM Roles</strong> (System prompts for travel concierges) 3.
+<strong>Anonymous Logic</strong> (R snippets for constraints and
+prompting) 4. <strong>Initial State</strong> (Pre-configurations for the
+journey)</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mermaid_src</span> <span class="op">&lt;-</span> <span class="st">'</span></span>
-<span><span class="st">graph TD</span></span>
-<span><span class="st">  Planner["Travel Planner | role=Travel Concierge | driver=gemini | prompt_id=plan_itinerary | workdir=./hkg_trip"]</span></span>
-<span><span class="st">  Auditor["Constraint Validator | logic_id=validate_constraints | retries=3"]</span></span>
-<span><span class="st"></span></span>
-<span><span class="st">  Planner --&gt; Auditor</span></span>
-<span><span class="st">  Auditor -- "fail" --&gt; Planner</span></span>
-<span><span class="st">'</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Load everything from the external declarative source</span></span>
+<span><span class="va">wf</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/load_workflow.html">load_workflow</a></span><span class="op">(</span><span class="st">"hong_kong_travel.yml"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="instantiating-the-dag">Instantiating the DAG<a class="anchor" aria-label="anchor" href="#instantiating-the-dag"></a>
 </h2>
-<p>We use a <strong>Node Factory</strong> to resolve the IDs in the
-Mermaid string against our logic registry.</p>
+<p>With the registries populated by the loader, we simply pass the graph
+and the universal <code><a href="../reference/auto_node_factory.html">auto_node_factory()</a></code> to
+<code><a href="../reference/mermaid_to_dag.html">mermaid_to_dag()</a></code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># The factory maps Mermaid params to HydraR Node objects</span></span>
-<span><span class="va">travel_node_factory</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">id</span>, <span class="va">label</span>, <span class="va">params</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">id</span> <span class="op">==</span> <span class="st">"Planner"</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="co"># Resolve driver from Mermaid params</span></span>
-<span>    <span class="va">driver_obj</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="va">params</span><span class="op">$</span><span class="va">driver</span> <span class="op">==</span> <span class="st">"gemini"</span><span class="op">)</span> <span class="op">{</span></span>
-<span>      <span class="va"><a href="../reference/GeminiCLIDriver.html">GeminiCLIDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span>
-<span>    <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>      <span class="co"># Fallback or other drivers (Claude, OpenAI)</span></span>
-<span>      <span class="cn">NULL</span></span>
-<span>    <span class="op">}</span></span>
-<span></span>
-<span>    <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va"><a href="../reference/AgentLLMNode.html">AgentLLMNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
-<span>      id <span class="op">=</span> <span class="va">id</span>, label <span class="op">=</span> <span class="va">label</span>,</span>
-<span>      role <span class="op">=</span> <span class="va">params</span><span class="op">$</span><span class="va">role</span>,</span>
-<span>      driver <span class="op">=</span> <span class="va">driver_obj</span>,</span>
-<span>      prompt_builder <span class="op">=</span> <span class="va">travel_logic_registry</span><span class="op">[[</span><span class="va">params</span><span class="op">$</span><span class="va">prompt_id</span><span class="op">]</span><span class="op">]</span>,</span>
-<span>      params <span class="op">=</span> <span class="va">params</span></span>
-<span>    <span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="op">}</span> <span class="kw">else</span> <span class="kw">if</span> <span class="op">(</span><span class="va">id</span> <span class="op">==</span> <span class="st">"Auditor"</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
-<span>      id <span class="op">=</span> <span class="va">id</span>, label <span class="op">=</span> <span class="va">label</span>,</span>
-<span>      logic_fn <span class="op">=</span> <span class="va">travel_logic_registry</span><span class="op">[[</span><span class="va">params</span><span class="op">$</span><span class="va">logic_id</span><span class="op">]</span><span class="op">]</span>,</span>
-<span>      params <span class="op">=</span> <span class="va">params</span></span>
-<span>    <span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="op">}</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="co"># Create the DAG directly from the visual source</span></span>
-<span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mermaid_to_dag.html">mermaid_to_dag</a></span><span class="op">(</span><span class="va">mermaid_src</span>, <span class="va">travel_node_factory</span><span class="op">)</span></span>
-<span><span class="va">dag</span><span class="op">$</span><span class="fu">compile</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in dag$compile(): The graph contains cycles and no conditional edges</span></span>
-<span><span class="co">#&gt; are defined. Linear execution may fail.</span></span>
-<span><span class="co">#&gt; Warning in dag$compile(): Potential infinite loop detected: graph contains</span></span>
-<span><span class="co">#&gt; cycles. Ensure conditional edges have exit conditions.</span></span>
-<span><span class="co">#&gt; Graph compiled successfully.</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spawn_dag.html">spawn_dag</a></span><span class="op">(</span><span class="va">wf</span>, <span class="fu"><a href="../reference/auto_node_factory.html">auto_node_factory</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="visualizing-the-workflow">Visualizing the Workflow<a class="anchor" aria-label="anchor" href="#visualizing-the-workflow"></a>
 </h2>
-<p>We can view the agent’s logic directly using Mermaid.js syntax. By
-setting <code>details = TRUE</code>, we see the embedded configuration
-parameters.</p>
+<p>We can view the agent’s logic directly using Mermaid.js syntax.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"```mermaid\n"</span><span class="op">)</span></span></code></pre></div>
-<pre class="mermaid"><code>
-``` r
-cat(dag$plot(type = "mermaid", details = TRUE))</code></pre>
-<pre class="mermaid"><code>graph TD
-  Planner["Travel Planner | role=Travel Concierge | driver=gemini | prompt_id=plan_itinerary | workdir=./hkg_trip"]
-  Auditor["Constraint Validator | logic_id=validate_constraints | retries=3"]
-  Planner --&gt; Auditor
-  Auditor -- "fail" --&gt; Planner</code></pre>
-<pre class="mermaid"><code>graph TD
-  Planner["Travel Planner | role=Travel Concierge | driver=gemini | prompt_id=plan_itinerary | workdir=./hkg_trip"]
-  Auditor["Constraint Validator | logic_id=validate_constraints | retries=3"]
-  Planner --&gt; Auditor
-  Auditor -- "fail" --&gt; Planner</code></pre>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n```\n"</span><span class="op">)</span></span></code></pre></div>
-<pre><code>
-## Execution
-
-When we run the DAG, `HydraR` manages the state transitions and LLM calls. The `workdir` and `role` parameters are automatically applied.
-
-
-``` r
-# Register a checkpointer for durability
-checkpointer &lt;- DuckDBSaver$new(path = "travel_booking.duckdb")
-dag$set_checkpointer(checkpointer)
-
-# Run the orchestration pulling initial config from our registry
-results &lt;- dag$run(initial_state = travel_logic_registry$initial_state, max_steps = 5)
-
-# Display final itinerary
-cat(results$state$get("Planner"))</code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"```mermaid\n"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>type <span class="op">=</span> <span class="st">"mermaid"</span>, details <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n```\n"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="execution">Execution<a class="anchor" aria-label="anchor" href="#execution"></a>
+</h2>
+<p>When we run the DAG, we use the <code>initial_state</code> extracted
+from the YAML file. No manual R list creation is required.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Register a checkpointer for durability</span></span>
+<span><span class="va">checkpointer</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/DuckDBSaver.html">DuckDBSaver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>db_path <span class="op">=</span> <span class="st">"travel_booking.duckdb"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Run the orchestration using the state from YAML</span></span>
+<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span></span>
+<span>  initial_state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/append.html" class="external-link">append</a></span><span class="op">(</span><span class="va">wf</span><span class="op">$</span><span class="va">initial_state</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    force_regenerate_images <span class="op">=</span> <span class="va">FORCE_REGENERATE_IMAGES</span>,</span>
+<span>    aspect_ratio <span class="op">=</span> <span class="va">ASPECT_RATIO</span></span>
+<span>  <span class="op">)</span><span class="op">)</span>,</span>
+<span>  max_steps <span class="op">=</span> <span class="fl">15</span>,</span>
+<span>  checkpointer <span class="op">=</span> <span class="va">checkpointer</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Display final itinerary</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n\n### Generated Itinerary\n"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; ### Generated Itinerary</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"Planner"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ## Sydney to Hong Kong: A 7-Day Cultural &amp; Culinary Escape</span></span>
+<span><span class="co">#&gt; **Travel Dates:** May 26, 2026 – June 1, 2026</span></span>
+<span><span class="co">#&gt; **Airline:** Qantas (Direct flight SYD-HKG)</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; This itinerary balances Hong Kong’s high-energy urban landscape with the tranquil, traditional charm of the outlying islands.</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; ### **Day 1: Arrival &amp; The Harbor Glow (May 26)**</span></span>
+<span><span class="co">#&gt; *   **Arrival:** Land at HKG via Qantas. Take the Airport Express to Central.</span></span>
+<span><span class="co">#&gt; *   **Check-in:** Stay in **Central or Sheung Wan** for the best access to transportation.</span></span>
+<span><span class="co">#&gt; *   **Evening:** Walk the **Tsim Sha Tsui Promenade**. Take the Star Ferry across the harbor at sunset to see the city lights spark to life.</span></span>
+<span><span class="co">#&gt; *   **Dinner:** **The Spaghetti House (TST Branch)** – A local Hong Kong institution. Enjoy their signature fusion pasta dishes that have been a city staple for decades.</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; ### **Day 2: The Peak &amp; Colonial History (May 27)**</span></span>
+<span><span class="co">#&gt; *   **Morning:** Take the **Peak Tram** to Victoria Peak for the iconic skyline panorama. Walk the Lugard Road circular path.</span></span>
+<span><span class="co">#&gt; *   **Lunch:** Dim Sum at **Luk Yu Tea House** (Central) – one of the oldest and most traditional tea houses in Hong Kong.</span></span>
+<span><span class="co">#&gt; *   **Afternoon:** Explore the **Man Mo Temple** and wander the antique shops of **Cat Street**.</span></span>
+<span><span class="co">#&gt; *   **Dinner:** Enjoy authentic Cantonese Roast Goose at **Yat Lok** (Michelin-starred, no-frills).</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; ### **Day 3: The Slow Life – Cheung Chau Island (May 28)**</span></span>
+<span><span class="co">#&gt; *   **Morning:** Take a ferry from **Central Pier 5** to Cheung Chau (approx. 45-60 mins).</span></span>
+<span><span class="co">#&gt; *   **Activities:** Rent a bicycle and ride around the island’s northern and southern loops. Visit the **Pak Tai Temple** and hike to the **Mini Great Wall** for coastal views.</span></span>
+<span><span class="co">#&gt; *   **Lunch:** Seafood street food. You must try the **Giant Fishball** and the **Mango Mochi**—both local island specialties.</span></span>
+<span><span class="co">#&gt; *   **Dinner:** Dine at one of the open-air seafood restaurants along the **Cheung Chau Praya**. Pick a live fish from the tanks and have it steamed with ginger and scallion.</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; ### **Day 4: Markets &amp; Street Food Exploration (May 29)**</span></span>
+<span><span class="co">#&gt; *   **Morning:** Head to **Mong Kok**. Wander the **Goldfish Market** and the **Flower Market**.</span></span>
+<span><span class="co">#&gt; *   **Lunch:** **Tim Ho Wan** (The original dim sum specialist). Expect a queue, but it’s well worth the wait for the baked BBQ pork buns.</span></span>
+<span><span class="co">#&gt; *   **Afternoon:** Explore the **Ladies' Market** and the **Temple Street Night Market** (as it sets up).</span></span>
+<span><span class="co">#&gt; *   **Dinner:** Street food crawl in **Jordan/Mong Kok**. Try *Curry Fish Balls, Stinky Tofu (if you're brave!), and Pineapple Bun with butter* from a local *cha chaan teng*.</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; ### **Day 5: Lantau Island &amp; The Giant Buddha (May 30)**</span></span>
+<span><span class="co">#&gt; *   **Morning:** Take the MTR to Tung Chung and ride the **Ngong Ping 360 Cable Car**.</span></span>
+<span><span class="co">#&gt; *   **Activities:** Visit the **Tian Tan Buddha** and **Po Lin Monastery**. Take a bus down to **Tai O Fishing Village** to see the traditional stilt houses.</span></span>
+<span><span class="co">#&gt; *   **Dinner:** Back in the city, visit a high-end noodle shop like **Mak’s Noodle** for their legendary shrimp wonton soup.</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; ### **Day 6: Art &amp; Modern Luxury (May 31)**</span></span>
+<span><span class="co">#&gt; *   **Morning:** Visit **M+ Museum** or the **Hong Kong Palace Museum** in the West Kowloon Cultural District.</span></span>
+<span><span class="co">#&gt; *   **Lunch:** **The Spaghetti House** (Optional: Revisit for a casual lunch if you enjoyed their unique Hong Kong-style fusion menu).</span></span>
+<span><span class="co">#&gt; *   **Afternoon:** Last-minute shopping in **Causeway Bay** or a quiet stroll through **Hong Kong Park**.</span></span>
+<span><span class="co">#&gt; *   **Evening:** Farewell Dinner at a rooftop bar in Central, such as **Sevva** or **Popinjays**, to toast to the harbor one last time.</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; ### **Day 7: Departure (June 1)**</span></span>
+<span><span class="co">#&gt; *   **Morning:** Grab a traditional breakfast of milk tea and toast at a local *cha chaan teng* near your hotel.</span></span>
+<span><span class="co">#&gt; *   **Afternoon:** Take the Airport Express to HKG for your return Qantas flight to Sydney.</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; ### **Concierge Notes:**</span></span>
+<span><span class="co">#&gt; *   **Transport:** Purchase an **Octopus Card** immediately upon arrival. It works for all MTR, ferries, trams, and buses.</span></span>
+<span><span class="co">#&gt; *   **Reservations:** For high-end dining, book 2-3 weeks in advance. For *The Spaghetti House* or local noodle shops, walk-ins are standard.</span></span>
+<span><span class="co">#&gt; *   **Weather:** June marks the beginning of the humid summer season. Pack light, breathable fabrics and always carry an umbrella for sudden tropical showers.</span></span>
+<span><span class="co">#&gt; *   **Connectivity:** Download the **"MTR Mobile"** and **"OpenRice"** (the local version of Yelp/TripAdvisor) to navigate and find the best food spots in real-time.</span></span>
+<span></span>
+<span><span class="co"># Display Constraint Audit Report</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n\n### Constraint Audit Report\n"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; ### Constraint Audit Report</span></span>
+<span><span class="va">report</span> <span class="op">&lt;-</span> <span class="va">results</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"report"</span><span class="op">)</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">report</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">report</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"No audit report available."</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt; ### Constraint Audit Report</span></span>
+<span><span class="co">#&gt; Date: 2026-04-05 00:48:07.357547</span></span>
+<span><span class="co">#&gt; - [x] Cheung Chau Island</span></span>
+<span><span class="co">#&gt; - [x] Spaghetti House</span></span>
+<span><span class="co">#&gt; - [x] Local Cuisine</span></span>
+<span></span>
+<span><span class="co"># Display Pamphlet (HTML)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n\n### Formatted Pamphlet (HTML Fragment)\n"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; ### Formatted Pamphlet (HTML Fragment)</span></span>
+<span><span class="va">pamphlet_html</span> <span class="op">&lt;-</span> <span class="va">results</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"PamphletFormatter"</span><span class="op">)</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">pamphlet_html</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">htmltools</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/htmltools/reference/HTML.html" class="external-link">HTML</a></span><span class="op">(</span><span class="va">pamphlet_html</span><span class="op">)</span></span>
+<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Pamphlet not generated."</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt; Pamphlet not generated.</span></span>
+<span></span>
+<span><span class="co"># List Artifacts</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n\n### Generated Artifacts\n"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; ### Generated Artifacts</span></span>
+<span><span class="va">artifacts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">"hong_kong|validation_report"</span><span class="op">)</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">artifacts</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"- "</span>, <span class="va">artifacts</span>, collapse <span class="op">=</span> <span class="st">"\n"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"No artifacts found."</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt; -  hong_kong_pamphlet.html</span></span>
+<span><span class="co">#&gt; -  hong_kong_travel.Rmd</span></span>
+<span><span class="co">#&gt; -  hong_kong_travel.Rmd.orig</span></span>
+<span><span class="co">#&gt; -  hong_kong_travel.yml</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="conclusion">Conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>
 </h2>
-<p>This workflow demonstrates how <code>HydraR</code> provides: 1.
-<strong>Dynamic Prompting</strong>: Injecting complex R state into LLM
-calls. 2. <strong>Reliability</strong>: Using logic nodes as
-“guardrails” for non-deterministic LLM output. 3.
-<strong>Persistence</strong>: The ability to checkpoint and resume
-complex multi-step planning.</p>
-<hr>
-<!-- APAF Bioinformatics | hong_kong_travel.Rmd | Approved | 2026-03-29 -->
+<p>This workflow demonstrates how <code>HydraR</code> enables
+<strong>Truly Zero-R-Code</strong> definitions: 1.
+<strong>Language-Independent</strong>: The workflow is defined in YAML
+and Mermaid, making it portable. 2. <strong>Reduced
+Boilerplate</strong>: <code><a href="../reference/load_workflow.html">load_workflow()</a></code> handles all
+registration and state parsing. 3. <strong>Maintainable</strong>: Logic
+and roles are separated from the R execution engine.</p>
+<!-- APAF Bioinformatics | hong_kong_travel.Rmd | Approved | 2026-03-30 -->
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -291,7 +275,7 @@ complex multi-step planning.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Ignatius Pang, Aidan Tay.</p>
+  <p>Developed by Chi Nam Ignatius Pang, Aidan Tay.</p>
 </div>
 
 <div class="pkgdown-footer-right">

@@ -13,7 +13,7 @@ file in the specified directory. No external dependencies required.
 
 - `dir`:
 
-  String. Directory to store .rds checkpoint files. Initialize RDSSaver
+  String. Directory to store .rds checkpoint files.
 
 ## Methods
 
@@ -30,6 +30,8 @@ file in the specified directory. No external dependencies required.
 ------------------------------------------------------------------------
 
 ### Method `new()`
+
+Initialize RDSSaver
 
 #### Usage
 

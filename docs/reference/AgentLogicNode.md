@@ -1,11 +1,10 @@
 # Agent Logic Node R6 Class
 
-A specialized AgentNode that executes a pure R function instead of an
-LLM call.
+A node that executes a synchronous R function.
 
 ## Value
 
-An \`AgentLogicNode\` R6 object.
+An \`AgentLogicNode\` object.
 
 ## Super class
 
@@ -16,7 +15,7 @@ An \`AgentLogicNode\` R6 object.
 
 - `logic_fn`:
 
-  Function(state) -\> List(status, output). Initialize AgentLogicNode
+  Function(state) -\> List(status, output).
 
 ## Methods
 
@@ -31,6 +30,8 @@ An \`AgentLogicNode\` R6 object.
 ------------------------------------------------------------------------
 
 ### Method `new()`
+
+Initialize AgentLogicNode
 
 #### Usage
 
@@ -95,7 +96,5 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
-node <- AgentLogicNode$new("calculate", function(state) {
-  list(status = "success", output = list(result = 42))
-})
+node <- AgentLogicNode$new("start", function(state) list(status = "success"))
 ```

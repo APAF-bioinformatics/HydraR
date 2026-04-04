@@ -6,7 +6,7 @@ and useful for agentic research.
 
 ## How to Contribute
 
-### Reporting Bugs
+### Reporting Issues
 
 - Please check the [existing
   issues](https://github.com/APAF-bioinformatics/HydraR/issues) before
@@ -33,6 +33,17 @@ and useful for agentic research.
 - Run
   [`styler::style_pkg()`](https://styler.r-lib.org/reference/style_pkg.html)
   before submitting.
+
+## Use of Generative AI in Contributions
+
+We welcome contributions involving the use of Generative AI tools.
+However, to maintain the integrity and quality of the scientific
+software, all contributors must: - **Disclose**: Mention in the Pull
+Request if AI tools (e.g., GitHub Copilot, ChatGPT, Antigravity) were
+used to generate any part of the contribution. - **Verify**: Affirm that
+all AI-generated code, documentation, and tests have been manually
+reviewed, tested, and verified for correctness. - **Responsibility**:
+The human contributor takes full responsibility for the code submitted.
 
 ## Style Guidelines
 

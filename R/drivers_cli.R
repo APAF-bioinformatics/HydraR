@@ -354,10 +354,12 @@ CopilotCLIDriver <- R6::R6Class("CopilotCLIDriver",
   )
 )
 
-#' OpenAI Codex CLI Driver
+#' OpenAI Codex CLI Driver R6 Class
 #'
-#' Supports the official `codex` CLI (v0.118+).
+#' @description
+#' Driver for the official `codex` CLI tool (v0.118+).
 #'
+#' @return An `OpenAICodexCLIDriver` object.
 #' @export
 OpenAICodexCLIDriver <- R6::R6Class(
   "OpenAICodexCLIDriver",
@@ -373,6 +375,8 @@ OpenAICodexCLIDriver <- R6::R6Class(
     },
 
     #' Call the LLM
+    #' @description
+    #' Sends a execution request to the Codex CLI.
     #' @param prompt String.
     #' @param system_prompt String. Optional system prompt.
     #' @param cli_opts List.

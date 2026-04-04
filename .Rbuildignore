@@ -44,7 +44,7 @@
 ^test_dir/
 ^repro_repo/
 ^gateway/
-^man/.*\.Rd$
+
 ^tools/
 ^\.agentignore$
 ^\.claudeignore$

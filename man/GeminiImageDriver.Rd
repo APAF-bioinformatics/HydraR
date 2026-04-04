@@ -80,6 +80,7 @@ Call Gemini Image API (Multimodal Unified)}
 \if{html}{\out{<a id="method-GeminiImageDriver-call"></a>}}
 \if{latex}{\out{\hypertarget{method-GeminiImageDriver-call}{}}}
 \subsection{Method \code{call()}}{
+Sends a prompt to Gemini for image generation.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GeminiImageDriver$call(
   prompt,
