@@ -18,7 +18,7 @@ test_that("Sorting Benchmark logic is sound", {
     }
     return(x)
   }
-  
+
   input <- c(5, 2, 8, 1, 9)
   expect_equal(bubble_sort(input), sort(input))
 })
@@ -30,7 +30,7 @@ test_that("Hong Kong Travel DAG can be spawned from manifest", {
     graph = "graph TD\n  A[Planner] --> B[Validator]",
     initial_state = list(destination = "Hong Kong")
   )
-  
+
   dag <- spawn_dag(manifest, auto_node_factory())
   expect_s3_class(dag, "AgentDAG")
   expect_true("A" %in% names(dag$nodes))
@@ -43,16 +43,18 @@ test_that("State Persistence logic handles pause/resume", {
     return(list(status = "NEXT"))
   }))
   dag$add_node(AgentLogicNode$new(id = "Step2", function(state) {
-    if (!state$get("fixed", default = FALSE)) return(list(status = "PAUSE"))
+    if (!state$get("fixed", default = FALSE)) {
+      return(list(status = "PAUSE"))
+    }
     state$set("val", 2)
     return(list(status = "SUCCESS"))
   }))
   dag$add_edge("Step1", "Step2")
-  
+
   # Run 1: Should pause
   res1 <- dag$run(initial_state = list(fixed = FALSE))
   expect_equal(res1$status, "completed") # Engine status is completed even if paused internally
-  
+
   # Run 2: Resume
   res2 <- dag$run(initial_state = list(fixed = TRUE), resume_from = "Step2")
   expect_equal(res2$status, "completed")
