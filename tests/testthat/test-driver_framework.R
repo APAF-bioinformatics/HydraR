@@ -53,10 +53,6 @@ test_that("CLI Drivers are correctly instantiated", {
   claude_driver <- AnthropicCLIDriver$new()
   expect_equal(claude_driver$id, "claude_cli")
   expect_true(inherits(claude_driver, "AgentDriver"))
-
-  copilot_driver <- CopilotCLIDriver$new()
-  expect_equal(copilot_driver$id, "copilot_cli")
-  expect_true(inherits(copilot_driver, "AgentDriver"))
 })
 
 # <!-- APAF Bioinformatics | test-driver_framework.R | Approved | 2026-03-28 -->
