@@ -1,32 +1,3 @@
----
-title: "Parallel Benchmarking with Git Worktrees"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Parallel Benchmarking with Git Worktrees}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
-
-
-
-## Overview
-
-Modern agentic workflows often involve multiple specialized agents working on different parts of a codebase simultaneously. When these agents modify files, they risk stepping on each other's toes—causing merge conflicts or corrupted git states.
-
-`HydraR` addresses this by leveraging **Git Worktrees** for isolated execution. This guide demonstrates a parallel workflow where:
-1.  **Three Agents** simultaneously write R code for different sorting algorithms (Bubble, Quick, Merge sort) in separate worktrees.
-2.  A **Merge Harmonizer** automatically merges these independent branches back into the main repository.
-3.  A **Benchmarking Node** executes the generated code to compare their performance.
-4.  A **Visualization Node** plots the results.
-
----
-
-## 🏗️ Step 1: Initialize an Isolated Repository
-
-To demonstrate the power of worktrees, we first create a temporary Git repository.
-
-
-``` r
 library(HydraR)
 library(withr)
 library(ggplot2)
@@ -46,6 +17,9 @@ if (Sys.getenv("ANTHROPIC_API_KEY") == "") {
 
 # Ensure Gemini CLI path is configured (Environment variables are inherited by workers)
 Sys.setenv(HYDRAR_GEMINI_PATH = "/opt/homebrew/bin/gemini")
+
+# Define the repository root for worktrees
+repo_root <- "."
 
 # 0. Setup Parallel Execution (for Worktree Isolation)
 future::plan(future::multisession, workers = 3)
@@ -67,19 +41,6 @@ withr::with_dir(repo_root, {
   system2("git", c("commit", "-m", "Initial_commit"))
   system2("git", c("branch", "-M", "main"))
 })
-```
-
----
-
-## 🧠 Step 2: Declarative Workflow Loading
-
-Rather than registering roles and logic manually in R, we now define the 
-entire workflow architecture (graph, prompts, logic) in a single 
-declarative YAML file. This follows the **APAF-Agentic-Standard** for 
-Zero-R-Code definitions.
-
-
-``` r
 # 1. Load the workflow manifest
 wf <- load_workflow("sorting_benchmark.yml")
 
@@ -109,17 +70,3 @@ results <- compiled_dag$run(
 
 # 6. Save Execution Trace
 compiled_dag$save_trace("sorting_trace.json")
-```
-
----
-
-## 🧘 Summary
-
-By using **Declarative Mermaid Nodes** with `auto_node_factory()`, we:
-1.  **Eliminated Boilerplate**: No hand-written node factory — the Mermaid graph IS the specification.
-2.  **Eliminated State Corruption**: Three agents modified the codebase simultaneously via isolated Git Worktrees.
-3.  **Automated Conflict Resolution**: The `MergeHarmonizer` handled integration of branches.
-4.  **End-to-End Validation**: Generated code was benchmarked immediately downstream.
-
----
-<!-- APAF Bioinformatics | sorting_benchmark.Rmd | Approved | 2026-03-30 -->
