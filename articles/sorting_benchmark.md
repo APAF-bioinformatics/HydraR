@@ -27,15 +27,22 @@ repository.
 library(HydraR)
 library(withr)
 library(ggplot2)
-#> Warning: package 'ggplot2' was built under R version 4.5.2
 library(future)
 library(furrr)
 
+# Check for Anthropic API Key (Needed for refined agents)
+# Must be done BEFORE future::plan so workers inherit the environment
+if (Sys.getenv("ANTHROPIC_API_KEY") == "") {
+  if (file.exists("../.Renviron")) readRenviron("../.Renviron")
+  if (file.exists(".Renviron")) readRenviron(".Renviron")
+}
+
+if (Sys.getenv("ANTHROPIC_API_KEY") == "") {
+  stop("ANTHROPIC_API_KEY not found. Please set it in your .Renviron or workspace.")
+}
+
 # Ensure Gemini CLI path is configured (Environment variables are inherited by workers)
 Sys.setenv(HYDRAR_GEMINI_PATH = "/opt/homebrew/bin/gemini")
-
-# Define the repository root for worktrees
-repo_root <- "."
 
 # 0. Setup Parallel Execution (for Worktree Isolation)
 future::plan(future::multisession, workers = 3)
@@ -78,13 +85,11 @@ initial_state <- wf$initial_state
 
 # 3. Inject dynamic environment variables into initial state
 initial_state$repo_root <- repo_root
+initial_state$output_dir <- file.path(getwd(), "..", "paper", "figures")
 
 # 4. Instantiate and Compile
 dag <- AgentDAG$from_mermaid(mermaid_graph, node_factory = auto_node_factory())
 compiled_dag <- dag$compile()
-#> Warning in dag$compile(): Multiple potential start nodes found (bubble, quick,
-#> merge). Use set_start_node() to disambiguate.
-#> Graph compiled successfully.
 
 # 5. Run with Worktree Isolation
 # Ensure workers inherit our environment (for API keys and PATH)
@@ -97,45 +102,9 @@ results <- compiled_dag$run(
   fail_if_dirty = FALSE,
   packages = c("withr", "HydraR", "ggplot2")
 )
-#> Warning in self$compile(): Multiple potential start nodes found (bubble, quick,
-#> merge). Use set_start_node() to disambiguate.
-#> Graph compiled successfully.
-#> [2026-04-05 10:15:25] [Worktree] Initializing WorktreeManager for thread: run-5174d980
-#> [2026-04-05 10:15:25] [Parallel] Executing 3 nodes in isolated worktrees using furrr...
-#> Warning: package ‘purrr’ was built under R version 4.5.2
-#> Warning: package ‘ggplot2’ was built under R version 4.5.2
-#> Warning: package ‘purrr’ was built under R version 4.5.2
-#> Warning: package ‘ggplot2’ was built under R version 4.5.2
-#> Warning: package ‘purrr’ was built under R version 4.5.2
-#> Warning: package ‘ggplot2’ was built under R version 4.5.2
-#> [2026-04-05 10:15:52] [Parallel] Executing 1 nodes in isolated worktrees using furrr...
-#>    [merger] Executing R logic...
-#> [merger] Starting merge of 3 branches into main...
-#>    [merger] Merging branch: hydra/run-5174d980/bubble-4f495382
-#>    [merger] Merging branch: hydra/run-5174d980/quick-ece43438
-#>    [merger] Merging branch: hydra/run-5174d980/merge-af307538
-#> [2026-04-05 10:15:53] [Parallel] Executing 1 nodes in isolated worktrees using furrr...
-#>    [benchmark] Executing R logic...
-#> [Benchmark] Running on branch: hydra/run-5174d980/benchmark-e576ba1d
-#> [Benchmark] Found 3 algorithm files: bubble_sort.R, merge_sort.R, quick_sort.R
-#> Warning in value[[3L]](cond): [Benchmark] Failed to source bubble_sort.R: bubble_sort.R:12:1: unexpected '}'
-#> 11:   return(vec)
-#> 12: }
-#>     ^
-#> Warning in value[[3L]](cond): [Benchmark] Failed to source merge_sort.R: merge_sort.R:10:1: unexpected '}'
-#> 9:   merge_halves(left, right)
-#> 10: }
-#>     ^
-#> Warning in value[[3L]](cond): [Benchmark] Failed to source quick_sort.R: quick_sort.R:11:1: unexpected '}'
-#> 10:   c(quick_sort(less), equal, quick_sort(greater))
-#> 11: }
-#>     ^
-#> [2026-04-05 10:15:53] [Parallel] Executing 1 nodes in isolated worktrees using furrr...
-#>    [plot] Executing R logic...
 
 # 6. Save Execution Trace
 compiled_dag$save_trace("sorting_trace.json")
-#> [Saved] Saved execution trace to: sorting_trace.json
 ```
 
 ------------------------------------------------------------------------
