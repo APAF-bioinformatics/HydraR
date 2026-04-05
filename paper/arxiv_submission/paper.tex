@@ -19,10 +19,6 @@
 \fi
 % Use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
-\IfFileExists{microtype.sty}{% use microtype if available
-  \usepackage[]{microtype}
-  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
-}{}
 \makeatletter
 \@ifundefined{KOMAClassName}{% if non-KOMA class
   \IfFileExists{parskip.sty}{%
@@ -73,6 +69,8 @@
 \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
 \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
 \usepackage{graphicx}
+\usepackage{caption}
+\captionsetup{justification=raggedright,singlelinecheck=false}
 \usepackage{subcaption}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -82,6 +80,17 @@
 % margins by default, and it is still possible to overwrite the defaults
 % using explicit options in \includegraphics[width, height, ...]{}
 \setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \ifdim\wd\pandoc@box>\linewidth
+    \makebox[\linewidth][l]{\resizebox{\linewidth}{!}{\copy\pandoc@box}}%
+  \else
+    \copy\pandoc@box
+  \fi
+}
+\makeatother
 % Set default figure placement to htbp
 \makeatletter
 \def\fps@figure{htbp}
@@ -135,6 +144,13 @@
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
+\makeatletter
+\@ifpackageloaded{microtype}{}{\let\MT@patch@showhyphens\relax}
+\makeatother
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same} % disable monospaced font for URLs
@@ -184,7 +200,7 @@ University, Sydney, Australia%
 \section{Summary}\label{summary}
 
 \texttt{HydraR} is a lightweight, state-managed framework designed to
-orchestrate complex ``agentic'' workflows---autonomous, multi-step
+orchestrate complex ``agentic'' workflows that are autonomous, multi-step
 processes driven by Large Language Models (LLMs) natively within R.
 While mainstream orchestration tools such as LangChain
 (\citeproc{ref-langchain}{Chase, 2022}) and CrewAI
@@ -193,81 +209,51 @@ While mainstream orchestration tools such as LangChain
 rigorous reproducibility, auditability, and seamless integration with
 established statistical pipelines.
 
-Researchers can architect workflows as Directed Acyclic Graphs (DAGs) or
-iterative state machines, wherein each node represents an LLM-prompted
-task, a deterministic R function, or an autonomous auditor.
-\texttt{HydraR} ensures broad compatibility---supporting cloud APIs
-(Gemini (\citeproc{ref-google2025gemini}{Google, 2025}), Claude, OpenAI)
-and local models (Ollama)---while enforcing structural integrity through
-a built-in \texttt{Advanced\ Validation\ Engine} that performs deep
-static analysis of orchestration manifests before execution.
+Researchers can architect workflows as Directed Acyclic Graphs (DAGs) or iterative state machines, where each node represents an LLM-prompted task, a deterministic R function, or an autonomous auditor. \texttt{HydraR} provides a provider-agnostic interface that supports cloud APIs (Gemini, Claude, OpenAI, GitHub Copilot) and local deployments via Ollama. Workflow topologies are defined via declarative YAML manifests that embed \texttt{Mermaid.js} syntax for visualization and conditional edge logic (e.g., "if fail, go to Node B") for reactive routing. To ensure reliability, a built-in validation engine performs deep static analysis of these manifests—executing syntactic parse checks, and verifying topological synchronization. While \texttt{HydraR} permits cyclic dependencies to facilitate agentic self-correction, it enforces runtime safety through a configurable execution "fuse" (limiting transitions to 25 steps by default) and persistent state checkpointing.
 
 \section{Statement of Need}\label{statement-of-need}
 
-The contemporary R ecosystem currently lacks a unified framework that
-provides both high-level agentic orchestration and robust, low-level
-filesystem safety. Existing packages, such as \texttt{ellmer}
-(\citeproc{ref-ellmer}{Wickham et al., 2025}), primarily focus on
-conversational interfaces, while \texttt{mall}
-(\citeproc{ref-mall}{Couch, 2024}) excels at mapping LLM inferences over
-textual data within data frames. Neither is structurally equipped to
-manage long-running, multi-agent collaborations that demand complex
-state persistence or isolated execution environments.
+The contemporary R ecosystem lacks a unified framework providing both high-level agentic orchestration and robust, low-level filesystem safety. While existing packages, such as \texttt{ellmer} (\citeproc{ref-ellmer}{Wickham et al., 2025}), focus primarily on conversational interfaces and \texttt{mall} (\citeproc{ref-mall}{Couch, 2024}) excels at mapping LLM inferences over structured data, neither is equipped to manage the complex state persistence and isolated execution environments necessitated by long-running, multi-agent collaborations.
 
 \texttt{HydraR} addresses three fundamental challenges in this domain:
-1. \textbf{Auditability}: It implements a centralized
-\texttt{AgentState} with persistent checkpointing (via DuckDB
-(\citeproc{ref-duckdb}{Raasveldt \& Mühleisen, 2019})), yielding a
-complete, verifiable audit trail of all LLM interactions and state
-mutations. 2. \textbf{Filesystem Safety}: Leveraging Git Worktrees,
-\texttt{HydraR} isolates parallel agent executions into temporary
-branches, virtually eliminating data corruption and race conditions
-during concurrent operations. 3. \textbf{Reproducible Orchestration}: By
-defining workflows via \texttt{Mermaid.js} syntax and \texttt{YAML}
-manifests, \texttt{HydraR} decouples orchestration logic from the
-underlying execution framework. This declarative approach creates
-portable, shareable agentic protocols, effortlessly bypassing the added
-complexity typical when R is used to access multi-agent frameworks via
-\texttt{reticulate} (\citeproc{ref-reticulate}{Ushey et al., 2024}).
+\begin{enumerate}
+    \item \textbf{Auditability}: It implements a centralized \texttt{AgentState} with persistent checkpointing (via DuckDB \citeproc{ref-duckdb}{Raasveldt \& Mühleisen, 2019}), yielding a complete, verifiable audit trail of all LLM interactions and state mutations.
+    \item \textbf{Filesystem Safety}: Leveraging Git worktrees, \texttt{HydraR} isolates parallel agent executions into temporary branches, thereby virtually eliminating data corruption and race conditions during concurrent operations.
+    \item \textbf{Portable Logic Topologies}: By defining workflows via \texttt{Mermaid.js} syntax and \texttt{YAML} manifests, \texttt{HydraR} entirely decouples orchestration intent from the underlying execution engine. This declarative schema functions as an ``OpenAPI for Agents'' — an intermediate, engine-agnostic representation that not only ensures robust auditability in R but also serves as a highly portable compilation target for broader, code-first frameworks such as LangGraph or Google's Agent Development Toolkit.
+\end{enumerate}
+
 
 \section{State of the Field}\label{state-of-the-field}
 
-Although \texttt{reticulate} (\citeproc{ref-reticulate}{Ushey et al.,
-2024}) enables R users to interface with Python frameworks like
-LangChain, doing so introduces a structural impedance mismatch when
-serializing complex R data objects across language boundaries.
-\texttt{HydraR} avoids this by building natively on the \texttt{R6}
-object-oriented system (\citeproc{ref-R6}{Chang, 2021}), preserving the
-fidelity of statistical objects while allowing direct compatibility with
-R's integrated debugging tool chains. Furthermore, unlike
-\texttt{ellmer} (\citeproc{ref-ellmer}{Wickham et al., 2025}) (which
-offers chat-centric workflows without DAG orchestration), and
-\texttt{gptstudio} (\citeproc{ref-gptstudio}{Nivard \& Wade, 2024})
-(which serves as an IDE-centric coding assistant), \texttt{HydraR} is
-specifically engineered to manage the complete lifecycle of headless,
-parallel, multi-agent collaborations replete with robust state
-retention.
+Although \texttt{reticulate} (\citeproc{ref-reticulate}{Ushey et al., 2024}) enables R users to interface with Python frameworks like LangChain, it introduces a mismatch between the two languages’ data models when serializing complex R objects across language boundaries. \texttt{HydraR} avoids this by building natively on the \texttt{R6} object-oriented system (\citeproc{ref-R6}{Chang, 2021}), preserving the fidelity of statistical objects while maintaining direct compatibility with R’s integrated debugging toolchains. Furthermore, unlike \texttt{ellmer} (\citeproc{ref-ellmer}{Wickham et al., 2025}) (which offers chat-centric workflows without DAG orchestration), and \texttt{gptstudio} (\citeproc{ref-gptstudio}{Nivard \& Wade, 2024}) (which serves as an IDE-centric coding assistant), \texttt{HydraR} is specifically engineered to manage the full life-cycle of autonomous, parallel, multi-agent workflows with robust state retention.
 
 \section{Software Design}\label{software-design}
 
 \texttt{HydraR} employs a highly modular \texttt{R6} architecture
-spanning several key components: - \texttt{AgentLLMNode} /
+spanning several key components: 
+
+* \texttt{AgentLLMNode} /
 \texttt{AgentLogicNode}: Encapsulate LLM-driven prompts and
 deterministic pure-R logic steps, respectively. They utilize pluggable
 \texttt{AgentDriver} backends for provider-agnostic model communication.
-- \texttt{AgentDAG}: The core orchestration engine that manages node
+
+* \texttt{AgentDAG}: The core orchestration engine that manages the node
 dependencies, validates network topology (via \texttt{igraph}
 (\citeproc{ref-igraph}{Csárdi \& Nepusz, 2006})), and executes logic in
 parallel (via \texttt{furrr} (\citeproc{ref-furrr}{Vaughan \& Reznik,
 2022})). It features an integrated compiler-like Validation Engine that
-cross-references Mermaid topologies with \texttt{YAML} resource
-definitions and lints embedded R logic for compliance with safety
-standards (e.g., prohibiting imperative loops). - \texttt{AgentState}: A
+treats the YAML/Mermaid manifest as a strict Domain Specific Language (DSL).
+This engine cross-references Mermaid topologies with \texttt{YAML} resource
+definitions and lints embedded R logic for regulatory compliance (e.g.,
+prohibiting imperative loops), effectively positioning \texttt{HydraR} as a
+rigorous reference implementation for executing portable agentic protocols.
+
+* \texttt{AgentState}: A
 centralized state repository employing versioned history and custom
-reducers to systematically coordinate multi-agent outputs. -
+reducers to coordinate multi-agent outputs systematically. -
 \texttt{WorktreeManager}: An engine that provisions isolated Git
 worktrees for parallel execution tasks, paired with an extensible
-\texttt{ConflictResolver} handling automated semantic resolution
+\texttt{ConflictResolver} that performs automated semantic resolution
 alongside human-in-the-loop task reconciliation.
 
 \section{Research Applications}\label{research-applications}
@@ -286,27 +272,27 @@ looping} between the planner and validator enforces an iterative
 refinement cycle until all strict parameters are met
 (\autoref{fig:travel_workflow}).
 
-\protect\phantomsection\label{fig:travel_workflow}
+\protect\phantomsection\label{fig:travel_workflow_subgraph}
 \begin{figure}
 \centering
 \begin{subfigure}[b]{0.48\textwidth}
 \centering
+\caption{ }
 \pandocbounded{\includegraphics[width=\textwidth]{figures/Itinerary Page 1.png}}
-\caption{Travel pamphlet visualization.}
 \label{fig:travel_workflow_a}
 \end{subfigure}
 \hfill
 \begin{subfigure}[b]{0.48\textwidth}
 \centering
+\caption{ }
 \pandocbounded{\includegraphics[width=\textwidth]{figures/Itinerary Page 2.png}}
-\caption{Final CSS-styled itinerary.}
 \label{fig:travel_workflow_b}
 \end{subfigure}
 \caption{Multi-modal travel itinerary planner results: (a) generated visual content; (b) final formatted itinerary.}
 \label{fig:travel_workflow}
 \end{figure}
 
-Generated Multi-modal travel pamphlet for a Sydney to Hong Kong
+Generated a multi-modal travel pamphlet for a Sydney to Hong Kong
 itinerary.
 
 \subsubsection{Declarative Workflow
@@ -366,7 +352,7 @@ simultaneously implementing different sorting algorithms.
 \texttt{HydraR} executes each task within an isolated
 \texttt{Git\ worktree} to aggressively uncouple filesystem side-effects
 and prevent merge conflicts. Following execution, a Merge Harmonizer
-noded systematically reconciles the independent branches back to the
+node systematically reconciles the independent branches back to the
 main state, preceding a terminal logic node that empirically benchmarks
 the aggregated algorithms across five continuous trials
 (\autoref{fig:sorting}).
@@ -489,6 +475,12 @@ bioinformatics tooling. Its declarative YAML schemas empower
 non-programming domain experts to routinely govern advanced LLM logic
 pipelines without any R coding proficiency, thereby democratizing the
 scale and reproducibility of model-assisted scientific research.
+Furthermore, by championing a ``State-Machine-as-a-Document'' standard
+over proprietary, code-bound execution graphs, \texttt{HydraR} pioneers
+a universal, engine-agnostic blueprint for multi-agent workflows. This
+standardized format bridges the visualization gap between domain researchers
+and software engineers, ensuring complex protocols remain infinitely
+auditable, version-controllable, and portable across disparate AI ecosystems.
 
 \section{AI Usage Disclosure}\label{ai-usage-disclosure}
 
@@ -565,3 +557,4 @@ Wickham, H., Cheng, J., Jacobs, A., Aden-Buie, G., \& Schloerke, B.
 \end{CSLReferences}
 
 \end{document}
+

@@ -6,17 +6,32 @@ metadata:
 
 roles:
   bubble: >
-    Write an R function named `bubble_sort` that takes a numeric vector and 
-    returns it sorted using the bubble sort algorithm. Output ONLY the code, 
-    no markdown blocks.
+    System: You are an expert R developer.
+    Task: Write a single R function named `bubble_sort` that implements the bubble sort algorithm.
+    Input: A numeric vector `x`.
+    Output: The sorted numeric vector.
+    Constraints: 
+    - Output ONLY the raw R code.
+    - DO NOT use markdown code blocks (no ```).
+    - DO NOT include Any commentary, introductory text, OR trailing text.
   quick: >
-    Write an R function named `quick_sort` that takes a numeric vector and 
-    returns it sorted using the quick sort algorithm. Output ONLY the code, 
-    no markdown blocks.
+    System: You are an expert R developer.
+    Task: Write a single R function named `quick_sort` that implements the quick sort algorithm.
+    Input: A numeric vector `x`.
+    Output: The sorted numeric vector.
+    Constraints: 
+    - Output ONLY the raw R code.
+    - DO NOT use markdown code blocks (no ```).
+    - DO NOT include Any commentary, introductory text, OR trailing text.
   merge: >
-    Write an R function named `merge_sort` that takes a numeric vector and 
-    returns it sorted using the merge sort algorithm. Output ONLY the code, 
-    no markdown blocks.
+    System: You are an expert R developer.
+    Task: Write a single R function named `merge_sort` that implements the merge sort algorithm.
+    Input: A numeric vector `x`.
+    Output: The sorted numeric vector.
+    Constraints: 
+    - Output ONLY the raw R code.
+    - DO NOT use markdown code blocks (no ```).
+    - DO NOT include Any commentary, introductory text, OR trailing text.
 
 logic:
   run_benchmark: "logic/run_benchmark.R"
@@ -25,9 +40,9 @@ logic:
 
 graph: |
   graph TD
-      bubble["Bubble Agent | type=llm | role_id=bubble | driver=gemini | output_format=r | output_path=bubble_sort.R"]
-      quick["Quick Agent | type=llm | role_id=quick | driver=gemini | output_format=r | output_path=quick_sort.R"]
-      merge["Merge Agent | type=llm | role_id=merge | driver=gemini | output_format=r | output_path=merge_sort.R"]
+      bubble["Bubble Agent | type=llm | role_id=bubble | driver=anthropic_api | output_format=r | output_path=bubble_sort.R"]
+      quick["Quick Agent | type=llm | role_id=quick | driver=anthropic_api | output_format=r | output_path=quick_sort.R"]
+      merge["Merge Agent | type=llm | role_id=merge | driver=anthropic_api | output_format=r | output_path=merge_sort.R"]
       merger["Merge Harmonizer | type=merge"]
       benchmark["Benchmark | type=logic | logic_id=run_benchmark"]
       plot["Visualize | type=logic | logic_id=run_plot"]
@@ -40,5 +55,7 @@ graph: |
 
 initial_state:
   input: "Start sorting benchmark"
+  n_elements: 2000
+  n_trials: 100
 
 # <!-- APAF Bioinformatics | sorting_benchmark.yml | Approved | 2026-03-30 -->

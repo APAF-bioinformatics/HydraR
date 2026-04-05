@@ -13,8 +13,10 @@ function(state) {
 
   # Source all generated files
   files <- list.files(pattern = "_sort.R")
-  message(sprintf("[Benchmark] Found %d algorithm files: %s",
-    length(files), paste(files, collapse = ", ")))
+  message(sprintf(
+    "[Benchmark] Found %d algorithm files: %s",
+    length(files), paste(files, collapse = ", ")
+  ))
 
   # Use tryCatch to skip corrupted files (e.g. from LLM noise)
   purrr::walk(files, function(f) {
@@ -23,14 +25,16 @@ function(state) {
     })
   })
 
-  # Benchmark parameters
-  n_elements <- 1000
-  n_trials <- 5
+  # Benchmark parameters from state
+  n_elements <- state$get("n_elements") %||% 2000
+  n_trials <- state$get("n_trials") %||% 100
   methods <- c("bubble", "quick", "merge")
 
   results_df <- purrr::map_df(methods, function(m) {
     func_name <- paste0(m, "_sort")
-    if (!exists(func_name)) return(NULL)
+    if (!exists(func_name)) {
+      return(NULL)
+    }
     func <- get(func_name)
 
     times <- purrr::map_dbl(seq_len(n_trials), function(i) {
