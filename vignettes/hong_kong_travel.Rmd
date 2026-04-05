@@ -166,35 +166,35 @@ results <- dag$run(
 #> Warning in self$compile(): Potential infinite loop detected: graph contains
 #> cycles. Ensure conditional edges have exit conditions.
 #> Graph compiled successfully.
-#> [2026-04-05 09:38:18] [DEBUG] Queue: Planner | Running: Planner
+#> [2026-04-05 10:14:19] [DEBUG] Queue: Planner | Running: Planner
 #> DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
-#> [2026-04-05 09:38:26] [DEBUG] Queue: Validator | Running: Validator
+#> [2026-04-05 10:14:27] [DEBUG] Queue: Validator | Running: Validator
 #>    [Validator] Executing R logic...
-#> [2026-04-05 09:38:26] [DEBUG] Queue: Planner | Running: Planner
+#> [2026-04-05 10:14:27] [DEBUG] Queue: Planner | Running: Planner
 #> DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
-#> [2026-04-05 09:38:31] [DEBUG] Queue: Validator | Running: Validator
+#> [2026-04-05 10:14:35] [DEBUG] Queue: Validator | Running: Validator
 #>    [Validator] Executing R logic...
-#> [2026-04-05 09:38:31] [DEBUG] Queue: Planner | Running: Planner
+#> [2026-04-05 10:14:35] [DEBUG] Queue: Planner | Running: Planner
 #> DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
-#> [2026-04-05 09:38:39] [DEBUG] Queue: Validator | Running: Validator
+#> [2026-04-05 10:14:43] [DEBUG] Queue: Validator | Running: Validator
 #>    [Validator] Executing R logic...
-#> [2026-04-05 09:38:39] [DEBUG] Queue: Planner | Running: Planner
+#> [2026-04-05 10:14:43] [DEBUG] Queue: Planner | Running: Planner
 #> DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
-#> [2026-04-05 09:38:47] [DEBUG] Queue: Validator | Running: Validator
+#> [2026-04-05 10:14:51] [DEBUG] Queue: Validator | Running: Validator
 #>    [Validator] Executing R logic...
-#> [2026-04-05 09:38:47] [DEBUG] Queue: Planner | Running: Planner
+#> [2026-04-05 10:14:51] [DEBUG] Queue: Planner | Running: Planner
 #> DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
-#> [2026-04-05 09:38:55] [DEBUG] Queue: Validator | Running: Validator
+#> [2026-04-05 10:14:59] [DEBUG] Queue: Validator | Running: Validator
 #>    [Validator] Executing R logic...
-#> [2026-04-05 09:38:55] [DEBUG] Queue: Planner | Running: Planner
+#> [2026-04-05 10:14:59] [DEBUG] Queue: Planner | Running: Planner
 #> DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
-#> [2026-04-05 09:39:03] [DEBUG] Queue: Validator | Running: Validator
+#> [2026-04-05 10:15:08] [DEBUG] Queue: Validator | Running: Validator
 #>    [Validator] Executing R logic...
-#> [2026-04-05 09:39:03] [DEBUG] Queue: Planner | Running: Planner
+#> [2026-04-05 10:15:08] [DEBUG] Queue: Planner | Running: Planner
 #> DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
-#> [2026-04-05 09:39:08] [DEBUG] Queue: Validator | Running: Validator
+#> [2026-04-05 10:15:16] [DEBUG] Queue: Validator | Running: Validator
 #>    [Validator] Executing R logic...
-#> [2026-04-05 09:39:08] [DEBUG] Queue: Planner | Running: Planner
+#> [2026-04-05 10:15:16] [DEBUG] Queue: Planner | Running: Planner
 #> DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
 #> Warning in self$.run_iterative(max_steps, checkpointer, thread_id, resume_from,
 #> : Reached max_steps.
@@ -205,63 +205,59 @@ cat("\n\n### Generated Itinerary\n")
 #> 
 #> ### Generated Itinerary
 cat(as.character(results$state$get("Planner")))
-#> Hello! As your travel concierge, I am delighted to curate this itinerary for your Hong Kong escape. Travelling on Qantas (likely the direct SYD-HKG overnight flight), you will arrive refreshed and ready to experience the vibrant pulse of the city.
+#> Hello! As your travel concierge, I am delighted to curate your 2026 itinerary for your upcoming trip to Hong Kong. Traveling via Qantas from Sydney, you will arrive refreshed and ready to experience the blend of colonial history, vibrant street culture, and island charm.
 #> 
-#> ### **Flight Summary (Proposed)**
-#> *   **Departure:** May 26, 2026 – QF127 (Sydney to Hong Kong)
-#> *   **Return:** June 1, 2026 – QF128 (Hong Kong to Sydney)
+#> ### **Flight Logistics (Proposed)**
+#> *   **Departure:** May 26, 2026 – Qantas SYD to HKG (Overnight flight)
+#> *   **Arrival:** May 27, 2026 – Morning arrival at Hong Kong International Airport (HKG)
 #> 
 #> ---
 #> 
-#> ### **Itinerary: May 26 – June 1, 2026**
+#> ### **Day 1: May 27 – Arrival & The Harbour Views**
+#> *   **Morning:** Arrive in HKG. Take the Airport Express to Hong Kong Station. Check into your hotel (Central or Admiralty area recommended).
+#> *   **Afternoon:** Acclimatize with a stroll through **Hong Kong Park** to see the aviary. Head to the **Peak Tram** for iconic views of the skyline.
+#> *   **Evening:** Enjoy dinner at **The Spaghetti House** (Peak Galleria branch). It’s a local classic that offers comfort food with one of the most stunning views in the world.
+#> *   **Night:** Walk the **Tsim Sha Tsui Promenade** to watch the "A Symphony of Lights" show at 8:00 PM.
 #> 
-#> #### **Day 1: Arrival & The Harbor Glow (May 27)**
-#> *   **Morning:** Arrive at HKIA. Take the Airport Express to Central/Kowloon. Drop bags at your hotel.
-#> *   **Afternoon:** Head to the **Tsim Sha Tsui Promenade**. Walk the Avenue of Stars for the classic skyline view.
-#> *   **Evening:** Enjoy a welcome dinner at a local **Cha Chaan Teng** (Hong Kong-style tea restaurant) like *Lan Fong Yuen* to get an authentic taste of HK milk tea and pork chop buns.
-#> *   **Night:** Watch the "Symphony of Lights" at 8:00 PM.
+#> ### **Day 2: May 28 – The Island Charm of Cheung Chau**
+#> *   **Morning:** Take the MTR to Central Pier #5. Catch the **ferry to Cheung Chau Island** (approx. 35–55 mins).
+#> *   **Daytime:** Explore the narrow lanes of this car-free island. Visit the **Pak Tai Temple** and the **Mini Great Wall** hiking trail for coastal scenery.
+#> *   **Lunch:** Dine at a local seafood restaurant along **Praya Street**. Order steamed scallops with vermicelli and garlic—a staple of Cheung Chau.
+#> *   **Afternoon:** Grab a famous **"Mango Mochi"** from a street vendor and relax at **Tung Wan Beach**.
+#> *   **Evening:** Return to Central. For dinner, try authentic **Cantonese Dim Sum** at *Maxim’s Palace* (City Hall) for an elegant, traditional trolley service experience.
 #> 
-#> #### **Day 2: Cultural Exploration & Comfort Food (May 28)**
-#> *   **Morning:** Take the Mid-Levels Escalator up to the **Man Mo Temple** in Sheung Wan.
-#> *   **Lunch:** Visit **The Spaghetti House** (Tsim Sha Tsui or Causeway Bay branch) for a nostalgic lunch. Their "HK-Western" fusion style is a unique local staple.
-#> *   **Afternoon:** Wander through the antique shops on Hollywood Road and the PMQ creative hub.
-#> *   **Evening:** Dim Sum dinner at *Tim Ho Wan* or *Luk Yu Tea House*.
+#> ### **Day 3: May 29 – Heritage & Market Culture**
+#> *   **Morning:** Head to **Sheung Wan**. Visit the **Man Mo Temple** and wander through the antique shops on Hollywood Road.
+#> *   **Lunch:** Visit a *Cha Chaan Teng* (Hong Kong-style tea house). Try **Lan Fong Yuen** for their famous "pantyhose" milk tea and pork chop buns.
+#> *   **Afternoon:** Take the bus or taxi to **Sham Shui Po**. This is the heart of local, gritty, authentic Hong Kong. Explore the **Apliu Street Electronics Market** and the fabric markets.
+#> *   **Dinner:** Eat like a local in Sham Shui Po. Visit **Tim Ho Wan** (the original hole-in-the-wall location) for world-class, affordable Michelin-starred dim sum.
 #> 
-#> #### **Day 3: The Island Escape – Cheung Chau (May 29)**
-#> *   **Morning:** Head to Central Pier 5. Catch the "Fast Ferry" (approx. 35 mins) to **Cheung Chau Island**.
-#> *   **Activities:** 
-#>     *   Rent a bicycle to tour the island. 
-#>     *   Visit the **Pak Tai Temple**. 
-#>     *   Walk the "Mini Great Wall" hiking trail for coastal views. 
-#>     *   Stop at **Cheung Po Tsai Cave**.
-#> *   **Lunch:** Enjoy fresh local seafood at one of the open-air restaurants along the Cheung Chau Praya. Don’t leave without trying the famous **"Mango Mochi."**
-#> *   **Evening:** Return to HK Island and enjoy a quiet dinner in Soho.
+#> ### **Day 4: May 30 – Lantau Island & Giant Buddha**
+#> *   **Morning:** Take the MTR to Tung Chung and ride the **Ngong Ping 360 Cable Car** (crystal cabin recommended) for incredible views.
+#> *   **Daytime:** Visit the **Tian Tan Buddha (Big Buddha)** and the **Po Lin Monastery**.
+#> *   **Lunch:** Enjoy a vegetarian meal inside the Po Lin Monastery.
+#> *   **Afternoon:** Take a bus to **Tai O Fishing Village**. See the traditional stilt houses and take a small boat ride to potentially spot pink dolphins.
+#> *   **Evening:** Return to the city. Have dinner at **Mak’s Noodle** in Central for their signature Wonton Noodle Soup.
 #> 
-#> #### **Day 4: Peaks and Markets (May 30)**
-#> *   **Morning:** Take the **Peak Tram** to Victoria Peak. Walk the Lugard Road circular path for the best photos.
-#> *   **Lunch:** Casual dim sum or noodles at *Mak’s Noodle* (famous for wonton soup).
-#> *   **Afternoon:** Head to Mong Kok. Explore the **Goldfish Market**, **Ladies Market**, and **Fa Yuen Street (Sneaker Street)**.
-#> *   **Dinner:** Dive into local street food—try curry fish balls, stinky tofu (if you're brave!), and egg waffles (*gai daan jai*).
+#> ### **Day 5: May 31 – Kowloon Exploration & Last Bites**
+#> *   **Morning:** Visit the **West Kowloon Cultural District**. Walk through the **M+ Museum** or the **Hong Kong Palace Museum**.
+#> *   **Lunch:** Visit a local **Roast Goose** restaurant (such as *Kam's Roast Goose* in Wan Chai). It is a local culinary icon.
+#> *   **Afternoon:** Shop for souvenirs at the **Temple Street Night Market** (opens late afternoon). 
+#> *   **Evening:** Final celebration dinner at **The Spaghetti House** (Causeway Bay branch) to enjoy their extensive menu once more, or explore a high-end Cantonese restaurant like *Lung King Heen* for a splurge.
 #> 
-#> #### **Day 5: Heritage & Harbor Crossings (May 31)**
-#> *   **Morning:** Take the **Star Ferry** from Central to Tsim Sha Tsui (the most scenic $0.50 trip in the world).
-#> *   **Afternoon:** Visit the **Hong Kong Museum of History** to understand the city's unique evolution.
-#> *   **Dinner:** A final, grand Cantonese banquet at *Maxim’s Palace* (City Hall) to experience traditional push-cart dim sum overlooking the harbor.
-#> 
-#> #### **Day 6: Departure (June 1)**
-#> *   **Morning:** A final stroll through Hong Kong Park and the Edward Youde Aviary.
-#> *   **Lunch:** One last meal at a local congee shop—*Sang Kee Congee* in Sheung Wan is excellent for a hearty, comforting breakfast/lunch.
-#> *   **Afternoon:** Head to the airport via Airport Express for your Qantas flight home.
+#> ### **Day 6: June 1 – Departure**
+#> *   **Morning:** Enjoy a slow morning with a traditional Hong Kong breakfast—Pineapple bun with a thick slice of butter and hot milk tea.
+#> *   **Afternoon:** Take the Airport Express back to HKG for your return Qantas flight to Sydney.
 #> 
 #> ---
 #> 
 #> ### **Concierge Tips for Your Trip:**
-#> 1.  **Transport:** Purchase an **Octopus Card** immediately upon arrival at the airport. It is essential for MTR, ferries, trams, and even convenience store purchases.
-#> 2.  **Dining:** The Spaghetti House is a local chain that offers a familiar, comforting atmosphere—perfect for a relaxed lunch during a busy day of sightseeing.
-#> 3.  **Weather:** Early June in Hong Kong is warm and humid. Pack light, breathable fabrics and an umbrella for the occasional tropical shower.
-#> 4.  **Booking:** For *Maxim’s Palace*, ensure you arrive early or have your hotel concierge make a reservation, as it is very popular with both locals and tourists. 
+#> 1.  **Octopus Card:** This is essential. Buy one at the airport; it covers all MTR, ferries (including Cheung Chau), buses, and even convenience stores.
+#> 2.  **Footwear:** You will be doing a lot of walking, especially on Cheung Chau and in the markets. Bring your most comfortable sneakers.
+#> 3.  **Dining:** Most local restaurants operate on a "share table" basis during busy hours—don't be surprised if you are seated next to locals!
+#> 4.  **Weather:** May/June is the start of the humidity and monsoon season. Carry a lightweight travel umbrella or a high-quality raincoat.
 #> 
-#> **Safe travels! Let me know if you would like me to adjust any activities or restaurant preferences.**
+#> **Safe travels! Please let me know if you would like me to adjust any of these reservations or activities.**
 
 # Display Constraint Audit Report
 cat("\n\n### Constraint Audit Report\n")
@@ -275,10 +271,10 @@ if (!is.null(report)) {
   cat("No audit report available.")
 }
 #> ### Constraint Audit Report
-#> Date: 2026-04-05 09:39:08.884536
+#> Date: 2026-04-05 10:15:16.033293
 #> - [x] Cheung Chau Island
 #> - [x] Spaghetti House
-#> - [ ] Local Cuisine
+#> - [x] Local Cuisine
 
 # Display Pamphlet (HTML)
 cat("\n\n### Formatted Pamphlet (HTML Fragment)\n")
