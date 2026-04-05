@@ -13,5 +13,6 @@ is_named_list(x)
 Logical.
 }
 \description{
-Check if an object is a named list
+Helper to verify that an object is a list (but not a data.frame) and
+that all its elements have non-empty names.
 }

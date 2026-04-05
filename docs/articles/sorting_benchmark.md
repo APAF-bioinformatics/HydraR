@@ -28,10 +28,18 @@ repository.
 library(HydraR)
 library(withr)
 library(ggplot2)
+#> Warning: package 'ggplot2' was built under R version 4.5.2
 library(future)
+library(furrr)
+
+# Ensure Gemini CLI path is configured (Environment variables are inherited by workers)
+Sys.setenv(HYDRAR_GEMINI_PATH = "/opt/homebrew/bin/gemini")
+
+# Define the repository root for worktrees
+repo_root <- "."
 
 # 0. Setup Parallel Execution (for Worktree Isolation)
-plan(multisession, workers = 3)
+future::plan(future::multisession, workers = 3)
 options(future.rng.onMisuse = "ignore")
 
 # 1. Create a temporary folder
@@ -41,220 +49,71 @@ dir.create(repo_root)
 
 # 2. Initialize Git and a README
 withr::with_dir(repo_root, {
-  system("git init -b main")
-  system("git config user.email 'apaf@example.com'")
-  system("git config user.name 'APAF Agent'")
-  system("git config commit.gpgsign false")
+  system2("git", c("init"))
+  system2("git", c("config", "user.email", "apaf@example.com"))
+  system2("git", c("config", "user.name", "APAF Agent"))
+  system2("git", c("config", "commit.gpgsign", "false"))
   writeLines("# Sorting Benchmark", "README.md")
-  system("git add README.md")
-  system("git commit -m 'Initial commit'")
+  system2("git", c("add", "README.md"))
+  system2("git", c("commit", "-m", "Initial_commit"))
+  system2("git", c("branch", "-M", "main"))
 })
 ```
 
 ------------------------------------------------------------------------
 
-## 🧠 Step 2: Define Logic and Architecture
+## 🧠 Step 2: Declarative Workflow Loading
 
-We decouple our workflow logic into a central registry. This keeps our
-prompt engineering and implementation details separate from the DAG
-architecture.
-
-### The Logic Registry
-
-``` r
-
-sorting_registry <- list(
-  # 1. Agent Roles
-  roles = list(
-    bubble = "Write an R function named `bubble_sort` that takes a numeric vector and returns it sorted using the bubble sort algorithm. Output ONLY the code, no markdown blocks.",
-    quick = "Write an R function named `quick_sort` that takes a numeric vector and returns it sorted using the quick sort algorithm. Output ONLY the code, no markdown blocks.",
-    merge = "Write an R function named `merge_sort` that takes a numeric vector and returns it sorted using the merge sort algorithm. Output ONLY the code, no markdown blocks."
-  ),
-
-  # 2. Mock Fallbacks (for when LLM is unavailable)
-  mocks = list(
-    bubble = "bubble_sort <- function(x) {
-      n <- length(x)
-      for (i in 1:(n - 1)) {
-        for (j in 1:(n - i)) {
-          if (x[j] > x[j + 1]) {
-            tmp <- x[j]
-            x[j] <- x[j + 1]
-            x[j + 1] <- tmp
-          }
-        }
-      }
-      return(x)
-    }",
-    quick = "quick_sort <- function(x) {
-      if (length(x) <= 1) return(x)
-      pivot <- x[1]
-      rest <- x[-1]
-      sv <- rest[rest < pivot]
-      gv <- rest[rest >= pivot]
-      return(c(quick_sort(sv), pivot, quick_sort(gv)))
-    }",
-    merge = "merge_sort <- function(x) {
-      if (length(x) <= 1) return(x)
-      m <- length(x) %/% 2
-      l <- merge_sort(x[1:m])
-      r <- merge_sort(x[(m+1):length(x)])
-      res <- numeric(length(x))
-      li <- 1; ri <- 1; i <- 1
-      while(li <= length(l) && ri <= length(r)) {
-        if(l[li] <= r[ri]) { res[i] <- l[li]; li <- li + 1 }
-        else { res[i] <- r[ri]; ri <- ri + 1 }
-        i <- i + 1
-      }
-      if(li <= length(l)) res[i:length(x)] <- l[li:length(l)]
-      if(ri <= length(r)) res[i:length(x)] <- r[ri:length(r)]
-      return(res)
-    }"
-  )
-)
-```
-
-### The Node Factory
-
-The factory dynamically resolves Mermaid nodes into `HydraR` node
-objects. It handles the “Failsafe” logic by falling back to mocks if the
-LLM driver is unavailable.
+Rather than registering roles and logic manually in R, we now define the
+entire workflow architecture (graph, prompts, logic) in a single
+declarative YAML file. This follows the **APAF-Agentic-Standard** for
+Zero-R-Code definitions.
 
 ``` r
 
-sorting_node_factory <- function(id, label, params) {
-  # 1. Merge Harmonization
-  if (id == "merger") {
-    return(create_merge_harmonizer(id = id))
-  }
+# 1. Load the workflow manifest
+wf <- load_workflow("sorting_benchmark.yml")
 
-  # 2. Benchmarking Node
-  if (id == "benchmark") {
-    return(AgentLogicNode$new(id, function(state) {
-      # Ensure worktree is synced with the merged main branch
-      system("git checkout main", ignore.stdout = TRUE, ignore.stderr = TRUE)
+# 2. Extract components
+mermaid_graph <- wf$graph
+initial_state <- wf$initial_state
 
-      # Source all generated files
-      files <- list.files(pattern = "_sort.R")
-      message(sprintf("[Benchmark] Found %d algorithm files: %s", length(files), paste(files, collapse = ", ")))
-      purrr::walk(files, source)
+# 3. Inject dynamic environment variables into initial state
+initial_state$repo_root <- repo_root
 
-      # Benchmark parameters
-      n_elements <- 1000
-      n_trials <- 5
-      methods <- c("bubble", "quick", "merge")
-
-      results_df <- purrr::map_df(methods, function(m) {
-        func_name <- paste0(m, "_sort")
-        if (!exists(func_name)) {
-          return(NULL)
-        }
-        func <- get(func_name)
-
-        times <- purrr::map_dbl(1:n_trials, function(i) {
-          test_data <- rnorm(n_elements)
-          start <- Sys.time()
-          func(test_data)
-          as.numeric(difftime(Sys.time(), start, units = "secs"))
-        })
-
-        data.frame(method = m, time = times)
-      })
-
-      list(status = "success", output = results_df)
-    }))
-  }
-
-  # 3. Visualization Node
-  if (id == "plot") {
-    return(AgentLogicNode$new(id, function(state) {
-      df <- state$get("benchmark")
-      if (is.null(df) || nrow(df) == 0) {
-        return(list(status = "failed", output = NULL, error = "No benchmark data found."))
-      }
-
-      # Suppress graphics device warnings by opening a null device
-      # This prevents future-related warnings in parallel workers
-      pdf(NULL)
-      on.exit(if (dev.cur() > 1) dev.off())
-
-      # Use .data pronoun to avoid 'no visible binding' warnings
-      p <- ggplot(df, aes(x = .data$method, y = .data$time, fill = .data$method)) +
-        geom_boxplot() +
-        theme_minimal() +
-        labs(title = "Sorting Algorithm Performance", y = "Time (seconds)", x = "Algorithm")
-
-      # In a real vignette, we'd return the plot object
-      # But here we show it.
-      pdf(file = "sorting_benchmark.pdf")
-      print(p)
-      dev.off()
-      list(status = "success", output = "Plot rendered.")
-    }))
-  }
-
-  # 4. Sorting Agents (Parallel) using hardened AgentLLMNode
-  # The parameters are parsed from the Mermaid string below
-  AgentLLMNode$new(id,
-    role = sorting_registry$roles[[id]],
-    driver = GeminiCLIDriver$new(model = "gemini-2.5-flash"),
-    label = label,
-    params = params
-  )
-}
-```
-
-------------------------------------------------------------------------
-
-## 🤖 Step 3: Orchestration and Execution
-
-We define our parallel DAG using Mermaid syntax. By connecting multiple
-agents to the `merger` node, `HydraR` knows to execute them in isolated
-worktrees.
-
-``` r
-
-# 1. Define the Mermaid Architecture
-# output_format=r triggers automatic code extraction in AgentLLMNode
-# output_path ensures the extracted code is persisted to the filesystem
-mermaid_graph <- '
-graph TD
-    bubble["Bubble Agent | output_format=r | output_path=bubble_sort.R"] --> merger
-    quick["Quick Agent | output_format=r | output_path=quick_sort.R"] --> merger
-    merge["Merge Agent | output_format=r | output_path=merge_sort.R"] --> merger
-    merger["Merge Harmonizer"] --> benchmark
-    benchmark["Benchmark Performance"] --> plot
-    plot["Visualize Results"]
-'
-
-# 2. Instantiate and Compile
-dag <- AgentDAG$from_mermaid(mermaid_graph, node_factory = sorting_node_factory)
+# 4. Instantiate and Compile
+dag <- AgentDAG$from_mermaid(mermaid_graph, node_factory = auto_node_factory())
 compiled_dag <- dag$compile()
+#> Warning in dag$compile(): Multiple potential start nodes found (bubble, quick,
+#> merge). Use set_start_node() to disambiguate.
+#> Graph compiled successfully.
 
-# 3. Run with Worktree Isolation
-# use_worktrees = TRUE activates the WorktreeManager
+# 5. Run with Worktree Isolation
+# Ensure workers inherit our environment (for API keys and PATH)
+future::plan(future::multisession, workers = 3)
+
 results <- compiled_dag$run(
-  initial_state = list(input = "Start sorting benchmark", repo_root = repo_root),
+  initial_state = initial_state,
   use_worktrees = TRUE,
   repo_root = repo_root,
   fail_if_dirty = FALSE,
   packages = c("withr", "HydraR", "ggplot2")
 )
 
-# 4. Save Execution Trace
+# 6. Save Execution Trace
 compiled_dag$save_trace("sorting_trace.json")
+#> [Saved] Saved execution trace to: sorting_trace.json
 ```
 
-------------------------------------------------------------------------
+## Summary
 
-## 🧘 Summary
-
-By using **Git Worktrees**, we successfully: 1. **Eliminated State
-Corruption**: Three agents modified the codebase simultaneously without
-interfering with each other. 2. **Automated Conflict Resolution**: The
-`MergeHarmonizer` handled the integration of disparate branches into the
-main codebase. 3. **End-to-End Validation**: We used the generated code
-immediately in a downstream benchmarking task, closing the loop between
-“Agent Action” and “Scientific Result.”
+By using **Declarative Mermaid Nodes** with
+[`auto_node_factory()`](https://github.com/APAF-bioinformatics/HydraR/reference/auto_node_factory.md),
+we: 1. **Eliminated Boilerplate**: No hand-written node factory — the
+Mermaid graph IS the specification. 2. **Eliminated State Corruption**:
+Three agents modified the codebase simultaneously via isolated Git
+Worktrees. 3. **Automated Conflict Resolution**: The `MergeHarmonizer`
+handled integration of branches. 4. **End-to-End Validation**: Generated
+code was benchmarked immediately downstream.
 
 ------------------------------------------------------------------------

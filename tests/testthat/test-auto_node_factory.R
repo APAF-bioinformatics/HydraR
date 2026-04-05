@@ -349,6 +349,9 @@ test_that("Mermaid with type=merge creates harmonizer in DAG", {
   expect_true(inherits(dag$nodes$a1, "AgentLLMNode"))
   expect_true(inherits(dag$nodes$a2, "AgentLLMNode"))
   expect_true(inherits(dag$nodes$check, "AgentLogicNode"))
+
+  # Set multiple start nodes to disambiguate parallel execution
+  dag$set_start_node(c("a1", "a2"))
   expect_no_error(dag$compile())
 })
 

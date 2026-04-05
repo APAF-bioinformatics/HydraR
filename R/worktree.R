@@ -38,7 +38,7 @@ WorktreeManager <- R6::R6Class("WorktreeManager",
     #' @field thread_id String. Optional identifier for the current DAG execution.
     thread_id = NULL,
 
-    #' Initialize the WorktreeManager.
+    #' @description Initialize the WorktreeManager.
     #' @param repo_root Path to the main git repository. Defaults to `getwd()`.
     #' @param base_branch Branch to branch from. Defaults to "main".
     #' @param branch_prefix Prefix for new branches.
@@ -305,7 +305,7 @@ ConflictResolver <- R6::R6Class("ConflictResolver",
     #' @field driver AgentDriver. The driver to use for "llm" strategy.
     driver = NULL,
 
-    #' Initialize ConflictResolver
+    #' @description Initialize ConflictResolver
     #' @param strategy Conflict resolution strategy.
     #' @param driver Optional LLM driver for semantic resolution.
     #' @return A new `ConflictResolver` object.

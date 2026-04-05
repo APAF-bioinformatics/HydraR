@@ -1,7 +1,10 @@
-# Agent Node R6 Class
+# Agent Node Base Class
 
-Represents a single execution unit within an orchestration DAG. This is
-an abstract base class.
+The base R6 class for all nodes in an AgentDAG.
+
+## Value
+
+An \`AgentNode\` object.
 
 ## Public fields
 
@@ -19,7 +22,7 @@ an abstract base class.
 
 - `params`:
 
-  List. Arbitrary metadata/config parameters. Initialize AgentNode
+  List. Arbitrary metadata/config parameters.
 
 ## Methods
 
@@ -34,6 +37,8 @@ an abstract base class.
 ------------------------------------------------------------------------
 
 ### Method `new()`
+
+Initialize AgentNode
 
 #### Usage
 
@@ -90,3 +95,9 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+node <- AgentNode$new("my_node", label = "Custom Node")
+```

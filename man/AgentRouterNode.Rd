@@ -16,8 +16,7 @@ The logic function must return a list with a `target_node` field.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{router_fn}}{Function(state) -> List(target_node, output).
-Initialize AgentRouterNode}
+\item{\code{router_fn}}{Function(state) -> List(target_node, output).}
 }
 \if{html}{\out{</div>}}
 }
@@ -33,6 +32,7 @@ Initialize AgentRouterNode}
 \if{html}{\out{<a id="method-AgentRouterNode-new"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentRouterNode-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize AgentRouterNode
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentRouterNode$new(id, router_fn, label = NULL, params = list())}\if{html}{\out{</div>}}
 }

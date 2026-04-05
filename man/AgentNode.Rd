@@ -21,8 +21,7 @@ node <- AgentNode$new("my_node", label = "Custom Node")
 
 \item{\code{last_result}}{List. Results from most recent execution.}
 
-\item{\code{params}}{List. Arbitrary metadata/config parameters.
-Initialize AgentNode}
+\item{\code{params}}{List. Arbitrary metadata/config parameters.}
 }
 \if{html}{\out{</div>}}
 }
@@ -38,6 +37,7 @@ Initialize AgentNode}
 \if{html}{\out{<a id="method-AgentNode-new"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentNode-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize AgentNode
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentNode$new(id, label = NULL, params = list())}\if{html}{\out{</div>}}
 }

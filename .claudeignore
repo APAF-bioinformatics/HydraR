@@ -1,0 +1,8 @@
+.Renviron
+.Rhistory
+.RData
+.bot_persistence/
+.gemini/
+*.log
+*.duckdb
+*.duckdb.wal

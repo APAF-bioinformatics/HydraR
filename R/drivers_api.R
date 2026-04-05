@@ -11,6 +11,8 @@
 #' @description
 #' Implementation of the OpenAI Chat Completions API.
 #'
+#' @importFrom httr2 request req_auth_bearer_token req_body_json req_retry req_perform resp_body_json resp_body_string resp_status_desc req_url_query req_headers
+#' @importFrom base64enc base64decode
 #' @export
 OpenAIAPIDriver <- R6::R6Class(
   "OpenAIAPIDriver",
@@ -19,7 +21,7 @@ OpenAIAPIDriver <- R6::R6Class(
     #' @field api_url String. Base URL.
     api_url = "https://api.openai.com/v1/chat/completions",
 
-    #' Initialize OpenAIAPIDriver
+    #' @description Initialize OpenAIAPIDriver
     #' @param id String. Unique identifier.
     #' @param model String. Model name.
     #' @param validation_mode String. "warning" or "strict".
@@ -113,7 +115,7 @@ AnthropicAPIDriver <- R6::R6Class(
     #' @field api_url String. Base URL.
     api_url = "https://api.anthropic.com/v1/messages",
 
-    #' Initialize AnthropicAPIDriver
+    #' @description Initialize AnthropicAPIDriver
     #' @param id String. Unique identifier.
     #' @param model String. Model name.
     #' @param validation_mode String. "warning" or "strict".
@@ -210,7 +212,7 @@ GeminiAPIDriver <- R6::R6Class("GeminiAPIDriver",
     #' @field api_base String. Base URL.
     api_base = "https://generativelanguage.googleapis.com/v1beta",
 
-    #' Initialize GeminiAPIDriver
+    #' @description Initialize GeminiAPIDriver
     #' @param id String. Unique identifier.
     #' @param model String. Model name.
     #' @param validation_mode String. "warning" or "strict".
@@ -299,7 +301,7 @@ GeminiImageDriver <- R6::R6Class("GeminiImageDriver",
     #' @field aspect_ratio String. Default "16:9".
     aspect_ratio = "16:9",
 
-    #' Initialize GeminiImageDriver
+    #' @description Initialize GeminiImageDriver
     #' @param id String.
     #' @param model String. Default "imagen-3.0-generate-001".
     #' @param output_dir String.
@@ -314,6 +316,9 @@ GeminiImageDriver <- R6::R6Class("GeminiImageDriver",
     },
 
     #' Call Gemini Image API (Multimodal Unified)
+    #'
+    #' @description
+    #' Sends a prompt to Gemini for image generation.
     #' @param prompt String. Image prompt.
     #' @param model String. Optional override.
     #' @param system_prompt String. Optional system prompt.

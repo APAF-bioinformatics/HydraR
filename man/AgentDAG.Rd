@@ -76,7 +76,7 @@ dag$compile()
 \if{latex}{\out{\hypertarget{method-AgentDAG-new}{}}}
 \subsection{Method \code{new()}}{
 Initialize AgentDAG
-Set Start Node
+Set Start Node(s)
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentDAG$new()}\if{html}{\out{</div>}}
 }
@@ -87,13 +87,13 @@ Set Start Node
 \if{latex}{\out{\hypertarget{method-AgentDAG-set_start_node}{}}}
 \subsection{Method \code{set_start_node()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AgentDAG$set_start_node(node_id)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{AgentDAG$set_start_node(node_ids)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{node_id}}{String node ID.}
+\item{\code{node_ids}}{Character vector of node IDs.}
 }
 \if{html}{\out{</div>}}
 }
@@ -341,7 +341,7 @@ Internal: Iterative Execution
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{type}}{String. Type of plot (currently only "mermaid").}
+\item{\code{type}}{String. Type of plot ("mermaid" or "grViz").}
 
 \item{\code{status}}{Logical. If TRUE, styling is applied to nodes/edges based on results.}
 
@@ -354,7 +354,7 @@ Internal: Iterative Execution
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-The mermaid string (invisibly).
+The mermaid/dot string (invisibly).
 Get Terminal Nodes
 }
 }

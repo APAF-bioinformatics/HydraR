@@ -13,8 +13,7 @@ Enables runtime recovery and hot-swapping of drivers across nodes.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{drivers}}{List. Storage for registered drivers.
-Initialize DriverRegistry}
+\item{\code{drivers}}{List. Storage for registered drivers.}
 }
 \if{html}{\out{</div>}}
 }
@@ -34,6 +33,7 @@ Initialize DriverRegistry}
 \if{html}{\out{<a id="method-DriverRegistry-new"></a>}}
 \if{latex}{\out{\hypertarget{method-DriverRegistry-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize DriverRegistry
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DriverRegistry$new()}\if{html}{\out{</div>}}
 }

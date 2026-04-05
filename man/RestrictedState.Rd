@@ -16,8 +16,7 @@ Implements "True Privacy" for inter-agent communication.
 
 \item{\code{read_only}}{Logical. If TRUE, set() and update() are blocked.}
 
-\item{\code{logger}}{MessageLog. Audit log for communication.
-Initialize RestrictedState}
+\item{\code{logger}}{MessageLog. Audit log for communication.}
 }
 \if{html}{\out{</div>}}
 }
@@ -39,6 +38,7 @@ Initialize RestrictedState}
 \if{html}{\out{<a id="method-RestrictedState-new"></a>}}
 \if{latex}{\out{\hypertarget{method-RestrictedState-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize RestrictedState
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{RestrictedState$new(state, node_id, logger = NULL, read_only = FALSE)}\if{html}{\out{</div>}}
 }

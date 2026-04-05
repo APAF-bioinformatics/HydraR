@@ -13,8 +13,7 @@ Stores checkpoints in an R environment.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{storage}}{Environment. Stores the states.
-Initialize MemorySaver}
+\item{\code{storage}}{Environment. Stores the states.}
 }
 \if{html}{\out{</div>}}
 }
@@ -31,6 +30,9 @@ Initialize MemorySaver}
 \if{html}{\out{<a id="method-MemorySaver-new"></a>}}
 \if{latex}{\out{\hypertarget{method-MemorySaver-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize MemorySaver
+
+
 Creates a new environment for in-memory checkpoint storage.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{MemorySaver$new()}\if{html}{\out{</div>}}

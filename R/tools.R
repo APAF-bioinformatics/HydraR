@@ -25,7 +25,7 @@ AgentTool <- R6::R6Class("AgentTool",
     #' @field example String. An example of how to use the tool.
     example = NULL,
 
-    #' Initialize AgentTool
+    #' @description Initialize AgentTool
     #' @param name String.
     #' @param description String.
     #' @param parameters List or String.

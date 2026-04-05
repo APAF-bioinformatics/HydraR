@@ -19,7 +19,7 @@ prompt-based tool discovery.
 
 - `example`:
 
-  String. An example of how to use the tool. Initialize AgentTool
+  String. An example of how to use the tool.
 
 ## Methods
 
@@ -34,6 +34,8 @@ prompt-based tool discovery.
 ------------------------------------------------------------------------
 
 ### Method `new()`
+
+Initialize AgentTool
 
 #### Usage
 

@@ -20,7 +20,7 @@ A \`DuckDBSaver\` R6 object.
 
 - `table_name`:
 
-  String. Initialize DuckDBSaver
+  String.
 
 ## Methods
 
@@ -37,6 +37,8 @@ A \`DuckDBSaver\` R6 object.
 ------------------------------------------------------------------------
 
 ### Method `new()`
+
+Initialize DuckDBSaver
 
 #### Usage
 

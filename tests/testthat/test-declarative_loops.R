@@ -36,14 +36,14 @@ logic:
   writeLines(wf_yml, tmp_file)
 
   # Pre-register for security Tier 2
-  register_logic("logic_a", function(state) list(status = 'success', output = 'a_done'))
+  register_logic("logic_a", function(state) list(status = "success", output = "a_done"))
   register_logic("logic_b", function(state) {
-    count <- state$get('count') %||% 0
-    state$set('count', count + 1)
+    count <- state$get("count") %||% 0
+    state$set("count", count + 1)
     if (count < 1) {
-      list(status = 'success', output = list(ok = FALSE))
+      list(status = "success", output = list(ok = FALSE))
     } else {
-      list(status = 'success', output = list(ok = TRUE))
+      list(status = "success", output = list(ok = TRUE))
     }
   })
   register_logic("check_ok", function(out) isTRUE(out$output$ok))

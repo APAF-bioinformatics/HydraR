@@ -12,8 +12,7 @@ Driver for the 'ollama' CLI tool (local).
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{model}}{String. Default model.
-Initialize OllamaDriver}
+\item{\code{model}}{String. Default model.}
 }
 \if{html}{\out{</div>}}
 }
@@ -41,6 +40,7 @@ Initialize OllamaDriver}
 \if{html}{\out{<a id="method-OllamaDriver-new"></a>}}
 \if{latex}{\out{\hypertarget{method-OllamaDriver-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize OllamaDriver
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{OllamaDriver$new(
   id = "ollama",

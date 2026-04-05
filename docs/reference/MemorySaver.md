@@ -12,7 +12,7 @@ checkpoints in an R environment.
 
 - `storage`:
 
-  Environment. Stores the states. Initialize MemorySaver
+  Environment. Stores the states.
 
 ## Methods
 
@@ -29,6 +29,8 @@ checkpoints in an R environment.
 ------------------------------------------------------------------------
 
 ### Method `new()`
+
+Initialize MemorySaver
 
 Creates a new environment for in-memory checkpoint storage.
 

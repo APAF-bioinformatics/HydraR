@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">HydraR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,31 +19,14 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Manual</h6></li>
-    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Instruction Manual</a></li>
-    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Examples</h6></li>
-    <li><a class="dropdown-item" href="../articles/academic_research.html">Agentic Academic Researcher</a></li>
-    <li><a class="dropdown-item" href="../articles/blog_writer.html">Agentic Blog Writer</a></li>
-    <li><a class="dropdown-item" href="../articles/data_science.html">Agentic Data Science Assistant</a></li>
-    <li><a class="dropdown-item" href="../articles/hello_world_agent.html">Hello World: Building an Agentic Loop with HydraR</a></li>
-    <li><a class="dropdown-item" href="../articles/personalized_shopping.html">Agentic Personalized Shopping Assistant</a></li>
-    <li><a class="dropdown-item" href="../articles/software_bug_assistant.html">Agentic Software Bug Assistant</a></li>
-    <li><a class="dropdown-item" href="../articles/story_teller.html">Agentic Story Teller</a></li>
-    <li><a class="dropdown-item" href="../articles/gemini_cli_demo.html">Gemini CLI Driver Demo</a></li>
-    <li><a class="dropdown-item" href="../articles/hello_world_logic.html">Hello World Logic Nodes</a></li>
-    <li><a class="dropdown-item" href="../articles/parameterized_mermaid.html">Advanced Mermaid Parameters</a></li>
-    <li><a class="dropdown-item" href="../articles/round_trip_demo.html">Mermaid Round-Trip Visualization</a></li>
-    <li><a class="dropdown-item" href="../articles/distributed_communication.html">Distributed Consensus Simulation</a></li>
-    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
     <li><a class="dropdown-item" href="../articles/targets_integration.html">Reproducible Agentic Pipelines with targets</a></li>
-    <li><a class="dropdown-item" href="../articles/creating_drivers.html">Creating Custom Agent Drivers</a></li>
-    <li><a class="dropdown-item" href="../articles/git_worktree_toy.html">Isolated Execution with Git Worktrees</a></li>
+    <li><a class="dropdown-item" href="../articles/extending_hydrar.html">Creating Custom Agent Drivers</a></li>
+    <li><a class="dropdown-item" href="../articles/state_persistence.html">State Persistence &amp; Restart: Resilient Workflows</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="nav-link" href="https://github.com/APAF-bioinformatics/HydraR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -60,23 +43,45 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.0" id="hydrar-020-standardized-drivers">HydraR 0.2.0 (Standardized Drivers)<a class="anchor" aria-label="anchor" href="#hydrar-020-standardized-drivers"></a></h2>
+<ul><li>
+<strong>Standardized Driver Architecture</strong>: Renamed all core AI drivers for internal consistency and Provider + Mode clarity (e.g., <code>AnthropicCLIDriver</code>, <code>AnthropicAPIDriver</code>, <code>OpenAIAPIDriver</code>).</li>
+<li>
+<strong>OpenAI Shorthand Refactor</strong>: Swapped <code>driver=openai</code> to favor the high-performance <strong>Codex CLI</strong> as the default, with <code>driver=openai_api</code> for cloud reasoning.</li>
+<li>
+<strong>Anthropic Shorthand Update</strong>: Renamed <code>driver=claude</code> to <strong><code>driver=anthropic</code></strong> to match provider-first naming standards.</li>
+<li>
+<strong>Improved GPT-5.4 Support</strong>: Updated the <code>OpenAIAPIDriver</code> defaults for seamless integration with GPT-5.4 flagship/mini models.</li>
+<li>
+<strong>Flagship Orchestration Vignette</strong>: Introduced the <a href="file:///Users/ignatiuspang/Workings/2026/HydraR/notes/unmaintained_vignettes/advanced_orchestration_2026.Rmd">Advanced Orchestration 2026</a> flagship documentation.</li>
+<li>
+<strong>R6 Standards</strong>: Resolved internal <code>finalize()</code> warnings to ensure full compliance with R6 2.4.0+ and suppressed developmental noise.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="hydrar-010-initial-release">HydraR 0.1.0 (Initial Release)<a class="anchor" aria-label="anchor" href="#hydrar-010-initial-release"></a></h2>
 <ul><li>
 <strong>Agentic Orchestration</strong>: Implementation of the <code>AgentDAG</code> R6 class for managing complex directed workflows and iterative loops (state machines).</li>
 <li>
-<strong>State Management</strong>: Robust <code>AgentState</code> system for tracking data through multi-step agent transitions.</li>
+<strong>Hardened State Management</strong>: Introduced the <code>AgentState</code> system, transitioning from nested R lists to a robust key-value store with support for complex reducers and history tracking.</li>
 <li>
-<strong>Provider-Agnostic Drivers</strong>: Initial support for <code>GeminiCLIDriver</code>, <code>ClaudeCodeDriver</code>, and <code>CopilotCLIDriver</code>, enabling “hot-swappable” LLM backends.</li>
+<strong>Provider-Agnostic Drivers</strong>: Initial support for <code>GeminiCLIDriver</code>, <code>AnthropicCLIDriver</code>, and <code>CopilotCLIDriver</code>, enabling “hot-swappable” LLM backends.</li>
 <li>
-<strong>High-Fidelity Validation</strong>: Integrated <code>Auditor</code> pattern for autonomous quality control of agent outputs.</li>
+<strong>Git Worktree Isolation</strong>: Developed the <code>worktree.R</code> module to provide safe, parallel execution environments for file-modifying agentic workflows.</li>
 <li>
-<strong>Persistence</strong>: DuckDB-backed <code>AgentCheckpointer</code> for stateful execution and recovery.</li>
-</ul><hr><!-- APAF Bioinformatics | HydraR | Approved | 2026-03-29 --></div>
-  </main></div>
+<strong>High-Fidelity Validation</strong>: Integrated <code>Auditor</code> and <code>Harmonizer</code> patterns for autonomous quality control and merging of distributed agent outputs.</li>
+<li>
+<strong>Persistence &amp; Checkpointing</strong>: DuckDB and SQLite-backed <code>AgentCheckpointer</code> implemented for resumable and auditable execution.</li>
+<li>
+<strong>Mermaid Round-Trip</strong>: Visual design engine for converting between R objects and Mermaid.js syntax, enabling human-in-the-loop auditability.</li>
+<li>
+<strong>AI Transparency</strong>: Disclosure of LLM usage in development through <code>agents.md</code> and <code>DESIGN.md</code>.</li>
+</ul><hr><!-- APAF Bioinformatics | HydraR | Approved | 2026-03-31 --></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Ignatius Pang, Aidan Tay.</p>
+  <p>Developed by Chi Nam Ignatius Pang, Aidan Tay.</p>
 </div>
 
 <div class="pkgdown-footer-right">

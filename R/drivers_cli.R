@@ -19,7 +19,7 @@ GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
     #' @field model String. Default model. Omit to use CLI default.
     model = NULL,
 
-    #' Initialize GeminiCLIDriver
+    #' @description Initialize GeminiCLIDriver
     #' @param id Unique identifier.
     #' @param model String. Optional model.
     #' @param validation_mode String. "warning" or "strict".
@@ -131,7 +131,7 @@ OllamaDriver <- R6::R6Class("OllamaDriver",
     #' @field model String. Default model.
     model = "llama3.2",
 
-    #' Initialize OllamaDriver
+    #' @description Initialize OllamaDriver
     #' @param id Unique identifier.
     #' @param model String. Default model.
     #' @param validation_mode String. "warning" or "strict".
@@ -216,7 +216,7 @@ AnthropicCLIDriver <- R6::R6Class(
     #' @field model String. Default model.
     model = "sonnet",
 
-    #' Initialize AnthropicCLIDriver
+    #' @description Initialize AnthropicCLIDriver
     #' @param id Unique identifier.
     #' @param model String. Default model.
     #' @param validation_mode String. "warning" or "strict".
@@ -295,7 +295,7 @@ AnthropicCLIDriver <- R6::R6Class(
 CopilotCLIDriver <- R6::R6Class("CopilotCLIDriver",
   inherit = AgentDriver,
   public = list(
-    #' Initialize CopilotCLIDriver
+    #' @description Initialize CopilotCLIDriver
     #' @param id Unique identifier.
     #' @param validation_mode String. "warning" or "strict".
     #' @param working_dir String. Optional. Path to isolated Git worktree.
@@ -354,16 +354,18 @@ CopilotCLIDriver <- R6::R6Class("CopilotCLIDriver",
   )
 )
 
-#' OpenAI Codex CLI Driver
+#' OpenAI Codex CLI Driver R6 Class
 #'
-#' Supports the official `codex` CLI (v0.118+).
+#' @description
+#' Driver for the official `codex` CLI tool (v0.118+).
 #'
+#' @return An `OpenAICodexCLIDriver` object.
 #' @export
 OpenAICodexCLIDriver <- R6::R6Class(
   "OpenAICodexCLIDriver",
   inherit = AgentDriver,
   public = list(
-    #' Initialize OpenAICodexCLIDriver
+    #' @description Initialize OpenAICodexCLIDriver
     #' @param id String. Unique identifier.
     #' @param validation_mode String. "warning" or "strict".
     #' @param working_dir String. Optional. Path to isolated Git worktree.
@@ -373,6 +375,8 @@ OpenAICodexCLIDriver <- R6::R6Class(
     },
 
     #' Call the LLM
+    #' @description
+    #' Sends a execution request to the Codex CLI.
     #' @param prompt String.
     #' @param system_prompt String. Optional system prompt.
     #' @param cli_opts List.

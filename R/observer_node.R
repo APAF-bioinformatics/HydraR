@@ -20,7 +20,7 @@ AgentObserverNode <- R6::R6Class("AgentObserverNode",
     #' @field observe_fn Function(state) -> void.
     observe_fn = NULL,
 
-    #' Initialize AgentObserverNode
+    #' @description Initialize AgentObserverNode
     #' @param id Unique identifier.
     #' @param observe_fn Function that takes an AgentState.
     #' @param label Optional label.

@@ -33,6 +33,7 @@ Driver for the 'gh copilot' CLI tool.
 \if{html}{\out{<a id="method-CopilotCLIDriver-new"></a>}}
 \if{latex}{\out{\hypertarget{method-CopilotCLIDriver-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize CopilotCLIDriver
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CopilotCLIDriver$new(
   id = "copilot_cli",

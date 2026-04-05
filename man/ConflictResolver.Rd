@@ -15,8 +15,7 @@ Used by Conflict Harmonizer nodes.
 \describe{
 \item{\code{strategy}}{String. "llm", "human", or "ours".}
 
-\item{\code{driver}}{AgentDriver. The driver to use for "llm" strategy.
-Initialize ConflictResolver}
+\item{\code{driver}}{AgentDriver. The driver to use for "llm" strategy.}
 }
 \if{html}{\out{</div>}}
 }
@@ -32,6 +31,7 @@ Initialize ConflictResolver}
 \if{html}{\out{<a id="method-ConflictResolver-new"></a>}}
 \if{latex}{\out{\hypertarget{method-ConflictResolver-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize ConflictResolver
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ConflictResolver$new(strategy = "llm", driver = NULL)}\if{html}{\out{</div>}}
 }

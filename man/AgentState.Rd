@@ -21,8 +21,7 @@ state$get("topic")
 
 \item{\code{reducers}}{List. Functions applied to merge updates.}
 
-\item{\code{schema}}{List. Expected types for state variables.
-Initialize AgentState}
+\item{\code{schema}}{List. Expected types for state variables.}
 }
 \if{html}{\out{</div>}}
 }
@@ -44,6 +43,7 @@ Initialize AgentState}
 \if{html}{\out{<a id="method-AgentState-new"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentState-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize AgentState
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentState$new(initial_data = list(), reducers = list(), schema = list())}\if{html}{\out{</div>}}
 }

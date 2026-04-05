@@ -1,8 +1,12 @@
 # HydraR: Stateful Agentic Orchestration for R
 
-[![R-CMD-check](https://github.com/APAF-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/APAF-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml)
+![](reference/figures/hydrar_hex_logo.png)
+
+[![Lifecycle:
+stable](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![R-CMD-check](https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main)](https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml)
 [![Test
-Coverage](https://github.com/APAF-bioinformatics/HydraR/actions/workflows/test-coverage.yaml/badge.svg)](https://app.codecov.io/gh/APAF-bioinformatics/HydraR)
+Coverage](https://github.com/apaf-bioinformatics/HydraR/actions/workflows/test-coverage.yaml/badge.svg)](https://app.codecov.io/gh/apaf-bioinformatics/HydraR)
 
 `HydraR` is a lightweight, state-of-the-art orchestrator for building
 general-purpose agentic workflows in R. It prioritizes **CLI-native LLM
@@ -19,6 +23,27 @@ tools like `gemini-cli`, `claude-code`, or `gh copilot`. - **Hardened
 State**: Implements a robust state machine with persistent checkpointing
 (DuckDB/SQLite). - **Graph-Native**: Design complex logic transitions
 and loops with built-in validation.
+
+## 🌐 Ecosystem & Similar Packages
+
+`HydraR` is an **orchestrator**, not a low-level API wrapper. While many
+excellent packages focus on the communication layer, `HydraR` focuses on
+the **lifecycle, state, and file-system isolation** of multi-agent
+workflows.
+
+- **[ellmer](https://github.com/tidyverse/ellmer)**: Focuses on
+  high-level UI/API interaction with LLMs. `HydraR` can use `ellmer` (or
+  direct CLI calls) as a backend driver within a larger managed graph.
+- **[mall](https://github.com/simonpcouch/mall)**: Provides a concise
+  syntax for data-mapping LLM calls. `HydraR` is designed for more
+  complex, stateful research pipelines with cyclic dependencies.
+- **[gptstudio](https://github.com/MichelNivard/gptstudio)**: Tooling
+  for IDE-centric coding assistance. `HydraR` is built for reproducible,
+  non-interactive pipelines and automation.
+- **[reticulate](https://rstudio.github.io/reticulate/)**: While
+  `HydraR` is R-native, it leverages `reticulate` to drive Python-based
+  agentic tools (like `gemini-cli`) while maintaining the orchestration
+  state in R.
 
 ## Key Features
 
@@ -50,44 +75,119 @@ You can install the development version from GitHub:
 devtools::install_github("apaf-bioinformatics/HydraR")
 ```
 
+### System Prerequisites
+
+`HydraR` drives external AI tools via their CLI interfaces. To use the
+full suite of drivers, ensure your chosen tools are installed and
+configured.
+
+The **Gemini CLI** (`npm install -g @google/gemini-cli`) is provided as
+an example. You’ll then have to start the tool by typing `gemini` in the
+terminal and log into your Google account using the `/auth` command. You
+can choose to login using your Google account or provide an API key.
+Other CLI and API offerings have a similar setup; please refer to the
+manuals of those providers for information on how to set them up.
+
+### Environment Setup
+
+To use the API-based drivers, store your API keys in a `.Renviron` file
+in your project root to keep them secure and accessible to `HydraR`:
+
+``` bash
+# .Renviron
+GOOGLE_API_KEY="your_google_api_key"
+GEMINI_API_KEY="your_gemini_api_key"
+ANTHROPIC_API_KEY="your_anthropic_api_key"
+OPENAI_API_KEY="your_openai_api_key"
+```
+
+> \[!IMPORTANT\] Ensure `.Renviron` is added to your `.gitignore`,
+> `.Rbuildignore`, and any AI ignore files (e.g., `.agentignore`,
+> `.claudeignore`) to prevent accidental exposure of your secrets during
+> agentic development.
+
 ## 📖 Documentation & Manual
 
 The primary resource for learning `HydraR` is the **[Complete
 Instruction
-Manual](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/manual.Rmd)**.
+Manual](https://github.com/APAF-bioinformatics/HydraR/vignettes/manual.Rmd)**.
 
 ### Case Studies & Examples
 
 - **📍 [Sydney to Hong Kong Travel
-  Planner](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/hong_kong_travel.Rmd)**:
-  High-fidelity orchestration using the `GeminiCLIDriver` to book a
-  complex itinerary.
-- **💾 [Academic Research
-  Assistant](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/academic_research.Rmd)**:
-  Demonstrates literature search and stateful summarization.
-- **🛡️ [Software Bug
-  Assistant](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/software_bug_assistant.Rmd)**:
-  Shows how to orchestrate code analysis and fix suggestions.
+  Planner](https://github.com/APAF-bioinformatics/HydraR/vignettes/hong_kong_travel.Rmd)**:
+  Demonstrates the **Zero-R-Code** orchestration pattern using YAML and
+  Mermaid.
+- **🚀 [Parallel Sorting
+  Benchmark](https://github.com/APAF-bioinformatics/HydraR/vignettes/sorting_benchmark.Rmd)**:
+  Shows how to use **Git Worktrees** for isolated, parallel agent
+  execution.
+- **💾 [State Persistence &
+  Restart](https://github.com/APAF-bioinformatics/HydraR/vignettes/state_persistence.Rmd)**:
+  Explains how to use the **DuckDB checkpointer** for resilient,
+  resumable workflows.
 - **🛠️ [Creating Custom
-  Drivers](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/creating_drivers.Rmd)**:
-  Developer guide on subclassing `AgentDriver` with Mocking and API
-  support.
-- **🛡️ [Isolated Execution with Git
-  Worktrees](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/git_worktree_toy.Rmd)**:
-  A toy program demonstrating safe, parallel file modifications using
-  the Gemini CLI.
+  Drivers](https://github.com/APAF-bioinformatics/HydraR/vignettes/extending_hydrar.Rmd)**:
+  Developer guide on subclassing `AgentDriver` for local LLMs or
+  proprietary APIs.
+- **🎯 [Targets
+  Integration](https://github.com/APAF-bioinformatics/HydraR/vignettes/targets_integration.Rmd)**:
+  Explains how to build reproducible, cached pipelines using the
+  `targets` package.
+
+### 🛠️ Technical Documentation
+
+For deep technical dives into the orchestration engine and developer
+tools, refer to the following manuals:
+
+- **[HydraR Orchestration
+  Manual](https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/HydraR_Orchestration_Manual.md)**:
+  YAML anatomy, role definitions, and MCP support.
+- **[HydraR Validation
+  Reference](https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/HydraR_Validation_Reference.md)**:
+  Full list of compile-time and runtime safety checks.
+- **[Mermaid Orchestration
+  Cheatsheet](https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/mermaid_orchestration_cheatsheet.md)**:
+  Reserved keywords and visual syntax for agent networks.
+- **[Useful Tools
+  Manual](https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/useful_tools_manual.md)**:
+  Diagnostic scripts for DuckDB state inspection and monitoring.
+- **[Integrating HydraR with
+  `targets`](https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/how_to_integrate_with_target.md)**:
+  Best practices for cached, interrupt-safe agentic pipelines.
+
+## 🤖 Use of Generative AI
+
+**Generative AI tools were used to produce material in this
+submission.**
+
+**AI-Aided Development**: Large Language Models were used to implement
+specific logic blocks, boilerplate code, and unit tests. Every line of
+AI-generated code has been manually reviewed and verified by the
+authors.
+
+**Agentic Orchestration**: This package is explicitly designed for the
+orchestration of autonomous AI agents.
+
+For a detailed disclosure of AI usage, please refer to the
+**[agents.md](https://github.com/APAF-bioinformatics/HydraR/agents.md)**
+file.
+
+For architectural rationale and design tradeoffs, please refer to the
+**[DESIGN.md](https://github.com/APAF-bioinformatics/HydraR/DESIGN.md)**
+file.
 
 ## Custom Drivers
 
 `HydraR` is provider-agnostic. You can extend the framework by creating
-custom R6 classes that inherit from `AgentDriver`. This allows you to
+custom `R6` classes that inherit from `AgentDriver`. This allows you to
 drive: - **Local LLMs**: Integration with specialized local CLI
 wrappers. - **Enterprise APIs**: Secure connection to internal LLM
 endpoints via `httr2`. - **Mock Backends**: Deterministic drivers for
 unit testing complex DAG logic.
 
 Refer to the [Creating Custom
-Drivers](file:///Users/ignatiuspang/Workings/2026/HydraR/vignettes/creating_drivers.Rmd)
+Drivers](https://github.com/APAF-bioinformatics/HydraR/vignettes/creating_drivers.Rmd)
 guide for implementation details.
 
 ## 📊 Visualizing Execution
@@ -162,6 +262,7 @@ dag$plot(type = "mermaid")
 ## APAF Standards
 
 This project adheres to the **APAF Bioinformatics** standards for
-agentic reproducibility and software hardness.
+agentic reproducibility and software hardness. All development followed
+a “Human-in-the-loop” pattern for AI-assisted contributions.
 
 ------------------------------------------------------------------------

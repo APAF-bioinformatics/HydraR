@@ -1,6 +1,7 @@
 # DuckDB Message Log R6 Class
 
-Persists messages to the master DuckDB database.
+Persists messages to the master DuckDB database. Maintains an open
+connection for efficiency.
 
 ## Super class
 
@@ -28,6 +29,8 @@ Persists messages to the master DuckDB database.
 ------------------------------------------------------------------------
 
 ### Method `new()`
+
+Finalizer to clean up the cached connection.
 
 Initialize DuckDBMessageLog.
 

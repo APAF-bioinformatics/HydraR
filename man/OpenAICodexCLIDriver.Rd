@@ -2,9 +2,12 @@
 % Please edit documentation in R/drivers_cli.R
 \name{OpenAICodexCLIDriver}
 \alias{OpenAICodexCLIDriver}
-\title{OpenAI Codex CLI Driver}
+\title{OpenAI Codex CLI Driver R6 Class}
+\value{
+An `OpenAICodexCLIDriver` object.
+}
 \description{
-Supports the official `codex` CLI (v0.118+).
+Driver for the official `codex` CLI tool (v0.118+).
 }
 \section{Super class}{
 \code{\link[HydraR:AgentDriver]{HydraR::AgentDriver}} -> \code{OpenAICodexCLIDriver}
@@ -33,6 +36,7 @@ Supports the official `codex` CLI (v0.118+).
 \if{html}{\out{<a id="method-OpenAICodexCLIDriver-new"></a>}}
 \if{latex}{\out{\hypertarget{method-OpenAICodexCLIDriver-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize OpenAICodexCLIDriver
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{OpenAICodexCLIDriver$new(
   id = "codex_cli",
@@ -58,6 +62,7 @@ Call the LLM}
 \if{html}{\out{<a id="method-OpenAICodexCLIDriver-call"></a>}}
 \if{latex}{\out{\hypertarget{method-OpenAICodexCLIDriver-call}{}}}
 \subsection{Method \code{call()}}{
+Sends a execution request to the Codex CLI.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{OpenAICodexCLIDriver$call(prompt, system_prompt = NULL, cli_opts = list(), ...)}\if{html}{\out{</div>}}
 }

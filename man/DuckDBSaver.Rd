@@ -23,8 +23,7 @@ saver <- DuckDBSaver$new(db_path = "checkpoints.duckdb")
 \describe{
 \item{\code{con}}{DBIConnection.}
 
-\item{\code{table_name}}{String.
-Initialize DuckDBSaver}
+\item{\code{table_name}}{String.}
 }
 \if{html}{\out{</div>}}
 }
@@ -41,6 +40,7 @@ Initialize DuckDBSaver}
 \if{html}{\out{<a id="method-DuckDBSaver-new"></a>}}
 \if{latex}{\out{\hypertarget{method-DuckDBSaver-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize DuckDBSaver
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DuckDBSaver$new(con = NULL, db_path = NULL, table_name = "agent_checkpoints")}\if{html}{\out{</div>}}
 }

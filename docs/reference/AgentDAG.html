@@ -9,7 +9,7 @@ Supports both pure DAG execution (parallel) and iterative loops via conditional 
 
     <a class="navbar-brand me-2" href="../index.html">HydraR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,31 +21,14 @@ Supports both pure DAG execution (parallel) and iterative loops via conditional 
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Manual</h6></li>
-    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Instruction Manual</a></li>
-    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Examples</h6></li>
-    <li><a class="dropdown-item" href="../articles/academic_research.html">Agentic Academic Researcher</a></li>
-    <li><a class="dropdown-item" href="../articles/blog_writer.html">Agentic Blog Writer</a></li>
-    <li><a class="dropdown-item" href="../articles/data_science.html">Agentic Data Science Assistant</a></li>
-    <li><a class="dropdown-item" href="../articles/hello_world_agent.html">Hello World: Building an Agentic Loop with HydraR</a></li>
-    <li><a class="dropdown-item" href="../articles/personalized_shopping.html">Agentic Personalized Shopping Assistant</a></li>
-    <li><a class="dropdown-item" href="../articles/software_bug_assistant.html">Agentic Software Bug Assistant</a></li>
-    <li><a class="dropdown-item" href="../articles/story_teller.html">Agentic Story Teller</a></li>
-    <li><a class="dropdown-item" href="../articles/gemini_cli_demo.html">Gemini CLI Driver Demo</a></li>
-    <li><a class="dropdown-item" href="../articles/hello_world_logic.html">Hello World Logic Nodes</a></li>
-    <li><a class="dropdown-item" href="../articles/parameterized_mermaid.html">Advanced Mermaid Parameters</a></li>
-    <li><a class="dropdown-item" href="../articles/round_trip_demo.html">Mermaid Round-Trip Visualization</a></li>
-    <li><a class="dropdown-item" href="../articles/distributed_communication.html">Distributed Consensus Simulation</a></li>
-    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
     <li><a class="dropdown-item" href="../articles/targets_integration.html">Reproducible Agentic Pipelines with targets</a></li>
-    <li><a class="dropdown-item" href="../articles/creating_drivers.html">Creating Custom Agent Drivers</a></li>
-    <li><a class="dropdown-item" href="../articles/git_worktree_toy.html">Isolated Execution with Git Worktrees</a></li>
+    <li><a class="dropdown-item" href="../articles/extending_hydrar.html">Creating Custom Agent Drivers</a></li>
+    <li><a class="dropdown-item" href="../articles/state_persistence.html">State Persistence &amp; Restart: Resilient Workflows</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="nav-link" href="https://github.com/APAF-bioinformatics/HydraR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -84,6 +67,10 @@ Supports both pure DAG execution (parallel) and iterative loops via conditional 
 
 <dt><code>conditional_edges</code></dt>
 <dd><p>List. Conditional transition logic.</p></dd>
+
+
+<dt><code>error_edges</code></dt>
+<dd><p>List. Failover transition logic.</p></dd>
 
 
 <dt><code>results</code></dt>
@@ -127,10 +114,13 @@ Supports both pure DAG execution (parallel) and iterative loops via conditional 
 <li><p><a href="#method-AgentDAG-add_node"><code>AgentDAG$add_node()</code></a></p></li>
 <li><p><a href="#method-AgentDAG-add_edge"><code>AgentDAG$add_edge()</code></a></p></li>
 <li><p><a href="#method-AgentDAG-add_conditional_edge"><code>AgentDAG$add_conditional_edge()</code></a></p></li>
+<li><p><a href="#method-AgentDAG-add_error_edge"><code>AgentDAG$add_error_edge()</code></a></p></li>
 <li><p><a href="#method-AgentDAG-run"><code>AgentDAG$run()</code></a></p></li>
 <li><p><a href="#method-AgentDAG-.run_linear"><code>AgentDAG$.run_linear()</code></a></p></li>
 <li><p><a href="#method-AgentDAG-.run_iterative"><code>AgentDAG$.run_iterative()</code></a></p></li>
 <li><p><a href="#method-AgentDAG-plot"><code>AgentDAG$plot()</code></a></p></li>
+<li><p><a href="#method-AgentDAG-get_terminal_nodes"><code>AgentDAG$get_terminal_nodes()</code></a></p></li>
+<li><p><a href="#method-AgentDAG-get_start_nodes"><code>AgentDAG$get_start_nodes()</code></a></p></li>
 <li><p><a href="#method-AgentDAG-compile"><code>AgentDAG$compile()</code></a></p></li>
 <li><p><a href="#method-AgentDAG-save_trace"><code>AgentDAG$save_trace()</code></a></p></li>
 <li><p><a href="#method-AgentDAG-from_mermaid"><code>AgentDAG$from_mermaid()</code></a></p></li>
@@ -138,7 +128,7 @@ Supports both pure DAG execution (parallel) and iterative loops via conditional 
 </ul></div><p></p><hr><a id="method-AgentDAG-new"></a><div class="section">
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 <p>Initialize AgentDAG
-Set Start Node</p><div class="section">
+Set Start Node(s)</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/AgentDAG.html">AgentDAG</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
@@ -149,17 +139,21 @@ Set Start Node</p><div class="section">
 
 <div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AgentDAG</span><span class="op">$</span><span class="fu">set_start_node</span><span class="op">(</span><span class="va">node_id</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AgentDAG</span><span class="op">$</span><span class="fu">set_start_node</span><span class="op">(</span><span class="va">node_ids</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>node_id</code></dt>
-<dd><p>String node ID.
-Add a Node</p></dd>
+<p></p><div class="arguments"><dl><dt><code>node_ids</code></dt>
+<dd><p>Character vector of node IDs.</p></dd>
 
 
 </dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
+<p>The AgentDAG object (invisibly).
+Add a Node</p>
 </div>
 
 </div><p></p><hr><a id="method-AgentDAG-add_node"></a><div class="section">
@@ -173,11 +167,15 @@ Add a Node</p></dd>
 <div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>node</code></dt>
-<dd><p>AgentNode object.
-Add an Edge</p></dd>
+<dd><p>AgentNode object.</p></dd>
 
 
 </dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
+<p>The AgentDAG object (invisibly).
+Add an Edge</p>
 </div>
 
 </div><p></p><hr><a id="method-AgentDAG-add_edge"></a><div class="section">
@@ -199,11 +197,15 @@ Add an Edge</p></dd>
 
 
 <dt><code>label</code></dt>
-<dd><p>Optional string label for the edge.
-Add a Conditional Edge (Loop Support)</p></dd>
+<dd><p>Optional string label for the edge.</p></dd>
 
 
 </dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns-2">Returns<a class="anchor" aria-label="anchor" href="#returns-2"></a></h4>
+<p>The AgentDAG object (invisibly).
+Add a Conditional Edge (Loop Support)</p>
 </div>
 
 </div><p></p><hr><a id="method-AgentDAG-add_conditional_edge"></a><div class="section">
@@ -211,7 +213,12 @@ Add a Conditional Edge (Loop Support)</p></dd>
 
 <div class="section">
 <h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AgentDAG</span><span class="op">$</span><span class="fu">add_conditional_edge</span><span class="op">(</span><span class="va">from</span>, <span class="va">test</span>, <span class="va">if_true</span>, if_false <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AgentDAG</span><span class="op">$</span><span class="fu">add_conditional_edge</span><span class="op">(</span></span>
+<span>  <span class="va">from</span>,</span>
+<span>  test <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  if_true <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  if_false <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -225,22 +232,48 @@ Add a Conditional Edge (Loop Support)</p></dd>
 
 
 <dt><code>if_true</code></dt>
-<dd><p>String node ID (next node if test is TRUE) or NULL to stop.</p></dd>
+<dd><p>String node ID (next node if test is TRUE) or NULL.</p></dd>
 
 
 <dt><code>if_false</code></dt>
-<dd><p>String node ID (next node if test is FALSE) or NULL to stop.
-Run the Graph</p></dd>
+<dd><p>String node ID (next node if test is FALSE) or NULL.
+Add an Error Edge (Failover Support)</p></dd>
 
 
 </dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-AgentDAG-add_error_edge"></a><div class="section">
+<h3 id="method-add-error-edge-">Method <code>add_error_edge()</code><a class="anchor" aria-label="anchor" href="#method-add-error-edge-"></a></h3>
+
+<div class="section">
+<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AgentDAG</span><span class="op">$</span><span class="fu">add_error_edge</span><span class="op">(</span><span class="va">from</span>, <span class="va">to</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>from</code></dt>
+<dd><p>String node ID.</p></dd>
+
+
+<dt><code>to</code></dt>
+<dd><p>String node ID.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns-3">Returns<a class="anchor" aria-label="anchor" href="#returns-3"></a></h4>
+<p>The AgentDAG object (invisibly).
+Run the Graph</p>
 </div>
 
 </div><p></p><hr><a id="method-AgentDAG-run"></a><div class="section">
 <h3 id="method-run-">Method <code>run()</code><a class="anchor" aria-label="anchor" href="#method-run-"></a></h3>
 
 <div class="section">
-<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AgentDAG</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span></span>
 <span>  initial_state <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  max_steps <span class="op">=</span> <span class="fl">25</span>,</span>
@@ -251,13 +284,13 @@ Run the Graph</p></dd>
 <span>  repo_root <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  cleanup_policy <span class="op">=</span> <span class="st">"auto"</span>,</span>
 <span>  fail_if_dirty <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"withr"</span>, <span class="st">"HydraR"</span><span class="op">)</span>,</span>
+<span>  packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"withr"</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
+<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>initial_state</code></dt>
 <dd><p>List, AgentState object, or String. Optional if resuming.</p></dd>
 
@@ -294,6 +327,10 @@ Run the Graph</p></dd>
 <dd><p>Logical. Whether to fail if repo has uncommitted changes.</p></dd>
 
 
+<dt><code>packages</code></dt>
+<dd><p>Character vector. Packages to load in parallel workers.</p></dd>
+
+
 <dt><code>...</code></dt>
 <dd><p>Additional arguments passed to node run methods.</p></dd>
 
@@ -301,7 +338,7 @@ Run the Graph</p></dd>
 </dl><p></p></div>
 </div>
 <div class="section">
-<h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
+<h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
 <p>List of results for each node, and the final state.
 Internal: Linear DAG Execution</p>
 </div>
@@ -310,7 +347,7 @@ Internal: Linear DAG Execution</p>
 <h3 id="method-run-linear-">Method <code>.run_linear()</code><a class="anchor" aria-label="anchor" href="#method-run-linear-"></a></h3>
 
 <div class="section">
-<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AgentDAG</span><span class="op">$</span><span class="fu">.run_linear</span><span class="op">(</span></span>
 <span>  max_steps <span class="op">=</span> <span class="fl">25</span>,</span>
 <span>  checkpointer <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -323,7 +360,7 @@ Internal: Linear DAG Execution</p>
 </div>
 
 <div class="section">
-<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
+<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>max_steps</code></dt>
 <dd><p>Integer.</p></dd>
 
@@ -355,7 +392,7 @@ Internal: Linear DAG Execution</p>
 </dl><p></p></div>
 </div>
 <div class="section">
-<h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
+<h4 id="returns-5">Returns<a class="anchor" aria-label="anchor" href="#returns-5"></a></h4>
 <p>Execution result list.
 Internal: Iterative Execution</p>
 </div>
@@ -364,7 +401,7 @@ Internal: Iterative Execution</p>
 <h3 id="method-run-iterative-">Method <code>.run_iterative()</code><a class="anchor" aria-label="anchor" href="#method-run-iterative-"></a></h3>
 
 <div class="section">
-<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
+<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AgentDAG</span><span class="op">$</span><span class="fu">.run_iterative</span><span class="op">(</span></span>
 <span>  <span class="va">max_steps</span>,</span>
 <span>  checkpointer <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -372,12 +409,12 @@ Internal: Iterative Execution</p>
 <span>  resume_from <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  step_count <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  fail_if_dirty <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"withr"</span>, <span class="st">"HydraR"</span><span class="op">)</span></span>
+<span>  packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"withr"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
+<h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>max_steps</code></dt>
 <dd><p>Integer.</p></dd>
 
@@ -402,6 +439,10 @@ Internal: Iterative Execution</p>
 <dd><p>Logical.</p></dd>
 
 
+<dt><code>packages</code></dt>
+<dd><p>Character vector. Packages to load in parallel workers.</p></dd>
+
+
 </dl><p></p></div>
 </div>
 
@@ -409,7 +450,7 @@ Internal: Iterative Execution</p>
 <h3 id="method-plot-">Method <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code><a class="anchor" aria-label="anchor" href="#method-plot-"></a></h3>
 
 <div class="section">
-<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
+<h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AgentDAG</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span></span>
 <span>  type <span class="op">=</span> <span class="st">"mermaid"</span>,</span>
 <span>  status <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -420,9 +461,9 @@ Internal: Iterative Execution</p>
 </div>
 
 <div class="section">
-<h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
+<h4 id="arguments-8">Arguments<a class="anchor" aria-label="anchor" href="#arguments-8"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>type</code></dt>
-<dd><p>String. Type of plot (currently only "mermaid").</p></dd>
+<dd><p>String. Type of plot ("mermaid" or "grViz").</p></dd>
 
 
 <dt><code>status</code></dt>
@@ -444,20 +485,46 @@ Internal: Iterative Execution</p>
 </dl><p></p></div>
 </div>
 <div class="section">
-<h4 id="returns-2">Returns<a class="anchor" aria-label="anchor" href="#returns-2"></a></h4>
-<p>The mermaid string (invisibly).
+<h4 id="returns-6">Returns<a class="anchor" aria-label="anchor" href="#returns-6"></a></h4>
+<p>The mermaid/dot string (invisibly).
+Get Terminal Nodes</p>
+</div>
+
+</div><p></p><hr><a id="method-AgentDAG-get_terminal_nodes"></a><div class="section">
+<h3 id="method-get-terminal-nodes-">Method <code>get_terminal_nodes()</code><a class="anchor" aria-label="anchor" href="#method-get-terminal-nodes-"></a></h3>
+<p>Identifies nodes with no outgoing edges.</p><div class="section">
+<h4 id="usage-10">Usage<a class="anchor" aria-label="anchor" href="#usage-10"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AgentDAG</span><span class="op">$</span><span class="fu">get_terminal_nodes</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="returns-7">Returns<a class="anchor" aria-label="anchor" href="#returns-7"></a></h4>
+<p>Character vector of node IDs.
+Get Start Nodes (Roots)</p>
+</div>
+
+</div><p></p><hr><a id="method-AgentDAG-get_start_nodes"></a><div class="section">
+<h3 id="method-get-start-nodes-">Method <code>get_start_nodes()</code><a class="anchor" aria-label="anchor" href="#method-get-start-nodes-"></a></h3>
+<p>Identifies nodes with no incoming edges.</p><div class="section">
+<h4 id="usage-11">Usage<a class="anchor" aria-label="anchor" href="#usage-11"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AgentDAG</span><span class="op">$</span><span class="fu">get_start_nodes</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="returns-8">Returns<a class="anchor" aria-label="anchor" href="#returns-8"></a></h4>
+<p>Character vector of node IDs.
 Compile the Graph</p>
 </div>
 
 </div><p></p><hr><a id="method-AgentDAG-compile"></a><div class="section">
 <h3 id="method-compile-">Method <code>compile()</code><a class="anchor" aria-label="anchor" href="#method-compile-"></a></h3>
 <p>Rebuilds the internal graph representation and performs validation checks.</p><div class="section">
-<h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
+<h4 id="usage-12">Usage<a class="anchor" aria-label="anchor" href="#usage-12"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AgentDAG</span><span class="op">$</span><span class="fu">compile</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="returns-3">Returns<a class="anchor" aria-label="anchor" href="#returns-3"></a></h4>
+<h4 id="returns-9">Returns<a class="anchor" aria-label="anchor" href="#returns-9"></a></h4>
 <p>The AgentDAG object (invisibly).
 Save the Execution Trace</p>
 </div>
@@ -466,12 +533,12 @@ Save the Execution Trace</p>
 <h3 id="method-save-trace-">Method <code>save_trace()</code><a class="anchor" aria-label="anchor" href="#method-save-trace-"></a></h3>
 
 <div class="section">
-<h4 id="usage-10">Usage<a class="anchor" aria-label="anchor" href="#usage-10"></a></h4>
+<h4 id="usage-13">Usage<a class="anchor" aria-label="anchor" href="#usage-13"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AgentDAG</span><span class="op">$</span><span class="fu">save_trace</span><span class="op">(</span>file <span class="op">=</span> <span class="st">"dag_trace.json"</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-8">Arguments<a class="anchor" aria-label="anchor" href="#arguments-8"></a></h4>
+<h4 id="arguments-9">Arguments<a class="anchor" aria-label="anchor" href="#arguments-9"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>file</code></dt>
 <dd><p>String. Output path for the JSON trace.
 Create Graph from Mermaid</p></dd>
@@ -484,12 +551,12 @@ Create Graph from Mermaid</p></dd>
 <h3 id="method-from-mermaid-">Method <code>from_mermaid()</code><a class="anchor" aria-label="anchor" href="#method-from-mermaid-"></a></h3>
 
 <div class="section">
-<h4 id="usage-11">Usage<a class="anchor" aria-label="anchor" href="#usage-11"></a></h4>
+<h4 id="usage-14">Usage<a class="anchor" aria-label="anchor" href="#usage-14"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AgentDAG</span><span class="op">$</span><span class="fu">from_mermaid</span><span class="op">(</span><span class="va">mermaid_str</span>, <span class="va">node_factory</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-9">Arguments<a class="anchor" aria-label="anchor" href="#arguments-9"></a></h4>
+<h4 id="arguments-10">Arguments<a class="anchor" aria-label="anchor" href="#arguments-10"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>mermaid_str</code></dt>
 <dd><p>String. Mermaid syntax.</p></dd>
 
@@ -501,19 +568,19 @@ Create Graph from Mermaid</p></dd>
 </dl><p></p></div>
 </div>
 <div class="section">
-<h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
+<h4 id="returns-10">Returns<a class="anchor" aria-label="anchor" href="#returns-10"></a></h4>
 <p>The AgentDAG object.</p>
 </div>
 
 </div><p></p><hr><a id="method-AgentDAG-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-12">Usage<a class="anchor" aria-label="anchor" href="#usage-12"></a></h4>
+<h4 id="usage-15">Usage<a class="anchor" aria-label="anchor" href="#usage-15"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AgentDAG</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-10">Arguments<a class="anchor" aria-label="anchor" href="#arguments-10"></a></h4>
+<h4 id="arguments-11">Arguments<a class="anchor" aria-label="anchor" href="#arguments-11"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 
@@ -530,6 +597,14 @@ Create Graph from Mermaid</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="va">AgentDAG</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">node</span> <span class="op">&lt;-</span> <span class="va"><a href="AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"start"</span>, <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"success"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va">node</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="va">AgentDAG</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va"><a href="AgentNode.html">AgentNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"A"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va"><a href="AgentNode.html">AgentNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"B"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dag</span><span class="op">$</span><span class="fu">add_edge</span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dag</span><span class="op">$</span><span class="fu">set_start_node</span><span class="op">(</span><span class="st">"A"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dag</span><span class="op">$</span><span class="fu">compile</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -537,7 +612,7 @@ Create Graph from Mermaid</p></dd>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Ignatius Pang, Aidan Tay.</p>
+  <p>Developed by Chi Nam Ignatius Pang, Aidan Tay.</p>
 </div>
 
 <div class="pkgdown-footer-right">

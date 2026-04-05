@@ -15,7 +15,7 @@ A \`GeminiAPIDriver\` R6 object.
 
 - `api_base`:
 
-  String. Base URL. Initialize GeminiAPIDriver
+  String. Base URL.
 
 ## Methods
 
@@ -32,18 +32,22 @@ A \`GeminiAPIDriver\` R6 object.
 Inherited methods
 
 - [`HydraR::AgentDriver$exec_in_dir()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-exec_in_dir)
+- [`HydraR::AgentDriver$filter_llm_noise()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-filter_llm_noise)
 - [`HydraR::AgentDriver$format_cli_opts()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-format_cli_opts)
 - [`HydraR::AgentDriver$validate_cli_opts()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-validate_cli_opts)
+- [`HydraR::AgentDriver$validate_no_injection()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-validate_no_injection)
 
 ------------------------------------------------------------------------
 
 ### Method `new()`
 
+Initialize GeminiAPIDriver
+
 #### Usage
 
     GeminiAPIDriver$new(
       id = "gemini_api",
-      model = "gemini-1.5-pro",
+      model = "gemini-3.1-flash-lite-preview",
       validation_mode = "warning",
       working_dir = NULL
     )
@@ -88,7 +92,13 @@ A list of capabilities. Call Gemini API
 
 #### Usage
 
-    GeminiAPIDriver$call(prompt, model = NULL, cli_opts = list(), ...)
+    GeminiAPIDriver$call(
+      prompt,
+      model = NULL,
+      system_prompt = NULL,
+      cli_opts = list(),
+      ...
+    )
 
 #### Arguments
 
@@ -99,6 +109,10 @@ A list of capabilities. Call Gemini API
 - `model`:
 
   String. Optional model override.
+
+- `system_prompt`:
+
+  String. Optional system prompt.
 
 - `cli_opts`:
 

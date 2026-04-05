@@ -11,7 +11,7 @@ Driver for the 'ollama' CLI tool (local).
 
 - `model`:
 
-  String. Default model. Initialize OllamaDriver
+  String. Default model.
 
 ## Methods
 
@@ -28,12 +28,16 @@ Driver for the 'ollama' CLI tool (local).
 Inherited methods
 
 - [`HydraR::AgentDriver$exec_in_dir()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-exec_in_dir)
+- [`HydraR::AgentDriver$filter_llm_noise()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-filter_llm_noise)
 - [`HydraR::AgentDriver$get_capabilities()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-get_capabilities)
 - [`HydraR::AgentDriver$validate_cli_opts()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-validate_cli_opts)
+- [`HydraR::AgentDriver$validate_no_injection()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-validate_no_injection)
 
 ------------------------------------------------------------------------
 
 ### Method `new()`
+
+Initialize OllamaDriver
 
 #### Usage
 
@@ -87,7 +91,13 @@ Character vector. Call the LLM
 
 #### Usage
 
-    OllamaDriver$call(prompt, model = NULL, cli_opts = list(), ...)
+    OllamaDriver$call(
+      prompt,
+      model = NULL,
+      system_prompt = NULL,
+      cli_opts = list(),
+      ...
+    )
 
 #### Arguments
 
@@ -98,6 +108,10 @@ Character vector. Call the LLM
 - `model`:
 
   String override.
+
+- `system_prompt`:
+
+  String. Optional system prompt.
 
 - `cli_opts`:
 

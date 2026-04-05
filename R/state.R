@@ -28,7 +28,7 @@ AgentState <- R6::R6Class("AgentState",
     #' @field schema List. Expected types for state variables.
     schema = list(),
 
-    #' Initialize AgentState
+    #' @description Initialize AgentState
     #' @param initial_data List of initial state variables or String.
     #' @param reducers Named list of reducer functions.
     #' @param schema Named list of expected types.

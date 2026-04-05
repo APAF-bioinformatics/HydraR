@@ -32,14 +32,15 @@ A \`WorktreeManager\` R6 object.
 
 - `thread_id`:
 
-  String. Optional identifier for the current DAG execution. Initialize
-  WorktreeManager
+  String. Optional identifier for the current DAG execution.
 
 ## Methods
 
 ### Public methods
 
 - [`WorktreeManager$new()`](#method-WorktreeManager-new)
+
+- [`WorktreeManager$validate_branch_name()`](#method-WorktreeManager-validate_branch_name)
 
 - [`WorktreeManager$create()`](#method-WorktreeManager-create)
 
@@ -67,6 +68,8 @@ A \`WorktreeManager\` R6 object.
 
 ### Method `new()`
 
+Initialize the WorktreeManager.
+
 #### Usage
 
     WorktreeManager$new(
@@ -81,7 +84,7 @@ A \`WorktreeManager\` R6 object.
 
 - `repo_root`:
 
-  Path to the main repository. Defaults to getwd().
+  Path to the main git repository. Defaults to \`getwd()\`.
 
 - `base_branch`:
 
@@ -97,11 +100,29 @@ A \`WorktreeManager\` R6 object.
 
 - `thread_id`:
 
-  Optional execution identifier.
+  Optional string to group worktrees. Defaults to random UUID.
 
 #### Returns
 
-A new \`WorktreeManager\` object. Create an Isolated Worktree
+A new \`WorktreeManager\` object. Validate a branch name
+
+------------------------------------------------------------------------
+
+### Method `validate_branch_name()`
+
+#### Usage
+
+    WorktreeManager$validate_branch_name(branch)
+
+#### Arguments
+
+- `branch`:
+
+  String. The branch name to validate.
+
+#### Returns
+
+Logical or error. Create an Isolated Worktree
 
 ------------------------------------------------------------------------
 

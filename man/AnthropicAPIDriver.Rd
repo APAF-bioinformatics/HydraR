@@ -12,8 +12,7 @@ Implementation of the Anthropic Messages API.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{api_url}}{String. Base URL.
-Initialize AnthropicAPIDriver}
+\item{\code{api_url}}{String. Base URL.}
 }
 \if{html}{\out{</div>}}
 }
@@ -41,6 +40,7 @@ Initialize AnthropicAPIDriver}
 \if{html}{\out{<a id="method-AnthropicAPIDriver-new"></a>}}
 \if{latex}{\out{\hypertarget{method-AnthropicAPIDriver-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize AnthropicAPIDriver
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AnthropicAPIDriver$new(
   id = "anthropic_api",

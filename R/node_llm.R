@@ -41,7 +41,7 @@ AgentLLMNode <- R6::R6Class("AgentLLMNode",
     skills_files = NULL,
 
 
-    #' Initialize AgentLLMNode
+    #' @description Initialize AgentLLMNode
     #' @param id Unique identifier.
     #' @param role System prompt.
     #' @param driver AgentDriver object.

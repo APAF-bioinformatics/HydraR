@@ -29,8 +29,7 @@ wt_manager <- WorktreeManager$new(repo_root = getwd())
 
 \item{\code{cleanup_policy}}{String. "auto", "none", or "aggressive".}
 
-\item{\code{thread_id}}{String. Optional identifier for the current DAG execution.
-Initialize the WorktreeManager.}
+\item{\code{thread_id}}{String. Optional identifier for the current DAG execution.}
 }
 \if{html}{\out{</div>}}
 }
@@ -56,6 +55,7 @@ Initialize the WorktreeManager.}
 \if{html}{\out{<a id="method-WorktreeManager-new"></a>}}
 \if{latex}{\out{\hypertarget{method-WorktreeManager-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize the WorktreeManager.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{WorktreeManager$new(
   repo_root = getwd(),

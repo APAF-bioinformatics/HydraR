@@ -46,6 +46,11 @@ extract_r_code_advanced <- function(raw) {
 }
 
 #' Check if an object is a named list
+#'
+#' @description
+#' Helper to verify that an object is a list (but not a data.frame) and
+#' that all its elements have non-empty names.
+#'
 #' @param x Any object.
 #' @return Logical.
 #' @export

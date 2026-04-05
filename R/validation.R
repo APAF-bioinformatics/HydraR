@@ -206,7 +206,7 @@ lint_workflow_logic <- function(wf) {
       l_res <- lintr::lint(text = code)
       if (length(l_res) > 0) {
         # We limit to first 3 lints per block to avoid noise
-        purrr::walk(head(l_res, 3), function(l) {
+        purrr::walk(utils::head(l_res, 3), function(l) {
           warnings <<- c(warnings, sprintf("Logic '%s' [Lint]: %s (line %d)", name, l$message, l$line_number))
         })
       }
@@ -214,6 +214,74 @@ lint_workflow_logic <- function(wf) {
   })
 
   list(errors = errors, warnings = warnings)
+}
+
+#' Validate Workflow File Syntax and Consistency
+#'
+#' @description
+#' A high-level helper that performs a comprehensive check on a YAML/JSON workflow file.
+#' This includes schema validation, topological consistency checks (Mermaid vs YAML),
+#' and R logic syntax linting.
+#'
+#' @param file_path String. Path to the workflow definition file.
+#' @return Logical TRUE if valid (invisibly). Throws a detailed error on failure.
+#' @export
+validate_workflow_file <- function(file_path) {
+  wf <- load_workflow(file_path)
+  # spawn_dag internally calls validate_workflow_full
+  dag <- spawn_dag(wf)
+  invisible(TRUE)
+}
+
+#' Render Workflow Diagram from File
+#'
+#' @description
+#' Loads a workflow from a file and renders its architecture as a Mermaid diagram.
+#' Supports high-fidelity exports to various image formats.
+#'
+#' @param file_path String. Path to the YAML workflow file.
+#' @param output_file String. Optional path to save the diagram (e.g., "plot.png").
+#' Supported extensions: .png, .pdf, .svg.
+#' @param status Logical. If TRUE, styling is applied (requires a valid trace log in the workflow state).
+#' @param ... Additional arguments passed to `dag$run()`.
+#' @return A `DiagrammeR` htmlwidget if `output_file` is NULL, otherwise saves the file.
+#' @export
+render_workflow_file <- function(file_path, output_file = NULL, status = FALSE, ...) {
+  wf <- load_workflow(file_path)
+  dag <- spawn_dag(wf)
+
+  if (is.null(output_file)) {
+    m_str <- dag$plot(type = "mermaid", status = status, ...)
+    # DiagrammeR::mermaid doesn't need the fences
+    clean_m <- gsub("^```mermaid\\n|\\n```$", "", m_str)
+    return(DiagrammeR::mermaid(clean_m))
+  }
+
+  # Export logic (requires DiagrammeRsvg and rsvg)
+  # NOTE: We use grViz (Graphviz) for exports because DiagrammeRsvg::export_svg
+  # only supports Graphviz-based htmlwidgets, not Mermaid.
+  if (!requireNamespace("DiagrammeRsvg", quietly = TRUE)) {
+    stop("Package 'DiagrammeRsvg' is required for exporting diagrams.")
+  }
+  if (!requireNamespace("rsvg", quietly = TRUE)) {
+    stop("Package 'rsvg' is required for exporting diagrams.")
+  }
+
+  dot_str <- dag$plot(type = "grViz", status = status, ...)
+  widget <- DiagrammeR::grViz(dot_str)
+  svg_code <- DiagrammeRsvg::export_svg(widget)
+
+  ext <- tolower(tools::file_ext(output_file))
+  switch(ext,
+    "svg" = writeLines(svg_code, output_file),
+    "pdf" = rsvg::rsvg_pdf(charToRaw(svg_code), output_file),
+    "png" = rsvg::rsvg_png(charToRaw(svg_code), output_file),
+    "jpg" = stop("JPEG export is not supported by 'rsvg'. Please use .png, .pdf, or .svg.", call. = FALSE),
+    "jpeg" = stop("JPEG export is not supported by 'rsvg'. Please use .png, .pdf, or .svg.", call. = FALSE),
+    stop(sprintf("Unsupported output format: %s", ext))
+  )
+
+  invisible(NULL)
 }
 
 # <!-- APAF Bioinformatics | validation.R | Approved | 2026-04-03 -->

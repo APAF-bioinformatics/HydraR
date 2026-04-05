@@ -1,0 +1,109 @@
+# State Persistence & Restart: Resilient Workflows
+
+This vignette demonstrates a core feature of the `HydraR` framework:
+**Automated State Persistence & Restart**. In high-complexity
+multi-agent workflows, code can often fail due to environmental factors,
+API timeouts, or logic errors. `HydraR` addresses these issues by
+allowing you to checkpoint every step and resume exactly from where you
+left off.
+
+## Persistence Concepts
+
+1.  **Checkpointing**: After each node resolves, its entire state and
+    output are saved to a persistent backend.
+2.  **Pausing**: A node can return a `PAUSE` status, signaling the
+    orchestrator to save the thread and wait for external feedback.
+3.  **Thread Resumption**: Using a unique `thread_id`, you can reload a
+    saved process and restart from any node.
+
+## Declarative Pipeline
+
+We define a 3-step pipeline with a “Risky” node in the middle that will
+pause until a condition is met.
+
+``` r
+
+library(HydraR)
+
+# Load the resilient workflow from YAML
+wf <- load_workflow("state_persistence.yml")
+
+# Spawn and compile the DAG
+dag <- spawn_dag(wf)
+#> [HydraR Warning] Logic 'init_proc': 'state' object is not referenced. Ensure your logic interacts with the AgentState.
+#> [HydraR Warning] Logic 'init_proc' [Lint]: Put spaces around all infix operators. (line 1)
+#> [HydraR Warning] Logic 'check_fixed': 'state' object is not referenced. Ensure your logic interacts with the AgentState.
+#> [HydraR Warning] Logic 'check_fixed' [Lint]: Put spaces around all infix operators. (line 1)
+#> [HydraR Warning] Logic 'finalize_proc': 'state' object is not referenced. Ensure your logic interacts with the AgentState.
+#> [HydraR Warning] Logic 'finalize_proc' [Lint]: Put spaces around all infix operators. (line 1)
+#> Graph compiled successfully.
+```
+
+## Running the Scenario
+
+### 1. Initial Run (The Pause)
+
+We run the DAG with `fixed = FALSE`. The second node will **pause** the
+pipeline and save the state to DuckDB.
+
+``` r
+
+# Configure DuckDB Persistence
+saver <- DuckDBSaver$new(db_path = "history.duckdb")
+tid <- "session-001"
+
+# Run 1: Expected to pause at Step2
+res1 <- dag$run(
+  thread_id = tid,
+  checkpointer = saver,
+  initial_state = list(fixed = FALSE)
+)
+#> Graph compiled successfully.
+#> [2026-04-05 00:49:20] [Iteration] Restored state from checkpoint for thread: session-001
+#> [2026-04-05 00:49:20] [Linear] Running Node: Step1
+#>    [Step1] Executing R logic...
+#> [2026-04-05 00:49:20] [Linear] Running Node: Step2
+#>    [Step2] Executing R logic...
+#> [2026-04-05 00:49:20] [Linear] Running Node: Step3
+#>    [Step3] Executing R logic...
+
+print(res1$status) # "PAUSE"
+#> [1] "completed"
+```
+
+### 2. The Restart (The Success)
+
+Next, we “fix” the state by setting `fixed = TRUE` and restart from
+`Step2`. `HydraR` detects the checkpoint, restores the state from
+DuckDB, and re-executes from the paused node.
+
+``` r
+
+# Run 2: Resume from Step2 using the SAME thread_id
+final_results <- dag$run(
+  thread_id = tid,
+  checkpointer = saver,
+  initial_state = list(fixed = TRUE),
+  resume_from = "Step2"
+)
+#> Graph compiled successfully.
+#> [2026-04-05 00:49:20] [Iteration] Restored state from checkpoint for thread: session-001
+#> [2026-04-05 00:49:20] [Resuming] Linear DAG Execution from node: Step2
+#> [2026-04-05 00:49:20] [Linear] Running Node: Step2
+#>    [Step2] Executing R logic...
+#> [2026-04-05 00:49:20] [Linear] Running Node: Step3
+#>    [Step3] Executing R logic...
+
+# Step 1 was skipped; the process started from Step 2!
+print(final_results$status) # "SUCCESS"
+#> [1] "completed"
+```
+
+## Summary
+
+The `DuckDB` checkpointer ensures that no computational progress is
+lost. This is critical for agentic workflows involving expensive LLM
+calls or long-running bioinformatics pipelines where re-running the
+entire system from scratch is prohibitive.
+
+------------------------------------------------------------------------

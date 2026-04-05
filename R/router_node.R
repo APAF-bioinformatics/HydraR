@@ -20,7 +20,7 @@ AgentRouterNode <- R6::R6Class("AgentRouterNode",
     #' @field router_fn Function(state) -> List(target_node, output).
     router_fn = NULL,
 
-    #' Initialize AgentRouterNode
+    #' @description Initialize AgentRouterNode
     #' @param id Unique identifier.
     #' @param router_fn Function that takes an AgentState and returns a list.
     #' @param label Optional human-readable name.

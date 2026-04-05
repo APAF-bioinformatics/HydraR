@@ -21,7 +21,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">HydraR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,31 +35,14 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Manual</h6></li>
-    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Instruction Manual</a></li>
-    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Examples</h6></li>
-    <li><a class="dropdown-item" href="../articles/academic_research.html">Agentic Academic Researcher</a></li>
-    <li><a class="dropdown-item" href="../articles/blog_writer.html">Agentic Blog Writer</a></li>
-    <li><a class="dropdown-item" href="../articles/data_science.html">Agentic Data Science Assistant</a></li>
-    <li><a class="dropdown-item" href="../articles/hello_world_agent.html">Hello World: Building an Agentic Loop with HydraR</a></li>
-    <li><a class="dropdown-item" href="../articles/personalized_shopping.html">Agentic Personalized Shopping Assistant</a></li>
-    <li><a class="dropdown-item" href="../articles/software_bug_assistant.html">Agentic Software Bug Assistant</a></li>
-    <li><a class="dropdown-item" href="../articles/story_teller.html">Agentic Story Teller</a></li>
-    <li><a class="dropdown-item" href="../articles/gemini_cli_demo.html">Gemini CLI Driver Demo</a></li>
-    <li><a class="dropdown-item" href="../articles/hello_world_logic.html">Hello World Logic Nodes</a></li>
-    <li><a class="dropdown-item" href="../articles/parameterized_mermaid.html">Advanced Mermaid Parameters</a></li>
-    <li><a class="dropdown-item" href="../articles/round_trip_demo.html">Mermaid Round-Trip Visualization</a></li>
-    <li><a class="dropdown-item" href="../articles/distributed_communication.html">Distributed Consensus Simulation</a></li>
-    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
     <li><a class="dropdown-item" href="../articles/targets_integration.html">Reproducible Agentic Pipelines with targets</a></li>
-    <li><a class="dropdown-item" href="../articles/creating_drivers.html">Creating Custom Agent Drivers</a></li>
-    <li><a class="dropdown-item" href="../articles/git_worktree_toy.html">Isolated Execution with Git Worktrees</a></li>
+    <li><a class="dropdown-item" href="../articles/extending_hydrar.html">Creating Custom Agent Drivers</a></li>
+    <li><a class="dropdown-item" href="../articles/state_persistence.html">State Persistence &amp; Restart: Resilient Workflows</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -103,29 +86,13 @@ change.</p>
 <h3 id="example-literature-synthesis-pipeline">Example: Literature Synthesis Pipeline<a class="anchor" aria-label="anchor" href="#example-literature-synthesis-pipeline"></a>
 </h3>
 <p>Imagine a pipeline where we first fetch raw data, and then an agent
-summarizes it.</p>
+summarizes it. We define the agent’s logic in
+<code>targets_integration.yml</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/targets/" class="external-link">targets</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 1. Define your registry components</span></span>
-<span><span class="va">summarize_logic_registry</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  logic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    summarizer <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">params</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
-<span>      <span class="va">text</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"raw_text"</span><span class="op">)</span></span>
-<span>      <span class="co"># Simulate LLM call</span></span>
-<span>      <span class="va">summary</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Summary of:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="va">text</span>, <span class="fl">1</span>, <span class="fl">50</span><span class="op">)</span>, <span class="st">"..."</span><span class="op">)</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"SUCCESS"</span>, output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>summary <span class="op">=</span> <span class="va">summary</span><span class="op">)</span><span class="op">)</span></span>
-<span>    <span class="op">}</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># 2. Define a factory for the target</span></span>
-<span><span class="va">summarize_factory</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">id</span>, <span class="va">label</span>, <span class="va">params</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va"><a href="../reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="va">id</span>, label <span class="op">=</span> <span class="va">label</span>, logic_fn <span class="op">=</span> <span class="va">summarize_logic_registry</span><span class="op">$</span><span class="va">logic</span><span class="op">[[</span><span class="va">id</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="co"># 3. Define your _targets.R file</span></span>
+<span><span class="co"># _targets.R</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="fu">tar_target</span><span class="op">(</span></span>
 <span>    <span class="va">raw_document</span>,</span>
@@ -135,18 +102,20 @@ summarizes it.</p>
 <span>  <span class="fu">tar_target</span><span class="op">(</span></span>
 <span>    <span class="va">agent_results</span>,</span>
 <span>    <span class="op">{</span></span>
-<span>      <span class="co"># Build the DAG from Mermaid</span></span>
-<span>      <span class="va">mermaid_spec</span> <span class="op">&lt;-</span> <span class="st">"graph TD; summarizer[Summarize Finding]"</span></span>
-<span>      <span class="va">dag</span> <span class="op">&lt;-</span> <span class="va">AgentDAG</span><span class="op">$</span><span class="fu">from_mermaid</span><span class="op">(</span><span class="va">mermaid_spec</span>, node_factory <span class="op">=</span> <span class="va">summarize_factory</span><span class="op">)</span></span>
+<span>      <span class="co"># 1. Load the workflow definition from YAML</span></span>
+<span>      <span class="va">wf</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/load_workflow.html">load_workflow</a></span><span class="op">(</span><span class="st">"targets_integration.yml"</span><span class="op">)</span></span>
 <span>      </span>
-<span>      <span class="co"># Run the DAG with data from the previous target</span></span>
+<span>      <span class="co"># 2. Spawn the DAG</span></span>
+<span>      <span class="va">dag</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spawn_dag.html">spawn_dag</a></span><span class="op">(</span><span class="va">wf</span><span class="op">)</span></span>
+<span>      </span>
+<span>      <span class="co"># 3. Run with data from 'raw_document'</span></span>
 <span>      <span class="va">dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>initial_state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>raw_text <span class="op">=</span> <span class="va">raw_document</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="op">}</span></span>
 <span>  <span class="op">)</span>,</span>
 <span>  </span>
 <span>  <span class="fu">tar_target</span><span class="op">(</span></span>
 <span>    <span class="va">final_summary</span>,</span>
-<span>    <span class="va">agent_results</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">summarizer</span><span class="op">$</span><span class="va">output</span><span class="op">$</span><span class="va">summary</span></span>
+<span>    <span class="va">agent_results</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"summarizer"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -168,7 +137,7 @@ and time.</p>
 <p>If you modify a system prompt or a tool function that your agent
 uses, <code>targets</code> will detect the change and re-run the agent
 automatically. This ensures your scientific results are always in sync
-with your latest agent configurations.</p>
+with your latest configurations.</p>
 </div>
 <div class="section level3">
 <h3 id="resilience-and-resumption">3. Resilience and Resumption<a class="anchor" aria-label="anchor" href="#resilience-and-resumption"></a>
@@ -181,25 +150,6 @@ the agent. If a large DAG fails at step 50, you can resume from the
 </div>
 </div>
 <div class="section level2">
-<h2 id="advanced-pattern-branching-agents">Advanced Pattern: Branching Agents<a class="anchor" aria-label="anchor" href="#advanced-pattern-branching-agents"></a>
-</h2>
-<p>You can use <code>targets</code> dynamic branching to run multiple
-specialized agents in parallel across a dataset.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="fu">tar_target</span><span class="op">(</span></span>
-<span>    <span class="va">research_topics</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"LLM safety"</span>, <span class="st">"Single-cell sequencing"</span>, <span class="st">"DAG orchestration"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  </span>
-<span>  <span class="fu">tar_target</span><span class="op">(</span></span>
-<span>    <span class="va">topic_summaries</span>,</span>
-<span>    <span class="fu">run_research_dag</span><span class="op">(</span><span class="va">research_topics</span><span class="op">)</span>,</span>
-<span>    pattern <span class="op">=</span> <span class="fu">map</span><span class="op">(</span><span class="va">research_topics</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
 <h2 id="conclusion">Conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>
 </h2>
 <p>Combining <code>HydraR</code> and <code>targets</code> brings
@@ -207,7 +157,7 @@ professional software engineering rigor to agentic R workflows. It
 transforms “experimental scripts” into robust, auditable, and
 reproducible scientific pipelines.</p>
 <hr>
-<!-- APAF Bioinformatics | targets_integration.Rmd | Approved | 2026-03-29 -->
+<!-- APAF Bioinformatics | targets_integration.Rmd | Approved | 2026-04-03 -->
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -216,7 +166,7 @@ reproducible scientific pipelines.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Ignatius Pang, Aidan Tay.</p>
+  <p>Developed by Chi Nam Ignatius Pang, Aidan Tay.</p>
 </div>
 
 <div class="pkgdown-footer-right">

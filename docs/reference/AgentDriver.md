@@ -30,8 +30,11 @@ An \`AgentDriver\` R6 object.
 
 - `working_dir`:
 
-  String. Optional path to the working directory/worktree. Initialize
-  AgentDriver
+  String. Optional path to the working directory/worktree.
+
+- `repo_root`:
+
+  String. Path to the main repository root (for root-locked CLIs).
 
 ## Methods
 
@@ -43,7 +46,11 @@ An \`AgentDriver\` R6 object.
 
 - [`AgentDriver$exec_in_dir()`](#method-AgentDriver-exec_in_dir)
 
+- [`AgentDriver$filter_llm_noise()`](#method-AgentDriver-filter_llm_noise)
+
 - [`AgentDriver$call()`](#method-AgentDriver-call)
+
+- [`AgentDriver$validate_no_injection()`](#method-AgentDriver-validate_no_injection)
 
 - [`AgentDriver$validate_cli_opts()`](#method-AgentDriver-validate_cli_opts)
 
@@ -55,6 +62,8 @@ An \`AgentDriver\` R6 object.
 
 ### Method `new()`
 
+Initialize AgentDriver
+
 #### Usage
 
     AgentDriver$new(
@@ -62,7 +71,8 @@ An \`AgentDriver\` R6 object.
       provider = "unknown",
       model_name = "unknown",
       validation_mode = "warning",
-      working_dir = NULL
+      working_dir = NULL,
+      repo_root = NULL
     )
 
 #### Arguments
@@ -85,7 +95,11 @@ An \`AgentDriver\` R6 object.
 
 - `working_dir`:
 
-  String. Optional working directory. Get Driver Capabilities
+  String. Optional working directory.
+
+- `repo_root`:
+
+  String. Path to the main repository root. Get Driver Capabilities
 
 ------------------------------------------------------------------------
 
@@ -126,7 +140,28 @@ using 'withr::with_dir' to ensure the original CWD is restored.
 
 #### Returns
 
-Result of system2 call. Call the LLM
+Result of system2 call. Filter CLI Noise from LLM Output
+
+------------------------------------------------------------------------
+
+### Method `filter_llm_noise()`
+
+Removes common CLI-injected headers, keychain warnings, or MCP status
+messages that can corrupt the generated model content.
+
+#### Usage
+
+    AgentDriver$filter_llm_noise(text)
+
+#### Arguments
+
+- `text`:
+
+  String or Character Vector. Raw output from the CLI.
+
+#### Returns
+
+Character vector of cleaned lines. Call the LLM
 
 ------------------------------------------------------------------------
 
@@ -134,7 +169,13 @@ Result of system2 call. Call the LLM
 
 #### Usage
 
-    AgentDriver$call(prompt, model = NULL, cli_opts = list(), ...)
+    AgentDriver$call(
+      prompt,
+      model = NULL,
+      system_prompt = NULL,
+      cli_opts = list(),
+      ...
+    )
 
 #### Arguments
 
@@ -146,6 +187,10 @@ Result of system2 call. Call the LLM
 
   String. Optional model override.
 
+- `system_prompt`:
+
+  String. Optional system prompt.
+
 - `cli_opts`:
 
   List. Named list of CLI options.
@@ -156,7 +201,28 @@ Result of system2 call. Call the LLM
 
 #### Returns
 
-String. Cleaned response from the LLM. Validate CLI Options
+String. Cleaned response from the LLM. Validate No Command Injection
+
+------------------------------------------------------------------------
+
+### Method `validate_no_injection()`
+
+Portably prevents command injection by rejecting inputs with shell
+metacharacters.
+
+#### Usage
+
+    AgentDriver$validate_no_injection(x)
+
+#### Arguments
+
+- `x`:
+
+  String or character vector.
+
+#### Returns
+
+The original string invisibly, or throws an error. Validate CLI Options
 
 ------------------------------------------------------------------------
 

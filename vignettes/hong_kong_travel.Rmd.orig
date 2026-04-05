@@ -1,0 +1,135 @@
+---
+title: "Agentic Travel Planning: Sydney to Hong Kong"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Agentic Travel Planning: Sydney to Hong Kong}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r}
+# Toggle for slow/expensive and potentially rate-limited AI figure generation
+# Set to TRUE to force-regenerate the images, otherwise uses existing ones.
+FORCE_REGENERATE_IMAGES <- FALSE
+ASPECT_RATIO <- "16:9"
+
+
+## If you want to regenerate the images, you'll need to turn FORCE_REGENERATE_IMAGES to TRUE
+## and also set the GEMINI_API_KEY environment variable in .Renviron file.
+```
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+# Conditional evaluation for Windows CI stability
+eval_expensive <- tolower(Sys.info()[["sysname"]]) != "windows"
+```
+
+## Introduction
+
+This vignette demonstrates the **Zero-R-Code** orchestration pattern using `HydraR`. Instead of defining roles, logic, and state in R blocks, we define the entire workflow in a single `workflow.yml` file.
+
+The R environment acts purely as an **interpreter/compiler** for the language-independent manifest.
+
+## Setup
+
+First, load the HydraR library.
+
+```{r lib_load}
+library(HydraR)
+```
+
+## Loading the Workflow (Declarative YAML)
+
+We use `load_workflow()` to ingest the entire definition from `hong_kong_travel.yml`. This file contains the:
+1. **Mermaid Graph** (Source of truth for DAG architecture)
+2. **LLM Roles** (System prompts for travel concierges)
+3. **Anonymous Logic** (R snippets for constraints and prompting)
+4. **Initial State** (Pre-configurations for the journey)
+
+```{r load_wf}
+# Load everything from the external declarative source
+wf <- load_workflow("hong_kong_travel.yml")
+```
+
+## Instantiating the DAG
+
+With the registries populated by the loader, we simply pass the graph and the universal `auto_node_factory()` to `mermaid_to_dag()`.
+
+```{r dag_creation}
+dag <- spawn_dag(wf, auto_node_factory())
+```
+
+## Visualizing the Workflow
+
+We can view the agent's logic directly using Mermaid.js syntax.
+
+```{r, results = 'asis'}
+cat("```mermaid\n")
+cat(dag$plot(type = "mermaid", details = TRUE))
+cat("\n```\n")
+```
+
+## Execution
+
+When we run the DAG, we use the `initial_state` extracted from the YAML file. No manual R list creation is required.
+
+```{r execution, eval = eval_expensive}
+# Register a checkpointer for durability
+checkpointer <- DuckDBSaver$new(db_path = "travel_booking.duckdb")
+
+# Run the orchestration using the state from YAML
+results <- dag$run(
+  initial_state = append(wf$initial_state, list(
+    force_regenerate_images = FORCE_REGENERATE_IMAGES,
+    aspect_ratio = ASPECT_RATIO
+  )),
+  max_steps = 15,
+  checkpointer = checkpointer
+)
+
+# Display final itinerary
+cat("\n\n### Generated Itinerary\n")
+cat(as.character(results$state$get("Planner")))
+
+# Display Constraint Audit Report
+cat("\n\n### Constraint Audit Report\n")
+report <- results$state$get("report")
+if (!is.null(report)) {
+  cat(as.character(report))
+} else {
+  cat("No audit report available.")
+}
+
+# Display Pamphlet (HTML)
+cat("\n\n### Formatted Pamphlet (HTML Fragment)\n")
+pamphlet_html <- results$state$get("PamphletFormatter")
+if (!is.null(pamphlet_html)) {
+  htmltools::HTML(pamphlet_html)
+} else {
+  cat("Pamphlet not generated.")
+}
+
+# List Artifacts
+cat("\n\n### Generated Artifacts\n")
+artifacts <- list.files(pattern = "hong_kong|validation_report")
+if (length(artifacts) > 0) {
+  cat(paste("- ", artifacts, collapse = "\n"))
+} else {
+  cat("No artifacts found.")
+}
+```
+
+## Conclusion
+
+This workflow demonstrates how `HydraR` enables **Truly Zero-R-Code** definitions:
+1. **Language-Independent**: The workflow is defined in YAML and Mermaid, making it portable.
+2. **Reduced Boilerplate**: `load_workflow()` handles all registration and state parsing.
+3. **Maintainable**: Logic and roles are separated from the R execution engine.
+
+---
+<!-- APAF Bioinformatics | hong_kong_travel.Rmd | Approved | 2026-03-30 -->

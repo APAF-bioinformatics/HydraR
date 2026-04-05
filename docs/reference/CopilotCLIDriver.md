@@ -7,12 +7,6 @@ Driver for the 'gh copilot' CLI tool.
 [`HydraR::AgentDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.md)
 -\> `CopilotCLIDriver`
 
-## Public fields
-
-- `type`:
-
-  String. Use 'shell' or 'git'. Initialize CopilotCLIDriver
-
 ## Methods
 
 ### Public methods
@@ -26,19 +20,22 @@ Driver for the 'gh copilot' CLI tool.
 Inherited methods
 
 - [`HydraR::AgentDriver$exec_in_dir()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-exec_in_dir)
+- [`HydraR::AgentDriver$filter_llm_noise()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-filter_llm_noise)
 - [`HydraR::AgentDriver$format_cli_opts()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-format_cli_opts)
 - [`HydraR::AgentDriver$get_capabilities()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-get_capabilities)
 - [`HydraR::AgentDriver$validate_cli_opts()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-validate_cli_opts)
+- [`HydraR::AgentDriver$validate_no_injection()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-validate_no_injection)
 
 ------------------------------------------------------------------------
 
 ### Method `new()`
 
+Initialize CopilotCLIDriver
+
 #### Usage
 
     CopilotCLIDriver$new(
       id = "copilot_cli",
-      type = "shell",
       validation_mode = "warning",
       working_dir = NULL
     )
@@ -48,10 +45,6 @@ Inherited methods
 - `id`:
 
   Unique identifier.
-
-- `type`:
-
-  String. Default type ('shell').
 
 - `validation_mode`:
 
@@ -67,7 +60,7 @@ Inherited methods
 
 #### Usage
 
-    CopilotCLIDriver$call(prompt, type = NULL, cli_opts = list(), ...)
+    CopilotCLIDriver$call(prompt, system_prompt = NULL, cli_opts = list(), ...)
 
 #### Arguments
 
@@ -75,9 +68,9 @@ Inherited methods
 
   String.
 
-- `type`:
+- `system_prompt`:
 
-  String override.
+  String. Optional system prompt.
 
 - `cli_opts`:
 

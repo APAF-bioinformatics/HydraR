@@ -16,8 +16,7 @@ Used for prompt-based tool discovery.
 
 \item{\code{parameters}}{List. A description of the expected parameters.}
 
-\item{\code{example}}{String. An example of how to use the tool.
-Initialize AgentTool}
+\item{\code{example}}{String. An example of how to use the tool.}
 }
 \if{html}{\out{</div>}}
 }
@@ -33,6 +32,7 @@ Initialize AgentTool}
 \if{html}{\out{<a id="method-AgentTool-new"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentTool-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize AgentTool
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentTool$new(name, description, parameters = list(), example = "")}\if{html}{\out{</div>}}
 }

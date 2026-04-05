@@ -26,7 +26,7 @@ AgentNode <- R6::R6Class("AgentNode",
     #' @field params List. Arbitrary metadata/config parameters.
     params = list(),
 
-    #' Initialize AgentNode
+    #' @description Initialize AgentNode
     #' @param id Unique identifier.
     #' @param label Optional human-readable name.
     #' @param params Optional named list of parameters.

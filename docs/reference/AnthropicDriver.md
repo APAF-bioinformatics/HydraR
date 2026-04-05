@@ -4,30 +4,30 @@ Driver for Anthropic Messages API.
 
 ## Value
 
-An \`AnthropicAPIDriver\` R6 object.
+An \`AnthropicDriver\` R6 object.
 
 ## Super class
 
 [`HydraR::AgentDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.md)
--\> `AnthropicAPIDriver`
+-\> `AnthropicDriver`
 
 ## Public fields
 
 - `api_url`:
 
-  String. Base URL. Initialize AnthropicAPIDriver
+  String. Base URL. Initialize AnthropicDriver
 
 ## Methods
 
 ### Public methods
 
-- [`AnthropicAPIDriver$new()`](#method-AnthropicAPIDriver-new)
+- [`AnthropicDriver$new()`](#method-AnthropicDriver-new)
 
-- [`AnthropicAPIDriver$get_capabilities()`](#method-AnthropicAPIDriver-get_capabilities)
+- [`AnthropicDriver$get_capabilities()`](#method-AnthropicDriver-get_capabilities)
 
-- [`AnthropicAPIDriver$call()`](#method-AnthropicAPIDriver-call)
+- [`AnthropicDriver$call()`](#method-AnthropicDriver-call)
 
-- [`AnthropicAPIDriver$clone()`](#method-AnthropicAPIDriver-clone)
+- [`AnthropicDriver$clone()`](#method-AnthropicDriver-clone)
 
 Inherited methods
 
@@ -41,7 +41,7 @@ Inherited methods
 
 #### Usage
 
-    AnthropicAPIDriver$new(
+    AnthropicDriver$new(
       id = "anthropic_api",
       model = "claude-3-5-sonnet-20241022",
       validation_mode = "warning",
@@ -68,7 +68,7 @@ Inherited methods
 
 #### Returns
 
-A new \`AnthropicAPIDriver\` object. Get Capabilities
+A new \`AnthropicDriver\` object. Get Capabilities
 
 ------------------------------------------------------------------------
 
@@ -76,7 +76,7 @@ A new \`AnthropicAPIDriver\` object. Get Capabilities
 
 #### Usage
 
-    AnthropicAPIDriver$get_capabilities()
+    AnthropicDriver$get_capabilities()
 
 #### Returns
 
@@ -88,7 +88,7 @@ A list of capabilities. Call Anthropic API
 
 #### Usage
 
-    AnthropicAPIDriver$call(prompt, model = NULL, cli_opts = list(), ...)
+    AnthropicDriver$call(prompt, model = NULL, cli_opts = list(), ...)
 
 #### Arguments
 
@@ -120,7 +120,7 @@ The objects of this class are cloneable with this method.
 
 #### Usage
 
-    AnthropicAPIDriver$clone(deep = FALSE)
+    AnthropicDriver$clone(deep = FALSE)
 
 #### Arguments
 

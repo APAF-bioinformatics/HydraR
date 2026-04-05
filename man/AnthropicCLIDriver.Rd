@@ -12,8 +12,7 @@ Driver for the Anthropic `claude` (Claude Code) CLI.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{model}}{String. Default model.
-Initialize AnthropicCLIDriver}
+\item{\code{model}}{String. Default model.}
 }
 \if{html}{\out{</div>}}
 }
@@ -41,6 +40,7 @@ Initialize AnthropicCLIDriver}
 \if{html}{\out{<a id="method-AnthropicCLIDriver-new"></a>}}
 \if{latex}{\out{\hypertarget{method-AnthropicCLIDriver-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize AnthropicCLIDriver
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AnthropicCLIDriver$new(
   id = "claude_cli",

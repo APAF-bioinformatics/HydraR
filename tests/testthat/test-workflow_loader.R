@@ -14,7 +14,7 @@ test_that("load_workflow() loads valid YAML and registers components", {
 
   # Register a predefined function for logic instead of raw code string
   register_logic("test_simple_logic", function(state) {
-    list(status = 'success', output = 'hello')
+    list(status = "success", output = "hello")
   })
 
   # Use double quotes and escape backslashes for the path
