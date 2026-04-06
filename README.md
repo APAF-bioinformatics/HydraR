@@ -93,6 +93,8 @@ For deep technical dives into the orchestration engine and developer tools, refe
 - **[Mermaid Orchestration Cheatsheet](https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/mermaid_orchestration_cheatsheet.md)**: Reserved keywords and visual syntax for agent networks.
 - **[Useful Tools Manual](https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/useful_tools_manual.md)**: Diagnostic scripts for DuckDB state inspection and monitoring.
 - **[Integrating HydraR with `targets`](https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/how_to_integrate_with_target.md)**: Best practices for cached, interrupt-safe agentic pipelines.
+- **[Fan-In Implementation & Execution Strategy](https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/fan_in_implementation.md)**: Deep dive into how HydraR handles multi-parent dependencies and synchronization.
+
 
 ## 🤖 Use of Generative AI
 
