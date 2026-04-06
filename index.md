@@ -150,6 +150,10 @@ tools, refer to the following manuals:
 - **[Integrating HydraR with
   `targets`](https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/how_to_integrate_with_target.md)**:
   Best practices for cached, interrupt-safe agentic pipelines.
+- **[Fan-In Implementation & Execution
+  Strategy](https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/fan_in_implementation.md)**:
+  Deep dive into how HydraR handles multi-parent dependencies and
+  synchronization.
 
 ## 🤖 Use of Generative AI
 
