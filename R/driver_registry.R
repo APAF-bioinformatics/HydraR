@@ -119,13 +119,13 @@ get_default_driver <- function() {
   if (exists("default_driver", envir = .HydraR_Internal)) {
     return(get("default_driver", envir = .HydraR_Internal))
   }
-  
+
   # Fallback: return the first registered driver
   registry <- get_driver_registry()
   if (length(registry$drivers) > 0) {
     return(registry$drivers[[1]])
   }
-  
+
   NULL
 }
 
