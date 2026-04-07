@@ -57,6 +57,25 @@ to
 ``` r
 
 dag <- spawn_dag(wf, auto_node_factory())
+#> [HydraR Warning] Logic 'plan_prompt': 'state' object is not referenced. Ensure your logic interacts with the AgentState.
+#> [HydraR Warning] Logic 'plan_prompt' [Lint]: Put spaces around all infix operators. (line 1)
+#> [HydraR Warning] Logic 'image_prompt': 'state' object is not referenced. Ensure your logic interacts with the AgentState.
+#> [HydraR Warning] Logic 'image_prompt' [Lint]: Put spaces around all infix operators. (line 1)
+#> [HydraR Warning] Logic 'validate_constraints': 'state' object is not referenced. Ensure your logic interacts with the AgentState.
+#> [HydraR Warning] Logic 'validate_constraints' [Lint]: Put spaces around all infix operators. (line 1)
+#> [HydraR Warning] Logic 'check_image_status': 'state' object is not referenced. Ensure your logic interacts with the AgentState.
+#> [HydraR Warning] Logic 'check_image_status' [Lint]: Put spaces around all infix operators. (line 1)
+#> [HydraR Warning] Logic 'generate_and_save_images': 'state' object is not referenced. Ensure your logic interacts with the AgentState.
+#> [HydraR Warning] Logic 'generate_and_save_images' [Lint]: Put spaces around all infix operators. (line 1)
+#> [HydraR Warning] Logic 'provide_template': 'state' object is not referenced. Ensure your logic interacts with the AgentState.
+#> [HydraR Warning] Logic 'provide_template' [Lint]: Put spaces around all infix operators. (line 1)
+#> [HydraR Warning] Logic 'format_pamphlet': 'state' object is not referenced. Ensure your logic interacts with the AgentState.
+#> [HydraR Warning] Logic 'format_pamphlet' [Lint]: Put spaces around all infix operators. (line 1)
+#> [HydraR Warning] Logic 'save_itinerary': 'state' object is not referenced. Ensure your logic interacts with the AgentState.
+#> [HydraR Warning] Logic 'save_itinerary' [Lint]: Put spaces around all infix operators. (line 1)
+#> Warning in dag$compile(): Potential infinite loop detected: graph contains
+#> cycles. Ensure conditional edges have exit conditions.
+#> Graph compiled successfully.
 ```
 
 ## Visualizing the Workflow
@@ -66,137 +85,225 @@ We can view the agent’s logic directly using Mermaid.js syntax.
 ``` r
 
 cat("```mermaid\n")
-cat(dag$plot(type = "mermaid", details = TRUE))
-cat("\n```\n")
 ```
 
-## Execution
+``` mermaid
 
-When we run the DAG, we use the `initial_state` extracted from the YAML
-file. No manual R list creation is required.
+``` r
+cat(dag$plot(type = "mermaid", details = TRUE))
+```
+
+``` mermaid
+graph TD
+  Planner["Travel Planner | type=llm | role_id=travel_concierge | driver=gemini_api | model=gemini-3.1-flash-lite-preview | prompt_id=plan_prompt"]
+  Validator["Constraint Auditor | type=logic | logic_id=validate_constraints | retries=3"]
+  ImageGate["Image Gate | type=logic | logic_id=check_image_status"]
+  ImageGenerator["Image Generator | type=logic | logic_id=generate_and_save_images"]
+  TemplateManager["Template Provider | type=logic | logic_id=provide_template"]
+  PamphletFormatter["Pamphlet Formatter | type=logic | logic_id=format_pamphlet"]
+  Finalizer["Itinerary Saver | type=logic | logic_id=save_itinerary"]
+  Planner --> Validator
+  Validator --> Planner
+  Validator --> ImageGate
+  ImageGate --> ImageGenerator
+  ImageGate --> TemplateManager
+  ImageGenerator --> TemplateManager
+  TemplateManager --> PamphletFormatter
+  PamphletFormatter --> Finalizer
+  ImageGate -- Test --> ImageGenerator
+  ImageGate -- Fail --> TemplateManager
+  Validator -- Test --> ImageGate
+  Validator -- Fail --> Planner
+```
+
+``` mermaid
+graph TD
+  Planner["Travel Planner | type=llm | role_id=travel_concierge | driver=gemini_api | model=gemini-3.1-flash-lite-preview | prompt_id=plan_prompt"]
+  Validator["Constraint Auditor | type=logic | logic_id=validate_constraints | retries=3"]
+  ImageGate["Image Gate | type=logic | logic_id=check_image_status"]
+  ImageGenerator["Image Generator | type=logic | logic_id=generate_and_save_images"]
+  TemplateManager["Template Provider | type=logic | logic_id=provide_template"]
+  PamphletFormatter["Pamphlet Formatter | type=logic | logic_id=format_pamphlet"]
+  Finalizer["Itinerary Saver | type=logic | logic_id=save_itinerary"]
+  Planner --> Validator
+  Validator --> Planner
+  Validator --> ImageGate
+  ImageGate --> ImageGenerator
+  ImageGate --> TemplateManager
+  ImageGenerator --> TemplateManager
+  TemplateManager --> PamphletFormatter
+  PamphletFormatter --> Finalizer
+  ImageGate -- Test --> ImageGenerator
+  ImageGate -- Fail --> TemplateManager
+  Validator -- Test --> ImageGate
+  Validator -- Fail --> Planner
+```
 
 ``` r
 
-# Register a checkpointer for durability
-checkpointer <- DuckDBSaver$new(db_path = "travel_booking.duckdb")
-
-# Run the orchestration using the state from YAML
-results <- dag$run(
-  initial_state = append(wf$initial_state, list(
-    force_regenerate_images = FORCE_REGENERATE_IMAGES,
-    aspect_ratio = ASPECT_RATIO
-  )),
-  max_steps = 15,
-  checkpointer = checkpointer
-)
-
-# Display final itinerary
-cat("\n\n### Generated Itinerary\n")
-#>
-#>
-#> ### Generated Itinerary
-cat(as.character(results$state$get("Planner")))
-#> ## Sydney to Hong Kong: A 7-Day Cultural & Culinary Escape
-#> **Travel Dates:** May 26, 2026 – June 1, 2026
-#> **Airline:** Qantas (Direct flight SYD-HKG)
-#>
-#> This itinerary balances Hong Kong’s high-energy urban landscape with the tranquil, traditional charm of the outlying islands.
-#>
-#> ---
-#>
-#> ### **Day 1: Arrival & The Harbor Glow (May 26)**
-#> *   **Arrival:** Land at HKG via Qantas. Take the Airport Express to Central.
-#> *   **Check-in:** Stay in **Central or Sheung Wan** for the best access to transportation.
-#> *   **Evening:** Walk the **Tsim Sha Tsui Promenade**. Take the Star Ferry across the harbor at sunset to see the city lights spark to life.
-#> *   **Dinner:** **The Spaghetti House (TST Branch)** – A local Hong Kong institution. Enjoy their signature fusion pasta dishes that have been a city staple for decades.
-#>
-#> ### **Day 2: The Peak & Colonial History (May 27)**
-#> *   **Morning:** Take the **Peak Tram** to Victoria Peak for the iconic skyline panorama. Walk the Lugard Road circular path.
-#> *   **Lunch:** Dim Sum at **Luk Yu Tea House** (Central) – one of the oldest and most traditional tea houses in Hong Kong.
-#> *   **Afternoon:** Explore the **Man Mo Temple** and wander the antique shops of **Cat Street**.
-#> *   **Dinner:** Enjoy authentic Cantonese Roast Goose at **Yat Lok** (Michelin-starred, no-frills).
-#>
-#> ### **Day 3: The Slow Life – Cheung Chau Island (May 28)**
-#> *   **Morning:** Take a ferry from **Central Pier 5** to Cheung Chau (approx. 45-60 mins).
-#> *   **Activities:** Rent a bicycle and ride around the island’s northern and southern loops. Visit the **Pak Tai Temple** and hike to the **Mini Great Wall** for coastal views.
-#> *   **Lunch:** Seafood street food. You must try the **Giant Fishball** and the **Mango Mochi**—both local island specialties.
-#> *   **Dinner:** Dine at one of the open-air seafood restaurants along the **Cheung Chau Praya**. Pick a live fish from the tanks and have it steamed with ginger and scallion.
-#>
-#> ### **Day 4: Markets & Street Food Exploration (May 29)**
-#> *   **Morning:** Head to **Mong Kok**. Wander the **Goldfish Market** and the **Flower Market**.
-#> *   **Lunch:** **Tim Ho Wan** (The original dim sum specialist). Expect a queue, but it’s well worth the wait for the baked BBQ pork buns.
-#> *   **Afternoon:** Explore the **Ladies' Market** and the **Temple Street Night Market** (as it sets up).
-#> *   **Dinner:** Street food crawl in **Jordan/Mong Kok**. Try *Curry Fish Balls, Stinky Tofu (if you're brave!), and Pineapple Bun with butter* from a local *cha chaan teng*.
-#>
-#> ### **Day 5: Lantau Island & The Giant Buddha (May 30)**
-#> *   **Morning:** Take the MTR to Tung Chung and ride the **Ngong Ping 360 Cable Car**.
-#> *   **Activities:** Visit the **Tian Tan Buddha** and **Po Lin Monastery**. Take a bus down to **Tai O Fishing Village** to see the traditional stilt houses.
-#> *   **Dinner:** Back in the city, visit a high-end noodle shop like **Mak’s Noodle** for their legendary shrimp wonton soup.
-#>
-#> ### **Day 6: Art & Modern Luxury (May 31)**
-#> *   **Morning:** Visit **M+ Museum** or the **Hong Kong Palace Museum** in the West Kowloon Cultural District.
-#> *   **Lunch:** **The Spaghetti House** (Optional: Revisit for a casual lunch if you enjoyed their unique Hong Kong-style fusion menu).
-#> *   **Afternoon:** Last-minute shopping in **Causeway Bay** or a quiet stroll through **Hong Kong Park**.
-#> *   **Evening:** Farewell Dinner at a rooftop bar in Central, such as **Sevva** or **Popinjays**, to toast to the harbor one last time.
-#>
-#> ### **Day 7: Departure (June 1)**
-#> *   **Morning:** Grab a traditional breakfast of milk tea and toast at a local *cha chaan teng* near your hotel.
-#> *   **Afternoon:** Take the Airport Express to HKG for your return Qantas flight to Sydney.
-#>
-#> ---
-#>
-#> ### **Concierge Notes:**
-#> *   **Transport:** Purchase an **Octopus Card** immediately upon arrival. It works for all MTR, ferries, trams, and buses.
-#> *   **Reservations:** For high-end dining, book 2-3 weeks in advance. For *The Spaghetti House* or local noodle shops, walk-ins are standard.
-#> *   **Weather:** June marks the beginning of the humid summer season. Pack light, breathable fabrics and always carry an umbrella for sudden tropical showers.
-#> *   **Connectivity:** Download the **"MTR Mobile"** and **"OpenRice"** (the local version of Yelp/TripAdvisor) to navigate and find the best food spots in real-time.
-
-# Display Constraint Audit Report
-cat("\n\n### Constraint Audit Report\n")
-#>
-#>
-#> ### Constraint Audit Report
-report <- results$state$get("report")
-if (!is.null(report)) {
-  cat(as.character(report))
-} else {
-  cat("No audit report available.")
-}
-#> ### Constraint Audit Report
-#> Date: 2026-04-05 00:48:07.357547
-#> - [x] Cheung Chau Island
-#> - [x] Spaghetti House
-#> - [x] Local Cuisine
-
-# Display Pamphlet (HTML)
-cat("\n\n### Formatted Pamphlet (HTML Fragment)\n")
-#>
-#>
-#> ### Formatted Pamphlet (HTML Fragment)
-pamphlet_html <- results$state$get("PamphletFormatter")
-if (!is.null(pamphlet_html)) {
-  htmltools::HTML(pamphlet_html)
-} else {
-  cat("Pamphlet not generated.")
-}
-#> Pamphlet not generated.
-
-# List Artifacts
-cat("\n\n### Generated Artifacts\n")
-#>
-#>
-#> ### Generated Artifacts
-artifacts <- list.files(pattern = "hong_kong|validation_report")
-if (length(artifacts) > 0) {
-  cat(paste("- ", artifacts, collapse = "\n"))
-} else {
-  cat("No artifacts found.")
-}
-#> -  hong_kong_pamphlet.html
-#> -  hong_kong_travel.Rmd
-#> -  hong_kong_travel.Rmd.orig
-#> -  hong_kong_travel.yml
+cat("\n```\n")
 ```
+
+
+    ## Execution
+
+    When we run the DAG, we use the `initial_state` extracted from the YAML file. No manual R list creation is required.
+
+
+    ``` r
+    # Register a checkpointer for durability
+    checkpointer <- DuckDBSaver$new(db_path = "travel_booking.duckdb")
+
+    # Run the orchestration using the state from YAML
+    results <- dag$run(
+      initial_state = append(wf$initial_state, list(
+        force_regenerate_images = FORCE_REGENERATE_IMAGES,
+        aspect_ratio = ASPECT_RATIO
+      )),
+      max_steps = 15,
+      checkpointer = checkpointer
+    )
+    #> Warning in self$compile(): Potential infinite loop detected: graph contains
+    #> cycles. Ensure conditional edges have exit conditions.
+    #> Graph compiled successfully.
+    #> [2026-04-05 10:14:19] [DEBUG] Queue: Planner | Running: Planner
+    #> DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
+    #> [2026-04-05 10:14:27] [DEBUG] Queue: Validator | Running: Validator
+    #>    [Validator] Executing R logic...
+    #> [2026-04-05 10:14:27] [DEBUG] Queue: Planner | Running: Planner
+    #> DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
+    #> [2026-04-05 10:14:35] [DEBUG] Queue: Validator | Running: Validator
+    #>    [Validator] Executing R logic...
+    #> [2026-04-05 10:14:35] [DEBUG] Queue: Planner | Running: Planner
+    #> DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
+    #> [2026-04-05 10:14:43] [DEBUG] Queue: Validator | Running: Validator
+    #>    [Validator] Executing R logic...
+    #> [2026-04-05 10:14:43] [DEBUG] Queue: Planner | Running: Planner
+    #> DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
+    #> [2026-04-05 10:14:51] [DEBUG] Queue: Validator | Running: Validator
+    #>    [Validator] Executing R logic...
+    #> [2026-04-05 10:14:51] [DEBUG] Queue: Planner | Running: Planner
+    #> DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
+    #> [2026-04-05 10:14:59] [DEBUG] Queue: Validator | Running: Validator
+    #>    [Validator] Executing R logic...
+    #> [2026-04-05 10:14:59] [DEBUG] Queue: Planner | Running: Planner
+    #> DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
+    #> [2026-04-05 10:15:08] [DEBUG] Queue: Validator | Running: Validator
+    #>    [Validator] Executing R logic...
+    #> [2026-04-05 10:15:08] [DEBUG] Queue: Planner | Running: Planner
+    #> DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
+    #> [2026-04-05 10:15:16] [DEBUG] Queue: Validator | Running: Validator
+    #>    [Validator] Executing R logic...
+    #> [2026-04-05 10:15:16] [DEBUG] Queue: Planner | Running: Planner
+    #> DEBUG: [gemini_api] Calling URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent
+    #> Warning in self$.run_iterative(max_steps, checkpointer, thread_id, resume_from,
+    #> : Reached max_steps.
+
+    # Display final itinerary
+    cat("\n\n### Generated Itinerary\n")
+    #> 
+    #> 
+    #> ### Generated Itinerary
+    cat(as.character(results$state$get("Planner")))
+    #> Hello! As your travel concierge, I am delighted to curate your 2026 itinerary for your upcoming trip to Hong Kong. Traveling via Qantas from Sydney, you will arrive refreshed and ready to experience the blend of colonial history, vibrant street culture, and island charm.
+    #> 
+    #> ### **Flight Logistics (Proposed)**
+    #> *   **Departure:** May 26, 2026 – Qantas SYD to HKG (Overnight flight)
+    #> *   **Arrival:** May 27, 2026 – Morning arrival at Hong Kong International Airport (HKG)
+    #> 
+    #> ---
+    #> 
+    #> ### **Day 1: May 27 – Arrival & The Harbour Views**
+    #> *   **Morning:** Arrive in HKG. Take the Airport Express to Hong Kong Station. Check into your hotel (Central or Admiralty area recommended).
+    #> *   **Afternoon:** Acclimatize with a stroll through **Hong Kong Park** to see the aviary. Head to the **Peak Tram** for iconic views of the skyline.
+    #> *   **Evening:** Enjoy dinner at **The Spaghetti House** (Peak Galleria branch). It’s a local classic that offers comfort food with one of the most stunning views in the world.
+    #> *   **Night:** Walk the **Tsim Sha Tsui Promenade** to watch the "A Symphony of Lights" show at 8:00 PM.
+    #> 
+    #> ### **Day 2: May 28 – The Island Charm of Cheung Chau**
+    #> *   **Morning:** Take the MTR to Central Pier #5. Catch the **ferry to Cheung Chau Island** (approx. 35–55 mins).
+    #> *   **Daytime:** Explore the narrow lanes of this car-free island. Visit the **Pak Tai Temple** and the **Mini Great Wall** hiking trail for coastal scenery.
+    #> *   **Lunch:** Dine at a local seafood restaurant along **Praya Street**. Order steamed scallops with vermicelli and garlic—a staple of Cheung Chau.
+    #> *   **Afternoon:** Grab a famous **"Mango Mochi"** from a street vendor and relax at **Tung Wan Beach**.
+    #> *   **Evening:** Return to Central. For dinner, try authentic **Cantonese Dim Sum** at *Maxim’s Palace* (City Hall) for an elegant, traditional trolley service experience.
+    #> 
+    #> ### **Day 3: May 29 – Heritage & Market Culture**
+    #> *   **Morning:** Head to **Sheung Wan**. Visit the **Man Mo Temple** and wander through the antique shops on Hollywood Road.
+    #> *   **Lunch:** Visit a *Cha Chaan Teng* (Hong Kong-style tea house). Try **Lan Fong Yuen** for their famous "pantyhose" milk tea and pork chop buns.
+    #> *   **Afternoon:** Take the bus or taxi to **Sham Shui Po**. This is the heart of local, gritty, authentic Hong Kong. Explore the **Apliu Street Electronics Market** and the fabric markets.
+    #> *   **Dinner:** Eat like a local in Sham Shui Po. Visit **Tim Ho Wan** (the original hole-in-the-wall location) for world-class, affordable Michelin-starred dim sum.
+    #> 
+    #> ### **Day 4: May 30 – Lantau Island & Giant Buddha**
+    #> *   **Morning:** Take the MTR to Tung Chung and ride the **Ngong Ping 360 Cable Car** (crystal cabin recommended) for incredible views.
+    #> *   **Daytime:** Visit the **Tian Tan Buddha (Big Buddha)** and the **Po Lin Monastery**.
+    #> *   **Lunch:** Enjoy a vegetarian meal inside the Po Lin Monastery.
+    #> *   **Afternoon:** Take a bus to **Tai O Fishing Village**. See the traditional stilt houses and take a small boat ride to potentially spot pink dolphins.
+    #> *   **Evening:** Return to the city. Have dinner at **Mak’s Noodle** in Central for their signature Wonton Noodle Soup.
+    #> 
+    #> ### **Day 5: May 31 – Kowloon Exploration & Last Bites**
+    #> *   **Morning:** Visit the **West Kowloon Cultural District**. Walk through the **M+ Museum** or the **Hong Kong Palace Museum**.
+    #> *   **Lunch:** Visit a local **Roast Goose** restaurant (such as *Kam's Roast Goose* in Wan Chai). It is a local culinary icon.
+    #> *   **Afternoon:** Shop for souvenirs at the **Temple Street Night Market** (opens late afternoon). 
+    #> *   **Evening:** Final celebration dinner at **The Spaghetti House** (Causeway Bay branch) to enjoy their extensive menu once more, or explore a high-end Cantonese restaurant like *Lung King Heen* for a splurge.
+    #> 
+    #> ### **Day 6: June 1 – Departure**
+    #> *   **Morning:** Enjoy a slow morning with a traditional Hong Kong breakfast—Pineapple bun with a thick slice of butter and hot milk tea.
+    #> *   **Afternoon:** Take the Airport Express back to HKG for your return Qantas flight to Sydney.
+    #> 
+    #> ---
+    #> 
+    #> ### **Concierge Tips for Your Trip:**
+    #> 1.  **Octopus Card:** This is essential. Buy one at the airport; it covers all MTR, ferries (including Cheung Chau), buses, and even convenience stores.
+    #> 2.  **Footwear:** You will be doing a lot of walking, especially on Cheung Chau and in the markets. Bring your most comfortable sneakers.
+    #> 3.  **Dining:** Most local restaurants operate on a "share table" basis during busy hours—don't be surprised if you are seated next to locals!
+    #> 4.  **Weather:** May/June is the start of the humidity and monsoon season. Carry a lightweight travel umbrella or a high-quality raincoat.
+    #> 
+    #> **Safe travels! Please let me know if you would like me to adjust any of these reservations or activities.**
+
+    # Display Constraint Audit Report
+    cat("\n\n### Constraint Audit Report\n")
+    #> 
+    #> 
+    #> ### Constraint Audit Report
+    report <- results$state$get("report")
+    if (!is.null(report)) {
+      cat(as.character(report))
+    } else {
+      cat("No audit report available.")
+    }
+    #> ### Constraint Audit Report
+    #> Date: 2026-04-05 10:15:16.033293
+    #> - [x] Cheung Chau Island
+    #> - [x] Spaghetti House
+    #> - [x] Local Cuisine
+
+    # Display Pamphlet (HTML)
+    cat("\n\n### Formatted Pamphlet (HTML Fragment)\n")
+    #> 
+    #> 
+    #> ### Formatted Pamphlet (HTML Fragment)
+    pamphlet_html <- results$state$get("PamphletFormatter")
+    if (!is.null(pamphlet_html)) {
+      htmltools::HTML(pamphlet_html)
+    } else {
+      cat("Pamphlet not generated.")
+    }
+    #> Pamphlet not generated.
+
+    # List Artifacts
+    cat("\n\n### Generated Artifacts\n")
+    #> 
+    #> 
+    #> ### Generated Artifacts
+    artifacts <- list.files(pattern = "hong_kong|validation_report")
+    if (length(artifacts) > 0) {
+      cat(paste("- ", artifacts, collapse = "\n"))
+    } else {
+      cat("No artifacts found.")
+    }
+    #> -  hong_kong_pamphlet.html
+    #> -  hong_kong_travel.Rmd
+    #> -  hong_kong_travel.Rmd.orig
+    #> -  hong_kong_travel.yml
 
 ## Conclusion
 
@@ -206,3 +313,5 @@ YAML and Mermaid, making it portable. 2. **Reduced Boilerplate**:
 [`load_workflow()`](https://github.com/APAF-bioinformatics/HydraR/reference/load_workflow.md)
 handles all registration and state parsing. 3. **Maintainable**: Logic
 and roles are separated from the R execution engine.
+
+------------------------------------------------------------------------

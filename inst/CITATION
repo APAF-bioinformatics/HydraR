@@ -8,7 +8,7 @@ bibentry(
     person("Aidan", "Tay", role = "aut", comment = c(ORCID = "0000-0003-1315-4896"))
   ),
   year = "2026",
-  note = "R package version 0.2.0",
+  note = "R package version 0.2.0-alpha",
   url = "https://github.com/APAF-bioinformatics/HydraR"
 )
 

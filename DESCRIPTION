@@ -1,7 +1,7 @@
 Package: HydraR
 Type: Package
 Title: Stateful Agentic Orchestration for Scientific Reproducibility
-Version: 0.2.0
+Version: 0.2.0-alpha
 Authors@R: 
     c(person(given = c("Chi", "Nam", "Ignatius"),
              family = "Pang",

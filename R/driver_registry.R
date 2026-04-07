@@ -100,4 +100,41 @@ get_driver_registry <- function() {
   get("driver_registry", envir = .HydraR_Internal)
 }
 
+#' Set the Default Agent Driver
+#' @param driver AgentDriver object or ID string.
+#' @export
+set_default_driver <- function(driver) {
+  registry <- get_driver_registry()
+  if (is.character(driver)) {
+    driver <- registry$get(driver) %||% stop(sprintf("Driver with ID '%s' not found.", driver))
+  }
+  assign("default_driver", driver, envir = .HydraR_Internal)
+  invisible(driver)
+}
+
+#' Get the Default Agent Driver
+#' @return AgentDriver object or NULL.
+#' @export
+get_default_driver <- function() {
+  if (exists("default_driver", envir = .HydraR_Internal)) {
+    return(get("default_driver", envir = .HydraR_Internal))
+  }
+  
+  # Fallback: return the first registered driver
+  registry <- get_driver_registry()
+  if (length(registry$drivers) > 0) {
+    return(registry$drivers[[1]])
+  }
+  
+  NULL
+}
+
+#' Get a Role-specific System Prompt
+#' @param name String. Role identifier.
+#' @return String prompt text.
+#' @export
+get_role_prompt <- function(name) {
+  get_role(name) %||% stop(sprintf("Role '%s' not found in registry.", name))
+}
+
 # <!-- APAF Bioinformatics | driver_registry.R | Approved | 2026-03-29 -->
