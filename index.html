@@ -71,29 +71,70 @@ HydraR: Stateful Agentic Orchestration for R
 <img src="reference/figures/hydrar_hex_logo.png" width="150" alt="HydraR Hex Logo">
 </td>
 </tr></table>
-<p><code>HydraR</code> is a lightweight, state-of-the-art orchestrator for building general-purpose agentic workflows in R. It prioritizes <strong>CLI-native LLM interactions</strong>, <strong>hardened state management</strong>, and <strong>graph-based execution</strong> (supporting both Directed Acyclic Graphs and iterative loops).</p>
+<div class="section level3">
+<h3 id="stateful-agentic-orchestration-for-scientific-reproducibility">
+<em>Stateful Agentic Orchestration for Scientific Reproducibility</em><a class="anchor" aria-label="anchor" href="#stateful-agentic-orchestration-for-scientific-reproducibility"></a>
+</h3>
+<p><code>HydraR</code> is a lightweight orchestrator for building <strong>autonomous AI workflows</strong> natively in R. It allows researchers to design complex, multi-step processes—such as data cleaning, analysis, and report generation—that are driven by Large Language Models (LLMs) while maintaining the rigorous auditability and reproducibility expected in scientific research.</p>
+<div class="float">
+<img src="paper/figures/travel_workflow.png" alt="HydraR Visual Blueprint: A sample travel itinerary workflow showing iterative validation loops and parallel generation paths."><div class="figcaption">HydraR Visual Blueprint: A sample travel itinerary workflow showing iterative validation loops and parallel generation paths.</div>
+</div>
+</div>
 <div class="section level2">
-<h2 id="why-hydrar">Why HydraR?<a class="anchor" aria-label="anchor" href="#why-hydrar"></a>
+<h2 id="id_-what-is-hydrar-for-non-experts">🎯 What is HydraR? (For Non-Experts)<a class="anchor" aria-label="anchor" href="#id_-what-is-hydrar-for-non-experts"></a>
 </h2>
-<p>Standard agentic frameworks often rely heavily on brittle API wrappers and volatile state. <code>HydraR</code> is built for durability and reproducibility: - <strong>CLI-First</strong>: Directly drive high-performance CLI tools like <code>gemini-cli</code>, <code>claude-code</code>, or <code>gh copilot</code>. - <strong>Hardened State</strong>: Implements a robust state machine with persistent checkpointing (DuckDB/SQLite). - <strong>Graph-Native</strong>: Design complex logic transitions and loops with built-in validation.</p>
+<p>Think of an <strong>“Agent”</strong> as an AI-powered assistant that can perform specific tasks. Instead of just “chatting” with an AI, <code>HydraR</code> allows you to link multiple assistants together into a <strong>Workflow</strong>.</p>
+<p>You create a “blueprint” (a visual map) of your research tasks. <code>HydraR</code> then manages the execution: it gives each assistant its own isolated workspace, remembers every step they take (checkpointing), and allows them to “loop back” and fix mistakes if a task fails. This makes AI research <strong>reliable, auditable, and automated</strong>.</p>
+</div>
+<div class="section level2">
+<h2 id="id_️-why-hydrar-statement-of-need">⚖️ Why HydraR? (Statement of Need)<a class="anchor" aria-label="anchor" href="#id_%EF%B8%8F-why-hydrar-statement-of-need"></a>
+</h2>
+<p>Standard agentic frameworks often rely heavily on brittle API wrappers and volatile state. <code>HydraR</code> addresses three fundamental challenges in scientific AI orchestration:</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>🔍 Auditability</strong>: It maintains a central memory system that continuously saves workflow checkpoints (using a DuckDB database), ensuring a complete, verifiable record of all AI interactions and data changes.</li>
+<li>
+<strong>🛡️ Filesystem Safety</strong>: By leveraging <strong>Git worktrees</strong>, <code>HydraR</code> creates temporary, isolated project branches for each agent working in parallel. This prevents file corruption and race conditions when multiple tasks run simultaneously.</li>
+<li>
+<strong>🏗️ Portable Workflows</strong>: By defining agent logic using standard <strong>YAML</strong> files and <strong>Mermaid.js</strong> diagrams, <code>HydraR</code> separates the workflow’s design from the code that runs it. This text-based blueprint acts as an “OpenAPI for Agents”—a shareable format that is easy to audit and version-control.</li>
+</ol>
+</div>
+<div class="section level2">
+<h2 id="id_-glossary-of-technical-terms">📖 Glossary of Technical Terms<a class="anchor" aria-label="anchor" href="#id_-glossary-of-technical-terms"></a>
+</h2>
+<p>To help researchers from different backgrounds, here are the key technical terms used in <code>HydraR</code>:</p>
+<ul>
+<li>
+<strong>Agent</strong>: An autonomous AI entity (powered by an LLM) that can perform specific tasks or make decisions.</li>
+<li>
+<strong>Workflow</strong>: A collection of tasks (nodes) linked together to achieve a larger goal.</li>
+<li>
+<strong>DAG (Directed Acyclic Graph)</strong>: A mathematical structure used to represent workflows where tasks move in a specific direction without looping back infinitely.</li>
+<li>
+<strong>State Machine</strong>: A system that keeps track of its current “status” and moves between states based on inputs or task results.</li>
+<li>
+<strong>Checkpointing</strong>: The process of saving the entire state of a workflow to a database so it can be resumed later if interrupted.</li>
+<li>
+<strong>Git Worktree</strong>: A specialized Git feature that allows <code>HydraR</code> to create a separate, temporary version of your project for an agent to work in, preventing them from overwriting your main files accidentally.</li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="id_-ecosystem--similar-packages">🌐 Ecosystem &amp; Similar Packages<a class="anchor" aria-label="anchor" href="#id_-ecosystem--similar-packages"></a>
 </h2>
-<p><code>HydraR</code> is an <strong>orchestrator</strong>, not a low-level API wrapper. While many excellent packages focus on the communication layer, <code>HydraR</code> focuses on the <strong>lifecycle, state, and file-system isolation</strong> of multi-agent workflows.</p>
+<p><code>HydraR</code> is a <strong>stateful orchestrator</strong>, not a low-level API wrapper. While many excellent packages focus on the communication layer, <code>HydraR</code> focuses on the <strong>lifecycle, state, and file-system isolation</strong> of multi-agent workflows.</p>
 <ul>
 <li>
-<strong><a href="https://github.com/tidyverse/ellmer" class="external-link">ellmer</a></strong>: Focuses on high-level UI/API interaction with LLMs. <code>HydraR</code> can use <code>ellmer</code> (or direct CLI calls) as a backend driver within a larger managed graph.</li>
+<strong><a href="https://github.com/tidyverse/ellmer" class="external-link">ellmer</a></strong>: Excellent for high-level conversational/chat interfaces. <code>HydraR</code> can use <code>ellmer</code> as a backend driver for individual agents within a larger managed graph.</li>
 <li>
-<strong><a href="https://github.com/simonpcouch/mall" class="external-link">mall</a></strong>: Provides a concise syntax for data-mapping LLM calls. <code>HydraR</code> is designed for more complex, stateful research pipelines with cyclic dependencies.</li>
+<strong><a href="https://github.com/simonpcouch/mall" class="external-link">mall</a></strong>: Provides a concise syntax for “mapping” LLM calls over data. <code>HydraR</code> is designed for more complex research pipelines that require memory, branching logic, and error recovery.</li>
 <li>
-<strong><a href="https://github.com/MichelNivard/gptstudio" class="external-link">gptstudio</a></strong>: Tooling for IDE-centric coding assistance. <code>HydraR</code> is built for reproducible, non-interactive pipelines and automation.</li>
+<strong><a href="https://github.com/MichelNivard/gptstudio" class="external-link">gptstudio</a></strong>: Tools for IDE-centric coding assistance. <code>HydraR</code> is built for <strong>reproducible, non-interactive pipelines</strong> and automation that can run independently of the RStudio IDE.</li>
 <li>
-<strong><a href="https://rstudio.github.io/reticulate/" class="external-link">reticulate</a></strong>: While <code>HydraR</code> is R-native, it leverages <code>reticulate</code> to drive Python-based agentic tools (like <code>gemini-cli</code>) while maintaining the orchestration state in R.</li>
+<strong><a href="https://github.com/langchain-ai/langgraph" class="external-link">LangGraph / CrewAI (Python)</a></strong>: These are the Python equivalents. <code>HydraR</code> provides a native R alternative that integrates directly with R’s statistical and visualization ecosystems without the “translation cost” of using <code>reticulate</code> for core logic.</li>
 </ul>
 </div>
 <div class="section level2">
-<h2 id="key-features">Key Features<a class="anchor" aria-label="anchor" href="#key-features"></a>
+<h2 id="id_-key-features">🚀 Key Features<a class="anchor" aria-label="anchor" href="#id_-key-features"></a>
 </h2>
 <ul>
 <li>
@@ -103,13 +144,11 @@ HydraR: Stateful Agentic Orchestration for R
 <li>
 <strong>🕒 Persistent Checkpointing</strong>: Resumable execution threads via <code>Checkpointer</code> (supporting SQLite/DuckDB).</li>
 <li>
-<strong>🖥️ CLI-First Drivers</strong>: High-fidelity drivers for local and provider-based CLIs, ensuring tool calls and environment discovery are robust.</li>
+<strong>🖥️ CLI-First Drivers</strong>: High-fidelity drivers for local and provider-based CLIs (Gemini, Claude, OpenAI), ensuring tool calls are robust.</li>
 <li>
 <strong>📊 Mermaid Visualization</strong>: Export your agent’s logic directly to Mermaid.js syntax for interactive documentation.</li>
 <li>
 <strong>🛡️ Validation Engine</strong>: Integrated compile-time checks for undefined nodes, circular dependencies, and unreachable states.</li>
-<li>
-<strong>🏷️ Node Labeling</strong>: Support for human-readable labels in DAG nodes, independent of their unique IDs.</li>
 </ul>
 </div>
 <div class="section level2">
@@ -193,44 +232,32 @@ HydraR: Stateful Agentic Orchestration for R
 </ul>
 </div>
 <div class="section level2">
-<h2 id="custom-drivers">Custom Drivers<a class="anchor" aria-label="anchor" href="#custom-drivers"></a>
+<h2 id="id_-quick-start-two-ways-to-build">🚀 Quick Start: Two Ways to Build<a class="anchor" aria-label="anchor" href="#id_-quick-start-two-ways-to-build"></a>
 </h2>
-<p><code>HydraR</code> is provider-agnostic. You can extend the framework by creating custom <code>R6</code> classes that inherit from <code>AgentDriver</code>. This allows you to drive: - <strong>Local LLMs</strong>: Integration with specialized local CLI wrappers. - <strong>Enterprise APIs</strong>: Secure connection to internal LLM endpoints via <code>httr2</code>. - <strong>Mock Backends</strong>: Deterministic drivers for unit testing complex DAG logic.</p>
-<p>Refer to the <a href="vignettes/creating_drivers.Rmd">Creating Custom Drivers</a> guide for implementation details.</p>
-</div>
-<div class="section level2">
-<h2 id="id_-visualizing-execution">📊 Visualizing Execution<a class="anchor" aria-label="anchor" href="#id_-visualizing-execution"></a>
-</h2>
-<p><code>HydraR</code> includes a powerful visualization engine that goes beyond static DAGs. You can generate status-colored plots after a run to identify bottlenecks and failures.</p>
+<p><code>HydraR</code> supports both <strong>document-first</strong> (YAML/Mermaid) and <strong>code-first</strong> (R6 classes) orchestration.</p>
 <div class="section level3">
-<h3 id="interactive-rendering-in-r">Interactive Rendering in R<a class="anchor" aria-label="anchor" href="#interactive-rendering-in-r"></a>
+<h3 id="id_1-visual-blueprint-yaml-first--recommended">1. Visual Blueprint (YAML-First) — <em>Recommended</em>
+<a class="anchor" aria-label="anchor" href="#id_1-visual-blueprint-yaml-first--recommended"></a>
 </h3>
-<p>We recommend using the <a href="https://dgritree.github.io/DiagrammeR/" class="external-link"><code>DiagrammeR</code></a> package to render your DAGs directly in the RStudio Viewer:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rich-iannone.github.io/DiagrammeR/" class="external-link">DiagrammeR</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Generate a status-colored plot after a run</span></span>
-<span><span class="co"># Green = Success, Red = Failure, Blue = Active path</span></span>
-<span><span class="fu">DiagrammeR</span><span class="fu">::</span><span class="fu"><a href="https://rich-iannone.github.io/DiagrammeR/reference/mermaid.html" class="external-link">mermaid</a></span><span class="op">(</span><span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>status <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="path-highlighting">Path Highlighting<a class="anchor" aria-label="anchor" href="#path-highlighting"></a>
-</h3>
-<p>The <code>plot(status = TRUE)</code> method automatically correlates your execution <code>trace_log</code> with the graph structure to highlight the <strong>exact path</strong> taken by the agents, including loops and branches.</p>
-</div>
-<div class="section level3">
-<h3 id="mermaid-round-trip">Mermaid Round-Trip<a class="anchor" aria-label="anchor" href="#mermaid-round-trip"></a>
-</h3>
-<p>You can also define your agentic workflows using pure Mermaid syntax and convert them directly into R objects:</p>
+<p>This is the most “portable” way to build. Define your graph in a YAML file and load it directly.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># workflow.yml</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">graph</span><span class="kw">: </span><span class="ch">|</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  graph LR</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>    A["Research Assistant | type=llm | role_id=analyst"]</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>    B["Quality Auditor | type=logic | logic_id=verify_stats"]</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>    A --&gt; B</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>    B -- "fail" --&gt; A</span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mermaid</span> <span class="op">&lt;-</span> <span class="st">"graph TD\n  Start --&gt; End"</span></span>
-<span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/mermaid_to_dag.html">mermaid_to_dag</a></span><span class="op">(</span><span class="va">mermaid</span>, <span class="va">my_node_factory</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<span><span class="va">wf</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/load_workflow.html">load_workflow</a></span><span class="op">(</span><span class="st">"workflow.yml"</span><span class="op">)</span></span>
+<span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/spawn_dag.html">spawn_dag</a></span><span class="op">(</span><span class="va">wf</span><span class="op">)</span></span>
+<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
-</div>
-<div class="section level2">
-<h2 id="hello-world-example">“Hello World” Example<a class="anchor" aria-label="anchor" href="#hello-world-example"></a>
-</h2>
+<div class="section level3">
+<h3 id="id_2-code-first-r6--programmatic-control">2. Code-First (R6) — <em>Programmatic Control</em>
+<a class="anchor" aria-label="anchor" href="#id_2-code-first-r6--programmatic-control"></a>
+</h3>
+<p>Perfect for developers who want full programmatic control over node logic.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
 <span></span>
@@ -251,18 +278,50 @@ HydraR: Stateful Agentic Orchestration for R
 <span><span class="co"># 3. Execute</span></span>
 <span><span class="va">results</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>initial_state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>input <span class="op">=</span> <span class="st">"Hydra"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">hello_world</span><span class="op">$</span><span class="va">output</span><span class="op">$</span><span class="va">message</span><span class="op">)</span></span>
-<span><span class="co"># [1] "Hello Hydra"</span></span>
+<span><span class="co"># [1] "Hello Hydra"</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="id_-visualizing-execution">📊 Visualizing Execution<a class="anchor" aria-label="anchor" href="#id_-visualizing-execution"></a>
+</h2>
+<p><code>HydraR</code> includes a powerful visualization engine that goes beyond static DAGs. You can generate status-colored plots after a run to identify bottlenecks and failures.</p>
+<div class="section level3">
+<h3 id="interactive-rendering-in-r">Interactive Rendering in R<a class="anchor" aria-label="anchor" href="#interactive-rendering-in-r"></a>
+</h3>
+<p>We recommend using the <a href="https://dgritree.github.io/DiagrammeR/" class="external-link"><code>DiagrammeR</code></a> package to render your DAGs:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rich-iannone.github.io/DiagrammeR/" class="external-link">DiagrammeR</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 4. Round-Trip Visualization</span></span>
-<span><span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>type <span class="op">=</span> <span class="st">"mermaid"</span><span class="op">)</span></span>
-<span><span class="co"># Outputs Mermaid syntax using node labels if provided</span></span></code></pre></div>
+<span><span class="co"># Green = Success, Red = Failure, Blue = Active path</span></span>
+<span><span class="fu">DiagrammeR</span><span class="fu">::</span><span class="fu"><a href="https://rich-iannone.github.io/DiagrammeR/reference/mermaid.html" class="external-link">mermaid</a></span><span class="op">(</span><span class="va">dag</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>status <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="id_-use-of-generative-ai-1">🤖 Use of Generative AI<a class="anchor" aria-label="anchor" href="#id_-use-of-generative-ai-1"></a>
+</h2>
+<ul>
+<li><label><input type="checkbox" checked><strong>Generative AI tools were used to produce material in this submission.</strong></label></li>
+<li>
+<strong>AI-Aided Development</strong>: Large Language Models were used to implement specific logic blocks, boilerplate code, and unit tests. Every line of AI-generated code has been manually reviewed and verified by the authors.</li>
+<li>
+<strong>Agentic Orchestration</strong>: This package is explicitly designed for the orchestration of autonomous AI agents.</li>
+<li>For a detailed disclosure of AI usage, please refer to the <strong><a href="agents.html">agents.md</a></strong> file.</li>
+<li>For architectural rationale and design tradeoffs, please refer to the <strong><a href="DESIGN.html">DESIGN.md</a></strong> file.</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="id_️-custom-drivers">🛠️ Custom Drivers<a class="anchor" aria-label="anchor" href="#id_%EF%B8%8F-custom-drivers"></a>
+</h2>
+<p><code>HydraR</code> is provider-agnostic. You can extend the framework by creating custom <code>R6</code> classes that inherit from <code>AgentDriver</code>. This allows you to drive: - <strong>Local LLMs</strong>: Integration with specialized local CLI wrappers (e.g., Ollama). - <strong>Enterprise APIs</strong>: Secure connection to internal LLM endpoints via <code>httr2</code>. - <strong>Mock Backends</strong>: Deterministic drivers for unit testing complex DAG logic.</p>
+<p>Refer to the <a href="vignettes/creating_drivers.Rmd">Creating Custom Drivers</a> guide for implementation details.</p>
 </div>
 <div class="section level2">
 <h2 id="id_-authors">👥 Authors<a class="anchor" aria-label="anchor" href="#id_-authors"></a>
 </h2>
 <ul>
 <li>
-<strong>Ignatius Pang</strong> (<a href="https://orcid.org/0000-0001-9703-5741" class="external-link">ORCID: 0000-0001-9703-5741</a>) — Lead Architect</li>
+<strong>Chi Nam Ignatius Pang</strong> (<a href="https://orcid.org/0000-0001-9703-5741" class="external-link">ORCID: 0000-0001-9703-5741</a>) — Lead Architect</li>
 <li>
 <strong>Aidan Tay</strong> (<a href="https://orcid.org/0000-0003-1315-4896" class="external-link">ORCID: 0000-0003-1315-4896</a>) — Core Contributor</li>
 </ul>
