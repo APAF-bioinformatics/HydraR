@@ -19,7 +19,7 @@
 
 `HydraR` is a lightweight orchestrator for building **autonomous AI workflows** natively in R. It allows researchers to design complex, multi-step processes—such as data cleaning, analysis, and report generation—that are driven by Large Language Models (LLMs) while maintaining the rigorous auditability and reproducibility expected in scientific research.
 
-![HydraR Visual Blueprint: A sample travel itinerary workflow showing iterative validation loops and parallel generation paths.](paper/figures/travel_workflow.png)
+![HydraR Visual Blueprint: A sample travel itinerary workflow showing iterative validation loops and parallel generation paths.](man/figures/travel_workflow.png)
 
 ## 🎯 What is HydraR? (For Non-Experts)
 
@@ -95,7 +95,7 @@ OPENAI_API_KEY="your_openai_api_key"
 > Ensure `.Renviron` is added to your `.gitignore`, `.Rbuildignore`, and any AI ignore files (e.g., `.agentignore`, `.claudeignore`) to prevent accidental exposure of your secrets during agentic development.
 
 > [!TIP]
-> **New to HydraR?** The primary resource for learning is the **[Complete Instruction Manual](vignettes/manual.Rmd)**.
+> **New to HydraR?** The primary resource for learning is the **[Complete Instruction Manual](vignettes/manual.md)**.
 
 ### Case Studies & Examples
 

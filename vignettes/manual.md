@@ -1,20 +1,4 @@
----
-title: "HydraR: Complete Instruction Manual"
-author: "Chi Nam Ignatius Pang & Aidan Tay"
-date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{HydraR: Complete Instruction Manual}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-```
+# HydraR: Complete Instruction Manual
 
 ## 1. Introduction
 
@@ -65,7 +49,7 @@ Executes deterministic R code.
 A decision-based node that dynamically selects the next node based on R logic.
 
 ### `type=map` (AgentMapNode)
-Iterates over a list in the current state to process multiple items in parallel or sequence.
+Iterates over a list in the current state to process multiple items.
 
 ### `type=observer` (AgentObserverNode)
 Executes logic for side-effects without modifying the main state.
@@ -80,7 +64,7 @@ Synchronizes parallel execution paths, reconciling changes from isolated git wor
 AI agents are inherently non-deterministic. `HydraR` provides robust tools to manage this uncertainty.
 
 ### 4.1 Retries & Timeouts
-Every node supports a `retries` parameter (default is 0) and a `timeout` (in seconds). If an LLM call fails due to a transient API error, `HydraR` will automatically retry before triggering a failover.
+Every node supports a `retries` parameter (default is 0) and a `timeout` (in seconds). If an LLM call fails, `HydraR` will automatically retry before triggering a failover.
 
 ### 4.2 Error Edges (Red/Dashed)
 Standard edges (`-->`) represent the success path. **Error Edges** are prioritized failover paths triggered only when a node returns a `failed` or `error` status.
@@ -91,7 +75,7 @@ graph TD
 ```
 
 ### 4.3 Human-in-the-Loop (HITL)
-By routing an error edge to a node that returns `status="pause"`, the entire DAG will halt, allowing a human to inspect the `AgentState` and resolve issues manually before resuming.
+By routing an error edge to a node that returns `status="pause"`, the entire DAG will halt, allowing a human to inspect the `AgentState` and manually correct it before resuming.
 
 ---
 
@@ -111,10 +95,7 @@ When `isolation=true` is set on a node:
 `HydraR` enforces a "Safety-First" policy through its integrated Validation Engine.
 
 ### 6.1 Holistic Validation
-Every time you call `spawn_dag()`, the engine checks:
-- **Resource Linking**: Confirms all `role_id` and `logic_id` references exist.
-- **Topology Sync**: Ensures the visual graph and YAML branching logic are perfectly aligned.
-- **Syntactic Parsing**: All R logic blocks are checked for syntax errors before the first node runs.
+Every time you call `spawn_dag()`, the engine checks resource linking, topology synchronization, and syntactic correctness.
 
 ### 6.2 APAF Rule G-25
 To ensure performance and reproducibility, `HydraR` enforces a **Zero-Tolerance Policy for Imperative Loops**.
@@ -125,15 +106,12 @@ To ensure performance and reproducibility, `HydraR` enforces a **Zero-Tolerance 
 
 ## 7. Model Context Protocol (MCP)
 
-`HydraR` supports the **Model Context Protocol (MCP)** via a pass-through architecture. This allows agents to leverage external tools (such as SQL databases, browser execution, or local file search) while keeping the orchestration state managed in R.
+`HydraR` supports the **Model Context Protocol (MCP)** via a pass-through architecture. This allows agents to leverage external tools (databases, APIs, local files) using native MCP clients built into CLI drivers.
 
 ### 7.1 Pass-Through Architecture
 `HydraR` does not act as an MCP Client itself; instead, it orchestrates agents that manage their own MCP configurations. This keeps the R-based state management clean and decoupled from the specific tool-use implementations of the LLM provider.
 
-### 7.2 Noise Filtering
-Agent drivers (e.g., `gemini`, `claude`) are **MCP-aware**. They automatically strip MCP status messages (e.g., `Scheduling MCP`, `Executing MCP`) and tool-use logs from the final model output to prevent them from corrupting the R code or state updates.
-
-### 7.3 Configuration via `cli_opts`
+### 7.2 Configuration via `cli_opts`
 You can enable and configure MCP servers by passing provider-specific flags in the `cli_opts` of an `AgentLLMNode`.
 
 | Provider | Flag | Purpose |
@@ -158,10 +136,10 @@ logic:
 
 ## 8. Summary & Next Steps
 
-For practical examples of these concepts in action, please refer to:
-- **[Sydney to Hong Kong Travel Planner](hong_kong_travel.html)**: Iterative validation and loops.
-- **[Parallel Sorting Benchmark](sorting_benchmark.html)**: Git worktrees and merging.
-- **[State Persistence](state_persistence.html)**: Using the DuckDB checkpointer.
+For practical examples, please refer to:
+- **[Sydney to Hong Kong Travel Planner](hong_kong_travel.md)**
+- **[Parallel Sorting Benchmark](sorting_benchmark.md)**
+- **[State Persistence](state_persistence.md)**
 
 ---
 
