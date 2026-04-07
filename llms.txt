@@ -255,6 +255,17 @@ dag$plot(type = "mermaid")
 # Outputs Mermaid syntax using node labels if provided
 ```
 
+## 👥 Authors
+
+- **Ignatius Pang** ([ORCID:
+  0000-0001-9703-5741](https://orcid.org/0000-0001-9703-5741)) — Lead
+  Architect
+- **Aidan Tay** ([ORCID:
+  0000-0003-1315-4896](https://orcid.org/0000-0003-1315-4896)) — Core
+  Contributor
+
+From the **APAF Bioinformatics** team at Macquarie University.
+
 ## APAF Standards
 
 This project adheres to the **APAF Bioinformatics** standards for
