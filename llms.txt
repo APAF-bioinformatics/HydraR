@@ -15,7 +15,7 @@ scientific research.
 
 ![HydraR Visual Blueprint: A sample travel itinerary workflow showing
 iterative validation loops and parallel generation
-paths.](paper/figures/travel_workflow.png)
+paths.](reference/figures/travel_workflow.png)
 
 HydraR Visual Blueprint: A sample travel itinerary workflow showing
 iterative validation loops and parallel generation paths.
@@ -156,11 +156,9 @@ OPENAI_API_KEY="your_openai_api_key"
 > `.claudeignore`) to prevent accidental exposure of your secrets during
 > agentic development.
 
-## 📖 Documentation & Manual
-
-The primary resource for learning `HydraR` is the **[Complete
-Instruction
-Manual](https://github.com/APAF-bioinformatics/HydraR/vignettes/manual.Rmd)**.
+> \[!TIP\] **New to HydraR?** The primary resource for learning is the
+> **[Complete Instruction
+> Manual](https://github.com/APAF-bioinformatics/HydraR/vignettes/manual.md)**.
 
 ### Case Studies & Examples
 
