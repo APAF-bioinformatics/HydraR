@@ -1,12 +1,8 @@
-<!---
-Below, please enter values for (1) submitting author GitHub handle (replacing "@github_handle@); and (2) Repository URL (replacing "https://repourl"). Values for additional package authors may also be specified, replacing "@github_handle1", "@github_handle2" - delete these if not needed. DO NOT DELETE HTML SYMBOLS (everything between "<!" and ">"). Replace only "@github_handle" and "https://repourl". This comment may be deleted once it has been read and understood.
---->
-
 Submitting Author Name: Ignatius Pang
 Submitting Author Github Handle: <!--author1-->@ignatiuspang<!--end-author1-->
 Other Package Authors Github handles: <!--author-others-->@aidantay<!--end-author-others-->
 Repository:  <!--repourl-->https://github.com/APAF-bioinformatics/HydraR<!--end-repourl-->
-Version submitted: 0.1.0
+Version submitted: [v0.2.0.9000](https://github.com/APAF-bioinformatics/HydraR/releases/tag/v0.2.0.9000)
 Submission type: <!--submission-type-->Standard<!--end-submission-type-->
 Editor: <!--editor--> TBD <!--end-editor-->
 Reviewers: <!--reviewers-list--> TBD <!--end-reviewers-list-->
@@ -33,10 +29,7 @@ Authors@R:
       person(given = "Aidan",
              family = "Tay",
              role = c("aut", "cre"),
-             comment = c(ORCID = "0000-0003-1315-4896")),
-      person(given = c("APAF", "Agentic"),
-             family = "Workflow",
-             role = "ctb"))
+             comment = c(ORCID = "0000-0003-1315-4896")))
 Description: A high-performance framework for orchestrating complex 
     agentic workflows in R, specifically designed for scientific 
     reproducibility and auditability. HydraR provides a robust, 
@@ -101,7 +94,7 @@ Config/testthat/edition: 3
 
 - Explain how and why the package falls under these categories (briefly, 1-2 sentences):
 
-    HydraR provides a stateful, auditable engine for orchestrating complex agentic workflows, specifically targeting scientific reproducibility via Git worktree isolation and persistent DuckDB/SQLite checkpointing. It acts as a robust wrapper for LLM CLIs tailored for bioinformatics research.
+    HydraR provides a stateful, auditable engine for orchestrating complex agentic workflows, specifically targeting scientific reproducibility via Git worktree isolation and persistent DuckDB/SQLite checkpointing. It acts as a robust wrapper for large language model (LLM) command line interfaces (CLIs) tailored for bioinformatics research.
 
 -   Who is the target audience and what are scientific applications of this package?
 
@@ -109,11 +102,12 @@ Config/testthat/edition: 3
 
 -   Are there other R packages that accomplish the same thing? If so, how does yours differ or meet [our criteria for best-in-category](https://ropensci.github.io/dev_guide/policies.html#overlap)?
 
-    While 'ellmer' focuses on high-level API convenience and 'gptstudio' on IDE integration, HydraR is uniquely "State-First" and "CLI-First". It enables complex research pipelines with full audit trails and safe parallel file modifications using Git worktrees, which are critical for reproducible scientific coding.
+While 'ellmer' focuses on high-level API convenience, 'mall' excels at structured data operations, and 'gptstudio' on IDE integration, HydraR is **uniquely centered on persistent session lifecycles** and **native command-line integration**. It enables complex research pipelines with **restorable execution states** and **complete audit trails**, permitting safe parallel file modifications via Git worktrees, which are features essential for reproducible scientific computing. Furthermore, unlike solutions that rely on 'reticulate' to bridge R with Python-based AI frameworks (such as LangChain), HydraR is **built entirely on R's native architectural frameworks**, avoiding the data-translation barriers and compatibility issues often encountered when passing complex statistical structures between languages.
+
 
 -   (If applicable) Does your package comply with our [guidance around _Ethics, Data Privacy and Human Subjects Research_](https://devguide.ropensci.org/policies.html#ethics-data-privacy-and-human-subjects-research)?
 
-    Yes.
+    N/A
 
 -   If you made a pre-submission inquiry, please paste the link to the corresponding issue, forum post, or other discussion, or `@tag` the editor you contacted.
 
@@ -146,7 +140,8 @@ This package:
 
 If so, please describe usage, and include links to any relevant aspects of your repository. 
 
-The core R6 architecture, state-management patterns, and Git worktree isolation strategies were designed and authored by the human authors (Ignatius Pang and Aidan Tay) during a focused **4–5 day architectural sprint** and then **rigorously tested manually**. AI (Antigravity) was strategically employed for implementing logic blocks, unit tests, and documentation, following a rigorous "Human-in-the-loop" pattern where every line was manually reviewed and verified. Detailed disclosure is available in **[agents.md](agents.md)** and **[DESIGN.md](DESIGN.md)**.
+The core R6 architecture, state-management patterns, and Git worktree isolation strategies were designed and authored by the human authors (Ignatius Pang and Aidan Tay) and then **rigorously tested manually**. AI (Antigravity and Gemini CLI) was strategically employed for implementing logic blocks, unit tests, and documentation, following a rigorous "Human-in-the-loop" pattern where every line was manually reviewed and verified. Detailed disclosure is available in **[agents.md](agents.md)** and **[DESIGN.md](DESIGN.md)**. To ensure software reliability, the framework is continuously evaluated against an automated testing suite consisting of 556 unit tests, currently maintaining a 100\% pass rate (zero failures).
+
 
 ## Publication options
 
