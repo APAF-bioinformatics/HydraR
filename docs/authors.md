@@ -15,7 +15,9 @@ Source:
 [`inst/CITATION`](https://github.com/APAF-bioinformatics/HydraR/blob/HEAD/inst/CITATION)
 
 Pang C, Tay A (2026). *HydraR: Stateful Agentic Orchestration for
-Scientific Reproducibility*. R package version 0.2.0.9000,
+Scientific Reproducibility*.
+[doi:10.5281/zenodo.19446742](https://doi.org/10.5281/zenodo.19446742),
+R package version 0.2.0.9000,
 <https://github.com/APAF-bioinformatics/HydraR>.
 
     @Manual{,
@@ -24,4 +26,5 @@ Scientific Reproducibility*. R package version 0.2.0.9000,
       year = {2026},
       note = {R package version 0.2.0.9000},
       url = {https://github.com/APAF-bioinformatics/HydraR},
+      doi = {10.5281/zenodo.19446742},
     }

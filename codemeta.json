@@ -4,7 +4,7 @@
     "http://schema.org"
   ],
   "@type": "SoftwareSourceCode",
-  "identifier": "HydraR",
+  "identifier": "https://doi.org/10.5281/zenodo.19446742",
   "name": "Stateful Agentic Orchestration for Scientific Reproducibility",
   "description": "A high-performance framework for orchestrating complex agentic workflows in R, specifically designed for scientific reproducibility and auditability. HydraR provides a robust, state-managed engine for Directed Acyclic Graphs (DAGs) and iterative state machines, prioritizing CLI-native LLM interactions and hardened state persistence (DuckDB/SQLite). It features isolated execution via Git Worktrees for parallel file-modifying tasks, autonomous quality control through integrated auditors, and human-readable visualization using Mermaid.js.",
   "version": "0.2.0.9000",

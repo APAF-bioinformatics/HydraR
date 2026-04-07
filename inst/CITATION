@@ -9,7 +9,8 @@ bibentry(
   ),
   year = "2026",
   note = "R package version 0.2.0.9000",
-  url = "https://github.com/APAF-bioinformatics/HydraR"
+  url = "https://github.com/APAF-bioinformatics/HydraR",
+  doi = "10.5281/zenodo.19446742"
 )
 
 # <!-- APAF Bioinformatics | inst/CITATION | Approved | 2026-04-07 -->
