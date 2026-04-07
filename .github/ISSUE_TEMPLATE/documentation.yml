@@ -1,0 +1,48 @@
+name: 📚 Documentation
+description: Create a new documentation task or project
+title: "[DOCS] "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This template is for documentation projects and tasks.
+        
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation Type
+      description: What type of documentation is this?
+      options:
+        - User Guide
+        - API Reference
+        - Technical Documentation
+        - Tutorial/Workshop
+        - Installation Guide
+        - Contributing Guide
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How urgent is this documentation needed?
+      options:
+        - P0 (Blocking Release)
+        - P1 (Required This Sprint)
+        - P2 (Required Next Sprint)
+        - P3 (Nice to Have)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What documentation is needed?
+      placeholder: Describe the documentation task...
+    validations:
+      required: true
+
+# <!-- APAF Bioinformatics | documentation.yml | Approved | 2026-04-07 -->

@@ -6,6 +6,7 @@
         <a href="https://lifecycle.r-lib.org/articles/stages.html#stable"><img src="https://img.shields.io/badge/lifecycle-stable-green.svg" alt="Lifecycle: stable"></a>
         <a href="https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml"><img src="https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main" alt="R-CMD-check"></a>
         <a href="https://app.codecov.io/gh/apaf-bioinformatics/HydraR"><img src="https://github.com/apaf-bioinformatics/HydraR/actions/workflows/test-coverage.yaml/badge.svg" alt="Test Coverage"></a>
+        <a href="https://doi.org/10.5281/zenodo.19446742"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19446742.svg" alt="DOI"></a>
       </p>
     </td>
     <td width="20%" align="center">
@@ -171,6 +172,13 @@ print(results$results$hello_world$output$message)
 dag$plot(type = "mermaid")
 # Outputs Mermaid syntax using node labels if provided
 ```
+
+## 👥 Authors
+
+- **Ignatius Pang** ([ORCID: 0000-0001-9703-5741](https://orcid.org/0000-0001-9703-5741)) &mdash; Lead Architect
+- **Aidan Tay** ([ORCID: 0000-0003-1315-4896](https://orcid.org/0000-0003-1315-4896)) &mdash; Core Contributor
+
+From the **APAF Bioinformatics** team at Macquarie University.
 
 ## APAF Standards
 

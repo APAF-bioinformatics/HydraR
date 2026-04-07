@@ -1,0 +1,16 @@
+citHeader("To cite HydraR in publications use:")
+
+bibentry(
+  bibtype = "Manual",
+  title = "HydraR: Stateful Agentic Orchestration for Scientific Reproducibility",
+  author = c(
+    person("Chi Nam Ignatius", "Pang", email = "ignatius.pang@mq.edu.au", role = c("aut", "cre"), comment = c(ORCID = "0000-0001-9703-5741")),
+    person("Aidan", "Tay", role = "aut", comment = c(ORCID = "0000-0003-1315-4896"))
+  ),
+  year = "2026",
+  note = "R package version 0.2.0.9000",
+  url = "https://github.com/APAF-bioinformatics/HydraR",
+  doi = "10.5281/zenodo.19446742"
+)
+
+# <!-- APAF Bioinformatics | inst/CITATION | Approved | 2026-04-07 -->

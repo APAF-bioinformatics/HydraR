@@ -1,12 +1,8 @@
 # HydraR: Stateful Agentic Orchestration for R
 
-![](reference/figures/hydrar_hex_logo.png)
-
-[![Lifecycle:
-stable](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
-[![R-CMD-check](https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main)](https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml)
-[![Test
-Coverage](https://github.com/apaf-bioinformatics/HydraR/actions/workflows/test-coverage.yaml/badge.svg)](https://app.codecov.io/gh/apaf-bioinformatics/HydraR)
+|  |  |
+|----|:--:|
+| [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable) [![R-CMD-check](https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main)](https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml) [![Test Coverage](https://github.com/apaf-bioinformatics/HydraR/actions/workflows/test-coverage.yaml/badge.svg)](https://app.codecov.io/gh/apaf-bioinformatics/HydraR) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19446742.svg)](https://doi.org/10.5281/zenodo.19446742) | ![HydraR Hex Logo](reference/figures/hydrar_hex_logo.png) |
 
 `HydraR` is a lightweight, state-of-the-art orchestrator for building
 general-purpose agentic workflows in R. It prioritizes **CLI-native LLM
@@ -155,6 +151,10 @@ tools, refer to the following manuals:
 - **[Integrating HydraR with
   `targets`](https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/how_to_integrate_with_target.md)**:
   Best practices for cached, interrupt-safe agentic pipelines.
+- **[Fan-In Implementation & Execution
+  Strategy](https://github.com/apaf-bioinformatics/HydraR/blob/main/notes/fan_in_implementation.md)**:
+  Deep dive into how HydraR handles multi-parent dependencies and
+  synchronization.
 
 ## 🤖 Use of Generative AI
 
@@ -258,6 +258,17 @@ print(results$results$hello_world$output$message)
 dag$plot(type = "mermaid")
 # Outputs Mermaid syntax using node labels if provided
 ```
+
+## 👥 Authors
+
+- **Ignatius Pang** ([ORCID:
+  0000-0001-9703-5741](https://orcid.org/0000-0001-9703-5741)) — Lead
+  Architect
+- **Aidan Tay** ([ORCID:
+  0000-0003-1315-4896](https://orcid.org/0000-0003-1315-4896)) — Core
+  Contributor
+
+From the **APAF Bioinformatics** team at Macquarie University.
 
 ## APAF Standards
 

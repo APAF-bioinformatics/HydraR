@@ -1,0 +1,43 @@
+name: 🌟 Feature Request
+description: Template for proposing new features
+title: "[FEATURE] "
+labels: ["enhancement", "feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Feature Request
+        Please describe the new feature you'd like to see.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How urgent is this feature?
+      options:
+        - Critical
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true
+
+  - type: input
+    id: area
+    attributes:
+      label: Area of Change
+      description: Which part of HydraR does this affect?
+      placeholder: "e.g., Engine, Drivers, Documentation"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What should this feature do?
+      placeholder: "I would like to have..."
+    validations:
+      required: true
+
+# <!-- APAF Bioinformatics | feature_request.yml | Approved | 2026-04-07 -->

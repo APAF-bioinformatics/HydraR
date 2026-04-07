@@ -2,7 +2,6 @@
 
 Deep dive into how HydraR handles multi-parent dependencies and synchronization.
 
-
 In **HydraR**, the "fan-in" behavior (multiple agents feeding into a single orchestrator/editor) is a byproduct of how the `AgentDAG` orchestrator manages node dependencies and execution waves.
 
 ## Orchestration Logic

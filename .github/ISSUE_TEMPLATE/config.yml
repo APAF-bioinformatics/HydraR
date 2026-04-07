@@ -1,0 +1,7 @@
+blank_issues_enabled: false
+contact_links:
+  - name: HydraR Documentation
+    url: https://github.com/APAF-bioinformatics/HydraR/blob/main/README.md
+    about: Check our documentation for guides and troubleshooting
+
+# <!-- APAF Bioinformatics | config.yml | Approved | 2026-04-07 -->

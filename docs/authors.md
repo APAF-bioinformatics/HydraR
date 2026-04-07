@@ -12,16 +12,19 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/APAF-bioinformatics/HydraR/blob/HEAD/DESCRIPTION)
+[`inst/CITATION`](https://github.com/APAF-bioinformatics/HydraR/blob/HEAD/inst/CITATION)
 
-Pang CNI, Tay A (2026). *HydraR: Stateful Agentic Orchestration for
-Scientific Reproducibility*. R package version 0.2.0,
+Pang C, Tay A (2026). *HydraR: Stateful Agentic Orchestration for
+Scientific Reproducibility*.
+[doi:10.5281/zenodo.19446742](https://doi.org/10.5281/zenodo.19446742),
+R package version 0.2.0.9000,
 <https://github.com/APAF-bioinformatics/HydraR>.
 
     @Manual{,
       title = {HydraR: Stateful Agentic Orchestration for Scientific Reproducibility},
       author = {Chi Nam Ignatius Pang and Aidan Tay},
       year = {2026},
-      note = {R package version 0.2.0},
+      note = {R package version 0.2.0.9000},
       url = {https://github.com/APAF-bioinformatics/HydraR},
+      doi = {10.5281/zenodo.19446742},
     }

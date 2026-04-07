@@ -66,6 +66,9 @@ reference:
       - get_agent_roles
       - get_role
       - register_role
+      - set_default_driver
+      - get_default_driver
+      - get_role_prompt
       - resolve_default_driver
       - spawn_dag
       - load_workflow

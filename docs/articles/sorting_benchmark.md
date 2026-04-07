@@ -28,15 +28,22 @@ repository.
 library(HydraR)
 library(withr)
 library(ggplot2)
-#> Warning: package 'ggplot2' was built under R version 4.5.2
 library(future)
 library(furrr)
 
+# Check for Anthropic API Key (Needed for refined agents)
+# Must be done BEFORE future::plan so workers inherit the environment
+if (Sys.getenv("ANTHROPIC_API_KEY") == "") {
+  if (file.exists("../.Renviron")) readRenviron("../.Renviron")
+  if (file.exists(".Renviron")) readRenviron(".Renviron")
+}
+
+if (Sys.getenv("ANTHROPIC_API_KEY") == "") {
+  stop("ANTHROPIC_API_KEY not found. Please set it in your .Renviron or workspace.")
+}
+
 # Ensure Gemini CLI path is configured (Environment variables are inherited by workers)
 Sys.setenv(HYDRAR_GEMINI_PATH = "/opt/homebrew/bin/gemini")
-
-# Define the repository root for worktrees
-repo_root <- "."
 
 # 0. Setup Parallel Execution (for Worktree Isolation)
 future::plan(future::multisession, workers = 3)
@@ -80,13 +87,11 @@ initial_state <- wf$initial_state
 
 # 3. Inject dynamic environment variables into initial state
 initial_state$repo_root <- repo_root
+initial_state$output_dir <- file.path(getwd(), "..", "paper", "figures")
 
 # 4. Instantiate and Compile
 dag <- AgentDAG$from_mermaid(mermaid_graph, node_factory = auto_node_factory())
 compiled_dag <- dag$compile()
-#> Warning in dag$compile(): Multiple potential start nodes found (bubble, quick,
-#> merge). Use set_start_node() to disambiguate.
-#> Graph compiled successfully.
 
 # 5. Run with Worktree Isolation
 # Ensure workers inherit our environment (for API keys and PATH)
@@ -102,10 +107,11 @@ results <- compiled_dag$run(
 
 # 6. Save Execution Trace
 compiled_dag$save_trace("sorting_trace.json")
-#> [Saved] Saved execution trace to: sorting_trace.json
 ```
 
-## Summary
+------------------------------------------------------------------------
+
+## 🧘 Summary
 
 By using **Declarative Mermaid Nodes** with
 [`auto_node_factory()`](https://github.com/APAF-bioinformatics/HydraR/reference/auto_node_factory.md),

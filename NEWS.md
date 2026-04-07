@@ -1,4 +1,4 @@
-# HydraR 0.2.0 (Standardized Drivers)
+# HydraR 0.2.0.9000 (Standardized Drivers)
 
 - **Standardized Driver Architecture**: Renamed all core AI drivers for internal consistency and Provider + Mode clarity (e.g., `AnthropicCLIDriver`, `AnthropicAPIDriver`, `OpenAIAPIDriver`).
 - **OpenAI Shorthand Refactor**: Swapped `driver=openai` to favor the high-performance **Codex CLI** as the default, with `driver=openai_api` for cloud reasoning.
