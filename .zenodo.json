@@ -1,0 +1,27 @@
+{
+  "title": "HydraR: Stateful Agentic Orchestration for Scientific Reproducibility",
+  "description": "A high-performance framework for orchestrating complex agentic workflows in R, specifically designed for scientific reproducibility and auditability. HydraR provides a robust, state-managed engine for Directed Acyclic Graphs (DAGs) and iterative state machines, prioritizing CLI-native LLM interactions and hardened state persistence (DuckDB/SQLite). It features isolated execution via Git Worktrees for parallel file-modifying tasks, autonomous quality control through integrated auditors, and human-readable visualization using Mermaid.js.",
+  "creators": [
+    {
+      "name": "Pang, Chi Nam Ignatius",
+      "affiliation": "Macquarie University",
+      "orcid": "0000-0001-9703-5741"
+    },
+    {
+      "name": "Tay, Aidan",
+      "orcid": "0000-0003-1315-4896"
+    }
+  ],
+  "license": "LGPL-3.0-or-later",
+  "version": "0.2.0",
+  "keywords": [
+    "R",
+    "Agentic AI",
+    "Bioinformatics",
+    "Orchestration",
+    "Reproducibility",
+    "Git Worktrees",
+    "State Machine"
+  ],
+  "upload_type": "software"
+}

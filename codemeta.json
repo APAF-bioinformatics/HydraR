@@ -1,0 +1,45 @@
+{
+  "@context": [
+    "https://doi.org/doi:10.5063/schema/codemeta-2.0",
+    "http://schema.org"
+  ],
+  "@type": "SoftwareSourceCode",
+  "identifier": "HydraR",
+  "name": "Stateful Agentic Orchestration for Scientific Reproducibility",
+  "description": "A high-performance framework for orchestrating complex agentic workflows in R, specifically designed for scientific reproducibility and auditability. HydraR provides a robust, state-managed engine for Directed Acyclic Graphs (DAGs) and iterative state machines, prioritizing CLI-native LLM interactions and hardened state persistence (DuckDB/SQLite). It features isolated execution via Git Worktrees for parallel file-modifying tasks, autonomous quality control through integrated auditors, and human-readable visualization using Mermaid.js.",
+  "version": "0.2.0",
+  "license": "https://spdx.org/licenses/LGPL-3.0-or-later",
+  "programmingLanguage": {
+    "@type": "ComputerLanguage",
+    "name": "R",
+    "url": "https://r-project.org"
+  },
+  "author": [
+    {
+      "@type": "Person",
+      "givenName": "Chi Nam Ignatius",
+      "familyName": "Pang",
+      "email": "ignatius.pang@mq.edu.au",
+      "@id": "https://orcid.org/0000-0001-9703-5741",
+      "affiliation": {
+        "@type": "Organization",
+        "name": "Macquarie University"
+      }
+    },
+    {
+      "@type": "Person",
+      "givenName": "Aidan",
+      "familyName": "Tay",
+      "@id": "https://orcid.org/0000-0003-1315-4896"
+    }
+  ],
+  "contributor": [
+    {
+      "@type": "Organization",
+      "name": "APAF Agentic Workflow"
+    }
+  ],
+  "codeRepository": "https://github.com/APAF-bioinformatics/HydraR",
+  "issueTracker": "https://github.com/APAF-bioinformatics/HydraR/issues",
+  "developmentStatus": "active"
+}
