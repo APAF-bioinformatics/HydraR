@@ -211,7 +211,7 @@ DiagrammeR::mermaid(dag$plot(status = TRUE))
 - **Enterprise APIs**: Secure connection to internal LLM endpoints via `httr2`.
 - **Mock Backends**: Deterministic drivers for unit testing complex DAG logic.
 
-Refer to the [Creating Custom Drivers](vignettes/creating_drivers.Rmd) guide for implementation details.
+Refer to the [Creating Custom Drivers](vignettes/extending_hydrar.md) guide for implementation details.
 
 ## 👥 Authors
 
