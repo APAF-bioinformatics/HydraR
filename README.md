@@ -7,6 +7,7 @@
         <a href="https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml"><img src="https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main" alt="R-CMD-check"></a>
         <a href="https://app.codecov.io/gh/apaf-bioinformatics/HydraR"><img src="https://github.com/apaf-bioinformatics/HydraR/actions/workflows/test-coverage.yaml/badge.svg" alt="Test Coverage"></a>
         <a href="https://doi.org/10.5281/zenodo.19446742"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19446742.svg" alt="DOI"></a>
+        <a href="https://apaf-bioinformatics.github.io/HydraR/"><img src="https://img.shields.io/badge/docs-pkgdown-blue.svg" alt="Documentation"></a>
       </p>
     </td>
     <td width="20%" align="center">
@@ -99,13 +100,15 @@ OPENAI_API_KEY="your_openai_api_key"
 
 ### Case Studies & Examples
 
-- **📍 [Sydney to Hong Kong Travel Planner](vignettes/hong_kong_travel.Rmd)**: Demonstrates the **Zero-R-Code** orchestration pattern using YAML and Mermaid.
-- **🚀 [Parallel Sorting Benchmark](vignettes/sorting_benchmark.Rmd)**: Shows how to use **Git Worktrees** for isolated, parallel agent execution.
-- **💾 [State Persistence & Restart](vignettes/state_persistence.Rmd)**: Explains how to use the **DuckDB checkpointer** for resilient, resumable workflows.
-- **🛠️ [Creating Custom Drivers](vignettes/extending_hydrar.Rmd)**: Developer guide on subclassing `AgentDriver` for local LLMs or proprietary APIs.
-- **🎯 [Targets Integration](vignettes/targets_integration.Rmd)**: Explains how to build reproducible, cached pipelines using the `targets` package.
+- 📍 [Sydney to Hong Kong Travel Planner](vignettes/hong_kong_travel.md): Demonstrates the **Zero-R-Code** orchestration pattern using YAML and Mermaid.
+- 🚀 [Parallel Sorting Benchmark](vignettes/sorting_benchmark.md): Shows how to use **Git Worktrees** for isolated, parallel agent execution.
+- 💾 [State Persistence & Restart](vignettes/state_persistence.md): Explains how to use the **DuckDB checkpointer** for resilient, resumable workflows.
+- 🛠️ [Creating Custom Drivers](vignettes/extending_hydrar.md): Developer guide on subclassing `AgentDriver` for local LLMs or proprietary APIs.
+- 🎯 [Targets Integration](vignettes/targets_integration.md): Explains how to build reproducible, cached pipelines using the `targets` package.
 
 ### 🛠️ Technical Documentation
+
+Visit the **[HydraR Documentation Website](https://apaf-bioinformatics.github.io/HydraR/)** for the full API reference and rendered vignettes.
 
 For deep technical dives into the orchestration engine and developer tools, refer to the following manuals:
 
