@@ -131,7 +131,8 @@ Workflow parameters are injected directly into Mermaid labels using the `|` sepa
 
 ### Mermaid Syntax
 ```mermaid
-ID["Label | key1=val1 | key2=val2"]
+graph LR
+  ID["Label | key1=val1 | key2=val2"]
 ```
 
 ### Parameter Resolution

@@ -94,9 +94,8 @@ OPENAI_API_KEY="your_openai_api_key"
 > [!IMPORTANT]
 > Ensure `.Renviron` is added to your `.gitignore`, `.Rbuildignore`, and any AI ignore files (e.g., `.agentignore`, `.claudeignore`) to prevent accidental exposure of your secrets during agentic development.
 
-## 📖 Documentation & Manual
-
-The primary resource for learning `HydraR` is the **[Complete Instruction Manual](vignettes/manual.Rmd)**. 
+> [!TIP]
+> **New to HydraR?** The primary resource for learning is the **[Complete Instruction Manual](vignettes/manual.Rmd)**.
 
 ### Case Studies & Examples
 
