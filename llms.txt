@@ -377,6 +377,12 @@ spawning DAGs.
   : Get an LLM Role (System Prompt)
 - [`register_role()`](https://github.com/APAF-bioinformatics/HydraR/reference/register_role.md)
   : Register an LLM Role (System Prompt)
+- [`set_default_driver()`](https://github.com/APAF-bioinformatics/HydraR/reference/set_default_driver.md)
+  : Set the Default Agent Driver
+- [`get_default_driver()`](https://github.com/APAF-bioinformatics/HydraR/reference/get_default_driver.md)
+  : Get the Default Agent Driver
+- [`get_role_prompt()`](https://github.com/APAF-bioinformatics/HydraR/reference/get_role_prompt.md)
+  : Get a Role-specific System Prompt
 - [`resolve_default_driver()`](https://github.com/APAF-bioinformatics/HydraR/reference/resolve_default_driver.md)
   : \<!– APAF Bioinformatics \| factory.R \| Approved \| 2026-03-30 –\>
   Resolve a Default Driver from Shorthand ID

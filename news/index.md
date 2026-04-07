@@ -1,6 +1,6 @@
 # Changelog
 
-## HydraR 0.2.0 (Standardized Drivers)
+## HydraR 0.2.0.9000 (Standardized Drivers)
 
 - **Standardized Driver Architecture**: Renamed all core AI drivers for
   internal consistency and Provider + Mode clarity (e.g.,
