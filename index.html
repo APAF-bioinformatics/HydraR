@@ -64,7 +64,7 @@
 HydraR: Stateful Agentic Orchestration for R
 </h1></div>
 <p>
-<a href="https://lifecycle.r-lib.org/articles/stages.html#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-green.svg" alt="Lifecycle: stable"></a> <a href="https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main" alt="R-CMD-check"></a> <a href="https://app.codecov.io/gh/apaf-bioinformatics/HydraR" class="external-link"><img src="https://github.com/apaf-bioinformatics/HydraR/actions/workflows/test-coverage.yaml/badge.svg" alt="Test Coverage"></a> <a href="https://doi.org/10.5281/zenodo.19446742" class="external-link"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19446742.svg" alt="DOI"></a>
+<a href="https://lifecycle.r-lib.org/articles/stages.html#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-green.svg" alt="Lifecycle: stable"></a> <a href="https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main" alt="R-CMD-check"></a> <a href="https://app.codecov.io/gh/apaf-bioinformatics/HydraR" class="external-link"><img src="https://github.com/apaf-bioinformatics/HydraR/actions/workflows/test-coverage.yaml/badge.svg" alt="Test Coverage"></a> <a href="https://doi.org/10.5281/zenodo.19446742" class="external-link"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19446742.svg" alt="DOI"></a> <a href="https://apaf-bioinformatics.github.io/HydraR/" class="external-link"><img src="https://img.shields.io/badge/docs-pkgdown-blue.svg" alt="Documentation"></a>
 </p>
 </td>
 <td width="20%" align="center">
@@ -184,21 +184,17 @@ HydraR: Stateful Agentic Orchestration for R
 <h3 id="case-studies--examples">Case Studies &amp; Examples<a class="anchor" aria-label="anchor" href="#case-studies--examples"></a>
 </h3>
 <ul>
-<li>
-<strong>📍 <a href="vignettes/hong_kong_travel.Rmd">Sydney to Hong Kong Travel Planner</a></strong>: Demonstrates the <strong>Zero-R-Code</strong> orchestration pattern using YAML and Mermaid.</li>
-<li>
-<strong>🚀 <a href="vignettes/sorting_benchmark.Rmd">Parallel Sorting Benchmark</a></strong>: Shows how to use <strong>Git Worktrees</strong> for isolated, parallel agent execution.</li>
-<li>
-<strong>💾 <a href="vignettes/state_persistence.Rmd">State Persistence &amp; Restart</a></strong>: Explains how to use the <strong>DuckDB checkpointer</strong> for resilient, resumable workflows.</li>
-<li>
-<strong>🛠️ <a href="vignettes/extending_hydrar.Rmd">Creating Custom Drivers</a></strong>: Developer guide on subclassing <code>AgentDriver</code> for local LLMs or proprietary APIs.</li>
-<li>
-<strong>🎯 <a href="vignettes/targets_integration.Rmd">Targets Integration</a></strong>: Explains how to build reproducible, cached pipelines using the <code>targets</code> package.</li>
+<li>📍 <a href="vignettes/hong_kong_travel.html">Sydney to Hong Kong Travel Planner</a>: Demonstrates the <strong>Zero-R-Code</strong> orchestration pattern using YAML and Mermaid.</li>
+<li>🚀 <a href="vignettes/sorting_benchmark.html">Parallel Sorting Benchmark</a>: Shows how to use <strong>Git Worktrees</strong> for isolated, parallel agent execution.</li>
+<li>💾 <a href="vignettes/state_persistence.html">State Persistence &amp; Restart</a>: Explains how to use the <strong>DuckDB checkpointer</strong> for resilient, resumable workflows.</li>
+<li>🛠️ <a href="vignettes/extending_hydrar.html">Creating Custom Drivers</a>: Developer guide on subclassing <code>AgentDriver</code> for local LLMs or proprietary APIs.</li>
+<li>🎯 <a href="vignettes/targets_integration.html">Targets Integration</a>: Explains how to build reproducible, cached pipelines using the <code>targets</code> package.</li>
 </ul>
 </div>
 <div class="section level3">
 <h3 id="id_️-technical-documentation">🛠️ Technical Documentation<a class="anchor" aria-label="anchor" href="#id_%EF%B8%8F-technical-documentation"></a>
 </h3>
+<p>Visit the <strong><a href="https://apaf-bioinformatics.github.io/HydraR/" class="external-link">HydraR Documentation Website</a></strong> for the full API reference and rendered vignettes.</p>
 <p>For deep technical dives into the orchestration engine and developer tools, refer to the following manuals:</p>
 <ul>
 <li>
@@ -312,7 +308,7 @@ HydraR: Stateful Agentic Orchestration for R
 <h2 id="id_️-custom-drivers">🛠️ Custom Drivers<a class="anchor" aria-label="anchor" href="#id_%EF%B8%8F-custom-drivers"></a>
 </h2>
 <p><code>HydraR</code> is provider-agnostic. You can extend the framework by creating custom <code>R6</code> classes that inherit from <code>AgentDriver</code>. This allows you to drive: - <strong>Local LLMs</strong>: Integration with specialized local CLI wrappers (e.g., Ollama). - <strong>Enterprise APIs</strong>: Secure connection to internal LLM endpoints via <code>httr2</code>. - <strong>Mock Backends</strong>: Deterministic drivers for unit testing complex DAG logic.</p>
-<p>Refer to the <a href="vignettes/creating_drivers.Rmd">Creating Custom Drivers</a> guide for implementation details.</p>
+<p>Refer to the <a href="vignettes/extending_hydrar.html">Creating Custom Drivers</a> guide for implementation details.</p>
 </div>
 <div class="section level2">
 <h2 id="id_-authors">👥 Authors<a class="anchor" aria-label="anchor" href="#id_-authors"></a>

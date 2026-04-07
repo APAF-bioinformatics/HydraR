@@ -1,5 +1,21 @@
 # Changelog
 
+## HydraR 0.2.1 (Documentation & Case Study Sync)
+
+- **Markdown Vignettes Integration**: Introduced dedicated markdown
+  versions of core case studies (`hong_kong_travel.md`,
+  `sorting_benchmark.md`, `state_persistence.md`, `extending_hydrar.md`,
+  `targets_integration.md`) for easier discovery on GitHub and
+  documentation sites.
+- **Paper Synchronization**: Aligned README descriptions and examples
+  with the content of the ArXiv/JOSS manuscript.
+- **High-Resolution Assets**: Migrated high-quality figures and workflow
+  diagrams from the paper submission to the package’s documentation
+  assets (`man/figures/`).
+- **Standardized Technical Sources**: Each markdown vignette now
+  provides explicit links back to its source `.Rmd` counterpart for
+  Reproducible Research.
+
 ## HydraR 0.2.0.9000 (Standardized Drivers)
 
 - **Standardized Driver Architecture**: Renamed all core AI drivers for

@@ -1,8 +1,8 @@
 # HydraR: Stateful Agentic Orchestration for R
 
-|                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |                                                           |
-|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------:|
-| [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable) [![R-CMD-check](https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main)](https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml) [![Test Coverage](https://github.com/apaf-bioinformatics/HydraR/actions/workflows/test-coverage.yaml/badge.svg)](https://app.codecov.io/gh/apaf-bioinformatics/HydraR) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19446742.svg)](https://doi.org/10.5281/zenodo.19446742) | ![HydraR Hex Logo](reference/figures/hydrar_hex_logo.png) |
+|                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |                                                           |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------:|
+| [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable) [![R-CMD-check](https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main)](https://github.com/apaf-bioinformatics/HydraR/actions/workflows/R-CMD-check.yaml) [![Test Coverage](https://github.com/apaf-bioinformatics/HydraR/actions/workflows/test-coverage.yaml/badge.svg)](https://app.codecov.io/gh/apaf-bioinformatics/HydraR) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19446742.svg)](https://doi.org/10.5281/zenodo.19446742) [![Documentation](https://img.shields.io/badge/docs-pkgdown-blue.svg)](https://apaf-bioinformatics.github.io/HydraR/) | ![HydraR Hex Logo](reference/figures/hydrar_hex_logo.png) |
 
 ### *Stateful Agentic Orchestration for Scientific Reproducibility*
 
@@ -162,28 +162,32 @@ OPENAI_API_KEY="your_openai_api_key"
 
 ### Case Studies & Examples
 
-- **📍 [Sydney to Hong Kong Travel
-  Planner](https://github.com/APAF-bioinformatics/HydraR/vignettes/hong_kong_travel.Rmd)**:
+- 📍 [Sydney to Hong Kong Travel
+  Planner](https://github.com/APAF-bioinformatics/HydraR/vignettes/hong_kong_travel.md):
   Demonstrates the **Zero-R-Code** orchestration pattern using YAML and
   Mermaid.
-- **🚀 [Parallel Sorting
-  Benchmark](https://github.com/APAF-bioinformatics/HydraR/vignettes/sorting_benchmark.Rmd)**:
+- 🚀 [Parallel Sorting
+  Benchmark](https://github.com/APAF-bioinformatics/HydraR/vignettes/sorting_benchmark.md):
   Shows how to use **Git Worktrees** for isolated, parallel agent
   execution.
-- **💾 [State Persistence &
-  Restart](https://github.com/APAF-bioinformatics/HydraR/vignettes/state_persistence.Rmd)**:
+- 💾 [State Persistence &
+  Restart](https://github.com/APAF-bioinformatics/HydraR/vignettes/state_persistence.md):
   Explains how to use the **DuckDB checkpointer** for resilient,
   resumable workflows.
-- **🛠️ [Creating Custom
-  Drivers](https://github.com/APAF-bioinformatics/HydraR/vignettes/extending_hydrar.Rmd)**:
+- 🛠️ [Creating Custom
+  Drivers](https://github.com/APAF-bioinformatics/HydraR/vignettes/extending_hydrar.md):
   Developer guide on subclassing `AgentDriver` for local LLMs or
   proprietary APIs.
-- **🎯 [Targets
-  Integration](https://github.com/APAF-bioinformatics/HydraR/vignettes/targets_integration.Rmd)**:
+- 🎯 [Targets
+  Integration](https://github.com/APAF-bioinformatics/HydraR/vignettes/targets_integration.md):
   Explains how to build reproducible, cached pipelines using the
   `targets` package.
 
 ### 🛠️ Technical Documentation
+
+Visit the **[HydraR Documentation
+Website](https://apaf-bioinformatics.github.io/HydraR/)** for the full
+API reference and rendered vignettes.
 
 For deep technical dives into the orchestration engine and developer
 tools, refer to the following manuals:
@@ -335,7 +339,7 @@ endpoints via `httr2`. - **Mock Backends**: Deterministic drivers for
 unit testing complex DAG logic.
 
 Refer to the [Creating Custom
-Drivers](https://github.com/APAF-bioinformatics/HydraR/vignettes/creating_drivers.Rmd)
+Drivers](https://github.com/APAF-bioinformatics/HydraR/vignettes/extending_hydrar.md)
 guide for implementation details.
 
 ## 👥 Authors

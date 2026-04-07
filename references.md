@@ -11,6 +11,10 @@ standards.
   <https://github.com/GoogleCloudPlatform/generative-ai/tree/main/gemini/cli>
 - GitHub Copilot CLI: <https://github.com/github/gh-copilot>
 
+## Project Resources
+
+- HydraR Documentation: <https://apaf-bioinformatics.github.io/HydraR/>
+
 ## Package Dependencies
 
 - R6: <https://r6.r-lib.org/>
