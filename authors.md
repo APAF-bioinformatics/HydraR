@@ -12,9 +12,9 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/APAF-bioinformatics/HydraR/blob/main/DESCRIPTION)
+[`inst/CITATION`](https://github.com/APAF-bioinformatics/HydraR/blob/main/inst/CITATION)
 
-Pang CNI, Tay A (2026). *HydraR: Stateful Agentic Orchestration for
+Pang C, Tay A (2026). *HydraR: Stateful Agentic Orchestration for
 Scientific Reproducibility*. R package version 0.2.0,
 <https://github.com/APAF-bioinformatics/HydraR>.
 
