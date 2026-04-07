@@ -1,0 +1,34 @@
+name: 🚀 Enhancement
+description: Propose an enhancement to existing code
+title: "[ENHANCE] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please describe the proposed enhancement.
+        
+  - type: dropdown
+    id: enhancement-type
+    attributes:
+      label: Enhancement Type
+      description: What type of enhancement is this?
+      options:
+        - Performance Optimization
+        - Refactoring (Code Quality)
+        - User Experience (UI/UX)
+        - Security Hardening
+        - Maintainability
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Detailed Description
+      description: Provide a detailed description of the proposed enhancement
+      placeholder: Describe what needs to be improved and why...
+    validations:
+      required: true
+
+# <!-- APAF Bioinformatics | enhancement.yml | Approved | 2026-04-07 -->

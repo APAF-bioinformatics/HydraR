@@ -1,0 +1,67 @@
+name: 🐛 Bug Report
+description: Report a bug that requires investigation or fix
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this bug!
+        
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is this bug's impact on users?
+      options:
+        - Critical (System/Data Loss)
+        - High (Feature Unusable)
+        - Medium (Feature Degraded)
+        - Low (Minor Issue)
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How urgent is this bug to fix?
+      options:
+        - P0 (Fix Immediately)
+        - P1 (Fix This Sprint)
+        - P2 (Fix Next Sprint)
+        - P3 (Fix When Possible)
+    validations:
+      required: true
+      
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug Description
+      description: Provide a clear and concise description of the bug
+      placeholder: "Example: Data processing fails when handling large datasets"
+    validations:
+      required: true
+      
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to Reproduce
+      description: List the steps to reproduce this behavior
+      placeholder: |
+        1. Load dataset '...'
+        2. Run function '...'
+        3. See error
+    validations:
+      required: false
+      
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What should happen when following these steps?
+      placeholder: "The function should process the dataset and return results"
+    validations:
+      required: false
+
+# <!-- APAF Bioinformatics | bug_report.yml | Approved | 2026-04-07 -->
