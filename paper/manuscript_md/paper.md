@@ -178,6 +178,6 @@ Transparency and accountability are core tenets of the `HydraR` paradigm. A subs
 
 # Acknowledgements
 
-We acknowledge funding from **Bioplatforms Australia**, enabled by the **National Collaborative Research Infrastructure Strategy (NCRIS)**.
+This project was developed at the **Australian Proteome Analysis Facility (APAF)**, Macquarie University. We acknowledge funding from **Bioplatforms Australia**, enabled by the **National Collaborative Research Infrastructure Strategy (NCRIS)**. APAF is accredited by the **National Association of Testing Authorities (NATA)** for compliance with the international standard **ISO/IEC 17025** (accreditation number 20344).
 
 # References

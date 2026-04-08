@@ -19,7 +19,9 @@ test_that("OpenAICodexCLIDriver can execute a simple prompt via CLI", {
 
   # Execute a simple prompt
   # Use --sandbox read-only for safety (though it's default)
-  res <- drv$call("say 'hello codex' and nothing else", cli_opts = list(sandbox = "read-only"))
+  # Use skip_git_repo_check = TRUE because R CMD check runs in a temp dir without .git
+  res <- drv$call("say 'hello codex' and nothing else", 
+                  cli_opts = list(sandbox = "read-only", skip_git_repo_check = TRUE))
 
   # Validation
   expect_type(res, "character")

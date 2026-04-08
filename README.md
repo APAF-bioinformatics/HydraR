@@ -213,6 +213,18 @@ DiagrammeR::mermaid(dag$plot(status = TRUE))
 
 Refer to the [Creating Custom Drivers](vignettes/extending_hydrar.md) guide for implementation details.
 
+## 🤝 Acknowledgements
+
+This project was developed at the **Australian Proteome Analysis Facility (APAF)**, **Macquarie University**. We acknowledge funding from **Bioplatforms Australia**, enabled by the **National Collaborative Research Infrastructure Strategy (NCRIS)**. APAF is accredited by the **National Association of Testing Authorities (NATA)** for compliance with the international standard **ISO/IEC 17025** (accreditation number [20344](https://www.nata.com.au/directory/listings/australian-proteome-analysis-facility-apaf)).
+
+<p align="center">
+  <img src="man/figures/logo_mq.png" height="50" alt="Macquarie University Logo"> &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="man/figures/logo_apaf.png" height="50" alt="APAF Logo"> &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="man/figures/logo_bpa.png" height="50" alt="Bioplatforms Australia Logo"> &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="man/figures/logo_ncris.png" height="50" alt="NCRIS Logo">
+  <img src="man/figures/logo_nata.png" height="50" alt="NATA Logo">
+</p>
+
 ## 👥 Authors
 
 - **Chi Nam Ignatius Pang** ([ORCID: 0000-0001-9703-5741](https://orcid.org/0000-0001-9703-5741)) &mdash; Lead Architect

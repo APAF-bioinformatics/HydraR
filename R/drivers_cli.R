@@ -371,7 +371,7 @@ OpenAICodexCLIDriver <- R6::R6Class(
     #' @param working_dir String. Optional. Path to isolated Git worktree.
     initialize = function(id = "codex_cli", validation_mode = "warning", working_dir = NULL) {
       super$initialize(id, provider = "openai", model_name = "codex", validation_mode = validation_mode, working_dir = working_dir)
-      self$supported_opts <- c("model", "sandbox", "cd", "search", "add_dir", "ephemeral", "color")
+      self$supported_opts <- c("model", "sandbox", "cd", "search", "add_dir", "ephemeral", "color", "skip_git_repo_check")
     },
 
     #' Call the LLM

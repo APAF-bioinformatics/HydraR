@@ -11,7 +11,9 @@ test_that("AgentBashNode computes correctly", {
 test_that("AgentBashNode handles failure correctly", {
   skip_on_os("windows")
   node <- AgentBashNode$new("fail_bash", script = "exit 1")
-  res <- node$run(state = AgentState$new())
+  suppressWarnings({
+    res <- node$run(state = AgentState$new())
+  })
   expect_false(res$success)
   expect_equal(res$status_code, 1)
 })
