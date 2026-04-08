@@ -14,8 +14,8 @@ standards.
 ## Project Resources
 
 - HydraR Documentation: <https://apaf-bioinformatics.github.io/HydraR/>
-- HydraR v0.2.2 Release:
-  <https://github.com/APAF-bioinformatics/HydraR/releases/tag/v0.2.2>
+- HydraR v0.2.1 Release:
+  <https://github.com/APAF-bioinformatics/HydraR/releases/tag/v0.2.1>
 
 ## Package Dependencies
 

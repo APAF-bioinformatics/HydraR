@@ -1,13 +1,15 @@
 # Changelog
 
-## HydraR 0.2.2 (Final Polish & Acknowledgements)
+## HydraR 0.2.1 (Final Polish & Acknowledgements)
 
 - **Formal Acknowledgements**: Added a dedicated section to `README.md`
   and `paper.md` acknowledging funding from Bioplatforms Australia via
   NCRIS and the Australian Proteome Analysis Facility (APAF).
 - **Institutional Branding**: Integrated high-quality logo assets for
-  APAF, Macquarie University, Bioplatforms Australia, and NCRIS into the
-  documentation.
+  APAF, Macquarie University, Bioplatforms Australia, NCRIS, and NATA
+  into the documentation.
+- **Accreditation Detail**: Added formal NATA accreditation phrase
+  (ISO/IEC 17025) to Acknowledgements.
 - **Improved CLI Driver Resilience**:
   - Updated `OpenAICodexCLIDriver` to support `--skip-git-repo-check`,
     enabling reliable operation in non-Git temporary environments (e.g.,
@@ -16,22 +18,11 @@
     `--dangerously-skip-permissions` during verification.
 - **R CMD Check Cleanliness**: Resolved final test errors and silenced
   diagnostic warnings to achieve a 100% clean check state.
-
-## HydraR 0.2.1 (Documentation & Case Study Sync)
-
 - **Markdown Vignettes Integration**: Introduced dedicated markdown
   versions of core case studies (`hong_kong_travel.md`,
   `sorting_benchmark.md`, `state_persistence.md`, `extending_hydrar.md`,
   `targets_integration.md`) for easier discovery on GitHub and
   documentation sites.
-- **Paper Synchronization**: Aligned README descriptions and examples
-  with the content of the ArXiv/JOSS manuscript.
-- **High-Resolution Assets**: Migrated high-quality figures and workflow
-  diagrams from the paper submission to the package’s documentation
-  assets (`man/figures/`).
-- **Standardized Technical Sources**: Each markdown vignette now
-  provides explicit links back to its source `.Rmd` counterpart for
-  Reproducible Research.
 
 ## HydraR 0.2.0.9000 (Standardized Drivers)
 
