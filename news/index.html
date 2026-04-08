@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">HydraR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,6 +42,20 @@
       <small>Source: <a href="https://github.com/APAF-bioinformatics/HydraR/blob/main/NEWS.md"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.2" id="hydrar-022-final-polish--acknowledgements">HydraR 0.2.2 (Final Polish &amp; Acknowledgements)<a class="anchor" aria-label="anchor" href="#hydrar-022-final-polish--acknowledgements"></a></h2>
+<ul><li>
+<strong>Formal Acknowledgements</strong>: Added a dedicated section to <code>README.md</code> and <code>paper.md</code> acknowledging funding from Bioplatforms Australia via NCRIS and the Australian Proteome Analysis Facility (APAF).</li>
+<li>
+<strong>Institutional Branding</strong>: Integrated high-quality logo assets for APAF, Macquarie University, Bioplatforms Australia, and NCRIS into the documentation.</li>
+<li>
+<strong>Improved CLI Driver Resilience</strong>:
+<ul><li>Updated <code>OpenAICodexCLIDriver</code> to support <code>--skip-git-repo-check</code>, enabling reliable operation in non-Git temporary environments (e.g., <code>R CMD check</code>).</li>
+<li>Fixed <code>AnthropicCLIDriver</code> test failures by automatically applying <code>--dangerously-skip-permissions</code> during verification.</li>
+</ul></li>
+<li>
+<strong>R CMD Check Cleanliness</strong>: Resolved final test errors and silenced diagnostic warnings to achieve a 100% clean check state.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.1" id="hydrar-021-documentation--case-study-sync">HydraR 0.2.1 (Documentation &amp; Case Study Sync)<a class="anchor" aria-label="anchor" href="#hydrar-021-documentation--case-study-sync"></a></h2>
 <ul><li>

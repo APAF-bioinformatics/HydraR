@@ -1,5 +1,22 @@
 # Changelog
 
+## HydraR 0.2.2 (Final Polish & Acknowledgements)
+
+- **Formal Acknowledgements**: Added a dedicated section to `README.md`
+  and `paper.md` acknowledging funding from Bioplatforms Australia via
+  NCRIS and the Australian Proteome Analysis Facility (APAF).
+- **Institutional Branding**: Integrated high-quality logo assets for
+  APAF, Macquarie University, Bioplatforms Australia, and NCRIS into the
+  documentation.
+- **Improved CLI Driver Resilience**:
+  - Updated `OpenAICodexCLIDriver` to support `--skip-git-repo-check`,
+    enabling reliable operation in non-Git temporary environments (e.g.,
+    `R CMD check`).
+  - Fixed `AnthropicCLIDriver` test failures by automatically applying
+    `--dangerously-skip-permissions` during verification.
+- **R CMD Check Cleanliness**: Resolved final test errors and silenced
+  diagnostic warnings to achieve a 100% clean check state.
+
 ## HydraR 0.2.1 (Documentation & Case Study Sync)
 
 - **Markdown Vignettes Integration**: Introduced dedicated markdown

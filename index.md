@@ -342,6 +342,22 @@ Refer to the [Creating Custom
 Drivers](https://github.com/APAF-bioinformatics/HydraR/vignettes/extending_hydrar.md)
 guide for implementation details.
 
+## 🤝 Acknowledgements
+
+This project was developed at the **Australian Proteome Analysis
+Facility (APAF)**, **Macquarie University**. We acknowledge funding from
+**Bioplatforms Australia**, enabled by the **National Collaborative
+Research Infrastructure Strategy (NCRIS)**. APAF is accredited by the
+**National Association of Testing Authorities (NATA)** for compliance
+with the international standard **ISO/IEC 17025** (accreditation number
+[20344](https://www.nata.com.au/directory/listings/australian-proteome-analysis-facility-apaf)).
+
+![Macquarie University Logo](reference/figures/logo_mq.png)      ![APAF
+Logo](reference/figures/logo_apaf.png)      ![Bioplatforms Australia
+Logo](reference/figures/logo_bpa.png)      ![NCRIS
+Logo](reference/figures/logo_ncris.png)![NATA
+Logo](reference/figures/logo_nata.png)
+
 ## 👥 Authors
 
 - **Chi Nam Ignatius Pang** ([ORCID:
