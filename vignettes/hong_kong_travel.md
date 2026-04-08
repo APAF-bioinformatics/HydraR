@@ -8,10 +8,9 @@ In this example, an LLM **Planner** agent generates a draft itinerary, which is 
 
 Crucially, **conditional looping** between the planner and validator enforces an iterative refinement cycle until all strict parameters are met.
 
-## Results
-
-![Travel Pamphlet Page 1](../man/figures/Itinerary%20Page%201.png)
-![Travel Pamphlet Page 2](../man/figures/Itinerary%20Page%202.png)
+| Travel Pamphlet Page 1 | Travel Pamphlet Page 2 |
+|:---:|:---:|
+| ![Travel Pamphlet Page 1](../man/figures/itinerary_page_1.png) | ![Travel Pamphlet Page 2](../man/figures/itinerary_page_2.png) |
 *Figure 1: Multi-modal travel itinerary planner results showing generated visual content and final formatted itinerary.*
 
 ## Workflow Structure
