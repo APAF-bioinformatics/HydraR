@@ -9,7 +9,7 @@ This file contains all external URLs referenced within the `HydraR` package and 
 
 ## Project Resources
 - HydraR Documentation: https://apaf-bioinformatics.github.io/HydraR/
-- HydraR v0.2.2 Release: https://github.com/APAF-bioinformatics/HydraR/releases/tag/v0.2.2
+- HydraR v0.2.1 Release: https://github.com/APAF-bioinformatics/HydraR/releases/tag/v0.2.1
 
 ## Package Dependencies
 - R6: https://r6.r-lib.org/
