@@ -32,8 +32,9 @@ test_that("AnthropicCLIDriver can execute a simple prompt", {
       withr::with_options(list(timeout = 30), {
         # Ask for something very simple
         # Use dangerously_skip_permissions = TRUE because R CMD check runs in a temp dir
-        drv$call("echo 'hello world' and nothing else", 
-                 cli_opts = list(dangerously_skip_permissions = TRUE))
+        drv$call("echo 'hello world' and nothing else",
+          cli_opts = list(dangerously_skip_permissions = TRUE)
+        )
       })
     },
     error = function(e) {
