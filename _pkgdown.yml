@@ -10,7 +10,7 @@ navbar:
     right: [github]
   components:
       text: Get Started
-      href: articles/hong_kong_travel.html
+      href: articles/manual.html
 
 reference:
   - title: Core Orchestration
@@ -102,6 +102,10 @@ reference:
       - cleanup_jules_branches
 
 articles:
+  - title: Getting Started
+    navbar: Getting Started
+    contents:
+      - manual
   - title: Case Studies
     navbar: Case Studies
     contents:
