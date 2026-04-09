@@ -33,12 +33,12 @@ extract_edge_and_node_strings <- function(line) {
   # 1. Identify arrows using control character guards to prevent overlap
   # We use [^>-] to avoid accidental ASCII range interpretation.
   line_work <- line
-  line_work <- gsub("--\\s*([^>-]+?)\\s*-->", "\001\\1\002", line_work)
-  line_work <- gsub("-->\\s*\\|(.*?)\\|", "\001\\1\002", line_work)
-  line_work <- gsub("-->", "\001\002", line_work)
+  line_work <- gsub("--\\s*([^>-]+?)\\s*-->", "@@@\\1###", line_work)
+  line_work <- gsub("-->\\s*\\|(.*?)\\|", "@@@\\1###", line_work)
+  line_work <- gsub("-->", "@@@@@@###", line_work)
 
   # 2. Extract edge labels and nodes using regmatches (canonical split)
-  m <- gregexpr("\001[^\002]*\002", line_work, perl = TRUE)
+  m <- gregexpr("@@@[^###]*###", line_work, perl = TRUE)
   if (m[[1]][1] == -1) {
     parts <- line
     edge_labels <- character(0)
@@ -46,7 +46,7 @@ extract_edge_and_node_strings <- function(line) {
     # Extract labels
     all_match_strs <- regmatches(line_work, m)[[1]]
     edge_labels <- purrr::map_chr(all_match_strs, function(match_str) {
-      lbl <- gsub("^\001|\002$", "", match_str)
+      lbl <- gsub("^@@@|###$", "", match_str)
       # Also strip leading/trailing quotes from the label
       gsub("^\"|\"$", "", trimws(lbl))
     })
