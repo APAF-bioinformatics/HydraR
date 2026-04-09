@@ -62,7 +62,7 @@ test_that("Git Worktree Parallel Integration works", {
   # IMPORTANT: We use sequential plan here so that the pause status
   # from the MergeHarmonizer is correctly captured by the AgentDAG runner.
   future::plan(future::sequential)
-  results <- dag$run(use_worktrees = TRUE, repo_root = tmp_repo, initial_state = list(), fail_if_dirty = FALSE)
+  results <- suppressWarnings(dag$run(use_worktrees = TRUE, repo_root = tmp_repo, initial_state = list(), fail_if_dirty = FALSE))
 
   # 5. Verify Results
   expect_equal(results$status, "completed")
@@ -118,7 +118,7 @@ test_that("Merge Conflict detection works", {
   dag$add_edge("node_B", "merge")
 
   future::plan(future::sequential)
-  results <- dag$run(use_worktrees = TRUE, repo_root = tmp_repo, initial_state = list(), fail_if_dirty = FALSE)
+  results <- suppressWarnings(dag$run(use_worktrees = TRUE, repo_root = tmp_repo, initial_state = list(), fail_if_dirty = FALSE))
 
   # Should be paused due to conflict
   expect_equal(results$status, "paused")

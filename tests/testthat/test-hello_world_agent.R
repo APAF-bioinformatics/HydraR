@@ -65,10 +65,10 @@ test_that("Hello World Guesser loop works", {
     if_false = "Guesser"
   )
 
-  capture_warnings(dag$compile())
+  suppressWarnings(dag$compile())
   compiled_dag <- dag
   # Run the DAG
-  result <- compiled_dag$run(initial_state = list(), max_steps = 10)
+  result <- suppressWarnings(compiled_dag$run(initial_state = list(), max_steps = 10))
   # Assertions
   expect_equal(result$state$get("Guesser"), "hello")
   expect_true(result$state$get("valid"))

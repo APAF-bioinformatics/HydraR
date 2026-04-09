@@ -84,13 +84,13 @@ test_that("Blog Writer DAG loop works", {
     if_false = "Drafter"
   )
 
-  capture_warnings(dag$compile())
+  suppressWarnings(dag$compile())
   compiled_dag <- dag
 
-  result <- compiled_dag$run(
+  result <- suppressWarnings(compiled_dag$run(
     initial_state = list(blog_topic = "R Agents"),
     max_steps = 10
-  )
+  ))
   expect_equal(loop_count, 2)
   expect_equal(result$state$get("Editor"), "Approved")
 })

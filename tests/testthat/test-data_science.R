@@ -74,13 +74,13 @@ test_that("Data Science AutoML loop works", {
     if_false = "ModelTrainer"
   )
 
-  capture_warnings(dag$compile())
+  suppressWarnings(dag$compile())
   compiled_dag <- dag
   # Run the DAG
-  result <- compiled_dag$run(
+  result <- suppressWarnings(compiled_dag$run(
     initial_state = list(target_accuracy = 0.85),
     max_steps = 10
-  )
+  ))
   # Assertions
   # 0.60 -> 0.70 -> 0.80 -> 0.90 (Success)
   expect_equal(eval_count, 3)

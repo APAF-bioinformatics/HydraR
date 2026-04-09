@@ -69,13 +69,13 @@ test_that("Personalized Shopping loop works", {
     if_false = "Shopper"
   )
 
-  capture_warnings(dag$compile())
+  suppressWarnings(dag$compile())
   compiled_dag <- dag
   # Run the DAG
-  result <- compiled_dag$run(
+  result <- suppressWarnings(compiled_dag$run(
     initial_state = list(shopping_request = "Cool shirt"),
     max_steps = 10
-  )
+  ))
   # Assertions
   expect_equal(loop_count, 2)
   expect_equal(result$state$get("UserProxy"), "I'll buy it")

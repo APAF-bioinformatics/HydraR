@@ -69,10 +69,10 @@ test_that("Hong Kong planning loop works", {
     if_false = "TravelPlanner"
   )
 
-  capture_warnings(dag$compile())
+  suppressWarnings(dag$compile())
   compiled_dag <- dag
   # Run the DAG
-  result <- compiled_dag$run(initial_state = list(), max_steps = 5)
+  result <- suppressWarnings(compiled_dag$run(initial_state = list(), max_steps = 5))
   # Assertions
   expect_true(grepl("Spaghetti House", result$state$get("TravelPlanner"), ignore.case = TRUE))
   expect_true(result$state$get("validation_passed"))

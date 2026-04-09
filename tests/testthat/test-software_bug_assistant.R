@@ -66,13 +66,13 @@ test_that("Software Bug Assistant loop works", {
     if_false = "Analyzer"
   )
 
-  capture_warnings(dag$compile())
+  suppressWarnings(dag$compile())
   compiled_dag <- dag
   # Run the DAG
-  result <- compiled_dag$run(
+  result <- suppressWarnings(compiled_dag$run(
     initial_state = list(bug_report = "App crashes on startup"),
     max_steps = 10
-  )
+  ))
   # Assertions
   expect_equal(result$state$get("Analyzer"), "Use is.null(x)")
 })

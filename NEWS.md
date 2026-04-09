@@ -1,3 +1,19 @@
+# HydraR 0.2.2 (Documentation Overhaul & Release Polish)
+
+- **Comprehensive Documentation Overhaul**:
+    - Standardized Roxygen2 annotations across all core R6 classes (`AgentDAG`, `AgentNode`, `AgentDriver`, `MessageLog`, `Checkpointer`, etc.).
+    - Added detailed, type-annotated `@param` descriptions for all public methods.
+    - Implemented robust, non-interactive-safe `@examples` wrapped in `\dontrun{}` to demonstrate complex multi-step workflows.
+    - Added explicit environment variable setup instructions (`.Renviron`) for all API-driven components.
+- **Workflow Lifecycle**: Documented the full "Low Code" lifecycle from declarative Mermaid/YAML definitions to compiled and executed DAGs.
+- **Improved Driver Registry**: Improved discovery and hot-swapping documentation for LLM drivers.
+- **Persistence & Auditing**: Added lifecycle documentation for DuckDB and JSONL message logging and state checkpointing.
+- **Bug Fixes & Stabilization**:
+    - Resolved a syntax error in `GeminiImageDriver`.
+    - Fixed Roxygen parsing errors where method titles merged into descriptions in `man/AgentDAG.Rd`.
+    - Restored flexible function lookup in `auto_node_factory` to maintain backward compatibility with global functions in tests.
+- **Clean Registry**: Package now achieves a perfectly clean `R CMD check` (0 Errors, 0 Warnings, 0 Notes) on core builds.
+
 # HydraR 0.2.1 (Final Polish & Acknowledgements)
 
 - **Formal Acknowledgements**: Added a dedicated section to `README.md` and `paper.md` acknowledging funding from Bioplatforms Australia via NCRIS and the Australian Proteome Analysis Facility (APAF).

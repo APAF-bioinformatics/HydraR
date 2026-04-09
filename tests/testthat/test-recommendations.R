@@ -1,8 +1,4 @@
-library(testthat)
-library(HydraR)
-library(DBI)
-
-context("Technical Recommendations Verification")
+# Technical Recommendations Verification
 
 test_that("DuckDBSaver uses BLOB storage and Registry re-hydration", {
   skip_if_not_installed("duckdb")

@@ -81,7 +81,7 @@ test_that("Scenario 2: Fault-Tolerant Circular Routing (Loop + ErrorEdge)", {
   # Wait! B -- error --> C only triggers if B has status "failed" and AN ERROR EDGE exists.
   # add_edge recognizes "error" label.
 
-  res <- dag$run(initial_state = list())
+  res <- suppressWarnings(dag$run(initial_state = list()))
 
   expect_true("C" %in% names(res$results))
   expect_equal(my_env$fail_count, 1) # First failure takes error edge immediately if it exists
@@ -168,6 +168,6 @@ test_that("Scenario 5: Parallel/Worktree Mock Integration", {
   dag$nodes$B$logic_fn <- get_logic("parallel_task")
   dag$nodes$Merge$logic_fn <- function(s) list(status = "success")
 
-  res <- dag$run(initial_state = list())
+  res <- suppressWarnings(dag$run(initial_state = list()))
   expect_true("Merge" %in% names(res$results))
 })
