@@ -294,73 +294,109 @@ cat("\nLLM was called", driver$call_count, "times")
 
 ## Part 7: The YAML-First Approach (Declarative Workflows)
 
-Writing R code to build a DAG is perfectly fine for development, but for sharing, auditing, and version-controlling your workflows, HydraR offers a **declarative** alternative: YAML files with embedded Mermaid diagrams.
+Look back at Part 6. Building that Generate→Validate→Loop workflow took about 40 lines of R code, and that was with a mock driver. With a real driver and more realistic logic, it could easily be 60–80 lines. Now imagine handing that script to a collaborator who isn't an R programmer and asking them to audit the logic. It would be a tough conversation.
 
-### Why YAML?
+HydraR offers a radically simpler alternative: describe the **same** workflow in a YAML file, and let `spawn_dag()` build it for you.
 
-- **Readable by non-programmers**: A domain expert can audit the workflow structure without knowing R.
-- **Version-controllable**: YAML files produce clean, meaningful diffs in Git.
-- **Portable**: The same YAML file can be loaded in any R environment with HydraR installed.
+### The Same Workflow, In YAML
 
-### Anatomy of a Workflow File
+Here is the exact same Generate→Validate→Loop pattern from Part 6, written declaratively:
 
 ```yaml
-# my_workflow.yml
+# question_answerer.yml
 
-# The graph defines the topology using Mermaid syntax.
-# Node labels encode the type and parameters using pipe-separated key=value pairs.
 graph: |
   graph TD
-    Analyst["Research Analyst | type=llm | role_id=analyst_role"]
-    Reviewer["Quality Check | type=logic | logic_id=review_fn"]
-    Analyst --> Reviewer
-    Reviewer -- "fail" --> Analyst
+    Generator["Answer Generator | type=llm | role_id=answerer"]
+    Validator["Quality Gate | type=logic | logic_id=check_answer"]
+    Generator --> Validator
+    Validator -- "retry" --> Generator
 
-# Roles define the system prompts for LLM nodes.
 roles:
-  analyst_role: >
-    You are a senior research analyst. Provide concise, evidence-based
-    summaries of the data presented to you.
+  answerer: >
+    Answer the user's question concisely. Always include
+    the number 42 in your final answer.
 
-# Logic blocks define the R functions used by logic nodes.
-# These can be inline R code or paths to .R files.
 logic:
-  review_fn: |
+  check_answer: |
     function(state) {
-      output <- state$get("Analyst")
-      has_evidence <- grepl("evidence|data|study", output, ignore.case = TRUE)
-      list(status = "success", output = list(approved = has_evidence))
+      answer <- state$get("Generator")
+      is_good <- grepl("42", answer)
+      list(status = "success", output = list(passed = is_good))
     }
 
-# Conditional edges define the branching logic.
 conditional_edges:
-  Reviewer:
+  Validator:
     test: |
-      function(result) isTRUE(result$approved)
-    if_true: ~     # ~ means NULL (stop)
-    if_false: Analyst
+      function(result) isTRUE(result$passed)
+    if_true: ~          # ~ means NULL (stop — we're done)
+    if_false: Generator  # loop back and try again
 
-# Initial state seeds the workflow with starting data.
 initial_state:
-  research_question: "What are the effects of sleep deprivation on cognition?"
+  question: "What is the meaning of life?"
 ```
 
-### Loading and Running
+And the R code to run it:
 
 ```r
 library(HydraR)
 
-# Load the YAML file — this registers all roles and logic automatically
-wf <- load_workflow("my_workflow.yml")
+wf      <- load_workflow("question_answerer.yml")
+dag     <- spawn_dag(wf)
+results <- dag$run(initial_state = wf$initial_state, max_steps = 10)
 
-# Spawn a compiled DAG from the workflow definition
+cat("Final answer:", results$state$get("Generator"))
+```
+
+That's it. **Four lines of R** to execute the same iterative, self-correcting loop that took 40+ lines in Part 6.
+
+### Why is this better?
+
+| | Code-First (Part 6) | YAML-First (this section) |
+|:---|:---|:---|
+| **Lines of R code** | ~40 | 4 |
+| **Graph structure** | Buried in `add_node()` / `add_edge()` calls | Visible as a Mermaid flowchart |
+| **System prompt** | Hardcoded as a string argument | Named in `roles:`, reusable across workflows |
+| **Logic functions** | Defined inline, tightly coupled | Named in `logic:`, testable in isolation |
+| **Branching logic** | Programmatic `add_conditional_edge()` | Declarative `conditional_edges:` block |
+| **Shareable?** | Requires R expertise to read | A domain expert can read the YAML |
+
+The YAML file is the **single source of truth** for your workflow. You can version-control it, diff it in pull requests, and discuss it with collaborators who don't know R. Meanwhile, the R functions in the `logic:` block can be extracted into `.R` files and unit-tested independently.
+
+### Scaling Up: Why This Matters
+
+The advantage grows with complexity. Consider a realistic 8-node workflow with three LLM agents, two validation gates, a router, and a merge harmoniser. In code-first style, you'd be looking at 150+ lines of R with deeply nested constructor calls. In YAML, the Mermaid graph is still a readable 10-line flowchart, and each component is clearly separated under its own heading.
+
+### Anatomy of the YAML File
+
+Every workflow file supports these top-level keys:
+
+| Key | Purpose |
+|:---|:---|
+| `graph` | A Mermaid string (`graph TD` or `graph LR`) defining the topology. This is the visual blueprint. |
+| `roles` | Named system prompts for LLM nodes, referenced by `role_id`. |
+| `logic` | Named R functions (inline code or file paths to `.R` files), referenced by `logic_id`. |
+| `conditional_edges` | Branching logic: `test`, `if_true`, `if_false` per node. |
+| `error_edges` | Failover routing when a node returns a `failed` status. |
+| `start_node` | Explicit entry point (optional; defaults to root nodes). |
+| `initial_state` | Seed data injected into the `AgentState` before execution. |
+
+### Loading and Running (The Full Pattern)
+
+```r
+library(HydraR)
+
+# 1. Load — parses YAML, registers all roles and logic automatically
+wf <- load_workflow("question_answerer.yml")
+
+# 2. Spawn — builds the DAG, wires edges, compiles, validates
 dag <- spawn_dag(wf)
 
-# Run it
+# 3. Run — executes the workflow with the declared initial state
 results <- dag$run(initial_state = wf$initial_state)
 ```
 
-That's three lines of R code to execute an iterative, self-correcting AI workflow. The `spawn_dag()` function handles everything: parsing the Mermaid graph, instantiating the correct node types, wiring up conditional edges, and compiling the result.
+Three functions. That's the entire "Low Code" lifecycle: **Load → Spawn → Run**.
 
 ---
 
