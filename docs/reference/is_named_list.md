@@ -18,3 +18,18 @@ is_named_list(x)
 ## Value
 
 Logical.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# Valid named list
+is_named_list(list(a = 1, b = 2)) # TRUE
+
+# Invalid: contains unnamed elements
+is_named_list(list(a = 1, 2))      # FALSE
+
+# Invalid: data.frame (technically a list, but we want a record/dict)
+is_named_list(data.frame(a = 1))  # FALSE
+} # }
+```

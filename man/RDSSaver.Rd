@@ -13,12 +13,15 @@ file in a specified directory.
 }
 \examples{
 \dontrun{
-# Save checkpoints to a local directory
-saver <- RDSSaver$new(dir = "my_checkpoints")
+# 1. Persistent checkpointing to a local directory
+saver <- RDSSaver$new(dir = "vault/checkpoints")
 
-# Later, resume execution using the same thread_id
+# 2. Create a DAG and run it with a specific thread ID
 dag <- dag_create(checkpointer = saver)
-dag$run(thread_id = "session_001")
+dag$run(thread_id = "agent_session_alpha")
+
+# 3. Later, resume the same session - HydraR will load the RDS file
+dag$run(thread_id = "agent_session_alpha")
 }
 }
 \section{Super class}{

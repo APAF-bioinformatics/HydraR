@@ -17,12 +17,18 @@ environment variable. It is recommended to add this to your \code{.Renviron} fil
 }
 \examples{
 \dontrun{
-# Ensure ANTHROPIC_API_KEY is set in .Renviron
+# 1. Initialize the Claude Messages API driver
 driver <- AnthropicAPIDriver$new(model = "claude-3-opus-20240229")
 
+# 2. Perform a research task with reasoning constraints
 response <- driver$call(
-  prompt = "Write a poem about recursive graphs.",
-  cli_opts = list(temperature = 0)
+  prompt = "Summarize the differences between S3 and R6 classes in R.",
+  system_prompt = "You are a technical documentarian. Use markdown tables.",
+  cli_opts = list(
+    temperature = 0.2,
+    max_tokens = 1024,
+    stop_sequences = list("### Conclusion")
+  )
 )
 message(response)
 }

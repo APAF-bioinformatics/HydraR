@@ -9,7 +9,7 @@ Used by Conflict Harmonizer nodes."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">HydraR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,6 +21,9 @@ Used by Conflict Harmonizer nodes."></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Guide</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
@@ -154,6 +157,25 @@ Resolve a Conflict</p>
 
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># 1. Initialize a resolver with an LLM strategy</span></span></span>
+<span class="r-in"><span><span class="va">resolver</span> <span class="op">&lt;-</span> <span class="va">ConflictResolver</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  strategy <span class="op">=</span> <span class="st">"llm"</span>,</span></span>
+<span class="r-in"><span>  driver <span class="op">=</span> <span class="va"><a href="AnthropicAPIDriver.html">AnthropicAPIDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>model <span class="op">=</span> <span class="st">"claude-3-sonnet"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># 2. Resolve a detected conflict during a merge</span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="va">resolver</span><span class="op">$</span><span class="fu">resolve</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  repo_root <span class="op">=</span> <span class="st">"."</span>,</span></span>
+<span class="r-in"><span>  branch_a <span class="op">=</span> <span class="st">"feature-updates"</span>,</span></span>
+<span class="r-in"><span>  branch_b <span class="op">=</span> <span class="st">"main"</span>,</span></span>
+<span class="r-in"><span>  files <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"R/core.R"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

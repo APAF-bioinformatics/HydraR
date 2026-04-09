@@ -1,7 +1,12 @@
 # DuckDB Message Log R6 Class
 
-Persists messages to the master DuckDB database. Maintains an open
-connection for efficiency.
+A persistent implementation of `MessageLog` that writes messages to a
+centralized DuckDB database. This is the recommended logger for
+production and audit-heavy workflows.
+
+## Value
+
+A `DuckDBMessageLog` object.
 
 ## Super class
 
@@ -42,11 +47,13 @@ Initialize DuckDBMessageLog.
 
 - `db_path`:
 
-  String.
+  String. Path to the DuckDB file. If the file does not exist, it will
+  be created upon the first message log. Defaults to the master
+  `bot_history.duckdb`.
 
 #### Returns
 
-A new \`DuckDBMessageLog\` object.
+A new `DuckDBMessageLog` object.
 
 ------------------------------------------------------------------------
 
@@ -97,3 +104,21 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# 1. Persistent audit logging to DuckDB
+audit_log <- DuckDBMessageLog$new(
+  db_path = "data/agent_audit.duckdb"
+)
+
+# 2. Attach to a DAG and run
+dag <- dag_create(message_log = audit_log)
+dag$run(thread_id = "experiment_404")
+
+# 3. Retrieve and analyze messages from a previous session
+prev_logs <- audit_log$get_all()
+} # }
+```

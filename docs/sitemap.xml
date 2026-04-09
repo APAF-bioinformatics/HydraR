@@ -76,6 +76,15 @@
 <url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/dag_add_llm_node.html</loc></url>
 <url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/dag_add_logic_node.html</loc></url>
 <url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/dag_create.html</loc></url>
+<url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/dot-build_llm_node.html</loc></url>
+<url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/dot-build_logic_node.html</loc></url>
+<url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/dot-build_map_node.html</loc></url>
+<url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/dot-build_observer_node.html</loc></url>
+<url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/dot-build_router_node.html</loc></url>
+<url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/dot-is_branch_stale.html</loc></url>
+<url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/dot-lint_single_logic_block.html</loc></url>
+<url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/dot-resolve_file_pattern.html</loc></url>
+<url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/dot-resolve_registered_pattern.html</loc></url>
 <url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/extract_r_code_advanced.html</loc></url>
 <url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/format_toolset.html</loc></url>
 <url><loc>https://github.com/APAF-bioinformatics/HydraR/reference/get_agent_roles.html</loc></url>

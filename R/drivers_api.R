@@ -23,11 +23,19 @@
 #'
 #' @examples
 #' \dontrun{
-#' # Ensure OPENAI_API_KEY is set in .Renviron
+#' # 1. Standard API-based completion
 #' driver <- OpenAIAPIDriver$new(model = "gpt-4-turbo")
 #'
-#' # Perform a basic call
-#' response <- driver$call("What is the capital of France?")
+#' # 2. Advanced call with JSON mode and deterministic sampling
+#' # This ensures the LLM returns a strictly formatted JSON string.
+#' response <- driver$call(
+#'   prompt = "Return a JSON list of 3 common R packages for plotting.",
+#'   cli_opts = list(
+#'     temperature = 0,
+#'     response_format = list(type = "json_object"),
+#'     max_tokens = 500
+#'   )
+#' )
 #' message(response)
 #' }
 #' @export
@@ -144,12 +152,18 @@ OpenAIAPIDriver <- R6::R6Class(
 #'
 #' @examples
 #' \dontrun{
-#' # Ensure ANTHROPIC_API_KEY is set in .Renviron
+#' # 1. Initialize the Claude Messages API driver
 #' driver <- AnthropicAPIDriver$new(model = "claude-3-opus-20240229")
 #'
+#' # 2. Perform a research task with reasoning constraints
 #' response <- driver$call(
-#'   prompt = "Write a poem about recursive graphs.",
-#'   cli_opts = list(temperature = 0)
+#'   prompt = "Summarize the differences between S3 and R6 classes in R.",
+#'   system_prompt = "You are a technical documentarian. Use markdown tables.",
+#'   cli_opts = list(
+#'     temperature = 0.2,
+#'     max_tokens = 1024,
+#'     stop_sequences = list("### Conclusion")
+#'   )
 #' )
 #' message(response)
 #' }
@@ -264,10 +278,24 @@ AnthropicAPIDriver <- R6::R6Class(
 #'
 #' @examples
 #' \dontrun{
-#' # Ensure GOOGLE_API_KEY is set in .Renviron
+#' # 1. Initialize Gemini Pro API
 #' driver <- GeminiAPIDriver$new(model = "gemini-1.5-pro")
 #'
-#' response <- driver$call("Explain quantum entanglement to a 5-year old.")
+#' # 2. Advanced call with custom generation config and safety filtering
+#' response <- driver$call(
+#'   prompt = "Write a high-performance R function for matrix multiplication.",
+#'   cli_opts = list(
+#'     generationConfig = list(
+#'       temperature = 0.9,
+#'       topP = 0.8,
+#'       topK = 40,
+#'       maxOutputTokens = 2048
+#'     ),
+#'     safetySettings = list(
+#'       list(category = "HARM_CATEGORY_HARASSMENT", threshold = "BLOCK_LOW_AND_ABOVE")
+#'     )
+#'   )
+#' )
 #' }
 #' @export
 GeminiAPIDriver <- R6::R6Class("GeminiAPIDriver",
@@ -373,15 +401,20 @@ GeminiAPIDriver <- R6::R6Class("GeminiAPIDriver",
 #'
 #' @examples
 #' \dontrun{
-#' # Ensure GOOGLE_API_KEY is set in .Renviron
-#' driver <- GeminiImageDriver$new(output_dir = "plots")
+#' # 1. Generate a high-resolution laboratory illustration
+#' # Multimodal Gemini 3.1 models infer dimensions from prompt + config
+#' driver <- GeminiImageDriver$new(output_dir = "assets/media")
 #'
-#' # Generate an image and get the local path
+#' # 2. Request a specific aspect ratio and filename
 #' img_path <- driver$call(
-#'   prompt = "A futuristic bioinformatics lab with glowing DNA structures",
-#'   cli_opts = list(aspectRatio = "16:9")
+#'   prompt = "A futuristic bioinformatics lab with DNA holograms, hyper-realistic, 8k",
+#'   cli_opts = list(
+#'     aspectRatio = "16:9",
+#'     sampleCount = 1,
+#'     filename = "hero_dna_lab.png"
+#'   )
 #' )
-#' message("Image saved to: ", img_path)
+#' message("Hero image saved to: ", img_path)
 #' }
 #' @export
 GeminiImageDriver <- R6::R6Class("GeminiImageDriver",

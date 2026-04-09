@@ -3,6 +3,10 @@
 A security wrapper for AgentState that restricts access based on
 node_id. Implements "True Privacy" for inter-agent communication.
 
+## Value
+
+A \`RestrictedState\` object.
+
 ## Public fields
 
 - `state`:
@@ -45,7 +49,7 @@ node_id. Implements "True Privacy" for inter-agent communication.
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### Method [`new()`](https://rdrr.io/r/methods/new.html)
 
 Initialize RestrictedState
 
@@ -192,3 +196,20 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# 1. Secure state wrapper for a specific node
+global_state <- AgentState$new(initial_data = list(x = 1))
+node_state <- RestrictedState$new(state = global_state, node_id = "agent_01")
+
+# 2. Inter-agent private messaging (True Privacy)
+node_state$send_message(to = "agent_02", content = "Secret instructions")
+
+# 3. Recipient reads their own inbox
+recipient_state <- RestrictedState$new(state = global_state, node_id = "agent_02")
+messages <- recipient_state$receive_messages()
+} # }
+```

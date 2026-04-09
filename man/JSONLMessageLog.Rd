@@ -13,11 +13,16 @@ git worktrees as it uses atomic line appending.
 }
 \examples{
 \dontrun{
-# Create a logger that writes to a specific project file
-file_log <- JSONLMessageLog$new(path = "workflow_audit.jsonl")
+# 1. Create a file-based logger using JSONL format
+file_log <- JSONLMessageLog$new(path = "logs/pipeline_audit.jsonl")
 
-# Executing a DAG with this logger will populate the file
+# 2. Orchestrate a DAG with file-level auditing
 dag <- dag_create(message_log = file_log)
+dag$run(initial_state = list(x = 1))
+
+# 3. Read back the logs from the file
+logs <- file_log$get_all()
+print(logs[[1]])
 }
 }
 \section{Super class}{

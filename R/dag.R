@@ -23,31 +23,33 @@
 #'
 #' @examples
 #' \dontrun{
-#' # Define a simple linear workflow
+#' # 1. Define a complex DAG with branching, loops, and custom state
+#' # Initializing the orchestrator
 #' dag <- AgentDAG$new()
 #'
-#' # Define a logic function
-#' fetch_data <- function(state) {
-#'   list(status = "success", output = list(raw = "Some data"))
-#' }
+#' # Define logic for data retrieval and quality control
+#' register_logic("fetcher", function(state) list(status="success", output="raw data"))
+#' register_logic("gate", function(state) {
+#'   if (nchar(state$get("fetcher")) > 5) list(status="true") else list(status="false")
+#' })
 #'
-#' # Add nodes
-#' dag$add_node(AgentLogicNode$new("fetcher", logic_fn = fetch_data))
-#' dag_add_llm_node(
-#'   dag,
-#'   id = "analyzer",
-#'   role = "Analyze the data in the state.",
-#'   driver = GeminiCLIDriver$new()
-#' )
+#' # 2. Programmatic Node Construction
+#' dag$add_node(AgentLogicNode$new("start", logic_fn = get_logic("fetcher")))
+#' dag$add_node(AgentLogicNode$new("check", logic_fn = get_logic("gate")))
 #'
-#' # Connect nodes
-#' dag$add_edge("fetcher", "analyzer")
+#' # 3. Connecting nodes with status-based edges
+#' # Errors in 'start' go to a terminal cleanup node
+#' dag$add_edge("start", "check")
+#' dag$add_conditional_edge("check", test = function(res) res$status == "true",
+#'                          if_true = "process", if_false = "retry")
 #'
-#' # Compile and verify the graph
+#' # 4. Multi-agent execution context
+#' # Compiling and running with initial state
 #' dag$compile()
+#' final_state <- dag$run(initial_state = list(job_id = "123"))
 #'
-#' # Execution requires an initial state
-#' results <- dag$run(initial_state = list(input_file = "raw.txt"))
+#' # Checking results
+#' print(final_state$get_all())
 #' }
 #' @importFrom R6 R6Class
 #' @importFrom digest digest
@@ -1155,7 +1157,28 @@ AgentDAG$from_mermaid <- function(mermaid_str, node_factory = auto_node_factory(
 #' @return The AgentDAG object.
 #' @examples
 #' \dontrun{
-#' dag <- mermaid_to_dag("graph TD; A-->B;")
+#' # 1. High-level 'Logic-First' graph
+#' # Mapping Mermaid node labels to registered R functions
+#' dag1 <- mermaid_to_dag("graph TD; A[logic:fetch]-->B[logic:validate];")
+#'
+#' # 2. Complex 'Agent-First' graph with extended metadata
+#' # Explicitly defining roles, drivers, and models inside attributes
+#' mermaid_src <- '
+#' graph TD
+#'   A["Researcher | type=llm | role=Expert Analyst | model=sonnet"]
+#'   B["Critic | type=llm | role=Scientific Reviewer | temp=0.2"]
+#'   C["Refiner | type=logic | logic_id=refine_markdown"]
+#'
+#'   A --> B
+#'   B -- (feedback_required) --> A
+#'   B -- (approved) --> C
+#' '
+#'
+#' # Spawning the DAG
+#' dag2 <- mermaid_to_dag(mermaid_src)
+#'
+#' # Verification
+#' print(dag2$nodes$A$role) # "Expert Analyst"
 #' }
 #' @export
 mermaid_to_dag <- function(mermaid_str, node_factory = auto_node_factory()) {

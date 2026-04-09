@@ -1,7 +1,12 @@
 # MemorySaver Checkpointer
 
-In-memory implementation of the Checkpointer interface. Stores
-checkpoints in an R environment.
+An in-memory implementation of the `Checkpointer` interface. Stores
+checkpoints in a dedicated R environment. This is useful for testing or
+short-lived sessions where persistence to disk is not required.
+
+## Value
+
+A `MemorySaver` object.
 
 ## Super class
 
@@ -28,7 +33,7 @@ checkpoints in an R environment.
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### Method [`new()`](https://rdrr.io/r/methods/new.html)
 
 Initialize MemorySaver
 
@@ -93,3 +98,17 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# 1. Use MemorySaver for transient testing or short sessions
+saver <- MemorySaver$new()
+dag <- dag_create(checkpointer = saver)
+
+# 2. States are saved in the 'storage' environment under thread_id
+dag$run(thread_id = "test_run_01")
+ls(saver$storage) # Returns "test_run_01"
+} # }
+```

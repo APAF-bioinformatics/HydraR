@@ -21,13 +21,21 @@
 #'
 #' @examples
 #' \dontrun{
-#' # Basic DAG creation
+#' library(HydraR)
+#'
+#' # 1. Simple Audit-only DAG
 #' dag <- dag_create()
 #'
-#' # Creation with a persistent DuckDB audit log
-#' # Recommended for production workflows to ensure audutability.
+#' # 2. Production DAG with persistent DuckDB audit log and custom metadata
+#' # This pattern ensures every agent interaction is recorded for reproducibility.
 #' log <- DuckDBMessageLog$new(db_path = "audit_trail.duckdb")
 #' dag <- dag_create(message_log = log)
+#'
+#' # 3. Advanced setup with a pre-configured memory saver
+#' saver <- MemorySaver$new()
+#' cp <- Checkpointer$new(saver = saver)
+#' # Note: Checkpointer is typically assigned to the DAG after creation
+#' dag$checkpointer <- cp
 #' }
 dag_create <- function(message_log = NULL) {
   dag <- AgentDAG$new()
@@ -60,15 +68,25 @@ dag_create <- function(message_log = NULL) {
 #'
 #' @examples
 #' \dontrun{
-#' # NOTE: Ensure ANTHROPIC_API_KEY is set in your .Renviron file for this example.
-#'
-#' driver <- AnthropicAPIDriver$new()
-#' node <- add_llm_node(
-#'   id = "coder",
-#'   role = "You are an expert R programmer.",
+#' # Standard API-based agent with model overrides and safety parameters
+#' # Use Sys.getenv to securely load your API key from .Renviron
+#' driver <- AnthropicAPIDriver$new(api_key = Sys.getenv("ANTHROPIC_API_KEY"))
+#' node_coder <- add_llm_node(
+#'   id = "optimizer",
+#'   role = "You are an expert at optimizing R code for performance.",
 #'   driver = driver,
-#'   model = "claude-3-sonnet",
-#'   output_path = "scripts/generated_code.R"
+#'   model = "claude-3-opus-20240229",
+#'   cli_opts = list(temperature = 0, max_tokens = 1024),
+#'   output_path = "output/optimized.R"
+#' )
+#'
+#' # CLI-based agent with sandbox permissions and tool discovery
+#' gemini <- GeminiCLIDriver$new()
+#' node_researcher <- add_llm_node(
+#'   id = "researcher",
+#'   role = "Find bioinformatics papers on 'single-cell RNA-seq' using PubMed.",
+#'   driver = gemini,
+#'   cli_opts = list(allowed_tools = "pubmed_search,read_pdf", yolo = TRUE)
 #' )
 #' }
 add_llm_node <- function(id, role, driver, model = NULL, cli_opts = list(), ...) {
@@ -93,17 +111,25 @@ add_llm_node <- function(id, role, driver, model = NULL, cli_opts = list(), ...)
 #'
 #' @examples
 #' \dontrun{
-#' # Define a logic function that validates a previous node's output
-#' validator <- function(state) {
-#'   raw_data <- state$get("data_fetcher")
-#'   if (length(raw_data) > 0) {
-#'     list(status = "success", output = list(valid = TRUE))
+#' # 1. Validation Logic: Check if previous output meets quality thresholds
+#' quality_gate <- function(state) {
+#'   results <- state$get("researcher")
+#'   if (length(results$papers) >= 5) {
+#'     list(status = "success", output = list(proceed = TRUE))
 #'   } else {
-#'     list(status = "failed", output = list(valid = FALSE))
+#'     # 'pause' status can trigger a human-in-the-loop or a retry loop
+#'     list(status = "pause", output = list(reason = "insufficient results"))
 #'   }
 #' }
+#' node_gate <- add_logic_node("quality_gate", quality_gate)
 #'
-#' node <- add_logic_node("data_validator", validator)
+#' # 2. Data Transformation Logic: Clean and format LLM output
+#' cleaner <- function(state) {
+#'   raw_text <- state$get("coder")
+#'   clean_code <- extract_r_code_advanced(raw_text)
+#'   list(status = "success", output = list(code = clean_code))
+#' }
+#' node_clean <- add_logic_node("cleaner", cleaner)
 #' }
 add_logic_node <- function(id, logic_fn, ...) {
   AgentLogicNode$new(id = id, logic_fn = logic_fn, ...)
@@ -134,15 +160,20 @@ add_logic_node <- function(id, logic_fn, ...) {
 #'
 #' @examples
 #' \dontrun{
-#' # NOTE: Set GOOGLE_API_KEY in your .Renviron for Gemini drivers.
-#'
-#' dag <- dag_create()
-#' dag_add_llm_node(
-#'   dag,
-#'   id = "summary_node",
-#'   role = "Summarise the following text.",
-#'   driver = GeminiAPIDriver$new()
-#' )
+#' # Chaining nodes using the functional API
+#' # This pattern is common in complex HydraR orchestration scripts.
+#' dag <- dag_create() |>
+#'   dag_add_llm_node(
+#'     id = "writer",
+#'     role = "Academic technical writer",
+#'     driver = OpenAIAPIDriver$new(api_key = Sys.getenv("OPENAI_API_KEY"), model = "gpt-4-turbo")
+#'   ) |>
+#'   dag_add_llm_node(
+#'     id = "critic",
+#'     role = "Peer reviewer",
+#'     driver = AnthropicAPIDriver$new(api_key = Sys.getenv("ANTHROPIC_API_KEY"), model = "claude-3-sonnet"),
+#'     cli_opts = list(temperature = 0.2)
+#'   )
 #' }
 dag_add_llm_node <- function(dag, id, role, driver, model = NULL, cli_opts = list(), ...) {
   if (!inherits(dag, "AgentDAG")) {
@@ -163,8 +194,14 @@ dag_add_llm_node <- function(dag, id, role, driver, model = NULL, cli_opts = lis
 #'
 #' @examples
 #' \dontrun{
-#' dag <- dag_create()
-#' dag <- dag_add_logic_node(dag, "node1", function() print("Hello"))
+#' # Adding logic nodes to a production pipeline
+#' dag <- dag_create() |>
+#'   dag_add_llm_node("planner", "Project Manager", GeminiCLIDriver$new()) |>
+#'   dag_add_logic_node("audit_check", function(state) {
+#'     # Log state for external observability
+#'     message("Auditing current progress...")
+#'     list(status = "success", output = list(timestamp = Sys.time()))
+#'   })
 #' }
 dag_add_logic_node <- function(dag, id, logic_fn, ...) {
   if (!inherits(dag, "AgentDAG")) {
@@ -189,7 +226,12 @@ dag_add_logic_node <- function(dag, id, logic_fn, ...) {
 #'
 #' @examples
 #' \dontrun{
-#' node <- standard_node_factory("id", "label")
+#' # 1. Fast resolve from a Mermaid string with defaults
+#' drv <- resolve_default_driver("gemini")
+#' node <- standard_node_factory("n1", "logic:clean_data")
+#'
+#' # 2. Using the LLM type with a provided driver
+#' node_llm <- standard_node_factory("n2", "llm:Technical Writer", driver = drv)
 #' }
 standard_node_factory <- function(id, label, driver = NULL) {
   if (grepl("^logic:", label)) {
@@ -250,11 +292,16 @@ utils::globalVariables(c(
 #'
 #' @examples
 #' \dontrun{
-#' # Retrieve the default Gemini CLI driver
-#' drv <- resolve_default_driver("gemini")
+#' # 1. Simple shorthand resolution
+#' drv1 <- resolve_default_driver("gemini")      # GeminiCLIDriver
+#' drv2 <- resolve_default_driver("openai_api")  # OpenAIAPIDriver
 #'
-#' # Retrieve a registered API driver
-#' drv_api <- resolve_default_driver("openai_api")
+#' # 2. Resolution with a custom registry context
+#' reg <- DriverRegistry$new()
+#' reg$register(AnthropicCLIDriver$new(id = "my_custom_claude"))
+#'
+#' # This will find the driver in the provided registry
+#' drv3 <- resolve_default_driver("my_custom_claude", driver_registry = reg)
 #' }
 #' @export
 resolve_default_driver <- function(driver_id, driver_registry = NULL) {
@@ -386,24 +433,28 @@ resolve_default_driver <- function(driver_id, driver_registry = NULL) {
 #'
 #' @examples
 #' \dontrun{
-#' # Define a workflow entirely in Mermaid syntax
+#' # 'Low Code' workflow: resolve complex attributes from a Mermaid string
 #' mermaid_src <- '
 #' graph TD
-#'   A["Researcher | type=llm | role=Research Assistant | driver=gemini"]
-#'   B["Validator | type=logic | logic_id=validate_fn"]
+#'   A["Data Fetcher | type=llm | role=Expert Bioinformatician | model=gpt-4o"]
+#'   B["Quality Gate | type=logic | logic_id=validate_data"]
+#'   C["Reporter | type=llm | role=Technical Writer | driver=claude_cli"]
+#'
 #'   A --> B
+#'   B --> C
 #' '
 #'
-#' # Define the logic referenced in Mermaid
-#' register_logic("validate_fn", function(state) {
-#'   list(status = "success", output = list(ok = TRUE))
+#' # 1. Register the required logic in the registry
+#' register_logic("validate_data", function(state) {
+#'   raw <- state$get("A")
+#'   if (nchar(raw) > 100) list(status="success") else list(status="failed")
 #' })
 #'
-#' # Spawn the DAG using the automatic factory
-#' dag <- AgentDAG$from_mermaid(
-#'   mermaid_src,
-#'   node_factory = auto_node_factory()
-#' )
+#' # 2. Create the DAG using the automatic factory
+#' factory <- auto_node_factory()
+#' dag <- mermaid_to_dag(mermaid_src, node_factory = factory)
+#'
+#' # Result: n1 is an AgentLLMNode (OpenAI), n2 is Logic, n3 is AgentLLMNode (Claude)
 #' }
 #' @export
 auto_node_factory <- function(driver_registry = NULL) {

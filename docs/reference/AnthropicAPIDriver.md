@@ -1,6 +1,17 @@
 # Anthropic API Driver
 
-Implementation of the Anthropic Messages API.
+A specialized `AgentDriver` for the Anthropic Messages API, providing
+access to the Claude family of models.
+
+## Value
+
+An `AnthropicAPIDriver` object.
+
+## Details
+
+**Setup**: To use this driver, you must set the `ANTHROPIC_API_KEY`
+environment variable. It is recommended to add this to your `.Renviron`
+file: `ANTHROPIC_API_KEY="sk-ant-..."`
 
 ## Super class
 
@@ -52,23 +63,23 @@ Initialize AnthropicAPIDriver
 
 - `id`:
 
-  String. Unique identifier.
+  String. Unique identifier for this driver instance.
 
 - `model`:
 
-  String. Model name.
+  String. The Anthropic model ID (e.g., `"claude-3-sonnet"`).
 
 - `validation_mode`:
 
-  String. "warning" or "strict".
+  String. Driver validation strictness level.
 
 - `working_dir`:
 
-  String. Optional. Path to worktree.
+  String. Optional. Base directory for file-system operations.
 
 #### Returns
 
-A new \`AnthropicAPIDriver\` object. Get Capabilities
+A new `AnthropicAPIDriver` object. Get Capabilities
 
 ------------------------------------------------------------------------
 
@@ -137,3 +148,24 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# 1. Initialize the Claude Messages API driver
+driver <- AnthropicAPIDriver$new(model = "claude-3-opus-20240229")
+
+# 2. Perform a research task with reasoning constraints
+response <- driver$call(
+  prompt = "Summarize the differences between S3 and R6 classes in R.",
+  system_prompt = "You are a technical documentarian. Use markdown tables.",
+  cli_opts = list(
+    temperature = 0.2,
+    max_tokens = 1024,
+    stop_sequences = list("### Conclusion")
+  )
+)
+message(response)
+} # }
+```

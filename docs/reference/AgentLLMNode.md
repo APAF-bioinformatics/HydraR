@@ -1,10 +1,14 @@
 # Agent LLM Node R6 Class
 
-A node that uses an LLM driver for execution.
+A specialized `AgentNode` that leverages a Large Language Model (LLM) to
+generate outputs from prompts. It manages prompt construction by
+combining a persistent `role` (system prompt) with dynamic context from
+the `AgentState`. It also handles tool injection and automatic context
+discovery from local files (e.g., `agents.md`, `skills.md`).
 
 ## Value
 
-An \`AgentLLMNode\` object.
+An `AgentLLMNode` object.
 
 ## Super class
 
@@ -87,52 +91,61 @@ Initialize AgentLLMNode
 
 - `id`:
 
-  Unique identifier.
+  String. Unique identifier for the node.
 
 - `role`:
 
-  System prompt.
+  String. The primary system prompt or persona the LLM should assume.
 
 - `driver`:
 
-  AgentDriver object.
+  AgentDriver. An instance of an `AgentDriver` subclass (CLI or API
+  based).
 
 - `model`:
 
-  String. Optional model override.
+  String. Optional. The specific model to use (overrides driver
+  default).
 
 - `cli_opts`:
 
-  List. Optional default CLI options.
+  List. Optional. Named list of parameters for the LLM call (e.g.,
+  temperature).
 
 - `prompt_builder`:
 
-  Function(state) -\> String.
+  Function. Optional. A function that takes an `AgentState` and returns
+  a string prompt. If omitted, the node serializes the entire state as
+  JSON.
 
 - `tools`:
 
-  List of AgentTool objects.
+  List. A list of `AgentTool` objects available for the agent to use.
 
 - `label`:
 
-  Optional human-readable name.
+  String. Human-readable name for visualization.
 
 - `params`:
 
-  Optional list of parameters.
+  List. Additional configuration (e.g., `output_format="r"`).
 
 - `agents_files`:
 
-  Optional character vector of paths to agents.md files.
+  Character vector. Optional paths to markdown files containing agent
+  interaction guidelines.
 
 - `skills_files`:
 
-  Optional character vector of paths to skills.md files. Run the LLM
-  Node
+  Character vector. Optional paths to markdown files containing
+  specialized tool instructions. Run the LLM Node
 
 ------------------------------------------------------------------------
 
 ### Method `run()`
+
+Executes the LLM call. This method handles prompt construction, tool
+injection, context file discovery, and driver invocation.
 
 #### Usage
 
@@ -142,15 +155,17 @@ Initialize AgentLLMNode
 
 - `state`:
 
-  AgentState object.
+  AgentState. The centralized state object for the workflow.
 
 - `...`:
 
-  Additional arguments.
+  Additional arguments. Passed through to the driver's
+  [`call()`](https://rdrr.io/r/base/call.html) method.
 
 #### Returns
 
-List with status, output, and metadata. Swap Driver at Runtime
+A list containing `status`, `output` (the LLM response), `raw` (the full
+driver response), and meta-information. Swap Driver at Runtime
 
 ------------------------------------------------------------------------
 
@@ -186,6 +201,17 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-node <- AgentLLMNode$new("chat", role = "helpful assistant")
+# NOTE: Set ANTHROPIC_API_KEY in your .Renviron file
+driver <- AnthropicAPIDriver$new()
+
+# Create a node with a prompt builder that pulls from state
+node <- AgentLLMNode$new(
+  id = "summarizer",
+  role = "You are a concise summarizer.",
+  driver = driver,
+  prompt_builder = function(state) {
+    sprintf("Summarise this text: %s", state$get("input_text"))
+  }
+)
 } # }
 ```

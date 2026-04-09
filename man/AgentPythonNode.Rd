@@ -11,8 +11,28 @@ Executes a python script via system python or reticulate.
 }
 \examples{
 \dontrun{
-node <- AgentPythonNode$new(id = "py_1")
-node$call("print('hello')")
+# 1. Pure system-level Python execution (isolated process)
+node_sys <- AgentPythonNode$new(
+  id = "py_cleaner",
+  script = "print('Cleaning data...'); result = 10",
+  engine = "system2"
+)
+
+# 2. Reticulate-based execution with shared memory
+# This allows the 'result' variable in Python to be returned as an R object.
+node_retic <- AgentPythonNode$new(
+  id = "py_stats",
+  script = "
+import numpy as np
+data = np.array([1, 2, 3, 4, 5])
+result = data.mean()
+  ",
+  engine = "reticulate"
+)
+
+# Execute and retrieve the 'result' object
+res <- node_retic$run(state = AgentState$new())
+message("Mean calculated in Python: ", res$result)
 }
 }
 \section{Super class}{

@@ -1,10 +1,13 @@
 # Agent Node Base Class
 
-The base R6 class for all nodes in an AgentDAG.
+The abstract base R6 class for all nodes within an `AgentDAG`. It
+defines the common interface and fields required for any node to be
+orchestrated by the HydraR engine. Subclasses must implement the `run()`
+method.
 
 ## Value
 
-An \`AgentNode\` object.
+An `AgentNode` object.
 
 ## Public fields
 
@@ -48,15 +51,20 @@ Initialize AgentNode
 
 - `id`:
 
-  Unique identifier.
+  String. A unique identifier for the node. Must be unique within a
+  single DAG.
 
 - `label`:
 
-  Optional human-readable name.
+  String. An optional human-readable name for the node. Defaults to the
+  `id` if not provided. This label is used in Mermaid visualizations.
 
 - `params`:
 
-  Optional named list of parameters. Run the Node
+  List. An optional named list of arbitrary metadata or configuration
+  parameters that are stored on the node and can be accessed during
+  execution. Useful for passing static configuration to nodes created
+  via factories. Run the Node
 
 ------------------------------------------------------------------------
 
@@ -70,15 +78,19 @@ Initialize AgentNode
 
 - `state`:
 
-  AgentState object.
+  AgentState. An `AgentState` object (typically a `RestrictedState`)
+  providing scoped access to the centralized workflow memory.
 
 - `...`:
 
-  Additional arguments.
+  Additional arguments. Arbitrary parameters passed from
+  `AgentDAG$run()`.
 
 #### Returns
 
-List with status, output, and metadata.
+A list with at least `status` (String, e.g., "success", "failed",
+"pause") and `output` (Any R object to be integrated back into the
+state).
 
 ------------------------------------------------------------------------
 
@@ -99,5 +111,16 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
-node <- AgentNode$new("my_node", label = "Custom Node")
+# Defining a custom subclass of AgentNode
+CustomNode <- R6::R6Class("CustomNode",
+  inherit = AgentNode,
+  public = list(
+    run = function(state, ...) {
+      message("Executing custom node: ", self$id)
+      list(status = "success", output = "Custom output")
+    }
+  )
+)
+
+node <- CustomNode$new("node_1", label = "My First Node")
 ```

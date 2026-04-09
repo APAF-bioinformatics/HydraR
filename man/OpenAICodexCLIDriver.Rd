@@ -12,10 +12,17 @@ This model is legacy but still supported for specific code-generation tasks.
 }
 \examples{
 \dontrun{
-# Ensure Codex CLI is installed and authenticated
+# 1. Legacy Codex CLI support
 driver <- OpenAICodexCLIDriver$new()
 
-response <- driver$call("Create a data.frame with 5 rows and 2 columns.")
+# 2. Isolated execution with skip-checks for specific environments
+response <- driver$call(
+  prompt = "Create a data.frame with 5 rows and 2 columns.",
+  cli_opts = list(
+    sandbox = TRUE,
+    skip_git_repo_check = TRUE
+  )
+)
 }
 }
 \section{Super class}{

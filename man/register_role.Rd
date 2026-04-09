@@ -23,9 +23,17 @@ multiple DAGs or workflows.
 }
 \examples{
 \dontrun{
+# Define a specific identity for a bioinformatics analyst
 register_role(
-  name = "r_developer",
-  prompt_text = "You are an expert R developer specializing in R6 and S4."
+  name = "bio_analyst",
+  prompt_text = "You are a senior bioinformatician specializing in NGS data. 
+  Always provide R code for visualization using ggplot2."
+)
+
+# Register a reviewer role
+register_role(
+  name = "reviewer",
+  prompt_text = "You are a rigorous peer reviewer. Check for statistical accuracy."
 )
 }
 }

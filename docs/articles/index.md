@@ -1,5 +1,10 @@
 # Articles
 
+### Getting Started
+
+- [HydraR: The Complete
+  Guide](https://github.com/APAF-bioinformatics/HydraR/articles/manual.md):
+
 ### Case Studies
 
 - [Agentic Travel Planning: Sydney to Hong

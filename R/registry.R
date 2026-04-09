@@ -26,12 +26,17 @@
 #'
 #' @examples
 #' \dontrun{
-#' # Register a logic function for use in a DAG
-#' my_fn <- function(state) {
-#'   input <- state$get("raw_input")
-#'   list(status = "success", output = nchar(input))
+#' # 1. Register a simple math function
+#' register_logic("add_one", function(state) list(status="ok", output=state$get("x")+1))
+#'
+#' # 2. Register a complex validation function that uses the Logic Registry
+#' # This function can now be referenced by name 'validate_results' in any YAML workflow.
+#' validate_results <- function(state) {
+#'   results <- state$get("researcher_node")
+#'   if (is.null(results)) return(list(status = "failed", message = "No results found"))
+#'   list(status = "success", output = list(valid = TRUE))
 #' }
-#' register_logic("calculate_length", my_fn)
+#' register_logic("validate_results", validate_results)
 #' }
 #' @export
 register_logic <- function(name, fn) {
@@ -45,7 +50,11 @@ register_logic <- function(name, fn) {
 #' @return Function or NULL.
 #' @examples
 #' \dontrun{
-#' func <- get_logic("my_logic")
+#' # Retrieve a function by name for manual node construction
+#' logic_fn <- get_logic("validate_results")
+#' if (!is.null(logic_fn)) {
+#'   node <- AgentLogicNode$new(id = "validator", logic_fn = logic_fn)
+#' }
 #' }
 #' @export
 get_logic <- function(name) {
@@ -59,7 +68,9 @@ get_logic <- function(name) {
 #' @return Character vector of names.
 #' @examples
 #' \dontrun{
-#' list_logic()
+#' # Check which custom logic functions are currently available
+#' available_logic <- list_logic()
+#' message("Registered logic: ", paste(available_logic, collapse = ", "))
 #' }
 #' @export
 list_logic <- function() {
@@ -82,9 +93,17 @@ list_logic <- function() {
 #'
 #' @examples
 #' \dontrun{
+#' # Define a specific identity for a bioinformatics analyst
 #' register_role(
-#'   name = "r_developer",
-#'   prompt_text = "You are an expert R developer specializing in R6 and S4."
+#'   name = "bio_analyst",
+#'   prompt_text = "You are a senior bioinformatician specializing in NGS data. 
+#'   Always provide R code for visualization using ggplot2."
+#' )
+#'
+#' # Register a reviewer role
+#' register_role(
+#'   name = "reviewer",
+#'   prompt_text = "You are a rigorous peer reviewer. Check for statistical accuracy."
 #' )
 #' }
 #' @export
@@ -100,7 +119,9 @@ register_role <- function(name, prompt_text) {
 #' @return String prompt text, or NULL if not found.
 #' @examples
 #' \dontrun{
-#' role <- get_role("developer")
+#' # Resolve a role for an LLM node manually
+#' role_prompt <- get_role("bio_analyst")
+#' node <- AgentLLMNode$new(id="a1", role=role_prompt, driver=GeminiCLIDriver$new())
 #' }
 #' @export
 get_role <- function(name) {
@@ -115,7 +136,9 @@ get_role <- function(name) {
 #' @return Character vector of role names.
 #' @examples
 #' \dontrun{
-#' roles <- get_agent_roles()
+#' # List all personas currently registered in the system
+#' personas <- get_agent_roles()
+#' stopifnot("bio_analyst" %in% personas)
 #' }
 #' @export
 get_agent_roles <- function() {
@@ -139,15 +162,21 @@ get_agent_roles <- function() {
 #'
 #' @examples
 #' \dontrun{
-#' # Load a workflow from a YAML file
-#' # Expected YAML structure:
+#' # 1. Prepare a YAML workflow with relative logic paths
+#' # my_workflow.yaml:
+#' # roles:
+#' #   analyst: "You are an analyst."
 #' # graph: |
 #' #   graph TD
-#' #     A[type=llm | role=analyst]
-#' # wf <- load_workflow("config/bioinfo_pipeline.yaml")
+#' #     A[type=llm | role_id=analyst]-->B[type=logic | logic_id=clean_data]
+#' # logic:
+#' #   clean_data: "scripts/clean.R"
 #'
-#' # Inspect the initial state defined in the file
-#' print(wf$initial_state)
+#' wf <- load_workflow("my_workflow.yaml")
+#'
+#' # 2. Key components are resolved during loading
+#' print(wf$roles$analyst)
+#' print(wf$logic$clean_data) # Returns the function sourced from scripts/clean.R
 #' }
 #' @export
 load_workflow <- function(file_path) {
@@ -228,10 +257,15 @@ load_workflow <- function(file_path) {
 #'
 #' @examples
 #' \dontrun{
-#' # Full lifecycle: Load -> Spawn -> Run
-#' wf <- load_workflow("orchestration_plans/main.yaml")
+#' # 1. Load the declarative plan
+#' # This registers roles and logic from the YAML into the global registry.
+#' wf <- load_workflow("plans/pipeline.yaml")
+#'
+#' # 2. Spawn the executable DAG
+#' # Uses auto_node_factory() to parse the Mermaid string in the YAML.
 #' dag <- spawn_dag(wf)
 #'
+#' # 3. Execute with initial data
 #' results <- dag$run(initial_state = wf$initial_state)
 #' }
 #' @export

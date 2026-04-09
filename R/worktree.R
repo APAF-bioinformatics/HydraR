@@ -16,7 +16,19 @@
 #' @return A `WorktreeManager` R6 object.
 #' @examples
 #' \dontrun{
-#' wt_manager <- WorktreeManager$new(repo_root = getwd())
+#' # 1. Initialize WorktreeManager for a specific repository
+#' wt_manager <- WorktreeManager$new(
+#'   repo_root = "~/Projects/my_repo",
+#'   base_branch = "develop",
+#'   cleanup_policy = "auto"
+#' )
+#'
+#' # 2. Create an isolated worktree for a parallel node
+#' wt_path <- wt_manager$create(node_id = "parallel_worker_A")
+#' message("Worktree created at: ", wt_path)
+#'
+#' # 3. Cleanup after success
+#' wt_manager$cleanup_node("parallel_worker_A", status = "success")
 #' }
 #' @importFrom R6 R6Class
 #' @importFrom purrr walk
@@ -299,7 +311,19 @@ WorktreeManager <- R6::R6Class("WorktreeManager",
 #' @importFrom R6 R6Class
 #' @examples
 #' \dontrun{
-#' resolver <- ConflictResolver$new(worktree_dir = ".")
+#' # 1. Initialize a resolver with an LLM strategy
+#' resolver <- ConflictResolver$new(
+#'   strategy = "llm",
+#'   driver = AnthropicAPIDriver$new(model = "claude-3-sonnet")
+#' )
+#'
+#' # 2. Resolve a detected conflict during a merge
+#' res <- resolver$resolve(
+#'   repo_root = ".",
+#'   branch_a = "feature-updates",
+#'   branch_b = "main",
+#'   files = c("R/core.R")
+#' )
 #' }
 #' @export
 ConflictResolver <- R6::R6Class("ConflictResolver",

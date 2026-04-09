@@ -1,11 +1,12 @@
 # DuckDBSaver Checkpointer
 
-Persistent implementation of the Checkpointer interface using DuckDB.
-Supports both direct DBI connections and file paths.
+A production-grade `Checkpointer` that utilizes DuckDB for
+high-performance state persistence. Supports BLOB storage of serialized
+R objects and concurrent access patterns.
 
 ## Value
 
-A \`DuckDBSaver\` R6 object.
+A `DuckDBSaver` R6 object.
 
 ## Super class
 
@@ -36,7 +37,7 @@ A \`DuckDBSaver\` R6 object.
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### Method [`new()`](https://rdrr.io/r/methods/new.html)
 
 Initialize DuckDBSaver
 
@@ -48,15 +49,17 @@ Initialize DuckDBSaver
 
 - `con`:
 
-  DBIConnection. Optional if db_path is provided.
+  DBIConnection. An existing DBI connection to a DuckDB instance.
 
 - `db_path`:
 
-  String path to DuckDB file. Optional if con is provided.
+  String. Path to a DuckDB file. If provided, the driver will handle the
+  connection internally.
 
 - `table_name`:
 
-  Name of the table to store checkpoints in. Save state
+  String. The name of the table used to store checkpoints. Defaults to
+  `"agent_checkpoints"`. Save state
 
 ------------------------------------------------------------------------
 
@@ -114,6 +117,18 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-saver <- DuckDBSaver$new(db_path = "checkpoints.duckdb")
+# 1. Production-ready persistence using DuckDB
+saver <- DuckDBSaver$new(
+  db_path = "storage/hydrar_main.duckdb",
+  table_name = "workflow_checkpoints"
+)
+
+# 2. Orchestrate a long-running DAG
+dag <- dag_create(checkpointer = saver)
+dag$run(thread_id = "genomic_alignment_job_42")
+
+# 3. Query the internal storage directly if needed
+library(DBI)
+DBI::dbGetQuery(saver$con, "SELECT thread_id, updated_at FROM workflow_checkpoints")
 } # }
 ```

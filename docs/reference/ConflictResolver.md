@@ -96,3 +96,23 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# 1. Initialize a resolver with an LLM strategy
+resolver <- ConflictResolver$new(
+  strategy = "llm",
+  driver = AnthropicAPIDriver$new(model = "claude-3-sonnet")
+)
+
+# 2. Resolve a detected conflict during a merge
+res <- resolver$resolve(
+  repo_root = ".",
+  branch_a = "feature-updates",
+  branch_b = "main",
+  files = c("R/core.R")
+)
+} # }
+```

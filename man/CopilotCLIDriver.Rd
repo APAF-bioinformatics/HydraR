@@ -16,11 +16,17 @@ authenticated via \code{gh auth login}.
 }
 \examples{
 \dontrun{
-# Use GitHub Copilot in the CLI
+# 1. Use GitHub Copilot CLI extension
 driver <- CopilotCLIDriver$new()
 
-# Suggest a complex regex for email validation
-response <- driver$call("Create a regex for validating RFC-5322 emails.")
+# 2. Request a terminal command with tool permissions
+response <- driver$call(
+  prompt = "Find all CSV files larger than 1MB and move them to 'data/'",
+  cli_opts = list(
+    allow_all_tools = TRUE,
+    no_custom_instructions = FALSE
+  )
+)
 }
 }
 \section{Super class}{

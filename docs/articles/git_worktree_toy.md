@@ -19,7 +19,6 @@ To avoid modifying your actual project, we’ll create a temporary Git
 repository in your [`tempdir()`](https://rdrr.io/r/base/tempfile.html).
 
 ``` r
-
 library(HydraR)
 library(withr)
 
@@ -46,7 +45,6 @@ To keep our architecture clean, we store all workflow components—agent
 roles and prompts—in a central registry.
 
 ``` r
-
 git_logic_registry <- list(
   # 1. Agent Roles
   roles = list(
@@ -70,7 +68,6 @@ handles both standard LLM nodes and specialized nodes like the **Merge
 Harmonizer**.
 
 ``` r
-
 git_node_factory <- function(id, label, params) {
   if (id == "merger") {
     # Resolve the specialized MergeHarmonizer node
@@ -97,7 +94,6 @@ string serves as the single source of truth for both structure and node
 metadata.
 
 ``` r
-
 mermaid_graph <- "
 graph TD
   code_creator[Code Creator | driver=gemini] --> merger
@@ -121,7 +117,6 @@ directory but **cannot** see your main repo files. 3. **Harmonize**: The
 branch.
 
 ``` r
-
 # Run the DAG from the temporary repo root
 results <- compiled_dag$run(
   initial_state = list(input = "Start execution"),

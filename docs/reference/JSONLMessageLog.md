@@ -1,8 +1,12 @@
 # JSONL Message Log R6 Class
 
-Persists messages to a JSON Lines file. Atomic file appending ensures
-that multiple parallel worktree processes can log messages without
-locking conflicts.
+A file-based implementation of `MessageLog` that appends messages to a
+JSON Lines file. This implementation is safe for parallel execution
+across git worktrees as it uses atomic line appending.
+
+## Value
+
+A `JSONLMessageLog` object.
 
 ## Super class
 
@@ -29,7 +33,7 @@ locking conflicts.
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### Method [`new()`](https://rdrr.io/r/methods/new.html)
 
 Initialize JSONLMessageLog.
 
@@ -41,7 +45,8 @@ Initialize JSONLMessageLog.
 
 - `path`:
 
-  String.
+  String. The output file path for the JSON Lines log. Defaults to a
+  temporary file.
 
 ------------------------------------------------------------------------
 
@@ -88,3 +93,20 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# 1. Create a file-based logger using JSONL format
+file_log <- JSONLMessageLog$new(path = "logs/pipeline_audit.jsonl")
+
+# 2. Orchestrate a DAG with file-level auditing
+dag <- dag_create(message_log = file_log)
+dag$run(initial_state = list(x = 1))
+
+# 3. Read back the logs from the file
+logs <- file_log$get_all()
+print(logs[[1]])
+} # }
+```

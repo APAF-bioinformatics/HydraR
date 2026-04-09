@@ -23,3 +23,16 @@ validate_workflow_full(dag, wf)
 ## Value
 
 Logical TRUE if valid, otherwise throws an error.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# Perform a deep audit of an instantiated DAG against its YAML source
+wf_data <- load_workflow("orchestration_plan.yaml")
+dag <- spawn_dag(wf_data)
+
+# This ensures no 'ghost' edges exist in the Mermaid graph
+validate_workflow_full(dag, wf_data)
+} # }
+```

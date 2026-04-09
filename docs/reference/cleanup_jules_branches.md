@@ -39,3 +39,19 @@ cleanup_jules_branches(
 ## Value
 
 A character vector of branches identified for deletion.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# 1. Identify stale branches without deleting (Dry Run)
+stale_branches <- cleanup_jules_branches(dry_run = TRUE)
+
+# 2. Perform aggressive cleanup of stale bot branches (> 48 hours)
+cleanup_jules_branches(
+  threshold_hours = 48,
+  dry_run = FALSE,
+  verbose = TRUE
+)
+} # }
+```

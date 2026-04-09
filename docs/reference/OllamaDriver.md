@@ -1,6 +1,17 @@
 # Ollama Driver R6 Class
 
-Driver for the 'ollama' CLI tool (local).
+A specialized `AgentDriver` for local execution of Open source models
+via the `ollama` CLI. Ideal for air-gapped or privacy-sensitive
+workflows.
+
+## Value
+
+An `OllamaDriver` object.
+
+## Details
+
+**Setup**: Ensure the `ollama` server is running locally. You can
+specify the binary path via `options(HydraR.ollama_path = "...")`.
 
 ## Super class
 
@@ -35,7 +46,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### Method [`new()`](https://rdrr.io/r/methods/new.html)
 
 Initialize OllamaDriver
 
@@ -140,3 +151,24 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# 1. Use llama3.2 locally via Ollama
+driver <- OllamaDriver$new(model = "llama3.2")
+
+# 2. Call with high-precision sampling and large context window
+# Ideal for summarizing long bioinformatics documents.
+response <- driver$call(
+  prompt = "Summarize the technical specifications for the 'samtools' format.",
+  cli_opts = list(
+    num_ctx = 32768,
+    temperature = 0.1,
+    repeat_penalty = 1.2,
+    seed = 42
+  )
+)
+} # }
+```

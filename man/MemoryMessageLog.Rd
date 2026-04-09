@@ -13,11 +13,16 @@ R session.
 }
 \examples{
 \dontrun{
-# Create a new memory logger
+# 1. Create a new memory logger for rapid prototyping
 log <- MemoryMessageLog$new()
 
-# The DAG will automatically call log$log() during execution
+# 2. Run a DAG and inspect logs after execution
 dag <- dag_create(message_log = log)
+dag$run(initial_state = list(input = "Hello"))
+
+# Inspect total messages captured
+all_messages <- log$get_all()
+message("Captured ", length(all_messages), " messages.")
 }
 }
 \section{Super class}{

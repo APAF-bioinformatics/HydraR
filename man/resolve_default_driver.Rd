@@ -26,10 +26,15 @@ using logic-friendly keys like \code{"gemini"}, \code{"claude"}, or \code{"opena
 }
 \examples{
 \dontrun{
-# Retrieve the default Gemini CLI driver
-drv <- resolve_default_driver("gemini")
+# 1. Simple shorthand resolution
+drv1 <- resolve_default_driver("gemini")      # GeminiCLIDriver
+drv2 <- resolve_default_driver("openai_api")  # OpenAIAPIDriver
 
-# Retrieve a registered API driver
-drv_api <- resolve_default_driver("openai_api")
+# 2. Resolution with a custom registry context
+reg <- DriverRegistry$new()
+reg$register(AnthropicCLIDriver$new(id = "my_custom_claude"))
+
+# This will find the driver in the provided registry
+drv3 <- resolve_default_driver("my_custom_claude", driver_registry = reg)
 }
 }

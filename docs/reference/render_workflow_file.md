@@ -33,3 +33,19 @@ render_workflow_file(file_path, output_file = NULL, status = FALSE, ...)
 
 A \`DiagrammeR\` htmlwidget if \`output_file\` is NULL, otherwise saves
 the file.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# 1. View interactive diagram in RStudio
+render_workflow_file("plans/main.yaml")
+
+# 2. Export high-resolution diagram for publication
+render_workflow_file(
+  file_path = "plans/main.yaml",
+  output_file = "reports/figures/workflow_v1.png",
+  status = TRUE # Colors nodes by their last status
+)
+} # }
+```

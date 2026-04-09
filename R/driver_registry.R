@@ -16,7 +16,17 @@
 #' @importFrom R6 R6Class
 #' @examples
 #' \dontrun{
+#' # 1. Create a registry and register multiple models
 #' reg <- DriverRegistry$new()
+#' reg$register(GeminiCLIDriver$new(id = "fast_model", model = "gemini-1.5-flash"))
+#' reg$register(GeminiCLIDriver$new(id = "smart_model", model = "gemini-1.5-pro"))
+#'
+#' # 2. Audit the registered drivers
+#' summary <- reg$list_drivers()
+#' print(summary)
+#'
+#' # 3. Fetch a specific driver by its shorthand ID
+#' my_drv <- reg$get("smart_model")
 #' }
 #' @export
 DriverRegistry <- R6::R6Class("DriverRegistry",
@@ -98,7 +108,11 @@ DriverRegistry <- R6::R6Class("DriverRegistry",
 #' @return The global DriverRegistry instance.
 #' @examples
 #' \dontrun{
+#' # Access the singleton registry used across the entire package
 #' reg <- get_driver_registry()
+#'
+#' # Register a global driver that any node can reference by name 'default'
+#' reg$register(OpenAIAPIDriver$new(id = "default"), overwrite = TRUE)
 #' }
 #' @export
 get_driver_registry <- function() {
@@ -113,7 +127,12 @@ get_driver_registry <- function() {
 #' @return NULL (invisibly)
 #' @examples
 #' \dontrun{
-#' set_default_driver(AnthropicCLIDriver$new())
+#' # 1. Set a global default driver for all LLM nodes
+#' set_default_driver(AnthropicCLIDriver$new(model = "claude-3-opus"))
+#'
+#' # 2. Or set it using an ID already present in the registry
+#' get_driver_registry()$register(GeminiCLIDriver$new(id = "fast-gen"))
+#' set_default_driver("fast-gen")
 #' }
 #' @export
 set_default_driver <- function(driver) {
@@ -129,7 +148,11 @@ set_default_driver <- function(driver) {
 #' @return AgentDriver object or NULL.
 #' @examples
 #' \dontrun{
+#' # Resolve the driver to be used when none is explicitly specified
 #' drv <- get_default_driver()
+#' if (!is.null(drv)) {
+#'   message("Using default provider: ", drv$provider)
+#' }
 #' }
 #' @export
 get_default_driver <- function() {
@@ -151,7 +174,9 @@ get_default_driver <- function() {
 #' @return String prompt text.
 #' @examples
 #' \dontrun{
-#' prompt <- get_role_prompt("developer")
+#' # Convenience helper to get role prompts from the Logic Registry
+#' register_role("assistant", "You are a helpful assistant.")
+#' p <- get_role_prompt("assistant")
 #' }
 #' @export
 get_role_prompt <- function(name) {

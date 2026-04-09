@@ -16,7 +16,6 @@ This is a classic “Generate-and-Test” self-healing loop.
 ## Setup
 
 ``` r
-
 library(HydraR)
 ```
 
@@ -27,7 +26,6 @@ configuration, LLM prompts, agent roles, and deterministic logic—in a
 central registry.
 
 ``` r
-
 bug_logic_registry <- list(
   # 0. Initial Configuration
   initial_state = list(
@@ -75,7 +73,6 @@ We use a factory function to dynamically create nodes based on their
 type and parameters defined in the Mermaid graph.
 
 ``` r
-
 bug_node_factory <- function(id, label, params) {
   # Driver resolution from Mermaid params
   driver_obj <- if (!is.null(params$driver) && params$driver == "gemini") GeminiCLIDriver$new() else NULL
@@ -107,7 +104,6 @@ string serves as the single source of truth for both structure and node
 metadata.
 
 ``` r
-
 mermaid_graph <- "
 graph TD
   Analyzer[Debugger Agent | driver=gemini] --> Tester
@@ -134,12 +130,10 @@ compiled_dag <- dag$compile()
 ## Visualizing the Workflow
 
 ``` r
-
 cat("```mermaid\n")
 ```
 
 ``` mermaid
-
 ``` r
 cat(compiled_dag$plot(type = "mermaid"))
 ```
@@ -163,10 +157,8 @@ graph TD
 ```
 
 ``` r
-
 cat("\n```\n")
 ```
-
 
     ## Running the Scenario
 

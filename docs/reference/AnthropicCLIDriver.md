@@ -1,6 +1,17 @@
 # Anthropic CLI Driver
 
-Driver for the Anthropic \`claude\` (Claude Code) CLI.
+A specialized `AgentDriver` for the Anthropic `claude` (Claude Code)
+CLI. Optimized for terminal-based engineering tasks.
+
+## Value
+
+An `AnthropicCLIDriver` object.
+
+## Details
+
+**Setup**: Requires `claude` (Anthropic CLI) to be installed and
+authenticated. Configure the path via
+`options(HydraR.claude_path = "...")` or in your `.Renviron`.
 
 ## Super class
 
@@ -124,3 +135,23 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# 1. Initialize the Claude Code CLI driver
+driver <- AnthropicCLIDriver$new(model = "sonnet")
+
+# 2. Execute a complex engineering task with budget constraints
+# and permission skipping for non-interactive automation.
+response <- driver$call(
+  prompt = "Refactor R/dag.R to use R6 private methods.",
+  cli_opts = list(
+    dangerously_skip_permissions = TRUE,
+    max_budget_usd = 5.0,
+    verbose = TRUE
+  )
+)
+} # }
+```

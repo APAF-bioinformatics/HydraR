@@ -1,6 +1,19 @@
 # Gemini CLI Driver R6 Class
 
-Driver for the 'gemini' CLI tool.
+A specialized `AgentDriver` that invokes the Google `gemini` CLI tool.
+This is the preferred driver for workflows requiring local tool use and
+filesystem interaction via the Google-native MCP bridge.
+
+## Value
+
+A `GeminiCLIDriver` object.
+
+## Details
+
+**Setup**: Requires the `gemini` CLI to be installed and in your PATH.
+You can override the binary path using:
+`options(HydraR.gemini_path = "/path/to/gemini")` or by setting the
+`HYDRAR_GEMINI_PATH` environment variable in your `.Renviron`.
 
 ## Super class
 
@@ -34,7 +47,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### Method [`new()`](https://rdrr.io/r/methods/new.html)
 
 Initialize GeminiCLIDriver
 
@@ -52,23 +65,25 @@ Initialize GeminiCLIDriver
 
 - `id`:
 
-  Unique identifier.
+  String. Unique identifier for this driver.
 
 - `model`:
 
-  String. Optional model.
+  String. The Gemini model ID (e.g., `"gemini-1.5-flash"`).
 
 - `validation_mode`:
 
-  String. "warning" or "strict".
+  String. Either `"warning"` or `"strict"`.
 
 - `working_dir`:
 
-  String. Optional. Path to isolated Git worktree.
+  String. Optional. Path to an isolated git worktree where the CLI will
+  execute.
 
 - `repo_root`:
 
-  String. Path to the main repository root. Call the LLM
+  String. Optional. Path to the main repository to enable cross-worktree
+  context. Call the LLM
 
 ------------------------------------------------------------------------
 
@@ -125,3 +140,24 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# 1. Standard CLI-based agent with model selection
+driver <- GeminiCLIDriver$new(model = "gemini-1.5-pro")
+
+# 2. Advanced call with MCP tool discovery and 'YOLO' mode enabled
+# This allows the agent to execute tools without interactive confirmation.
+response <- driver$call(
+  prompt = "Analyze the R scripts in this directory and suggest performance fixes.",
+  cli_opts = list(
+    allowed_tools = "ls,grep,read_file",
+    allowed_mcp_server_names = "filesystem,github",
+    yolo = TRUE,
+    include_directories = c("R", "tests")
+  )
+)
+} # }
+```

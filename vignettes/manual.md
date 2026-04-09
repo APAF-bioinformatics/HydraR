@@ -4,9 +4,9 @@
 
 If you've ever wished you could hand off a tedious, multi-step research task to an AI assistant—but needed the results to be *reproducible*, *auditable*, and *safe*—then HydraR is the tool you've been looking for.
 
-This guide will walk you through HydraR from the ground up. We'll start with the simplest possible example—a single node that says "hello"—and build our way up to workflows that loop, branch, checkpoint, and even run agents in isolated sandboxes. By the end, you'll be comfortable building your own agentic pipelines in R.
+This guide will walk you through HydraR from the ground up. We'll start with the fastest way to get a workflow running—a simple YAML file—and then show you the full R API for when you need maximum control. By the end, you'll be comfortable building your own agentic pipelines in R.
 
-No prior experience with AI orchestration is needed. If you can write an R function and read a flowchart, you're ready.
+No prior experience with AI orchestration is needed. If you can read a flowchart, you're ready.
 
 ---
 
@@ -68,7 +68,158 @@ Sys.getenv("GOOGLE_API_KEY")
 
 ---
 
-## Part 3: Your First Workflow (Code-First)
+## Part 3: Your First Workflow (YAML-First)
+
+The fastest way to build a HydraR workflow is to describe it in a **YAML file**. You draw the flowchart, declare your logic, and let HydraR wire everything together. No boilerplate, no constructor calls—just three lines of R to run it.
+
+### A Simple Question Answerer
+
+Let's build a workflow that asks an LLM a question, checks the answer, and loops back if the answer isn't good enough. Here's the entire workflow in one YAML file:
+
+```yaml
+# question_answerer.yml
+
+graph: |
+  graph TD
+    Generator["Answer Generator | type=llm | role_id=answerer"]
+    Validator["Quality Gate | type=logic | logic_id=check_answer"]
+    Generator --> Validator
+    Validator -- "retry" --> Generator
+
+roles:
+  answerer: >
+    Answer the user's question concisely. Always include
+    the number 42 in your final answer.
+
+logic:
+  check_answer: |
+    function(state) {
+      answer <- state$get("Generator")
+      is_good <- grepl("42", answer)
+      list(status = "success", output = list(passed = is_good))
+    }
+
+conditional_edges:
+  Validator:
+    test: |
+      function(result) isTRUE(result$passed)
+    if_true: ~          # ~ means NULL (stop — we're done)
+    if_false: Generator  # loop back and try again
+
+initial_state:
+  question: "What is the meaning of life?"
+```
+
+And the R code to run it:
+
+```r
+library(HydraR)
+
+wf      <- load_workflow("question_answerer.yml")
+dag     <- spawn_dag(wf)
+results <- dag$run(initial_state = wf$initial_state, max_steps = 10)
+
+cat("Final answer:", results$state$get("Generator"))
+```
+
+That's it. **Four lines of R** to execute an iterative, self-correcting loop. The YAML file is the single source of truth—you can version-control it, diff it in pull requests, and discuss it with collaborators who don't know R.
+
+### Anatomy of the YAML File
+
+Every workflow file supports these top-level keys:
+
+| Key | Purpose |
+|:---|:---|
+| `graph` | A Mermaid string (`graph TD` or `graph LR`) defining the topology. This is the visual blueprint. |
+| `roles` | Named system prompts for LLM nodes, referenced by `role_id`. |
+| `logic` | Named R functions (inline code or file paths to `.R` files), referenced by `logic_id`. |
+| `conditional_edges` | Branching logic: `test`, `if_true`, `if_false` per node. |
+| `error_edges` | Failover routing when a node returns a `failed` status. |
+| `start_node` | Explicit entry point (optional; defaults to root nodes). |
+| `initial_state` | Seed data injected into the `AgentState` before execution. |
+
+### The Load → Spawn → Run Lifecycle
+
+```r
+library(HydraR)
+
+# 1. Load — parses YAML, registers all roles and logic automatically
+wf <- load_workflow("question_answerer.yml")
+
+# 2. Spawn — builds the DAG, wires edges, compiles, validates
+dag <- spawn_dag(wf)
+
+# 3. Run — executes the workflow with the declared initial state
+results <- dag$run(initial_state = wf$initial_state)
+```
+
+Three functions. That's the entire "Low Code" lifecycle: **Load → Spawn → Run**.
+
+### Adding Persistence to YAML
+
+In production, you rarely want to lose your workflow state if R crashes. You can add persistence to your YAML workflow by passing a `checkpointer` and a `message_log` to the `run()` method:
+
+```r
+library(HydraR)
+
+# 1. Setup persistent storage
+saver <- DuckDBSaver$new(db_path = "workflows.duckdb")
+log   <- DuckDBMessageLog$new(db_path = "audit_log.duckdb")
+
+# 2. Load and Run
+wf      <- load_workflow("question_answerer.yml")
+dag     <- spawn_dag(wf)
+results <- dag$run(
+  initial_state = wf$initial_state,
+  checkpointer  = Checkpointer$new(saver = saver),
+  message_log   = log
+)
+```
+
+Now, every step, message, and state transition is safely stored in DuckDB. If the pipeline fails halfway, you can resume exactly where you left off.
+
+### Trust but Verify: Validation and Visualization
+
+Before running a complex workflow, you should validate its structure and visualize the graph to ensure it matches your expectations.
+
+#### 1. Validating your Workflow
+The `validate_workflow_file()` function performs a deep audit of your YAML. It checks for:
+- **Schema Errors**: Missing required keys like `graph` or `logic`.
+- **Topological Inconsistency**: Arrows in Mermaid that don't have matching logic in YAML.
+- **R Logic Linting**: Syntax errors in your inline R functions or missing `state` references.
+
+```r
+library(HydraR)
+
+# Comprehensive check: schema + topology + R linting
+validate_workflow_file("question_answerer.yml")
+```
+
+#### 2. Visualizing the Architecture
+You can render your workflow as an interactive diagram or export it to a high-resolution image for reports using `render_workflow_file()`.
+
+```r
+library(HydraR)
+
+# View interactive diagram in RStudio
+render_workflow_file("question_answerer.yml")
+
+# Export to a high-resolution PNG for a paper or report
+render_workflow_file(
+  file_path   = "question_answerer.yml",
+  output_file = "figures/workflow_v1.png"
+)
+```
+
+### Scaling Up: Why YAML Matters
+
+The advantage grows with complexity. Consider a realistic 8-node workflow with three LLM agents, two validation gates, a router, and a merge harmoniser. In code-first style, you'd be looking at 150+ lines of R with deeply nested constructor calls. In YAML, the Mermaid graph is still a readable 10-line flowchart, and each component is clearly separated under its own heading.
+
+---
+
+## Part 4: Your First Workflow (Code-First)
+
+The YAML approach is the recommended starting point, but HydraR also gives you full programmatic control. The code-first API is useful when you need dynamic graph construction, runtime logic that can't be expressed declaratively, or deep integration with existing R packages.
 
 Let's start with the simplest possible HydraR program: a single logic node that transforms some input.
 
@@ -109,11 +260,11 @@ print(results$results$greeter$output)
 # [1] "Hello, Alice — welcome to HydraR!"
 ```
 
-That's it. You've built and executed your first HydraR workflow. It's simple on purpose—everything from here builds on these same primitives.
+That's it. You've built and executed your first code-first workflow. It's simple on purpose—everything from here builds on these same primitives.
 
 ---
 
-## Part 4: Chaining Nodes Together
+## Part 5: Chaining Nodes Together
 
 A single node isn't very exciting. The power of HydraR comes from **connecting** nodes. Let's build a two-step pipeline: one node fetches data, and the next summarises it.
 
@@ -162,7 +313,7 @@ print(results$results$summariser$output)
 
 ---
 
-## Part 5: Adding an LLM Into the Mix
+## Part 6: Adding an LLM Into the Mix
 
 So far we've used pure R logic. Now let's bring in an AI model. HydraR uses **drivers** to communicate with LLMs. Each driver knows how to talk to a specific provider.
 
@@ -183,7 +334,8 @@ So far we've used pure R logic. Now let's bring in an AI model. HydraR uses **dr
 library(HydraR)
 
 # Create a driver (this one talks to Google's Gemini API)
-driver <- GeminiAPIDriver$new()
+# Use Sys.getenv to securely load your API key from .Renviron
+driver <- GeminiAPIDriver$new(api_key = Sys.getenv("GOOGLE_API_KEY"))
 
 # Create the DAG
 dag <- AgentDAG$new()
@@ -218,7 +370,7 @@ The `role` parameter sets the LLM's system prompt—its identity. The `prompt_bu
 
 ---
 
-## Part 6: Loops and Conditional Edges
+## Part 7: Loops and Conditional Edges
 
 This is where HydraR really shines. Many real-world tasks need iteration: "Keep trying until the output is good enough." HydraR handles this with **conditional edges**.
 
@@ -290,69 +442,11 @@ cat("\nLLM was called", driver$call_count, "times")
 
 **Key takeaway**: The `test` function inspects the *output* of the `from` node. If it returns `TRUE`, execution follows `if_true` (which can be `NULL` to stop the workflow). If `FALSE`, it follows `if_false` (which loops back in this case). The `max_steps` parameter acts as a safety net to prevent infinite loops.
 
----
+### YAML vs Code-First: Side-by-Side Comparison
 
-## Part 7: The YAML-First Approach (Declarative Workflows)
+The loop above took about 40 lines of R. Compare that to the YAML version from Part 3, which achieved the same result:
 
-Look back at Part 6. Building that Generate→Validate→Loop workflow took about 40 lines of R code, and that was with a mock driver. With a real driver and more realistic logic, it could easily be 60–80 lines. Now imagine handing that script to a collaborator who isn't an R programmer and asking them to audit the logic. It would be a tough conversation.
-
-HydraR offers a radically simpler alternative: describe the **same** workflow in a YAML file, and let `spawn_dag()` build it for you.
-
-### The Same Workflow, In YAML
-
-Here is the exact same Generate→Validate→Loop pattern from Part 6, written declaratively:
-
-```yaml
-# question_answerer.yml
-
-graph: |
-  graph TD
-    Generator["Answer Generator | type=llm | role_id=answerer"]
-    Validator["Quality Gate | type=logic | logic_id=check_answer"]
-    Generator --> Validator
-    Validator -- "retry" --> Generator
-
-roles:
-  answerer: >
-    Answer the user's question concisely. Always include
-    the number 42 in your final answer.
-
-logic:
-  check_answer: |
-    function(state) {
-      answer <- state$get("Generator")
-      is_good <- grepl("42", answer)
-      list(status = "success", output = list(passed = is_good))
-    }
-
-conditional_edges:
-  Validator:
-    test: |
-      function(result) isTRUE(result$passed)
-    if_true: ~          # ~ means NULL (stop — we're done)
-    if_false: Generator  # loop back and try again
-
-initial_state:
-  question: "What is the meaning of life?"
-```
-
-And the R code to run it:
-
-```r
-library(HydraR)
-
-wf      <- load_workflow("question_answerer.yml")
-dag     <- spawn_dag(wf)
-results <- dag$run(initial_state = wf$initial_state, max_steps = 10)
-
-cat("Final answer:", results$state$get("Generator"))
-```
-
-That's it. **Four lines of R** to execute the same iterative, self-correcting loop that took 40+ lines in Part 6.
-
-### Why is this better?
-
-| | Code-First (Part 6) | YAML-First (this section) |
+| | Code-First (this section) | YAML-First (Part 3) |
 |:---|:---|:---|
 | **Lines of R code** | ~40 | 4 |
 | **Graph structure** | Buried in `add_node()` / `add_edge()` calls | Visible as a Mermaid flowchart |
@@ -361,42 +455,7 @@ That's it. **Four lines of R** to execute the same iterative, self-correcting lo
 | **Branching logic** | Programmatic `add_conditional_edge()` | Declarative `conditional_edges:` block |
 | **Shareable?** | Requires R expertise to read | A domain expert can read the YAML |
 
-The YAML file is the **single source of truth** for your workflow. You can version-control it, diff it in pull requests, and discuss it with collaborators who don't know R. Meanwhile, the R functions in the `logic:` block can be extracted into `.R` files and unit-tested independently.
-
-### Scaling Up: Why This Matters
-
-The advantage grows with complexity. Consider a realistic 8-node workflow with three LLM agents, two validation gates, a router, and a merge harmoniser. In code-first style, you'd be looking at 150+ lines of R with deeply nested constructor calls. In YAML, the Mermaid graph is still a readable 10-line flowchart, and each component is clearly separated under its own heading.
-
-### Anatomy of the YAML File
-
-Every workflow file supports these top-level keys:
-
-| Key | Purpose |
-|:---|:---|
-| `graph` | A Mermaid string (`graph TD` or `graph LR`) defining the topology. This is the visual blueprint. |
-| `roles` | Named system prompts for LLM nodes, referenced by `role_id`. |
-| `logic` | Named R functions (inline code or file paths to `.R` files), referenced by `logic_id`. |
-| `conditional_edges` | Branching logic: `test`, `if_true`, `if_false` per node. |
-| `error_edges` | Failover routing when a node returns a `failed` status. |
-| `start_node` | Explicit entry point (optional; defaults to root nodes). |
-| `initial_state` | Seed data injected into the `AgentState` before execution. |
-
-### Loading and Running (The Full Pattern)
-
-```r
-library(HydraR)
-
-# 1. Load — parses YAML, registers all roles and logic automatically
-wf <- load_workflow("question_answerer.yml")
-
-# 2. Spawn — builds the DAG, wires edges, compiles, validates
-dag <- spawn_dag(wf)
-
-# 3. Run — executes the workflow with the declared initial state
-results <- dag$run(initial_state = wf$initial_state)
-```
-
-Three functions. That's the entire "Low Code" lifecycle: **Load → Spawn → Run**.
+**When to use which?** Start with YAML for most workflows. Switch to code-first when you need dynamic graph construction at runtime, deep integration with existing R objects, or patterns that can't be expressed declaratively.
 
 ---
 
@@ -412,7 +471,7 @@ An `AgentLLMNode` sends a prompt to a Large Language Model and stores the respon
 AgentLLMNode$new(
   id = "analyst",
   role = "You are a data scientist.",
-  driver = GeminiAPIDriver$new(),
+  driver = GeminiAPIDriver$new(api_key = Sys.getenv("GOOGLE_API_KEY")),
   prompt_builder = function(state) {
     paste("Analyse this dataset:", state$get("raw_data"))
   }
@@ -476,7 +535,7 @@ register_logic("log_fn", function(state) {
 
 ### `type=merge` — The Reconciler
 
-A `MergeHarmonizer` synchronises parallel execution paths. When multiple agents work in isolated git worktrees (see Part 10), the merge node reconciles their file changes back into the main branch.
+A `MergeHarmonizer` synchronises parallel execution paths. When multiple agents work in isolated git worktrees (see Part 11), the merge node reconciles their file changes back into the main branch.
 
 ```r
 harmonizer <- create_merge_harmonizer(id = "merge_point")
@@ -625,21 +684,36 @@ This pattern is called **model tiering**: try the expensive, high-quality model 
 
 For critical decisions, you can design a node that returns `status = "pause"`. This halts the entire DAG, allowing a human to inspect the state, make corrections, and resume:
 
+When the DAG pauses, `dag$run()` returns with `status = "paused"` and `paused_at = "human_review"`. 
+
+#### Human-in-the-Loop with Persistence
+
+Resuming a complex workflow is much safer when backed by a persistent database. This ensures that the state is preserved even if you close your R session while waiting for human review.
+
 ```r
-review_node <- AgentLogicNode$new(
-  id = "human_review",
-  logic_fn = function(state) {
-    output <- state$get("llm_analysis")
-    if (needs_human_review(output)) {
-      list(status = "pause", output = "Awaiting human review")
-    } else {
-      list(status = "success", output = output)
-    }
-  }
-)
+library(HydraR)
+
+# 1. Setup persistent storage
+saver <- DuckDBSaver$new(db_path = "production_states.duckdb")
+dag   <- dag_create(message_log = DuckDBMessageLog$new(db_path = "production_audit.duckdb"))
+dag$checkpointer <- Checkpointer$new(saver = saver)
+
+# ... add nodes as usual ...
+
+# 2. Run until it hits a pause or error
+results <- dag$run(initial_state = list(data = "raw_input"))
+
+if (results$status == "paused") {
+  cat("Workflow paused at:", results$paused_at, "\n")
+  cat("State saved to DuckDB. You can now close R and come back later.\n")
+}
+
+# 3. Later (maybe in a new R session):
+# The checkpointer handles seeking the last successful state in the DB
+final_results <- dag$run(resume_from = results$paused_at)
 ```
 
-When the DAG pauses, `dag$run()` returns with `status = "paused"` and `paused_at = "human_review"`. You can inspect `results$state`, fix anything, and call `dag$run(resume_from = "human_review")` to continue.
+By combining Layer 3 with DuckDB, you create a "stateful" application that can survive restarts and human delays without losing a single bit of progress.
 
 ---
 
@@ -764,7 +838,7 @@ register_role("gene_analyst",
 )
 
 # ── 2. Build the DAG ──
-driver <- GeminiAPIDriver$new()
+driver <- GeminiAPIDriver$new(api_key = Sys.getenv("GOOGLE_API_KEY"))
 dag <- AgentDAG$new()
 
 dag$add_node(AgentLogicNode$new(

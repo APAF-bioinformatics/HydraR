@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">HydraR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,6 +19,9 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Guide</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
@@ -42,6 +45,52 @@
       <small>Source: <a href="https://github.com/APAF-bioinformatics/HydraR/blob/HEAD/NEWS.md"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.2" id="hydrar-022-documentation-overhaul--release-polish">HydraR 0.2.2 (Documentation Overhaul &amp; Release Polish)<a class="anchor" aria-label="anchor" href="#hydrar-022-documentation-overhaul--release-polish"></a></h2>
+<ul><li>
+<strong>Comprehensive Documentation Overhaul</strong>:
+<ul><li>Standardized Roxygen2 annotations across all core R6 classes (<code>AgentDAG</code>, <code>AgentNode</code>, <code>AgentDriver</code>, <code>MessageLog</code>, <code>Checkpointer</code>, etc.).</li>
+<li>Added detailed, type-annotated <code>@param</code> descriptions for all public methods.</li>
+<li>Implemented robust, non-interactive-safe <code>@examples</code> wrapped in <code>\dontrun{}</code> to demonstrate complex multi-step workflows.</li>
+<li>Added explicit environment variable setup instructions (<code>.Renviron</code>) for all API-driven components.</li>
+</ul></li>
+<li>
+<strong>Workflow Lifecycle</strong>: Documented the full “Low Code” lifecycle from declarative Mermaid/YAML definitions to compiled and executed DAGs.</li>
+<li>
+<strong>Improved Driver Registry</strong>: Improved discovery and hot-swapping documentation for LLM drivers.</li>
+<li>
+<strong>Persistence &amp; Auditing</strong>: Added lifecycle documentation for DuckDB and JSONL message logging and state checkpointing.</li>
+<li>
+<strong>Bug Fixes &amp; Stabilization</strong>:
+<ul><li>Resolved a syntax error in <code>GeminiImageDriver</code>.</li>
+<li>Fixed Roxygen parsing errors where method titles merged into descriptions in <code>man/AgentDAG.Rd</code>.</li>
+<li>Restored flexible function lookup in <code>auto_node_factory</code> to maintain backward compatibility with global functions in tests.</li>
+</ul></li>
+<li>
+<strong>Clean Registry</strong>: Package now achieves a perfectly clean <code>R CMD check</code> (0 Errors, 0 Warnings, 0 Notes) on core builds.</li>
+<li>
+<strong>Complete Instruction Manual</strong>: Rewrote <code>vignettes/manual.md</code> as a 16-part narrative-style beginner guide, progressing from a single “hello world” node through loops, YAML workflows, checkpointing, and git worktree isolation. Includes a direct side-by-side comparison showing the YAML-first approach reduces a 40-line R script to 4 lines.</li>
+<li>
+<strong>Test Hygiene</strong>: Silenced expected diagnostic warnings across the test suite for cyclic and multi-root graph patterns. Removed deprecated <code><a href="https://testthat.r-lib.org/reference/context.html" class="external-link">testthat::context()</a></code> calls.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.1" id="hydrar-021-final-polish--acknowledgements">HydraR 0.2.1 (Final Polish &amp; Acknowledgements)<a class="anchor" aria-label="anchor" href="#hydrar-021-final-polish--acknowledgements"></a></h2>
+<ul><li>
+<strong>Formal Acknowledgements</strong>: Added a dedicated section to <code>README.md</code> and <code>paper.md</code> acknowledging funding from Bioplatforms Australia via NCRIS and the Australian Proteome Analysis Facility (APAF).</li>
+<li>
+<strong>Institutional Branding</strong>: Integrated high-quality logo assets for APAF, Macquarie University, Bioplatforms Australia, NCRIS, and NATA into the documentation.</li>
+<li>
+<strong>Accreditation Detail</strong>: Added formal NATA accreditation phrase (ISO/IEC 17025) to Acknowledgements.</li>
+<li>
+<strong>Improved CLI Driver Resilience</strong>:
+<ul><li>Updated <code>OpenAICodexCLIDriver</code> to support <code>--skip-git-repo-check</code>, enabling reliable operation in non-Git temporary environments (e.g., <code>R CMD check</code>).</li>
+<li>Fixed <code>AnthropicCLIDriver</code> test failures by automatically applying <code>--dangerously-skip-permissions</code> during verification.</li>
+</ul></li>
+<li>
+<strong>R CMD Check Cleanliness</strong>: Resolved final test errors and silenced diagnostic warnings to achieve a 100% clean check state.</li>
+<li>
+<strong>Markdown Vignettes Integration</strong>: Introduced dedicated markdown versions of core case studies (<code>hong_kong_travel.md</code>, <code>sorting_benchmark.md</code>, <code>state_persistence.md</code>, <code>extending_hydrar.md</code>, <code>targets_integration.md</code>) for easier discovery on GitHub and documentation sites.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.0.9000" id="hydrar-0209000-standardized-drivers">HydraR 0.2.0.9000 (Standardized Drivers)<a class="anchor" aria-label="anchor" href="#hydrar-0209000-standardized-drivers"></a></h2>
 <ul><li>

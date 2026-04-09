@@ -18,7 +18,6 @@ Imagine a pipeline where we first fetch raw data, and then an agent
 summarizes it. We define the agent’s logic in `targets_integration.yml`.
 
 ``` r
-
 library(targets)
 library(HydraR)
 

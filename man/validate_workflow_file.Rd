@@ -19,6 +19,7 @@ and R logic syntax linting.
 }
 \examples{
 \dontrun{
-validate_workflow_file("wf.yaml")
+# Holistic check: schema + topology + R linting
+validate_workflow_file("inst/workflows/bioinfo.yaml")
 }
 }

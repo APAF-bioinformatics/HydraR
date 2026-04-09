@@ -22,16 +22,26 @@
 #'
 #' @examples
 #' \dontrun{
-#' # Initialize state with a schema and a reducer
+#' # 1. Initialize state with strict schema validation and reducers
 #' state <- AgentState$new(
-#'   initial_data = list(count = 0, history = list()),
-#'   schema = list(count = "numeric", history = "list"),
-#'   reducers = list(history = reducer_append)
+#'   initial_data = list(count = 0, logs = list()),
+#'   schema = list(count = "numeric", logs = "list"),
+#'   reducers = list(logs = reducer_append)
 #' )
 #'
-#' # Updates to 'history' will now use the append reducer
-#' state$update(list(history = "Event 1"))
-#' message(state$get("history")) # [1] "Event 1"
+#' # 2. Basic update (replaces current value)
+#' state$set("count", 42)
+#'
+#' # 3. Reducer update (appends to current list)
+#' state$update(list(logs = "Process started"))
+#' state$update(list(logs = "Processing step 1"))
+#'
+#' # 4. Schema validation check
+#' # This will throw an error because 'count' must be numeric
+#' try(state$set("count", "not a number"))
+#'
+#' # Verify accumulation
+#' print(state$get("logs")) # list("Process started", "Processing step 1")
 #' }
 #' @importFrom R6 R6Class
 #' @importFrom purrr iwalk walk
@@ -199,11 +209,16 @@ AgentState <- R6::R6Class("AgentState",
 #'
 #' @examples
 #' \dontrun{
-#' # Used in AgentState initialization
+#' # Accumulate a trace of agent IDs
 #' state <- AgentState$new(
-#'   initial_data = list(logs = list()),
-#'   reducers = list(logs = reducer_append)
+#'   initial_data = list(visited = character()),
+#'   reducers = list(visited = reducer_append)
 #' )
+#'
+#' state$update(list(visited = "agent_a"))
+#' state$update(list(visited = "agent_b"))
+#'
+#' print(state$get("visited")) # [1] "agent_a" "agent_b"
 #' }
 #' @export
 reducer_append <- function(current, new) {
@@ -227,10 +242,14 @@ reducer_append <- function(current, new) {
 #'
 #' @examples
 #' \dontrun{
-#' current <- list(a = 1, b = 2)
-#' new <- list(b = 3, c = 4)
-#' merged <- reducer_merge_list(current, new)
-#' # Result: list(a = 1, b = 3, c = 4)
+#' # Deep merging configuration or results
+#' current_cfg <- list(params = list(temp = 0.5, top_p = 1.0), tags = "v1")
+#' new_cfg <- list(params = list(temp = 0.7), tags = "v2")
+#'
+#' # modifyList behavior ensured: tags is replaced, params is merged
+#' merged <- reducer_merge_list(current_cfg, new_cfg)
+#' str(merged)
+#' # list(params = list(temp = 0.7, top_p = 1.0), tags = "v2")
 #' }
 #' @export
 reducer_merge_list <- function(current, new) {

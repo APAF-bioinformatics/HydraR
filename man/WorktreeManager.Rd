@@ -13,7 +13,19 @@ preventing file-level conflicts between concurrent CLI agents.
 }
 \examples{
 \dontrun{
-wt_manager <- WorktreeManager$new(repo_root = getwd())
+# 1. Initialize WorktreeManager for a specific repository
+wt_manager <- WorktreeManager$new(
+  repo_root = "~/Projects/my_repo",
+  base_branch = "develop",
+  cleanup_policy = "auto"
+)
+
+# 2. Create an isolated worktree for a parallel node
+wt_path <- wt_manager$create(node_id = "parallel_worker_A")
+message("Worktree created at: ", wt_path)
+
+# 3. Cleanup after success
+wt_manager$cleanup_node("parallel_worker_A", status = "success")
 }
 }
 \section{Public fields}{

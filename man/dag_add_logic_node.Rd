@@ -23,7 +23,13 @@ Add an R Logic Node directly to a DAG
 }
 \examples{
 \dontrun{
-dag <- dag_create()
-dag <- dag_add_logic_node(dag, "node1", function() print("Hello"))
+# Adding logic nodes to a production pipeline
+dag <- dag_create() |>
+  dag_add_llm_node("planner", "Project Manager", GeminiCLIDriver$new()) |>
+  dag_add_logic_node("audit_check", function(state) {
+    # Log state for external observability
+    message("Auditing current progress...")
+    list(status = "success", output = list(timestamp = Sys.time()))
+  })
 }
 }

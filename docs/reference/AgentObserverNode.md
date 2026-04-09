@@ -93,3 +93,24 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# An observer that logs stats to a file without modifying state
+logger <- function(state) {
+  stats <- state$get_all()
+  writeLines(jsonlite::toJSON(stats), "logs/observation.json")
+  message("Stats observed and written to logs.")
+}
+
+node_obs <- AgentObserverNode$new(
+  id = "status_logger",
+  observe_fn = logger
+)
+
+# Run with dummy state
+node_obs$run(AgentState$new(list(x = 10, y = 20)))
+} # }
+```

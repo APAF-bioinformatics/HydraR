@@ -17,11 +17,19 @@ or in your \code{.Renviron}.
 }
 \examples{
 \dontrun{
-# Initialize the Claude Code CLI driver
+# 1. Initialize the Claude Code CLI driver
 driver <- AnthropicCLIDriver$new(model = "sonnet")
 
-# Claude CLI handles complex engineering tasks natively
-response <- driver$call("Refactor R/dag.R to use R6 private methods.")
+# 2. Execute a complex engineering task with budget constraints
+# and permission skipping for non-interactive automation.
+response <- driver$call(
+  prompt = "Refactor R/dag.R to use R6 private methods.",
+  cli_opts = list(
+    dangerously_skip_permissions = TRUE,
+    max_budget_usd = 5.0,
+    verbose = TRUE
+  )
+)
 }
 }
 \section{Super class}{

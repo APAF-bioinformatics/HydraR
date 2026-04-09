@@ -1,8 +1,12 @@
 # RDS File Checkpointer
 
-Lightweight file-based checkpointer using base R
-\`saveRDS\`/\`readRDS\`. Each thread is persisted as a separate \`.rds\`
-file in the specified directory. No external dependencies required.
+A lightweight, file-based checkpointer that uses R's native `saveRDS`
+and `readRDS` functions. Each thread is saved as an individual `.rds`
+file in a specified directory.
+
+## Value
+
+An `RDSSaver` object.
 
 ## Super class
 
@@ -29,7 +33,7 @@ file in the specified directory. No external dependencies required.
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### Method [`new()`](https://rdrr.io/r/methods/new.html)
 
 Initialize RDSSaver
 
@@ -98,3 +102,19 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# 1. Persistent checkpointing to a local directory
+saver <- RDSSaver$new(dir = "vault/checkpoints")
+
+# 2. Create a DAG and run it with a specific thread ID
+dag <- dag_create(checkpointer = saver)
+dag$run(thread_id = "agent_session_alpha")
+
+# 3. Later, resume the same session - HydraR will load the RDS file
+dag$run(thread_id = "agent_session_alpha")
+} # }
+```

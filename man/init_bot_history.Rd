@@ -18,6 +18,12 @@ Follows APAF Bioinformatics mandatory pattern for database persistence.
 }
 \examples{
 \dontrun{
-init_bot_history()
+# Connect to the master bot history for auditing
+con <- init_bot_history(read_only = TRUE)
+
+# Use DBI to query the execution logs
+library(DBI)
+dbListTables(con)
+dbDisconnect(con)
 }
 }

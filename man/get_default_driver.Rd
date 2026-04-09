@@ -14,6 +14,10 @@ Get the Default Agent Driver
 }
 \examples{
 \dontrun{
+# Resolve the driver to be used when none is explicitly specified
 drv <- get_default_driver()
+if (!is.null(drv)) {
+  message("Using default provider: ", drv$provider)
+}
 }
 }

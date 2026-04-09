@@ -19,13 +19,19 @@ PATH. You can override the binary path using:
 }
 \examples{
 \dontrun{
-# Standard CLI-based agent
+# 1. Standard CLI-based agent with model selection
 driver <- GeminiCLIDriver$new(model = "gemini-1.5-pro")
 
-# Call with specific CLI flags (e.g., allowing specific tools)
+# 2. Advanced call with MCP tool discovery and 'YOLO' mode enabled
+# This allows the agent to execute tools without interactive confirmation.
 response <- driver$call(
-  prompt = "List all files in the current directory.",
-  cli_opts = list(allowed_tools = "ls,grep")
+  prompt = "Analyze the R scripts in this directory and suggest performance fixes.",
+  cli_opts = list(
+    allowed_tools = "ls,grep,read_file",
+    allowed_mcp_server_names = "filesystem,github",
+    yolo = TRUE,
+    include_directories = c("R", "tests")
+  )
 )
 }
 }

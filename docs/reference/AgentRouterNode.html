@@ -9,7 +9,7 @@ The logic function must return a list with a `target_node` field."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">HydraR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,6 +21,9 @@ The logic function must return a list with a `target_node` field."></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Guide</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
@@ -150,6 +153,30 @@ Run the Router Node</p></dd>
 
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># Routing based on an LLM sentiment classification</span></span></span>
+<span class="r-in"><span><span class="va">classifier</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">sentiment</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"analyst_output"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"Positive"</span>, <span class="va">sentiment</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>target_node <span class="op">=</span> <span class="st">"celebrate"</span>, status <span class="op">=</span> <span class="st">"success"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>target_node <span class="op">=</span> <span class="st">"investigate"</span>, status <span class="op">=</span> <span class="st">"success"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">}</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">node_router</span> <span class="op">&lt;-</span> <span class="va">AgentRouterNode</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  id <span class="op">=</span> <span class="st">"sentiment_router"</span>,</span></span>
+<span class="r-in"><span>  router_fn <span class="op">=</span> <span class="va">classifier</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Run with dummy state</span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="va">node_router</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span><span class="va"><a href="AgentState.html">AgentState</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>analyst_output <span class="op">=</span> <span class="st">"Positive results!"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Targeting node: "</span>, <span class="va">res</span><span class="op">$</span><span class="va">target_node</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

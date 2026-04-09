@@ -17,6 +17,11 @@
 #' @return Logical TRUE if valid, otherwise throws an error.
 #' @examples
 #' \dontrun{
+#' # Perform a deep audit of an instantiated DAG against its YAML source
+#' wf_data <- load_workflow("orchestration_plan.yaml")
+#' dag <- spawn_dag(wf_data)
+#'
+#' # This ensures no 'ghost' edges exist in the Mermaid graph
 #' validate_workflow_full(dag, wf_data)
 #' }
 #' @export
@@ -233,7 +238,8 @@ lint_workflow_logic <- function(wf) {
 #' @return Logical TRUE if valid (invisibly). Throws a detailed error on failure.
 #' @examples
 #' \dontrun{
-#' validate_workflow_file("wf.yaml")
+#' # Holistic check: schema + topology + R linting
+#' validate_workflow_file("inst/workflows/bioinfo.yaml")
 #' }
 #' @export
 validate_workflow_file <- function(file_path) {
@@ -257,7 +263,15 @@ validate_workflow_file <- function(file_path) {
 #' @return A `DiagrammeR` htmlwidget if `output_file` is NULL, otherwise saves the file.
 #' @examples
 #' \dontrun{
-#' render_workflow_file("wf.yaml")
+#' # 1. View interactive diagram in RStudio
+#' render_workflow_file("plans/main.yaml")
+#'
+#' # 2. Export high-resolution diagram for publication
+#' render_workflow_file(
+#'   file_path = "plans/main.yaml",
+#'   output_file = "reports/figures/workflow_v1.png",
+#'   status = TRUE # Colors nodes by their last status
+#' )
 #' }
 #' @export
 render_workflow_file <- function(file_path, output_file = NULL, status = FALSE, ...) {

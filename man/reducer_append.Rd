@@ -21,10 +21,15 @@ across multiple agent steps.
 }
 \examples{
 \dontrun{
-# Used in AgentState initialization
+# Accumulate a trace of agent IDs
 state <- AgentState$new(
-  initial_data = list(logs = list()),
-  reducers = list(logs = reducer_append)
+  initial_data = list(visited = character()),
+  reducers = list(visited = reducer_append)
 )
+
+state$update(list(visited = "agent_a"))
+state$update(list(visited = "agent_b"))
+
+print(state$get("visited")) # [1] "agent_a" "agent_b"
 }
 }

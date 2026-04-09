@@ -24,7 +24,6 @@ To demonstrate the power of worktrees, we first create a temporary Git
 repository.
 
 ``` r
-
 library(HydraR)
 library(withr)
 library(ggplot2)
@@ -77,7 +76,6 @@ declarative YAML file. This follows the **APAF-Agentic-Standard** for
 Zero-R-Code definitions.
 
 ``` r
-
 # 1. Load the workflow manifest
 wf <- load_workflow("sorting_benchmark.yml")
 

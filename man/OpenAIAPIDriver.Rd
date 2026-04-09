@@ -17,11 +17,19 @@ environment variable. It is recommended to add this to your \code{.Renviron} fil
 }
 \examples{
 \dontrun{
-# Ensure OPENAI_API_KEY is set in .Renviron
+# 1. Standard API-based completion
 driver <- OpenAIAPIDriver$new(model = "gpt-4-turbo")
 
-# Perform a basic call
-response <- driver$call("What is the capital of France?")
+# 2. Advanced call with JSON mode and deterministic sampling
+# This ensures the LLM returns a strictly formatted JSON string.
+response <- driver$call(
+  prompt = "Return a JSON list of 3 common R packages for plotting.",
+  cli_opts = list(
+    temperature = 0,
+    response_format = list(type = "json_object"),
+    max_tokens = 500
+  )
+)
 message(response)
 }
 }

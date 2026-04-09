@@ -25,6 +25,14 @@ Supports high-fidelity exports to various image formats.
 }
 \examples{
 \dontrun{
-render_workflow_file("wf.yaml")
+# 1. View interactive diagram in RStudio
+render_workflow_file("plans/main.yaml")
+
+# 2. Export high-resolution diagram for publication
+render_workflow_file(
+  file_path = "plans/main.yaml",
+  output_file = "reports/figures/workflow_v1.png",
+  status = TRUE # Colors nodes by their last status
+)
 }
 }

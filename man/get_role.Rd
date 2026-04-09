@@ -17,6 +17,8 @@ Get an LLM Role (System Prompt)
 }
 \examples{
 \dontrun{
-role <- get_role("developer")
+# Resolve a role for an LLM node manually
+role_prompt <- get_role("bio_analyst")
+node <- AgentLLMNode$new(id="a1", role=role_prompt, driver=GeminiCLIDriver$new())
 }
 }

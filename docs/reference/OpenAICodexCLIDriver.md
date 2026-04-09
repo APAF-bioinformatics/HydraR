@@ -1,10 +1,12 @@
 # OpenAI Codex CLI Driver R6 Class
 
-Driver for the official \`codex\` CLI tool (v0.118+).
+A specialized `AgentDriver` for the official `codex` CLI tool (v0.118+).
+This model is legacy but still supported for specific code-generation
+tasks.
 
 ## Value
 
-An \`OpenAICodexCLIDriver\` object.
+An `OpenAICodexCLIDriver` object.
 
 ## Super class
 
@@ -32,7 +34,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### Method [`new()`](https://rdrr.io/r/methods/new.html)
 
 Initialize OpenAICodexCLIDriver
 
@@ -105,3 +107,21 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# 1. Legacy Codex CLI support
+driver <- OpenAICodexCLIDriver$new()
+
+# 2. Isolated execution with skip-checks for specific environments
+response <- driver$call(
+  prompt = "Create a data.frame with 5 rows and 2 columns.",
+  cli_opts = list(
+    sandbox = TRUE,
+    skip_git_repo_check = TRUE
+  )
+)
+} # }
+```

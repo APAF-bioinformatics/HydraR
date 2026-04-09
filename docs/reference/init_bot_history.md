@@ -18,3 +18,17 @@ init_bot_history(read_only = FALSE)
 ## Value
 
 A DBIConnection object.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# Connect to the master bot history for auditing
+con <- init_bot_history(read_only = TRUE)
+
+# Use DBI to query the execution logs
+library(DBI)
+dbListTables(con)
+dbDisconnect(con)
+} # }
+```

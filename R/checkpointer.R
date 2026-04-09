@@ -18,8 +18,12 @@
 #'
 #' @examples
 #' \dontrun{
-#' # Checkpointers are used within AgentDAG$run()
-#' # Use a concrete implementation like RDSSaver or DuckDBSaver.
+#' # 1. Abstract interface usage (internal)
+#' # Checkpointers are passed to dag_create() to enable state persistence.
+#' dag <- dag_create(
+#'   checkpointer = RDSSaver$new(dir = "checkpoints"),
+#'   message_log = JSONLMessageLog$new(file = "logs/messages.jsonl")
+#' )
 #' }
 #' @export
 Checkpointer <- R6::R6Class("Checkpointer",
@@ -56,10 +60,13 @@ Checkpointer <- R6::R6Class("Checkpointer",
 #'
 #' @examples
 #' \dontrun{
+#' # 1. Use MemorySaver for transient testing or short sessions
 #' saver <- MemorySaver$new()
 #' dag <- dag_create(checkpointer = saver)
 #'
-#' # State is saved in saver$storage environment
+#' # 2. States are saved in the 'storage' environment under thread_id
+#' dag$run(thread_id = "test_run_01")
+#' ls(saver$storage) # Returns "test_run_01"
 #' }
 #' @export
 MemorySaver <- R6::R6Class("MemorySaver",
@@ -127,12 +134,15 @@ MemorySaver <- R6::R6Class("MemorySaver",
 #'
 #' @examples
 #' \dontrun{
-#' # Save checkpoints to a local directory
-#' saver <- RDSSaver$new(dir = "my_checkpoints")
+#' # 1. Persistent checkpointing to a local directory
+#' saver <- RDSSaver$new(dir = "vault/checkpoints")
 #'
-#' # Later, resume execution using the same thread_id
+#' # 2. Create a DAG and run it with a specific thread ID
 #' dag <- dag_create(checkpointer = saver)
-#' dag$run(thread_id = "session_001")
+#' dag$run(thread_id = "agent_session_alpha")
+#'
+#' # 3. Later, resume the same session - HydraR will load the RDS file
+#' dag$run(thread_id = "agent_session_alpha")
 #' }
 #' @export
 RDSSaver <- R6::R6Class("RDSSaver",
@@ -198,11 +208,19 @@ RDSSaver <- R6::R6Class("RDSSaver",
 #'
 #' @examples
 #' \dontrun{
-#' # Use a persistent DuckDB file for all agent states
-#' saver <- DuckDBSaver$new(db_path = "data/hydrar_states.duckdb")
+#' # 1. Production-ready persistence using DuckDB
+#' saver <- DuckDBSaver$new(
+#'   db_path = "storage/hydrar_main.duckdb",
+#'   table_name = "workflow_checkpoints"
+#' )
 #'
+#' # 2. Orchestrate a long-running DAG
 #' dag <- dag_create(checkpointer = saver)
-#' dag$run(thread_id = "batch_process_alpha")
+#' dag$run(thread_id = "genomic_alignment_job_42")
+#'
+#' # 3. Query the internal storage directly if needed
+#' library(DBI)
+#' DBI::dbGetQuery(saver$con, "SELECT thread_id, updated_at FROM workflow_checkpoints")
 #' }
 #' @importFrom R6 R6Class
 #' @importFrom DBI dbExecute dbWriteTable dbGetQuery dbDisconnect dbConnect

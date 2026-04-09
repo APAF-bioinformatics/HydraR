@@ -19,3 +19,12 @@ validate_workflow_file(file_path)
 ## Value
 
 Logical TRUE if valid (invisibly). Throws a detailed error on failure.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# Holistic check: schema + topology + R linting
+validate_workflow_file("inst/workflows/bioinfo.yaml")
+} # }
+```

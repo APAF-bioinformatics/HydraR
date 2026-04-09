@@ -55,7 +55,15 @@
 #' @importFrom purrr walk map_lgl
 #' @examples
 #' \dontrun{
-#' cleanup_jules_branches()
+#' # 1. Identify stale branches without deleting (Dry Run)
+#' stale_branches <- cleanup_jules_branches(dry_run = TRUE)
+#'
+#' # 2. Perform aggressive cleanup of stale bot branches (> 48 hours)
+#' cleanup_jules_branches(
+#'   threshold_hours = 48,
+#'   dry_run = FALSE,
+#'   verbose = TRUE
+#' )
 #' }
 #' @export
 cleanup_jules_branches <- function(repo_root = getwd(),

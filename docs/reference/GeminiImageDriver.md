@@ -1,10 +1,15 @@
 # Gemini Image API Driver R6 Class
 
-Driver for Google Gemini's multimodal image generation (2026 models).
+A specialized driver for Gemini's multimodal and image generation
+capabilities (supporting Imagen and native Gemini 3.x modalities).
 
 ## Value
 
-A \`GeminiImageDriver\` R6 object.
+A `GeminiImageDriver` R6 object.
+
+## Details
+
+**Setup**: Requires `GOOGLE_API_KEY` in your `.Renviron`.
 
 ## Super classes
 
@@ -44,7 +49,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### Method [`new()`](https://rdrr.io/r/methods/new.html)
 
 Initialize GeminiImageDriver
 
@@ -63,27 +68,33 @@ Initialize GeminiImageDriver
 
 - `id`:
 
-  String.
+  String. Unique identifier for the image driver.
 
 - `model`:
 
-  String. Default "imagen-3.0-generate-001".
+  String. Google model ID (defaults to multimodal flash).
 
 - `output_dir`:
 
-  String.
+  String. The directory where generated images will be saved.
 
 - `aspect_ratio`:
 
-  String.
+  String. The default aspect ratio for generated images (e.g., `"16:9"`,
+  `"1:1"`).
 
 - `validation_mode`:
 
-  String.
+  String. Controls schema enforcement.
 
 - `working_dir`:
 
-  String. Call Gemini Image API (Multimodal Unified)
+  String. Optional path for isolated execution.
+
+#### Returns
+
+A new `GeminiImageDriver` instance. Call Gemini Image API (Multimodal
+Unified)
 
 ------------------------------------------------------------------------
 
@@ -142,3 +153,24 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# 1. Generate a high-resolution laboratory illustration
+# Multimodal Gemini 3.1 models infer dimensions from prompt + config
+driver <- GeminiImageDriver$new(output_dir = "assets/media")
+
+# 2. Request a specific aspect ratio and filename
+img_path <- driver$call(
+  prompt = "A futuristic bioinformatics lab with DNA holograms, hyper-realistic, 8k",
+  cli_opts = list(
+    aspectRatio = "16:9",
+    sampleCount = 1,
+    filename = "hero_dna_lab.png"
+  )
+)
+message("Hero image saved to: ", img_path)
+} # }
+```

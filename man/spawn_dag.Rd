@@ -25,10 +25,15 @@ applies conditional/error edges, and performs a final compilation check.
 }
 \examples{
 \dontrun{
-# Full lifecycle: Load -> Spawn -> Run
-wf <- load_workflow("orchestration_plans/main.yaml")
+# 1. Load the declarative plan
+# This registers roles and logic from the YAML into the global registry.
+wf <- load_workflow("plans/pipeline.yaml")
+
+# 2. Spawn the executable DAG
+# Uses auto_node_factory() to parse the Mermaid string in the YAML.
 dag <- spawn_dag(wf)
 
+# 3. Execute with initial data
 results <- dag$run(initial_state = wf$initial_state)
 }
 }

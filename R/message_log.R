@@ -15,8 +15,11 @@
 #' @return A \code{MessageLog} base object.
 #' @examples
 #' \dontrun{
-#' # This is an abstract base class.
-#' # Use MemoryMessageLog or DuckDBMessageLog instead.
+#' # 1. Abstract interface usage (internal)
+#' # Message logs are passed to dag_create() for audit trails.
+#' dag <- dag_create(
+#'   message_log = DuckDBMessageLog$new(db_path = "audit.duckdb")
+#' )
 #' }
 #' @export
 MessageLog <- R6::R6Class("MessageLog",
@@ -46,11 +49,16 @@ MessageLog <- R6::R6Class("MessageLog",
 #'
 #' @examples
 #' \dontrun{
-#' # Create a new memory logger
+#' # 1. Create a new memory logger for rapid prototyping
 #' log <- MemoryMessageLog$new()
 #'
-#' # The DAG will automatically call log$log() during execution
+#' # 2. Run a DAG and inspect logs after execution
 #' dag <- dag_create(message_log = log)
+#' dag$run(initial_state = list(input = "Hello"))
+#'
+#' # Inspect total messages captured
+#' all_messages <- log$get_all()
+#' message("Captured ", length(all_messages), " messages.")
 #' }
 #' @export
 MemoryMessageLog <- R6::R6Class("MemoryMessageLog",
@@ -84,12 +92,17 @@ MemoryMessageLog <- R6::R6Class("MemoryMessageLog",
 #'
 #' @examples
 #' \dontrun{
-#' # Initialize a logger pointing to the default HydraR database
+#' # 1. Persistent audit logging to DuckDB
 #' audit_log <- DuckDBMessageLog$new(
-#'   db_path = "~/.gemini/memory/audit.duckdb"
+#'   db_path = "data/agent_audit.duckdb"
 #' )
 #'
-#' # Messages are stored in the 'agent_messages' table
+#' # 2. Attach to a DAG and run
+#' dag <- dag_create(message_log = audit_log)
+#' dag$run(thread_id = "experiment_404")
+#'
+#' # 3. Retrieve and analyze messages from a previous session
+#' prev_logs <- audit_log$get_all()
 #' }
 #' @export
 DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
@@ -210,11 +223,16 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
 #'
 #' @examples
 #' \dontrun{
-#' # Create a logger that writes to a specific project file
-#' file_log <- JSONLMessageLog$new(path = "workflow_audit.jsonl")
+#' # 1. Create a file-based logger using JSONL format
+#' file_log <- JSONLMessageLog$new(path = "logs/pipeline_audit.jsonl")
 #'
-#' # Executing a DAG with this logger will populate the file
+#' # 2. Orchestrate a DAG with file-level auditing
 #' dag <- dag_create(message_log = file_log)
+#' dag$run(initial_state = list(x = 1))
+#'
+#' # 3. Read back the logs from the file
+#' logs <- file_log$get_all()
+#' print(logs[[1]])
 #' }
 #' @export
 JSONLMessageLog <- R6::R6Class("JSONLMessageLog",

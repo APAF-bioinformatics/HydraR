@@ -19,7 +19,6 @@ search based on real-time feedback.
 ## Setup
 
 ``` r
-
 library(HydraR)
 ```
 
@@ -29,7 +28,6 @@ To keep our architecture clean, we store all workflow components—initial
 configuration, LLM prompts, and agent roles—in a central registry.
 
 ``` r
-
 shopping_logic_registry <- list(
   # 0. Initial Shopping Request
   initial_state = list(
@@ -61,7 +59,6 @@ We use a factory function to dynamically create nodes based on
 parameters defined in the Mermaid graph.
 
 ``` r
-
 shopping_node_factory <- function(id, label, params) {
   # Driver resolution from Mermaid params
   driver_obj <- if (params$driver == "gemini") GeminiCLIDriver$new() else NULL
@@ -83,7 +80,6 @@ string serves as the single source of truth for both structure and node
 metadata.
 
 ``` r
-
 mermaid_graph <- "
 graph TD
   Shopper[Store Concierge | driver=gemini] --> UserProxy
@@ -110,12 +106,10 @@ compiled_dag <- dag$compile()
 ## Visualizing the Workflow
 
 ``` r
-
 cat("```mermaid\n")
 ```
 
 ``` mermaid
-
 ``` r
 cat(compiled_dag$plot(type = "mermaid"))
 ```
@@ -139,10 +133,8 @@ graph TD
 ```
 
 ``` r
-
 cat("\n```\n")
 ```
-
 
     ## Running the Scenario
 

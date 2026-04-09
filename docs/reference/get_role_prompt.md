@@ -17,3 +17,13 @@ get_role_prompt(name)
 ## Value
 
 String prompt text.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# Convenience helper to get role prompts from the Logic Registry
+register_role("assistant", "You are a helpful assistant.")
+p <- get_role_prompt("assistant")
+} # }
+```

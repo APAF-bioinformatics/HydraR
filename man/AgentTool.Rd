@@ -12,7 +12,19 @@ Used for prompt-based tool discovery.
 }
 \examples{
 \dontrun{
-tool <- AgentTool$new(name = "my_tool", description = "A tool")
+# Define a tool for searching genomic databases
+tool <- AgentTool$new(
+  name = "blast_search",
+  description = "Perform a BLAST search against the NCBI non-redundant database.",
+  parameters = list(
+    query = "The DNA sequence string",
+    evalue = "The e-value threshold (default 1e-5)"
+  ),
+  example = "blast_search(query='ATGC...', evalue=0.001)"
+)
+
+# Format for injection into a system prompt
+message(tool$format())
 }
 }
 \section{Public fields}{

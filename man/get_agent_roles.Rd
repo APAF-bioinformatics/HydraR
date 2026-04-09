@@ -14,6 +14,8 @@ List Registered Roles
 }
 \examples{
 \dontrun{
-roles <- get_agent_roles()
+# List all personas currently registered in the system
+personas <- get_agent_roles()
+stopifnot("bio_analyst" \%in\% personas)
 }
 }

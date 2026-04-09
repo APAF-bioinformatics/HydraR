@@ -11,7 +11,21 @@ A node that maps over a list in the state and performs an operation.
 }
 \examples{
 \dontrun{
-node <- AgentMapNode$new(id = "map1", map_fn = function(x) x + 1)
+# Mapping over a list of URLs to fetch data
+fetch_logic <- function(url, state) {
+  # Custom logic for each item
+  list(status = "success", output = paste0("Data from ", url))
+}
+
+node_map <- AgentMapNode$new(
+  id = "batch_fetcher",
+  map_key = "url_list",
+  logic_fn = fetch_logic
+)
+
+# Setup state with items to map over
+state <- AgentState$new(list(url_list = c("url1", "url2", "url3")))
+results <- node_map$run(state)
 }
 }
 \section{Super class}{

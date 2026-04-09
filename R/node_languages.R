@@ -17,8 +17,25 @@ NULL
 #' @return An `AgentBashNode` object.
 #' @examples
 #' \dontrun{
-#' node <- AgentBashNode$new(id = "bash_1")
-#' node$call("echo hello")
+#' # 1. Simple static bash command
+#' node_simple <- AgentBashNode$new(id = "bash_ls", script = "ls -la")
+#'
+#' # 2. Dynamic bash script using state values and environment variables
+#' # The script is generated at runtime based on the current AgentState.
+#' dynamic_script <- function(state) {
+#'   input_file <- state$get("raw_data_path")
+#'   sprintf("cat %s | grep 'ERR' > failure_log.txt", input_file)
+#' }
+#'
+#' node_dynamic <- AgentBashNode$new(
+#'   id = "bash_filter",
+#'   script = dynamic_script,
+#'   env_vars = list(THRESHOLD = "100", CPU_LIMIT = "4")
+#' )
+#'
+#' # Execute the node
+#' res <- node_dynamic$run(state = AgentState$new(list(raw_data_path = "data.csv")))
+#' message(res$output)
 #' }
 #' @export
 AgentBashNode <- R6::R6Class("AgentBashNode",
@@ -89,8 +106,28 @@ AgentBashNode <- R6::R6Class("AgentBashNode",
 #' @return An `AgentPythonNode` object.
 #' @examples
 #' \dontrun{
-#' node <- AgentPythonNode$new(id = "py_1")
-#' node$call("print('hello')")
+#' # 1. Pure system-level Python execution (isolated process)
+#' node_sys <- AgentPythonNode$new(
+#'   id = "py_cleaner",
+#'   script = "print('Cleaning data...'); result = 10",
+#'   engine = "system2"
+#' )
+#'
+#' # 2. Reticulate-based execution with shared memory
+#' # This allows the 'result' variable in Python to be returned as an R object.
+#' node_retic <- AgentPythonNode$new(
+#'   id = "py_stats",
+#'   script = "
+#' import numpy as np
+#' data = np.array([1, 2, 3, 4, 5])
+#' result = data.mean()
+#'   ",
+#'   engine = "reticulate"
+#' )
+#'
+#' # Execute and retrieve the 'result' object
+#' res <- node_retic$run(state = AgentState$new())
+#' message("Mean calculated in Python: ", res$result)
 #' }
 #' @export
 AgentPythonNode <- R6::R6Class("AgentPythonNode",

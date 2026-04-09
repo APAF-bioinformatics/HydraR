@@ -1,6 +1,12 @@
 # Memory Message Log R6 Class
 
-In-memory storage for messages.
+A non-persistent, in-memory implementation of `MessageLog`. Messages are
+stored in an internal list that exists only for the duration of the R
+session.
+
+## Value
+
+A `MemoryMessageLog` object.
 
 ## Super class
 
@@ -72,3 +78,20 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# 1. Create a new memory logger for rapid prototyping
+log <- MemoryMessageLog$new()
+
+# 2. Run a DAG and inspect logs after execution
+dag <- dag_create(message_log = log)
+dag$run(initial_state = list(input = "Hello"))
+
+# Inspect total messages captured
+all_messages <- log$get_all()
+message("Captured ", length(all_messages), " messages.")
+} # }
+```

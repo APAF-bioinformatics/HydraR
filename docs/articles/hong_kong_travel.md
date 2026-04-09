@@ -1,7 +1,6 @@
 # Agentic Travel Planning: Sydney to Hong Kong
 
 ``` r
-
 # Toggle for slow/expensive and potentially rate-limited AI figure generation
 # Set to TRUE to force-regenerate the images, otherwise uses existing ones.
 FORCE_REGENERATE_IMAGES <- FALSE
@@ -26,7 +25,6 @@ language-independent manifest.
 First, load the HydraR library.
 
 ``` r
-
 library(HydraR)
 ```
 
@@ -41,7 +39,6 @@ architecture) 2. **LLM Roles** (System prompts for travel concierges) 3.
 **Initial State** (Pre-configurations for the journey)
 
 ``` r
-
 # Load everything from the external declarative source
 wf <- load_workflow("hong_kong_travel.yml")
 ```
@@ -55,7 +52,6 @@ to
 [`mermaid_to_dag()`](https://github.com/APAF-bioinformatics/HydraR/reference/mermaid_to_dag.md).
 
 ``` r
-
 dag <- spawn_dag(wf, auto_node_factory())
 #> [HydraR Warning] Logic 'plan_prompt': 'state' object is not referenced. Ensure your logic interacts with the AgentState.
 #> [HydraR Warning] Logic 'plan_prompt' [Lint]: Put spaces around all infix operators. (line 1)
@@ -83,12 +79,10 @@ dag <- spawn_dag(wf, auto_node_factory())
 We can view the agent’s logic directly using Mermaid.js syntax.
 
 ``` r
-
 cat("```mermaid\n")
 ```
 
 ``` mermaid
-
 ``` r
 cat(dag$plot(type = "mermaid", details = TRUE))
 ```
@@ -140,10 +134,8 @@ graph TD
 ```
 
 ``` r
-
 cat("\n```\n")
 ```
-
 
     ## Execution
 

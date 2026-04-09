@@ -18,16 +18,26 @@ and restored.
 }
 \examples{
 \dontrun{
-# Initialize state with a schema and a reducer
+# 1. Initialize state with strict schema validation and reducers
 state <- AgentState$new(
-  initial_data = list(count = 0, history = list()),
-  schema = list(count = "numeric", history = "list"),
-  reducers = list(history = reducer_append)
+  initial_data = list(count = 0, logs = list()),
+  schema = list(count = "numeric", logs = "list"),
+  reducers = list(logs = reducer_append)
 )
 
-# Updates to 'history' will now use the append reducer
-state$update(list(history = "Event 1"))
-message(state$get("history")) # [1] "Event 1"
+# 2. Basic update (replaces current value)
+state$set("count", 42)
+
+# 3. Reducer update (appends to current list)
+state$update(list(logs = "Process started"))
+state$update(list(logs = "Processing step 1"))
+
+# 4. Schema validation check
+# This will throw an error because 'count' must be numeric
+try(state$set("count", "not a number"))
+
+# Verify accumulation
+print(state$get("logs")) # list("Process started", "Processing step 1")
 }
 }
 \section{Public fields}{

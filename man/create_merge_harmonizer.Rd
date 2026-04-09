@@ -26,6 +26,15 @@ back into the base branch.
 }
 \examples{
 \dontrun{
-node <- create_merge_harmonizer(id = "merger", strategy = "sequential")
+# 1. Create a harmonizer with a specific conflict resolution strategy
+resolver <- ConflictResolver$new(strategy = "human")
+merger <- create_merge_harmonizer(
+  id = "global_merger",
+  strategy = "sequential",
+  conflict_resolver = resolver
+)
+
+# 2. This node is then added to a DAG that uses parallel execution
+# and a WorktreeManager in its state.
 }
 }

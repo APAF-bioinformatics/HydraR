@@ -9,7 +9,7 @@ Ensures all roles, logic, and edges are synchronized and syntactically correct."
 
     <a class="navbar-brand me-2" href="../index.html">HydraR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,6 +21,9 @@ Ensures all roles, logic, and edges are synchronized and syntactically correct."
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Guide</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
@@ -72,6 +75,18 @@ Ensures all roles, logic, and edges are synchronized and syntactically correct.<
     <p>Logical TRUE if valid, otherwise throws an error.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># Perform a deep audit of an instantiated DAG against its YAML source</span></span></span>
+<span class="r-in"><span><span class="va">wf_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="load_workflow.html">load_workflow</a></span><span class="op">(</span><span class="st">"orchestration_plan.yaml"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="fu"><a href="spawn_dag.html">spawn_dag</a></span><span class="op">(</span><span class="va">wf_data</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># This ensures no 'ghost' edges exist in the Mermaid graph</span></span></span>
+<span class="r-in"><span><span class="fu">validate_workflow_full</span><span class="op">(</span><span class="va">dag</span>, <span class="va">wf_data</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

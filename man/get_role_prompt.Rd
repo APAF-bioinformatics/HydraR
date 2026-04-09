@@ -17,6 +17,8 @@ Get a Role-specific System Prompt
 }
 \examples{
 \dontrun{
-prompt <- get_role_prompt("developer")
+# Convenience helper to get role prompts from the Logic Registry
+register_role("assistant", "You are a helpful assistant.")
+p <- get_role_prompt("assistant")
 }
 }

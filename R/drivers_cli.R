@@ -23,13 +23,19 @@
 #'
 #' @examples
 #' \dontrun{
-#' # Standard CLI-based agent
+#' # 1. Standard CLI-based agent with model selection
 #' driver <- GeminiCLIDriver$new(model = "gemini-1.5-pro")
 #'
-#' # Call with specific CLI flags (e.g., allowing specific tools)
+#' # 2. Advanced call with MCP tool discovery and 'YOLO' mode enabled
+#' # This allows the agent to execute tools without interactive confirmation.
 #' response <- driver$call(
-#'   prompt = "List all files in the current directory.",
-#'   cli_opts = list(allowed_tools = "ls,grep")
+#'   prompt = "Analyze the R scripts in this directory and suggest performance fixes.",
+#'   cli_opts = list(
+#'     allowed_tools = "ls,grep,read_file",
+#'     allowed_mcp_server_names = "filesystem,github",
+#'     yolo = TRUE,
+#'     include_directories = c("R", "tests")
+#'   )
 #' )
 #' }
 #' @export
@@ -157,13 +163,19 @@ GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
 #'
 #' @examples
 #' \dontrun{
-#' # Use llama3 locally via Ollama
-#' driver <- OllamaDriver$new(model = "llama3")
+#' # 1. Use llama3.2 locally via Ollama
+#' driver <- OllamaDriver$new(model = "llama3.2")
 #'
-#' # Call with context size adjustments
+#' # 2. Call with high-precision sampling and large context window
+#' # Ideal for summarizing long bioinformatics documents.
 #' response <- driver$call(
-#'   prompt = "Summarize the R documentation for 'lapply'.",
-#'   cli_opts = list(num_ctx = 8192)
+#'   prompt = "Summarize the technical specifications for the 'samtools' format.",
+#'   cli_opts = list(
+#'     num_ctx = 32768,
+#'     temperature = 0.1,
+#'     repeat_penalty = 1.2,
+#'     seed = 42
+#'   )
 #' )
 #' }
 #' @export
@@ -260,11 +272,19 @@ OllamaDriver <- R6::R6Class("OllamaDriver",
 #'
 #' @examples
 #' \dontrun{
-#' # Initialize the Claude Code CLI driver
+#' # 1. Initialize the Claude Code CLI driver
 #' driver <- AnthropicCLIDriver$new(model = "sonnet")
 #'
-#' # Claude CLI handles complex engineering tasks natively
-#' response <- driver$call("Refactor R/dag.R to use R6 private methods.")
+#' # 2. Execute a complex engineering task with budget constraints
+#' # and permission skipping for non-interactive automation.
+#' response <- driver$call(
+#'   prompt = "Refactor R/dag.R to use R6 private methods.",
+#'   cli_opts = list(
+#'     dangerously_skip_permissions = TRUE,
+#'     max_budget_usd = 5.0,
+#'     verbose = TRUE
+#'   )
+#' )
 #' }
 #' @export
 AnthropicCLIDriver <- R6::R6Class(
@@ -357,11 +377,17 @@ AnthropicCLIDriver <- R6::R6Class(
 #'
 #' @examples
 #' \dontrun{
-#' # Use GitHub Copilot in the CLI
+#' # 1. Use GitHub Copilot CLI extension
 #' driver <- CopilotCLIDriver$new()
 #'
-#' # Suggest a complex regex for email validation
-#' response <- driver$call("Create a regex for validating RFC-5322 emails.")
+#' # 2. Request a terminal command with tool permissions
+#' response <- driver$call(
+#'   prompt = "Find all CSV files larger than 1MB and move them to 'data/'",
+#'   cli_opts = list(
+#'     allow_all_tools = TRUE,
+#'     no_custom_instructions = FALSE
+#'   )
+#' )
 #' }
 #' @export
 CopilotCLIDriver <- R6::R6Class("CopilotCLIDriver",
@@ -436,10 +462,17 @@ CopilotCLIDriver <- R6::R6Class("CopilotCLIDriver",
 #'
 #' @examples
 #' \dontrun{
-#' # Ensure Codex CLI is installed and authenticated
+#' # 1. Legacy Codex CLI support
 #' driver <- OpenAICodexCLIDriver$new()
 #'
-#' response <- driver$call("Create a data.frame with 5 rows and 2 columns.")
+#' # 2. Isolated execution with skip-checks for specific environments
+#' response <- driver$call(
+#'   prompt = "Create a data.frame with 5 rows and 2 columns.",
+#'   cli_opts = list(
+#'     sandbox = TRUE,
+#'     skip_git_repo_check = TRUE
+#'   )
+#' )
 #' }
 #' @export
 OpenAICodexCLIDriver <- R6::R6Class(

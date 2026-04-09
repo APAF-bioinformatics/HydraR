@@ -1,0 +1,11 @@
+---
+title: "HydraR: The Complete Guide"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{HydraR: The Complete Guide}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r child='manual.md'}
+```

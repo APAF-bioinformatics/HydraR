@@ -2,6 +2,10 @@
 
 Executes a python script via system python or reticulate.
 
+## Value
+
+An \`AgentPythonNode\` object.
+
 ## Super class
 
 [`HydraR::AgentNode`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentNode.md)
@@ -100,3 +104,32 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# 1. Pure system-level Python execution (isolated process)
+node_sys <- AgentPythonNode$new(
+  id = "py_cleaner",
+  script = "print('Cleaning data...'); result = 10",
+  engine = "system2"
+)
+
+# 2. Reticulate-based execution with shared memory
+# This allows the 'result' variable in Python to be returned as an R object.
+node_retic <- AgentPythonNode$new(
+  id = "py_stats",
+  script = "
+import numpy as np
+data = np.array([1, 2, 3, 4, 5])
+result = data.mean()
+  ",
+  engine = "reticulate"
+)
+
+# Execute and retrieve the 'result' object
+res <- node_retic$run(state = AgentState$new())
+message("Mean calculated in Python: ", res$result)
+} # }
+```

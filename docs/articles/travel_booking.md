@@ -19,7 +19,6 @@ This demonstrates robust condition handling through cyclic loops.
 ## Setup
 
 ``` r
-
 library(HydraR)
 ```
 
@@ -28,7 +27,6 @@ library(HydraR)
 Initialize the `AgentDAG`.
 
 ``` r
-
 dag <- AgentDAG$new()
 ```
 
@@ -38,7 +36,6 @@ This node mocks an LLM calling flight and hotel APIs, receiving feedback
 if its previous proposal was too expensive.
 
 ``` r
-
 planner_node <- AgentLogicNode$new(id = "Planner", logic_fn = function(state, memory = NULL) {
   # Read user constraints
   destination <- state$get("destination")
@@ -75,7 +72,6 @@ This node ensures the LLM’s proposal strictly adheres to the numerical
 budget limit.
 
 ``` r
-
 validator_node <- AgentLogicNode$new(id = "Validator", logic_fn = function(state, memory = NULL) {
   proposed_cost <- state$get("proposed_cost")
   budget <- state$get("budget")
@@ -108,7 +104,6 @@ We define the looping logic. The Validator sends control back to the
 Planner if `is_valid` is `FALSE`.
 
 ``` r
-
 dag$set_start_node("Planner")
 
 dag$add_edge("Planner", "Validator")
@@ -132,7 +127,6 @@ Let’s execute the DAG with a strict budget of `$1500` for a trip to
 `Tokyo`.
 
 ``` r
-
 initial_state <- list(
   destination = "Tokyo",
   budget = 1500

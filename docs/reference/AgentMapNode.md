@@ -100,3 +100,25 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# Mapping over a list of URLs to fetch data
+fetch_logic <- function(url, state) {
+  # Custom logic for each item
+  list(status = "success", output = paste0("Data from ", url))
+}
+
+node_map <- AgentMapNode$new(
+  id = "batch_fetcher",
+  map_key = "url_list",
+  logic_fn = fetch_logic
+)
+
+# Setup state with items to map over
+state <- AgentState$new(list(url_list = c("url1", "url2", "url3")))
+results <- node_map$run(state)
+} # }
+```
