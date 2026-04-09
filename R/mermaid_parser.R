@@ -35,7 +35,7 @@ extract_edge_and_node_strings <- function(line) {
   line_work <- line
   line_work <- gsub("--\\s*([^>-]+?)\\s*-->", "@@@\\1###", line_work)
   line_work <- gsub("-->\\s*\\|(.*?)\\|", "@@@\\1###", line_work)
-  line_work <- gsub("-->", "@@@@@@###", line_work)
+  line_work <- gsub("-->", "@@@###", line_work)
 
   # 2. Extract edge labels and nodes using regmatches (canonical split)
   m <- gregexpr("@@@[^###]*###", line_work, perl = TRUE)
