@@ -43,6 +43,30 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.2" id="hydrar-022-documentation-overhaul--release-polish">HydraR 0.2.2 (Documentation Overhaul &amp; Release Polish)<a class="anchor" aria-label="anchor" href="#hydrar-022-documentation-overhaul--release-polish"></a></h2>
+<ul><li>
+<strong>Comprehensive Documentation Overhaul</strong>:
+<ul><li>Standardized Roxygen2 annotations across all core R6 classes (<code>AgentDAG</code>, <code>AgentNode</code>, <code>AgentDriver</code>, <code>MessageLog</code>, <code>Checkpointer</code>, etc.).</li>
+<li>Added detailed, type-annotated <code>@param</code> descriptions for all public methods.</li>
+<li>Implemented robust, non-interactive-safe <code>@examples</code> wrapped in <code>\dontrun{}</code> to demonstrate complex multi-step workflows.</li>
+<li>Added explicit environment variable setup instructions (<code>.Renviron</code>) for all API-driven components.</li>
+</ul></li>
+<li>
+<strong>Workflow Lifecycle</strong>: Documented the full “Low Code” lifecycle from declarative Mermaid/YAML definitions to compiled and executed DAGs.</li>
+<li>
+<strong>Improved Driver Registry</strong>: Improved discovery and hot-swapping documentation for LLM drivers.</li>
+<li>
+<strong>Persistence &amp; Auditing</strong>: Added lifecycle documentation for DuckDB and JSONL message logging and state checkpointing.</li>
+<li>
+<strong>Bug Fixes &amp; Stabilization</strong>:
+<ul><li>Resolved a syntax error in <code>GeminiImageDriver</code>.</li>
+<li>Fixed Roxygen parsing errors where method titles merged into descriptions in <code>man/AgentDAG.Rd</code>.</li>
+<li>Restored flexible function lookup in <code>auto_node_factory</code> to maintain backward compatibility with global functions in tests.</li>
+</ul></li>
+<li>
+<strong>Clean Registry</strong>: Package now achieves a perfectly clean <code>R CMD check</code> (0 Errors, 0 Warnings, 0 Notes) on core builds.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.1" id="hydrar-021-final-polish--acknowledgements">HydraR 0.2.1 (Final Polish &amp; Acknowledgements)<a class="anchor" aria-label="anchor" href="#hydrar-021-final-polish--acknowledgements"></a></h2>
 <ul><li>
 <strong>Formal Acknowledgements</strong>: Added a dedicated section to <code>README.md</code> and <code>paper.md</code> acknowledging funding from Bioplatforms Australia via NCRIS and the Australian Proteome Analysis Facility (APAF).</li>
