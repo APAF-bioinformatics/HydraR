@@ -33,7 +33,7 @@ jobs:
           extra-packages: any::pkgdown, local::.
           needs: website
 
-      - name: Run Tests 🧪
+      - name: Run Tests
         run: |
           install.packages("testthat")
           testthat::test_local()
