@@ -9,6 +9,11 @@ A `GeminiImageDriver` R6 object.
 \description{
 Driver for Google Gemini's multimodal image generation (2026 models).
 }
+\examples{
+\dontrun{
+driver <- GeminiImageDriver$new()
+}
+}
 \section{Super classes}{
 \code{\link[HydraR:AgentDriver]{HydraR::AgentDriver}} -> \code{\link[HydraR:GeminiAPIDriver]{HydraR::GeminiAPIDriver}} -> \code{GeminiImageDriver}
 }

@@ -16,15 +16,6 @@ A function(id, label, params) -> AgentNode.
 Returns a node factory closure that resolves `type=` annotations
 directly from Mermaid node parameters. Eliminates the need for
 hand-written factory functions per workflow.
-
-Supported `type=` values:
-\itemize{
-  \item `"llm"` -- Creates an \code{AgentLLMNode}. Requires `role` or `role_id`.
-    Optional: `driver`, `model`, `prompt_id`, `output_format`, `output_path`.
-  \item `"logic"` -- Creates an \code{AgentLogicNode}. Requires `logic_id`.
-  \item `"merge"` -- Creates a Merge Harmonizer via \code{create_merge_harmonizer()}.
-  \item `"auto"` (default if omitted) -- Looks up `id` in the logic registry.
-}
 }
 \examples{
 \dontrun{

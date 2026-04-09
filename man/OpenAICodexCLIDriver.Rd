@@ -9,6 +9,12 @@ An `OpenAICodexCLIDriver` object.
 \description{
 Driver for the official `codex` CLI tool (v0.118+).
 }
+\examples{
+\dontrun{
+driver <- OpenAICodexCLIDriver$new()
+driver$call("Hello, Codex")
+}
+}
 \section{Super class}{
 \code{\link[HydraR:AgentDriver]{HydraR::AgentDriver}} -> \code{OpenAICodexCLIDriver}
 }

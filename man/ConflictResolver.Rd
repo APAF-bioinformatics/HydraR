@@ -10,6 +10,11 @@ A `ConflictResolver` R6 object.
 Handles semantic or git-level conflicts during branch merges.
 Used by Conflict Harmonizer nodes.
 }
+\examples{
+\dontrun{
+resolver <- ConflictResolver$new(worktree_dir = ".")
+}
+}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{

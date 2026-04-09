@@ -10,6 +10,11 @@ An `AgentRouterNode` object.
 A node that determines the next node in the DAG dynamically.
 The logic function must return a list with a `target_node` field.
 }
+\examples{
+\dontrun{
+node <- AgentRouterNode$new(id = "r1", route_fn = function(s) "next_node")
+}
+}
 \section{Super class}{
 \code{\link[HydraR:AgentNode]{HydraR::AgentNode}} -> \code{AgentRouterNode}
 }

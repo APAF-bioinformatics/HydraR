@@ -297,6 +297,10 @@ WorktreeManager <- R6::R6Class("WorktreeManager",
 #'
 #' @return A `ConflictResolver` R6 object.
 #' @importFrom R6 R6Class
+#' @examples
+#' \dontrun{
+#' resolver <- ConflictResolver$new(worktree_dir = ".")
+#' }
 #' @export
 ConflictResolver <- R6::R6Class("ConflictResolver",
   public = list(

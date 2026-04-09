@@ -3,10 +3,18 @@
 \name{RDSSaver}
 \alias{RDSSaver}
 \title{RDS File Checkpointer}
+\value{
+An `RDSSaver` object.
+}
 \description{
 Lightweight file-based checkpointer using base R `saveRDS`/`readRDS`.
 Each thread is persisted as a separate `.rds` file in the specified directory.
 No external dependencies required.
+}
+\examples{
+\dontrun{
+saver <- RDSSaver$new()
+}
 }
 \section{Super class}{
 \code{\link[HydraR:Checkpointer]{HydraR::Checkpointer}} -> \code{RDSSaver}

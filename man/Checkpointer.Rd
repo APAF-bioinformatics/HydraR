@@ -3,8 +3,16 @@
 \name{Checkpointer}
 \alias{Checkpointer}
 \title{Checkpointer Interface}
+\value{
+A `Checkpointer` object.
+}
 \description{
 Abstract base class for AgentDAG checkpointers.
+}
+\examples{
+\dontrun{
+cp <- Checkpointer$new(saver = MemorySaver$new())
+}
 }
 \section{Methods}{
 \subsection{Public methods}{

@@ -17,3 +17,8 @@ A high-level helper that performs a comprehensive check on a YAML/JSON workflow 
 This includes schema validation, topological consistency checks (Mermaid vs YAML),
 and R logic syntax linting.
 }
+\examples{
+\dontrun{
+validate_workflow_file("wf.yaml")
+}
+}

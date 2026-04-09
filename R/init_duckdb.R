@@ -6,6 +6,10 @@
 #'
 #' @param read_only Logical. If TRUE, connects in read-only mode.
 #' @return A DBIConnection object.
+#' @examples
+#' \dontrun{
+#' init_bot_history()
+#' }
 #' @export
 init_bot_history <- function(read_only = FALSE) {
   db_path <- "~/.gemini/memory/bot_history.duckdb"

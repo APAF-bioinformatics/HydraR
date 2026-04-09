@@ -3,8 +3,16 @@
 \name{DuckDBMessageLog}
 \alias{DuckDBMessageLog}
 \title{DuckDB Message Log R6 Class}
+\value{
+A `DuckDBMessageLog` object.
+}
 \description{
 Persists messages to the master DuckDB database. Maintains an open connection for efficiency.
+}
+\examples{
+\dontrun{
+log <- DuckDBMessageLog$new(session_id = "test")
+}
 }
 \section{Super class}{
 \code{\link[HydraR:MessageLog]{HydraR::MessageLog}} -> \code{DuckDBMessageLog}

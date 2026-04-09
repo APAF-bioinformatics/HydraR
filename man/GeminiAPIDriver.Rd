@@ -9,6 +9,11 @@ A `GeminiAPIDriver` R6 object.
 \description{
 Driver for Google Gemini (AI Studio) API.
 }
+\examples{
+\dontrun{
+driver <- GeminiAPIDriver$new()
+}
+}
 \section{Super class}{
 \code{\link[HydraR:AgentDriver]{HydraR::AgentDriver}} -> \code{GeminiAPIDriver}
 }

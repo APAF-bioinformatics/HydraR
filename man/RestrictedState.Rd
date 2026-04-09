@@ -3,9 +3,17 @@
 \name{RestrictedState}
 \alias{RestrictedState}
 \title{Restricted State R6 Class}
+\value{
+A `RestrictedState` object.
+}
 \description{
 A security wrapper for AgentState that restricts access based on node_id.
 Implements "True Privacy" for inter-agent communication.
+}
+\examples{
+\dontrun{
+state <- RestrictedState$new(fields = c("a", "b"))
+}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

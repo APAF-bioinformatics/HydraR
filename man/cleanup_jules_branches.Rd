@@ -29,3 +29,8 @@ Specifically targets branches authored by 'google-labs-jules[bot]'
 that have been inactive beyond a specified threshold, or any branch
 already merged into the main branch.
 }
+\examples{
+\dontrun{
+cleanup_jules_branches()
+}
+}

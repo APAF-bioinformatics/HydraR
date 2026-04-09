@@ -14,6 +14,10 @@
 #'
 #' @return A `DriverRegistry` R6 object.
 #' @importFrom R6 R6Class
+#' @examples
+#' \dontrun{
+#' reg <- DriverRegistry$new()
+#' }
 #' @export
 DriverRegistry <- R6::R6Class("DriverRegistry",
   public = list(
@@ -92,6 +96,10 @@ DriverRegistry <- R6::R6Class("DriverRegistry",
 
 #' Global Driver Registry Accessor
 #' @return The global DriverRegistry instance.
+#' @examples
+#' \dontrun{
+#' reg <- get_driver_registry()
+#' }
 #' @export
 get_driver_registry <- function() {
   if (!exists("driver_registry", envir = .HydraR_Internal)) {
@@ -102,6 +110,11 @@ get_driver_registry <- function() {
 
 #' Set the Default Agent Driver
 #' @param driver AgentDriver object or ID string.
+#' @return NULL (invisibly)
+#' @examples
+#' \dontrun{
+#' set_default_driver(AnthropicCLIDriver$new())
+#' }
 #' @export
 set_default_driver <- function(driver) {
   registry <- get_driver_registry()
@@ -114,6 +127,10 @@ set_default_driver <- function(driver) {
 
 #' Get the Default Agent Driver
 #' @return AgentDriver object or NULL.
+#' @examples
+#' \dontrun{
+#' drv <- get_default_driver()
+#' }
 #' @export
 get_default_driver <- function() {
   if (exists("default_driver", envir = .HydraR_Internal)) {
@@ -132,6 +149,10 @@ get_default_driver <- function() {
 #' Get a Role-specific System Prompt
 #' @param name String. Role identifier.
 #' @return String prompt text.
+#' @examples
+#' \dontrun{
+#' prompt <- get_role_prompt("developer")
+#' }
 #' @export
 get_role_prompt <- function(name) {
   get_role(name) %||% stop(sprintf("Role '%s' not found in registry.", name))

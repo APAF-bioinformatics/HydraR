@@ -15,3 +15,8 @@ String prompt text.
 \description{
 Get a Role-specific System Prompt
 }
+\examples{
+\dontrun{
+prompt <- get_role_prompt("developer")
+}
+}

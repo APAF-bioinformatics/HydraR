@@ -3,8 +3,17 @@
 \name{MessageLog}
 \alias{MessageLog}
 \title{Message Log Base R6 Class}
+\value{
+A `MessageLog` base object.
+}
 \description{
 Abstract base class for logging inter-agent messages.
+}
+\examples{
+\dontrun{
+# This is an abstract base class.
+# Instantiate a subclass like MemoryMessageLog.
+}
 }
 \section{Methods}{
 \subsection{Public methods}{

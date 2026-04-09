@@ -10,6 +10,10 @@
 #'
 #' @param raw String. Raw text response from LLM.
 #' @return String. Extracted R code or same text if no blocks found.
+#' @examples
+#' \dontrun{
+#' extract_r_code_advanced("```r\nprint(1)\n```")
+#' }
 #' @export
 extract_r_code_advanced <- function(raw) {
   if (is.null(raw) || length(raw) == 0 || raw == "") {
@@ -53,6 +57,10 @@ extract_r_code_advanced <- function(raw) {
 #'
 #' @param x Any object.
 #' @return Logical.
+#' @examples
+#' \dontrun{
+#' is_named_list(list(a = 1))
+#' }
 #' @export
 is_named_list <- function(x) {
   is.list(x) && !is.data.frame(x) && !is.null(names(x)) && all(nzchar(names(x)))

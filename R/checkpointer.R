@@ -12,6 +12,11 @@
 #' Abstract base class for AgentDAG checkpointers.
 #'
 #' @importFrom R6 R6Class
+#' @return A `Checkpointer` object.
+#' @examples
+#' \dontrun{
+#' cp <- Checkpointer$new(saver = MemorySaver$new())
+#' }
 #' @export
 Checkpointer <- R6::R6Class("Checkpointer",
   public = list(
@@ -39,6 +44,11 @@ Checkpointer <- R6::R6Class("Checkpointer",
 #' Stores checkpoints in an R environment.
 #'
 #' @importFrom R6 R6Class
+#' @return A `MemorySaver` object.
+#' @examples
+#' \dontrun{
+#' saver <- MemorySaver$new()
+#' }
 #' @export
 MemorySaver <- R6::R6Class("MemorySaver",
   inherit = Checkpointer,
@@ -101,6 +111,11 @@ MemorySaver <- R6::R6Class("MemorySaver",
 #' No external dependencies required.
 #'
 #' @importFrom R6 R6Class
+#' @return An `RDSSaver` object.
+#' @examples
+#' \dontrun{
+#' saver <- RDSSaver$new()
+#' }
 #' @export
 RDSSaver <- R6::R6Class("RDSSaver",
   inherit = Checkpointer,

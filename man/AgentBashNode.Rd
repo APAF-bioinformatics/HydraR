@@ -3,8 +3,17 @@
 \name{AgentBashNode}
 \alias{AgentBashNode}
 \title{Bash Execution Node}
+\value{
+An `AgentBashNode` object.
+}
 \description{
 Executes a raw bash script. Can run within an isolated worktree if configured.
+}
+\examples{
+\dontrun{
+node <- AgentBashNode$new(id = "bash_1")
+node$call("echo hello")
+}
 }
 \section{Super class}{
 \code{\link[HydraR:AgentNode]{HydraR::AgentNode}} -> \code{AgentBashNode}

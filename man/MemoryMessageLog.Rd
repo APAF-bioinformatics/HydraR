@@ -3,8 +3,16 @@
 \name{MemoryMessageLog}
 \alias{MemoryMessageLog}
 \title{Memory Message Log R6 Class}
+\value{
+A `MemoryMessageLog` object.
+}
 \description{
 In-memory storage for messages.
+}
+\examples{
+\dontrun{
+log <- MemoryMessageLog$new()
+}
 }
 \section{Super class}{
 \code{\link[HydraR:MessageLog]{HydraR::MessageLog}} -> \code{MemoryMessageLog}

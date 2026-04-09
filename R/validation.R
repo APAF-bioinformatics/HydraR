@@ -15,6 +15,10 @@
 #' @param dag AgentDAG object.
 #' @param wf List. The workflow object from `load_workflow`.
 #' @return Logical TRUE if valid, otherwise throws an error.
+#' @examples
+#' \dontrun{
+#' validate_workflow_full(dag, wf_data)
+#' }
 #' @export
 validate_workflow_full <- function(dag, wf) {
   errors <- list()
@@ -143,6 +147,59 @@ check_edge_synchronization <- function(dag) {
   list(errors = errors)
 }
 
+#' Internal helper: Lint a single logic block
+#' @keywords internal
+.lint_single_logic_block <- function(code, name) {
+  errors <- list()
+  warnings <- list()
+
+  if (!is.character(code)) {
+    return(list(errors = errors, warnings = warnings))
+  }
+
+  v_trim <- trimws(code)
+  if (grepl("\\.[rR]$", v_trim, ignore.case = TRUE) && file.exists(v_trim)) {
+    code <- tryCatch(
+      paste(readLines(v_trim, warn = FALSE), collapse = "\n"),
+      error = function(e) code
+    )
+  }
+
+  parse_res <- tryCatch(
+    {
+      parse(text = code)
+      NULL
+    },
+    error = function(e) {
+      e
+    }
+  )
+  if (!is.null(parse_res)) {
+    errors <- c(errors, sprintf("Logic '%s': Syntactic error - %s", name, parse_res$message))
+    return(list(errors = errors, warnings = warnings))
+  }
+
+  if (grepl("\\bfor\\s*\\(", code)) {
+    warnings <- c(warnings, sprintf("Logic '%s': Violation of APAF Global Rule G-25 ('for' loop detected). Use purrr::map/walk instead.", name))
+  }
+
+  is_simple_id <- grepl("^[a-zA-Z0-9_]+$", v_trim)
+  if (!is_simple_id && !grepl("\\bstate\\b", code) && !grepl("^\\{", trimws(code))) {
+    warnings <- c(warnings, sprintf("Logic '%s': 'state' object is not referenced. Ensure your logic interacts with the AgentState.", name))
+  }
+
+  if (requireNamespace("lintr", quietly = TRUE)) {
+    l_res <- lintr::lint(text = code)
+    if (length(l_res) > 0) {
+      purrr::walk(utils::head(l_res, 3), function(l) {
+        warnings <<- c(warnings, sprintf("Logic '%s' [Lint]: %s (line %d)", name, l$message, l$line_number))
+      })
+    }
+  }
+
+  list(errors = errors, warnings = warnings)
+}
+
 #' Lint Workflow Logic
 #' @param wf List. The workflow object.
 #' @return List(errors, warnings).
@@ -155,63 +212,12 @@ lint_workflow_logic <- function(wf) {
     return(list(errors = list(), warnings = list()))
   }
 
-  purrr::iwalk(wf$logic, function(code, name) {
-    if (!is.character(code)) {
-      return()
-    }
+  res <- purrr::imap(wf$logic, .lint_single_logic_block)
 
-    v_trim <- trimws(code)
-    # If the logic entry is a file path, read the file content for linting
-    if (grepl("\\.[rR]$", v_trim, ignore.case = TRUE) && file.exists(v_trim)) {
-      code_content <- tryCatch(
-        paste(readLines(v_trim, warn = FALSE), collapse = "\n"),
-        error = function(e) code
-      )
-      code <- code_content
-    }
-
-    # 1. Syntactic Parse Check (Hard Stop)
-    parse_res <- tryCatch(
-      {
-        parse(text = code)
-        NULL
-      },
-      error = function(e) {
-        errors <<- c(errors, sprintf("Logic '%s': Syntactic error - %s", name, e$message))
-        e
-      }
-    )
-    if (!is.null(parse_res)) {
-      return()
-    }
-
-    # 2. APAF Rule G-25: No for-loops
-    # Simple regex check for 'for(' or 'for '
-    if (grepl("\\bfor\\s*\\(", code)) {
-      warnings <<- c(warnings, sprintf("Logic '%s': Violation of APAF Global Rule G-25 ('for' loop detected). Use purrr::map/walk instead.", name))
-    }
-
-    # 3. Signature Check (Heuristic)
-    # If the code looks like a function(state), check it
-    # If it's a code block that HydraR wraps, it implicitly uses 'state'
-    # We can check if 'state' is mentioned in the code
-    # SKIP if it's a simple identifier (alphanumeric only, no spaces/parens)
-    is_simple_id <- grepl("^[a-zA-Z0-9_]+$", v_trim)
-    if (!is_simple_id && !grepl("\\bstate\\b", code) && !grepl("^\\{", trimws(code))) {
-      warnings <<- c(warnings, sprintf("Logic '%s': 'state' object is not referenced. Ensure your logic interacts with the AgentState.", name))
-    }
-
-    # 4. lintr integration (if available)
-    if (requireNamespace("lintr", quietly = TRUE)) {
-      l_res <- lintr::lint(text = code)
-      if (length(l_res) > 0) {
-        # We limit to first 3 lints per block to avoid noise
-        purrr::walk(utils::head(l_res, 3), function(l) {
-          warnings <<- c(warnings, sprintf("Logic '%s' [Lint]: %s (line %d)", name, l$message, l$line_number))
-        })
-      }
-    }
-  })
+  for (r in res) {
+    if (length(r$errors) > 0) errors <- c(errors, r$errors)
+    if (length(r$warnings) > 0) warnings <- c(warnings, r$warnings)
+  }
 
   list(errors = errors, warnings = warnings)
 }
@@ -225,6 +231,10 @@ lint_workflow_logic <- function(wf) {
 #'
 #' @param file_path String. Path to the workflow definition file.
 #' @return Logical TRUE if valid (invisibly). Throws a detailed error on failure.
+#' @examples
+#' \dontrun{
+#' validate_workflow_file("wf.yaml")
+#' }
 #' @export
 validate_workflow_file <- function(file_path) {
   wf <- load_workflow(file_path)
@@ -245,6 +255,10 @@ validate_workflow_file <- function(file_path) {
 #' @param status Logical. If TRUE, styling is applied (requires a valid trace log in the workflow state).
 #' @param ... Additional arguments passed to `dag$run()`.
 #' @return A `DiagrammeR` htmlwidget if `output_file` is NULL, otherwise saves the file.
+#' @examples
+#' \dontrun{
+#' render_workflow_file("wf.yaml")
+#' }
 #' @export
 render_workflow_file <- function(file_path, output_file = NULL, status = FALSE, ...) {
   wf <- load_workflow(file_path)

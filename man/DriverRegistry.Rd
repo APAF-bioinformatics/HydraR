@@ -10,6 +10,11 @@ A `DriverRegistry` R6 object.
 A singleton-like registry for managing AgentDriver instances.
 Enables runtime recovery and hot-swapping of drivers across nodes.
 }
+\examples{
+\dontrun{
+reg <- DriverRegistry$new()
+}
+}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{

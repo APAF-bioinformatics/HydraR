@@ -13,6 +13,11 @@
 #' Used for prompt-based tool discovery.
 #'
 #' @importFrom R6 R6Class
+#' @return An `AgentTool` object.
+#' @examples
+#' \dontrun{
+#' tool <- AgentTool$new(name = "my_tool", description = "A tool")
+#' }
 #' @export
 AgentTool <- R6::R6Class("AgentTool",
   public = list(
@@ -63,6 +68,10 @@ AgentTool <- R6::R6Class("AgentTool",
 #' Format Toolset for Prompt
 #' @param tools List of AgentTool objects.
 #' @return A formatted string containing all tool descriptions.
+#' @examples
+#' \dontrun{
+#' format_toolset(list(my_tool = AgentTool$new(...)))
+#' }
 #' @export
 format_toolset <- function(tools) {
   if (length(tools) == 0) {

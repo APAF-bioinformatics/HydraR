@@ -999,6 +999,10 @@ AgentDAG$from_mermaid <- function(mermaid_str, node_factory = auto_node_factory(
 #' @param mermaid_str String. Mermaid syntax.
 #' @param node_factory Function(id, label) -> AgentNode. Defaults to `auto_node_factory()`.
 #' @return The AgentDAG object.
+#' @examples
+#' \dontrun{
+#' dag <- mermaid_to_dag("graph TD; A-->B;")
+#' }
 #' @export
 mermaid_to_dag <- function(mermaid_str, node_factory = auto_node_factory()) {
   dag <- AgentDAG$new()

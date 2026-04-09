@@ -168,6 +168,10 @@ AgentState <- R6::R6Class("AgentState",
 #' @param current The current state value.
 #' @param new The new value to append.
 #' @return The combined value.
+#' @examples
+#' \dontrun{
+#' reducer_append(1, 2)
+#' }
 #' @export
 reducer_append <- function(current, new) {
   if (is.null(current)) {
@@ -184,6 +188,10 @@ reducer_append <- function(current, new) {
 #' @param current The current state list.
 #' @param new The new list to merge.
 #' @return The merged list.
+#' @examples
+#' \dontrun{
+#' reducer_merge_list(list(a = 1), list(b = 2))
+#' }
 #' @export
 reducer_merge_list <- function(current, new) {
   if (is.null(current)) {

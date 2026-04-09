@@ -3,8 +3,17 @@
 \name{CopilotCLIDriver}
 \alias{CopilotCLIDriver}
 \title{Copilot CLI Driver R6 Class}
+\value{
+A `CopilotCLIDriver` object.
+}
 \description{
 Driver for the 'gh copilot' CLI tool.
+}
+\examples{
+\dontrun{
+driver <- CopilotCLIDriver$new()
+driver$call("Write a simple function")
+}
 }
 \section{Super class}{
 \code{\link[HydraR:AgentDriver]{HydraR::AgentDriver}} -> \code{CopilotCLIDriver}

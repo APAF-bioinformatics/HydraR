@@ -15,3 +15,8 @@ An AgentDAG object.
 \description{
 Create an Agent Graph
 }
+\examples{
+\dontrun{
+dag <- dag_create()
+}
+}

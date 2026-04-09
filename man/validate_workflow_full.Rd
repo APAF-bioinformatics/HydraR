@@ -18,3 +18,8 @@ Logical TRUE if valid, otherwise throws an error.
 Performs a holistic check on the instantiated DAG and the source workflow.
 Ensures all roles, logic, and edges are synchronized and syntactically correct.
 }
+\examples{
+\dontrun{
+validate_workflow_full(dag, wf_data)
+}
+}

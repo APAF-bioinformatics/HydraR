@@ -15,3 +15,8 @@ A list containing elements: 'graph', 'initial_state', 'roles', 'logic', 'raw'.
 \description{
 Load Multi-Agent Workflow from File
 }
+\examples{
+\dontrun{
+wf <- load_workflow("wf.yaml")
+}
+}

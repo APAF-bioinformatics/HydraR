@@ -47,7 +47,7 @@ test_that("Hong Kong planning loop works", {
       itinerary <- state$get("TravelPlanner")
       must_include <- c("Cheung Chau Island", "Spaghetti House")
 
-      found <- sapply(must_include, function(x) grepl(x, itinerary, ignore.case = TRUE))
+      found <- purrr::map_lgl(must_include, function(x) grepl(x, itinerary, ignore.case = TRUE))
       if (all(found)) {
         list(status = "success", output = list(validation_passed = TRUE))
       } else {

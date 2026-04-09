@@ -18,3 +18,8 @@ A compiled `AgentDAG` object.
 High-level 'Low Code' helper that instantiates, configures, and compiles
 an AgentDAG based on a workflow list (from `load_workflow`).
 }
+\examples{
+\dontrun{
+dag <- spawn_dag(load_workflow("wf.yaml"))
+}
+}

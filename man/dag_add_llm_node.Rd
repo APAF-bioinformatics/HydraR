@@ -27,3 +27,9 @@ The modified AgentDAG object (invisibly).
 \description{
 Add an LLM Agent Node directly to a DAG
 }
+\examples{
+\dontrun{
+dag <- dag_create()
+dag <- dag_add_llm_node(dag, "node1", "Assistant", AnthropicAPIDriver$new())
+}
+}

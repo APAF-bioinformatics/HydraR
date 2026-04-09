@@ -20,3 +20,8 @@ Constructs an AgentDriver from a well-known shorthand string like
 `"gemini"`, `"claude"`, or `"openai"`. Tries the global DriverRegistry
 first; falls back to constructing a new CLI driver.
 }
+\examples{
+\dontrun{
+drv <- resolve_default_driver(NULL)
+}
+}

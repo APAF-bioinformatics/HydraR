@@ -18,3 +18,8 @@ The merged list.
 Merges two named lists using functional patterns.
 Overwrites current for matching keys.
 }
+\examples{
+\dontrun{
+reducer_merge_list(list(a = 1), list(b = 2))
+}
+}

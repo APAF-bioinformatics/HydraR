@@ -10,6 +10,12 @@
 #'
 #' @description Abstract base class for logging inter-agent messages.
 #' @importFrom R6 R6Class
+#' @return A `MessageLog` base object.
+#' @examples
+#' \dontrun{
+#' # This is an abstract base class.
+#' # Instantiate a subclass like MemoryMessageLog.
+#' }
 #' @export
 MessageLog <- R6::R6Class("MessageLog",
   public = list(
@@ -30,6 +36,11 @@ MessageLog <- R6::R6Class("MessageLog",
 #' Memory Message Log R6 Class
 #'
 #' @description In-memory storage for messages.
+#' @return A `MemoryMessageLog` object.
+#' @examples
+#' \dontrun{
+#' log <- MemoryMessageLog$new()
+#' }
 #' @export
 MemoryMessageLog <- R6::R6Class("MemoryMessageLog",
   inherit = MessageLog,
@@ -54,6 +65,11 @@ MemoryMessageLog <- R6::R6Class("MemoryMessageLog",
 #' DuckDB Message Log R6 Class
 #'
 #' @description Persists messages to the master DuckDB database. Maintains an open connection for efficiency.
+#' @return A `DuckDBMessageLog` object.
+#' @examples
+#' \dontrun{
+#' log <- DuckDBMessageLog$new(session_id = "test")
+#' }
 #' @export
 DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
   inherit = MessageLog,
@@ -164,6 +180,11 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
 #' @description Persists messages to a JSON Lines file. Atomic file appending
 #' ensures that multiple parallel worktree processes can log messages
 #' without locking conflicts.
+#' @return A `JSONLMessageLog` object.
+#' @examples
+#' \dontrun{
+#' log <- JSONLMessageLog$new(session_id = "test")
+#' }
 #' @export
 JSONLMessageLog <- R6::R6Class("JSONLMessageLog",
   inherit = MessageLog,

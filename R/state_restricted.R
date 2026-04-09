@@ -13,6 +13,11 @@
 #' Implements "True Privacy" for inter-agent communication.
 #'
 #' @importFrom R6 R6Class
+#' @return A `RestrictedState` object.
+#' @examples
+#' \dontrun{
+#' state <- RestrictedState$new(fields = c("a", "b"))
+#' }
 #' @export
 RestrictedState <- R6::R6Class("RestrictedState",
   public = list(

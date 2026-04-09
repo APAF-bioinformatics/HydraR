@@ -13,6 +13,10 @@
 #' Its output does not modify the primary AgentState.
 #'
 #' @return An `AgentObserverNode` object.
+#' @examples
+#' \dontrun{
+#' node <- AgentObserverNode$new(id = "obs1", observer_fn = function(s) print(s))
+#' }
 #' @export
 AgentObserverNode <- R6::R6Class("AgentObserverNode",
   inherit = AgentNode,

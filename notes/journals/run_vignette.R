@@ -50,7 +50,7 @@ auditor_node <- AgentLogicNode$new(
         must_include <- state$get("must_include")
 
         # Simple string matching to check constraints
-        found <- sapply(must_include, function(x) grepl(x, itinerary, ignore.case = TRUE))
+        found <- purrr::map_lgl(must_include, function(x) grepl(x, itinerary, ignore.case = TRUE))
         found_vec <- unlist(found)
 
         if (all(found_vec)) {

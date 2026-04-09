@@ -13,6 +13,10 @@
 #' @param name String. Unique identifier for the function.
 #' @param fn Function. The R function to store.
 #' @return The registry environment (invisibly).
+#' @examples
+#' \dontrun{
+#' register_logic("my_logic", function() {})
+#' }
 #' @export
 register_logic <- function(name, fn) {
   stopifnot(is.character(name) && is.function(fn))
@@ -23,6 +27,10 @@ register_logic <- function(name, fn) {
 #' Get Logic Function
 #' @param name String. Unique identifier.
 #' @return Function or NULL.
+#' @examples
+#' \dontrun{
+#' func <- get_logic("my_logic")
+#' }
 #' @export
 get_logic <- function(name) {
   if (exists(name, envir = .hydra_registry)) {
@@ -33,6 +41,10 @@ get_logic <- function(name) {
 
 #' List Registered Components
 #' @return Character vector of names.
+#' @examples
+#' \dontrun{
+#' list_logic()
+#' }
 #' @export
 list_logic <- function() {
   ls(envir = .hydra_registry)
@@ -42,6 +54,10 @@ list_logic <- function() {
 #' @param name String. Unique identifier for the role.
 #' @param prompt_text String. The system prompt text.
 #' @return The registry environment (invisibly).
+#' @examples
+#' \dontrun{
+#' register_role("my_role", "You are a helper.")
+#' }
 #' @export
 register_role <- function(name, prompt_text) {
   stopifnot(is.character(name) && length(name) == 1)
@@ -53,6 +69,10 @@ register_role <- function(name, prompt_text) {
 #' Get an LLM Role (System Prompt)
 #' @param name String. Unique identifier.
 #' @return String prompt text, or NULL if not found.
+#' @examples
+#' \dontrun{
+#' role <- get_role("developer")
+#' }
 #' @export
 get_role <- function(name) {
   key <- paste0("__role__", name)
@@ -64,6 +84,10 @@ get_role <- function(name) {
 
 #' List Registered Roles
 #' @return Character vector of role names.
+#' @examples
+#' \dontrun{
+#' roles <- get_agent_roles()
+#' }
 #' @export
 get_agent_roles <- function() {
   all_keys <- ls(envir = .hydra_registry)
@@ -74,6 +98,10 @@ get_agent_roles <- function() {
 #' Load Multi-Agent Workflow from File
 #' @param file_path String. Path to the YAML or JSON workflow definition.
 #' @return A list containing elements: 'graph', 'initial_state', 'roles', 'logic', 'raw'.
+#' @examples
+#' \dontrun{
+#' wf <- load_workflow("wf.yaml")
+#' }
 #' @export
 load_workflow <- function(file_path) {
   stopifnot(is.character(file_path) && length(file_path) == 1)
@@ -144,6 +172,10 @@ load_workflow <- function(file_path) {
 #' @param wf List. The workflow object.
 #' @param node_factory Function. Defaults to `auto_node_factory()`.
 #' @return A compiled `AgentDAG` object.
+#' @examples
+#' \dontrun{
+#' dag <- spawn_dag(load_workflow("wf.yaml"))
+#' }
 #' @export
 spawn_dag <- function(wf, node_factory = auto_node_factory()) {
   if (!is.list(wf) || is.null(wf$graph)) {
@@ -190,24 +222,11 @@ spawn_dag <- function(wf, node_factory = auto_node_factory()) {
 
 # --- Internal Helpers ---
 
-#' Resolve Logic Pattern (3-Tier)
-#' @param v String. File path, function name, or code snippet.
-#' @param base_dir String. Base directory for resolving relative paths.
-#' @return Logic function.
+#' Internal handler: Resolve File Logic Pattern
 #' @keywords internal
-resolve_logic_pattern <- function(v, base_dir = ".") {
-  if (!is.character(v)) {
-    stop("Logic entry must be a character string.")
-  }
-
-  v_trim <- trimws(v)
-
-  # Tier 1: External R File (source(v)$value)
-  # Try relative to base_dir first, then absolute/CWD
+.resolve_file_pattern <- function(v_trim, base_dir) {
   potential_path <- file.path(base_dir, v_trim)
-  if (!grepl("\\.[rR]$", v_trim, ignore.case = TRUE)) {
-    # If it doesn't end in .R, it's definitely not Tier 1
-  } else if (file.exists(potential_path)) {
+  if (file.exists(potential_path)) {
     v_trim <- potential_path
   }
 
@@ -216,28 +235,48 @@ resolve_logic_pattern <- function(v, base_dir = ".") {
       {
         source(v_trim, local = TRUE)$value
       },
-      error = function(e) {
-        stop(sprintf("Failed to source logic file '%s': %s", v_trim, e$message))
-      }
+      error = function(e) stop(sprintf("Failed to source logic file '%s': %s", v_trim, e$message))
     )
     if (!is.function(res)) {
       stop(sprintf("Logic file '%s' did not return a function. Ensure it ends with an anonymous function definition.", v_trim))
     }
     return(res)
   }
+  NULL
+}
 
-  # Tier 2: Existing Named Function
-  # First check our internal registry
+#' Internal handler: Resolve Registry/Global Pattern
+#' @keywords internal
+.resolve_registered_pattern <- function(v_trim) {
   existing_fn <- get_logic(v_trim)
   if (!is.null(existing_fn) && is.function(existing_fn)) {
     return(existing_fn)
   }
-  # Then check the search path (globalEnv, packages etc.)
   if (exists(v_trim, mode = "function")) {
     return(get(v_trim, mode = "function"))
   }
+  NULL
+}
 
-  # If we reach here, the logic pattern could not be resolved securely
+#' Resolve Logic Pattern (3-Tier)
+#' @param v String. File path, function name, or code snippet.
+#' @param base_dir String. Base directory for resolving relative paths.
+#' @return Logic function.
+#' @keywords internal
+resolve_logic_pattern <- function(v, base_dir = ".") {
+  if (!is.character(v)) stop("Logic entry must be a character string.")
+  v_trim <- trimws(v)
+
+  file_res <- .resolve_file_pattern(v_trim, base_dir)
+  if (!is.null(file_res)) {
+    return(file_res)
+  }
+
+  reg_res <- .resolve_registered_pattern(v_trim)
+  if (!is.null(reg_res)) {
+    return(reg_res)
+  }
+
   stop(sprintf("Failed to resolve logic pattern securely. Code injection via arbitrary strings is no longer supported. Please register the function or provide a valid R script path. Input: '%s'", v_trim))
 }
 

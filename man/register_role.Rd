@@ -17,3 +17,8 @@ The registry environment (invisibly).
 \description{
 Register an LLM Role (System Prompt)
 }
+\examples{
+\dontrun{
+register_role("my_role", "You are a helper.")
+}
+}

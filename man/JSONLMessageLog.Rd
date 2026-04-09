@@ -3,10 +3,18 @@
 \name{JSONLMessageLog}
 \alias{JSONLMessageLog}
 \title{JSONL Message Log R6 Class}
+\value{
+A `JSONLMessageLog` object.
+}
 \description{
 Persists messages to a JSON Lines file. Atomic file appending
 ensures that multiple parallel worktree processes can log messages
 without locking conflicts.
+}
+\examples{
+\dontrun{
+log <- JSONLMessageLog$new(session_id = "test")
+}
 }
 \section{Super class}{
 \code{\link[HydraR:MessageLog]{HydraR::MessageLog}} -> \code{JSONLMessageLog}

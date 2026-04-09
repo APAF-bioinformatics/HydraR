@@ -12,3 +12,8 @@ Character vector of role names.
 \description{
 List Registered Roles
 }
+\examples{
+\dontrun{
+roles <- get_agent_roles()
+}
+}

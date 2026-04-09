@@ -16,3 +16,8 @@ A DBIConnection object.
 Connects to the master DuckDB for telemetry and logs.
 Follows APAF Bioinformatics mandatory pattern for database persistence.
 }
+\examples{
+\dontrun{
+init_bot_history()
+}
+}

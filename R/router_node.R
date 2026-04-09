@@ -13,6 +13,10 @@
 #' The logic function must return a list with a `target_node` field.
 #'
 #' @return An `AgentRouterNode` object.
+#' @examples
+#' \dontrun{
+#' node <- AgentRouterNode$new(id = "r1", route_fn = function(s) "next_node")
+#' }
 #' @export
 AgentRouterNode <- R6::R6Class("AgentRouterNode",
   inherit = AgentNode,

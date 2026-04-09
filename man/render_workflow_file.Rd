@@ -23,3 +23,8 @@ A `DiagrammeR` htmlwidget if `output_file` is NULL, otherwise saves the file.
 Loads a workflow from a file and renders its architecture as a Mermaid diagram.
 Supports high-fidelity exports to various image formats.
 }
+\examples{
+\dontrun{
+render_workflow_file("wf.yaml")
+}
+}

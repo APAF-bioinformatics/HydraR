@@ -19,3 +19,8 @@ AgentLogicNode object.
 \description{
 Create an R Logic Node easily
 }
+\examples{
+\dontrun{
+add_logic_node("logic1", function() print("Logic"))
+}
+}

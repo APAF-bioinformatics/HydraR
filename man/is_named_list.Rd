@@ -16,3 +16,8 @@ Logical.
 Helper to verify that an object is a list (but not a data.frame) and
 that all its elements have non-empty names.
 }
+\examples{
+\dontrun{
+is_named_list(list(a = 1))
+}
+}

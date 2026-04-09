@@ -3,8 +3,17 @@
 \name{OpenAIAPIDriver}
 \alias{OpenAIAPIDriver}
 \title{OpenAI API Driver}
+\value{
+An `OpenAIAPIDriver` object.
+}
 \description{
 Implementation of the OpenAI Chat Completions API.
+}
+\examples{
+\dontrun{
+driver <- OpenAIAPIDriver$new()
+driver$call("Hello, OpenAI")
+}
 }
 \section{Super class}{
 \code{\link[HydraR:AgentDriver]{HydraR::AgentDriver}} -> \code{OpenAIAPIDriver}

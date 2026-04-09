@@ -17,3 +17,8 @@ The AgentDAG object.
 \description{
 Create AgentDAG from Mermaid
 }
+\examples{
+\dontrun{
+dag <- mermaid_to_dag("graph TD; A-->B;")
+}
+}

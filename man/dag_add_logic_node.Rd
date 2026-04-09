@@ -21,3 +21,9 @@ The modified AgentDAG object (invisibly).
 \description{
 Add an R Logic Node directly to a DAG
 }
+\examples{
+\dontrun{
+dag <- dag_create()
+dag <- dag_add_logic_node(dag, "node1", function() print("Hello"))
+}
+}

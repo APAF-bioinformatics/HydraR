@@ -9,6 +9,14 @@ set_default_driver(driver)
 \arguments{
 \item{driver}{AgentDriver object or ID string.}
 }
+\value{
+NULL (invisibly)
+}
 \description{
 Set the Default Agent Driver
+}
+\examples{
+\dontrun{
+set_default_driver(AnthropicCLIDriver$new())
+}
 }

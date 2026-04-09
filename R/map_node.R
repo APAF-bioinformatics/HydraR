@@ -12,6 +12,10 @@
 #' A node that maps over a list in the state and performs an operation.
 #'
 #' @return An `AgentMapNode` object.
+#' @examples
+#' \dontrun{
+#' node <- AgentMapNode$new(id = "map1", map_fn = function(x) x + 1)
+#' }
 #' @export
 AgentMapNode <- R6::R6Class("AgentMapNode",
   inherit = AgentNode,

@@ -25,3 +25,8 @@ AgentLLMNode object.
 \description{
 Create an LLM Agent Node easily
 }
+\examples{
+\dontrun{
+add_llm_node("llm1", "Assistant", AnthropicAPIDriver$new())
+}
+}

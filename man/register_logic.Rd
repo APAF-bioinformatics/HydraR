@@ -17,3 +17,8 @@ The registry environment (invisibly).
 \description{
 Register Logic Function
 }
+\examples{
+\dontrun{
+register_logic("my_logic", function() {})
+}
+}

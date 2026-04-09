@@ -12,3 +12,8 @@ The global DriverRegistry instance.
 \description{
 Global Driver Registry Accessor
 }
+\examples{
+\dontrun{
+reg <- get_driver_registry()
+}
+}

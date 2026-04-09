@@ -3,9 +3,17 @@
 \name{AgentTool}
 \alias{AgentTool}
 \title{Agent Tool R6 Class}
+\value{
+An `AgentTool` object.
+}
 \description{
 Defines a tool or action that an agent can perform.
 Used for prompt-based tool discovery.
+}
+\examples{
+\dontrun{
+tool <- AgentTool$new(name = "my_tool", description = "A tool")
+}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

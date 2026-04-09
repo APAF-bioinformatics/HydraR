@@ -13,6 +13,12 @@
 #'
 #' @importFrom httr2 request req_auth_bearer_token req_body_json req_retry req_perform resp_body_json resp_body_string resp_status_desc req_url_query req_headers
 #' @importFrom base64enc base64decode
+#' @return An `OpenAIAPIDriver` object.
+#' @examples
+#' \dontrun{
+#' driver <- OpenAIAPIDriver$new()
+#' driver$call("Hello, OpenAI")
+#' }
 #' @export
 OpenAIAPIDriver <- R6::R6Class(
   "OpenAIAPIDriver",
@@ -107,6 +113,12 @@ OpenAIAPIDriver <- R6::R6Class(
 #' @description
 #' Implementation of the Anthropic Messages API.
 #'
+#' @return An `AnthropicAPIDriver` object.
+#' @examples
+#' \dontrun{
+#' driver <- AnthropicAPIDriver$new()
+#' driver$call("Hello, Anthropic")
+#' }
 #' @export
 AnthropicAPIDriver <- R6::R6Class(
   "AnthropicAPIDriver",
@@ -205,6 +217,10 @@ AnthropicAPIDriver <- R6::R6Class(
 #'
 #' @description Driver for Google Gemini (AI Studio) API.
 #' @return A `GeminiAPIDriver` R6 object.
+#' @examples
+#' \dontrun{
+#' driver <- GeminiAPIDriver$new()
+#' }
 #' @export
 GeminiAPIDriver <- R6::R6Class("GeminiAPIDriver",
   inherit = AgentDriver,
@@ -292,6 +308,10 @@ GeminiAPIDriver <- R6::R6Class("GeminiAPIDriver",
 #'
 #' @description Driver for Google Gemini's multimodal image generation (2026 models).
 #' @return A `GeminiImageDriver` R6 object.
+#' @examples
+#' \dontrun{
+#' driver <- GeminiImageDriver$new()
+#' }
 #' @export
 GeminiImageDriver <- R6::R6Class("GeminiImageDriver",
   inherit = GeminiAPIDriver,

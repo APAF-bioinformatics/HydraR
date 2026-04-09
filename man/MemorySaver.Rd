@@ -3,9 +3,17 @@
 \name{MemorySaver}
 \alias{MemorySaver}
 \title{MemorySaver Checkpointer}
+\value{
+A `MemorySaver` object.
+}
 \description{
 In-memory implementation of the Checkpointer interface.
 Stores checkpoints in an R environment.
+}
+\examples{
+\dontrun{
+saver <- MemorySaver$new()
+}
 }
 \section{Super class}{
 \code{\link[HydraR:Checkpointer]{HydraR::Checkpointer}} -> \code{MemorySaver}

@@ -12,3 +12,8 @@ AgentDriver object or NULL.
 \description{
 Get the Default Agent Driver
 }
+\examples{
+\dontrun{
+drv <- get_default_driver()
+}
+}

@@ -15,3 +15,8 @@ String. Extracted R code or same text if no blocks found.
 \description{
 Extract R Code from LLM Response
 }
+\examples{
+\dontrun{
+extract_r_code_advanced("```r\nprint(1)\n```")
+}
+}

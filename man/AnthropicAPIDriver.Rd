@@ -3,8 +3,17 @@
 \name{AnthropicAPIDriver}
 \alias{AnthropicAPIDriver}
 \title{Anthropic API Driver}
+\value{
+An `AnthropicAPIDriver` object.
+}
 \description{
 Implementation of the Anthropic Messages API.
+}
+\examples{
+\dontrun{
+driver <- AnthropicAPIDriver$new()
+driver$call("Hello, Anthropic")
+}
 }
 \section{Super class}{
 \code{\link[HydraR:AgentDriver]{HydraR::AgentDriver}} -> \code{AnthropicAPIDriver}

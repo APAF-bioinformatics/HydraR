@@ -3,8 +3,17 @@
 \name{GeminiCLIDriver}
 \alias{GeminiCLIDriver}
 \title{Gemini CLI Driver R6 Class}
+\value{
+A `GeminiCLIDriver` object.
+}
 \description{
 Driver for the 'gemini' CLI tool.
+}
+\examples{
+\dontrun{
+driver <- GeminiCLIDriver$new()
+driver$call("Hello, Gemini")
+}
 }
 \section{Super class}{
 \code{\link[HydraR:AgentDriver]{HydraR::AgentDriver}} -> \code{GeminiCLIDriver}

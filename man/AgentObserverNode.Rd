@@ -10,6 +10,11 @@ An `AgentObserverNode` object.
 A node that executes logic for side-effects (e.g., logging, notifications).
 Its output does not modify the primary AgentState.
 }
+\examples{
+\dontrun{
+node <- AgentObserverNode$new(id = "obs1", observer_fn = function(s) print(s))
+}
+}
 \section{Super class}{
 \code{\link[HydraR:AgentNode]{HydraR::AgentNode}} -> \code{AgentObserverNode}
 }

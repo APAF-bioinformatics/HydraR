@@ -9,6 +9,11 @@ An `AgentMapNode` object.
 \description{
 A node that maps over a list in the state and performs an operation.
 }
+\examples{
+\dontrun{
+node <- AgentMapNode$new(id = "map1", map_fn = function(x) x + 1)
+}
+}
 \section{Super class}{
 \code{\link[HydraR:AgentNode]{HydraR::AgentNode}} -> \code{AgentMapNode}
 }

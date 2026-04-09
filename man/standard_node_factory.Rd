@@ -21,3 +21,8 @@ Default mapping of Mermaid labels to AgentNodes.
 Convention: "type:name" or "name"
 Types supported: "logic", "llm" (requires global driver).
 }
+\examples{
+\dontrun{
+node <- standard_node_factory("id", "label")
+}
+}

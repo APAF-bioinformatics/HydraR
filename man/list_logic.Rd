@@ -12,3 +12,8 @@ Character vector of names.
 \description{
 List Registered Components
 }
+\examples{
+\dontrun{
+list_logic()
+}
+}

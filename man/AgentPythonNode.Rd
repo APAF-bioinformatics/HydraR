@@ -3,8 +3,17 @@
 \name{AgentPythonNode}
 \alias{AgentPythonNode}
 \title{Python Execution Node}
+\value{
+An `AgentPythonNode` object.
+}
 \description{
 Executes a python script via system python or reticulate.
+}
+\examples{
+\dontrun{
+node <- AgentPythonNode$new(id = "py_1")
+node$call("print('hello')")
+}
 }
 \section{Super class}{
 \code{\link[HydraR:AgentNode]{HydraR::AgentNode}} -> \code{AgentPythonNode}

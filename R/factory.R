@@ -10,6 +10,10 @@
 #' @param message_log MessageLog. Optional audit log for the DAG.
 #' @return An AgentDAG object.
 #'
+#' @examples
+#' \dontrun{
+#' dag <- dag_create()
+#' }
 dag_create <- function(message_log = NULL) {
   dag <- AgentDAG$new()
   dag$message_log <- message_log
@@ -27,6 +31,10 @@ dag_create <- function(message_log = NULL) {
 #' @param ... Additional arguments passed to AgentLLMNode$new()
 #' @return AgentLLMNode object.
 #'
+#' @examples
+#' \dontrun{
+#' add_llm_node("llm1", "Assistant", AnthropicAPIDriver$new())
+#' }
 add_llm_node <- function(id, role, driver, model = NULL, cli_opts = list(), ...) {
   AgentLLMNode$new(id = id, role = role, driver = driver, model = model, cli_opts = cli_opts, ...)
 }
@@ -38,6 +46,10 @@ add_llm_node <- function(id, role, driver, model = NULL, cli_opts = list(), ...)
 #' @param ... Additional arguments passed to AgentLogicNode$new()
 #' @return AgentLogicNode object.
 #'
+#' @examples
+#' \dontrun{
+#' add_logic_node("logic1", function() print("Logic"))
+#' }
 add_logic_node <- function(id, logic_fn, ...) {
   AgentLogicNode$new(id = id, logic_fn = logic_fn, ...)
 }
@@ -53,6 +65,11 @@ add_logic_node <- function(id, logic_fn, ...) {
 #' @param ... Additional arguments passed to AgentLLMNode$new()
 #' @return The modified AgentDAG object (invisibly).
 #'
+#' @examples
+#' \dontrun{
+#' dag <- dag_create()
+#' dag <- dag_add_llm_node(dag, "node1", "Assistant", AnthropicAPIDriver$new())
+#' }
 dag_add_llm_node <- function(dag, id, role, driver, model = NULL, cli_opts = list(), ...) {
   if (!inherits(dag, "AgentDAG")) {
     stop("dag must be an AgentDAG object.")
@@ -70,6 +87,11 @@ dag_add_llm_node <- function(dag, id, role, driver, model = NULL, cli_opts = lis
 #' @param ... Additional arguments passed to AgentLogicNode$new()
 #' @return The modified AgentDAG object (invisibly).
 #'
+#' @examples
+#' \dontrun{
+#' dag <- dag_create()
+#' dag <- dag_add_logic_node(dag, "node1", function() print("Hello"))
+#' }
 dag_add_logic_node <- function(dag, id, logic_fn, ...) {
   if (!inherits(dag, "AgentDAG")) {
     stop("dag must be an AgentDAG object.")
@@ -91,6 +113,10 @@ dag_add_logic_node <- function(dag, id, logic_fn, ...) {
 #' @param driver AgentDriver. Optional driver for LLM nodes.
 #' @return AgentNode object.
 #'
+#' @examples
+#' \dontrun{
+#' node <- standard_node_factory("id", "label")
+#' }
 standard_node_factory <- function(id, label, driver = NULL) {
   if (grepl("^logic:", label)) {
     fn_name <- gsub("^logic:", "", label)
@@ -142,6 +168,10 @@ utils::globalVariables(c(
 #' @param driver_id String. Driver shorthand (e.g., `"gemini"`, `"claude"`).
 #' @param driver_registry Optional DriverRegistry object.
 #' @return An AgentDriver object.
+#' @examples
+#' \dontrun{
+#' drv <- resolve_default_driver(NULL)
+#' }
 #' @export
 resolve_default_driver <- function(driver_id, driver_registry = NULL) {
   # 1. Try the registry first
@@ -167,21 +197,81 @@ resolve_default_driver <- function(driver_id, driver_registry = NULL) {
   )
 }
 
+#' Internal helper: Build an LLM Node
+#' @keywords internal
+.build_llm_node <- function(id, label, params, drv_reg) {
+  driver_id <- params[["driver"]] %||% "gemini"
+  driver_obj <- resolve_default_driver(driver_id, driver_registry = drv_reg)
+
+  role <- params[["role"]]
+  if (is.null(role) && !is.null(params[["role_id"]])) {
+    role <- get_role(params[["role_id"]])
+    if (is.null(role)) {
+      role <- get_logic(params[["role_id"]])
+    }
+  }
+  if (is.null(role) || !is.character(role)) {
+    stop(sprintf("Node '%s' (type=llm): No role found. Provide 'role=' inline or 'role_id='.", id))
+  }
+
+  prompt_builder <- NULL
+  if (!is.null(params[["prompt_id"]])) {
+    prompt_builder <- get_logic(params[["prompt_id"]])
+    if (is.null(prompt_builder)) {
+      warning(sprintf("Node '%s': prompt_id '%s' not found.", id, params[["prompt_id"]]))
+    }
+  }
+
+  AgentLLMNode$new(id = id, role = role, driver = driver_obj, label = label, params = params, prompt_builder = prompt_builder, model = params[["model"]])
+}
+
+#' Internal helper: Build a Logic Node
+#' @keywords internal
+.build_logic_node <- function(id, label, params) {
+  logic_id <- params[["logic_id"]]
+  if (is.null(logic_id)) stop(sprintf("Node '%s' (type=logic): 'logic_id' parameter is required.", id))
+  logic_fn <- get_logic(logic_id)
+  if (is.null(logic_fn)) stop(sprintf("Node '%s' (type=logic): logic_id '%s' not found.", id, logic_id))
+  AgentLogicNode$new(id = id, logic_fn = logic_fn, label = label, params = params)
+}
+
+#' Internal helper: Build a Router Node
+#' @keywords internal
+.build_router_node <- function(id, label, params) {
+  logic_id <- params[["logic_id"]]
+  if (is.null(logic_id)) stop(sprintf("Node '%s' (type=router): 'logic_id' required.", id))
+  router_fn <- get_logic(logic_id)
+  if (is.null(router_fn)) stop(sprintf("Node '%s' (type=router): logic_id '%s' not found.", id, logic_id))
+  AgentRouterNode$new(id = id, router_fn = router_fn, label = label, params = params)
+}
+
+#' Internal helper: Build a Map Node
+#' @keywords internal
+.build_map_node <- function(id, label, params) {
+  logic_id <- params[["logic_id"]]
+  map_key <- params[["map_key"]]
+  if (is.null(logic_id) || is.null(map_key)) stop(sprintf("Node '%s' (type=map): 'logic_id' and 'map_key' required.", id))
+  logic_fn <- get_logic(logic_id)
+  if (is.null(logic_fn)) stop(sprintf("Node '%s' (type=map): logic_id '%s' not found.", id, logic_id))
+  AgentMapNode$new(id = id, map_key = map_key, logic_fn = logic_fn, label = label, params = params)
+}
+
+#' Internal helper: Build an Observer Node
+#' @keywords internal
+.build_observer_node <- function(id, label, params) {
+  logic_id <- params[["logic_id"]]
+  if (is.null(logic_id)) stop(sprintf("Node '%s' (type=observer): 'logic_id' required.", id))
+  observe_fn <- get_logic(logic_id)
+  if (is.null(observe_fn)) stop(sprintf("Node '%s' (type=observer): logic_id '%s' not found.", id, logic_id))
+  AgentObserverNode$new(id = id, observe_fn = observe_fn, label = label, params = params)
+}
+
 #' Automatic Node Factory for Mermaid-as-Source
 #'
 #' @description
 #' Returns a node factory closure that resolves `type=` annotations
 #' directly from Mermaid node parameters. Eliminates the need for
 #' hand-written factory functions per workflow.
-#'
-#' Supported `type=` values:
-#' \itemize{
-#'   \item `"llm"` -- Creates an \code{AgentLLMNode}. Requires `role` or `role_id`.
-#'     Optional: `driver`, `model`, `prompt_id`, `output_format`, `output_path`.
-#'   \item `"logic"` -- Creates an \code{AgentLogicNode}. Requires `logic_id`.
-#'   \item `"merge"` -- Creates a Merge Harmonizer via \code{create_merge_harmonizer()}.
-#'   \item `"auto"` (default if omitted) -- Looks up `id` in the logic registry.
-#' }
 #'
 #' @param driver_registry Optional DriverRegistry object. Defaults to global.
 #' @return A function(id, label, params) -> AgentNode.
@@ -198,120 +288,33 @@ resolve_default_driver <- function(driver_id, driver_registry = NULL) {
 #' }
 #' @export
 auto_node_factory <- function(driver_registry = NULL) {
-  # Capture registry reference in closure
   drv_reg <- driver_registry
 
   function(id, label, params) {
     node_type <- params[["type"]] %||% "auto"
 
     switch(node_type,
-      "llm" = {
-        # Resolve driver
-        driver_id <- params[["driver"]] %||% "gemini"
-        driver_obj <- resolve_default_driver(driver_id, driver_registry = drv_reg)
-
-        # Resolve role: inline role= takes precedence, then role_id= lookup
-        role <- params[["role"]]
-        if (is.null(role) && !is.null(params[["role_id"]])) {
-          role <- get_role(params[["role_id"]])
-          if (is.null(role)) {
-            # Try the logic registry as fallback (some users store roles there)
-            role <- get_logic(params[["role_id"]])
-          }
-        }
-        if (is.null(role) || !is.character(role)) {
-          stop(sprintf(
-            "Node '%s' (type=llm): No role found. Provide 'role=' inline or 'role_id=' referencing a registered role.",
-            id
-          ))
-        }
-
-        # Resolve prompt_builder (optional)
-        prompt_builder <- NULL
-        if (!is.null(params[["prompt_id"]])) {
-          prompt_builder <- get_logic(params[["prompt_id"]])
-          if (is.null(prompt_builder)) {
-            warning(sprintf("Node '%s': prompt_id '%s' not found in registry. Proceeding without prompt_builder.", id, params[["prompt_id"]]))
-          }
-        }
-
-        AgentLLMNode$new(
-          id = id,
-          role = role,
-          driver = driver_obj,
-          label = label,
-          params = params,
-          prompt_builder = prompt_builder,
-          model = params[["model"]]
-        )
-      },
-      "logic" = {
-        logic_id <- params[["logic_id"]]
-        if (is.null(logic_id)) {
-          stop(sprintf("Node '%s' (type=logic): 'logic_id' parameter is required.", id))
-        }
-        logic_fn <- get_logic(logic_id)
-        if (is.null(logic_fn)) {
-          stop(sprintf("Node '%s' (type=logic): logic_id '%s' not found in registry. Register it with register_logic() first.", id, logic_id))
-        }
-        AgentLogicNode$new(id = id, logic_fn = logic_fn, label = label, params = params)
-      },
-      "merge" = {
-        create_merge_harmonizer(id = id)
-      },
-      "router" = {
-        logic_id <- params[["logic_id"]]
-        if (is.null(logic_id)) {
-          stop(sprintf("Node '%s' (type=router): 'logic_id' parameter is required.", id))
-        }
-        router_fn <- get_logic(logic_id)
-        if (is.null(router_fn)) {
-          stop(sprintf("Node '%s' (type=router): logic_id '%s' not found in registry.", id, logic_id))
-        }
-        AgentRouterNode$new(id = id, router_fn = router_fn, label = label, params = params)
-      },
-      "map" = {
-        logic_id <- params[["logic_id"]]
-        map_key <- params[["map_key"]]
-        if (is.null(logic_id) || is.null(map_key)) {
-          stop(sprintf("Node '%s' (type=map): 'logic_id' and 'map_key' parameters are required.", id))
-        }
-        logic_fn <- get_logic(logic_id)
-        if (is.null(logic_fn)) {
-          stop(sprintf("Node '%s' (type=map): logic_id '%s' not found in registry.", id, logic_id))
-        }
-        AgentMapNode$new(id = id, map_key = map_key, logic_fn = logic_fn, label = label, params = params)
-      },
-      "observer" = {
-        logic_id <- params[["logic_id"]]
-        if (is.null(logic_id)) {
-          stop(sprintf("Node '%s' (type=observer): 'logic_id' parameter is required.", id))
-        }
-        observe_fn <- get_logic(logic_id)
-        if (is.null(observe_fn)) {
-          stop(sprintf("Node '%s' (type=observer): logic_id '%s' not found in registry.", id, logic_id))
-        }
-        AgentObserverNode$new(id = id, observe_fn = observe_fn, label = label, params = params)
-      },
+      "llm" = .build_llm_node(id, label, params, drv_reg),
+      "logic" = .build_logic_node(id, label, params),
+      "merge" = create_merge_harmonizer(id = id),
+      "router" = .build_router_node(id, label, params),
+      "map" = .build_map_node(id, label, params),
+      "observer" = .build_observer_node(id, label, params),
       "auto" = {
-        # Fallback: try logic registry by id, then passthrough
         fn <- get_logic(id)
         if (!is.null(fn)) {
           return(AgentLogicNode$new(id = id, logic_fn = fn, label = label, params = params))
         }
-        # Ultimate fallback: passthrough node
         AgentLogicNode$new(
           id = id,
           logic_fn = function(state) {
-            message(sprintf("[auto] Passthrough node '%s' (label: %s)", id, label))
+            message(sprintf("[auto] Passthrough node '%s'", id))
             list(status = "success", output = NULL)
           },
           label = label,
           params = params
         )
       },
-
-      # Unknown type
       stop(sprintf("Node '%s': Unknown type '%s'. Supported: llm, logic, merge, auto.", id, node_type))
     )
   }

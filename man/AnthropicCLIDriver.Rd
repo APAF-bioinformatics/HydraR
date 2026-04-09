@@ -3,8 +3,17 @@
 \name{AnthropicCLIDriver}
 \alias{AnthropicCLIDriver}
 \title{Anthropic CLI Driver}
+\value{
+An `AnthropicCLIDriver` object.
+}
 \description{
 Driver for the Anthropic `claude` (Claude Code) CLI.
+}
+\examples{
+\dontrun{
+driver <- AnthropicCLIDriver$new()
+driver$call("Hello, Claude")
+}
 }
 \section{Super class}{
 \code{\link[HydraR:AgentDriver]{HydraR::AgentDriver}} -> \code{AnthropicCLIDriver}

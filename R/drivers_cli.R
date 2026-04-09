@@ -12,6 +12,12 @@
 #' Driver for the 'gemini' CLI tool.
 #'
 #' @importFrom R6 R6Class
+#' @return A `GeminiCLIDriver` object.
+#' @examples
+#' \dontrun{
+#' driver <- GeminiCLIDriver$new()
+#' driver$call("Hello, Gemini")
+#' }
 #' @export
 GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
   inherit = AgentDriver,
@@ -124,6 +130,12 @@ GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
 #' Driver for the 'ollama' CLI tool (local).
 #'
 #' @importFrom R6 R6Class
+#' @return An `OllamaDriver` object.
+#' @examples
+#' \dontrun{
+#' driver <- OllamaDriver$new()
+#' driver$call("Hello, Llama")
+#' }
 #' @export
 OllamaDriver <- R6::R6Class("OllamaDriver",
   inherit = AgentDriver,
@@ -208,6 +220,12 @@ OllamaDriver <- R6::R6Class("OllamaDriver",
 #' @description
 #' Driver for the Anthropic `claude` (Claude Code) CLI.
 #'
+#' @return An `AnthropicCLIDriver` object.
+#' @examples
+#' \dontrun{
+#' driver <- AnthropicCLIDriver$new()
+#' driver$call("Hello, Claude")
+#' }
 #' @export
 AnthropicCLIDriver <- R6::R6Class(
   "AnthropicCLIDriver",
@@ -291,6 +309,12 @@ AnthropicCLIDriver <- R6::R6Class(
 #' Driver for the 'gh copilot' CLI tool.
 #'
 #' @importFrom R6 R6Class
+#' @return A `CopilotCLIDriver` object.
+#' @examples
+#' \dontrun{
+#' driver <- CopilotCLIDriver$new()
+#' driver$call("Write a simple function")
+#' }
 #' @export
 CopilotCLIDriver <- R6::R6Class("CopilotCLIDriver",
   inherit = AgentDriver,
@@ -360,6 +384,11 @@ CopilotCLIDriver <- R6::R6Class("CopilotCLIDriver",
 #' Driver for the official `codex` CLI tool (v0.118+).
 #'
 #' @return An `OpenAICodexCLIDriver` object.
+#' @examples
+#' \dontrun{
+#' driver <- OpenAICodexCLIDriver$new()
+#' driver$call("Hello, Codex")
+#' }
 #' @export
 OpenAICodexCLIDriver <- R6::R6Class(
   "OpenAICodexCLIDriver",

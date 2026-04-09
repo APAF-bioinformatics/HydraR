@@ -18,3 +18,8 @@ The combined value.
 Appends new elements to a vector or list. For large accumulations,
 users should consider using lists and flattening later.
 }
+\examples{
+\dontrun{
+reducer_append(1, 2)
+}
+}

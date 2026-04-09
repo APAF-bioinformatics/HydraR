@@ -15,3 +15,8 @@ A formatted string containing all tool descriptions.
 \description{
 Format Toolset for Prompt
 }
+\examples{
+\dontrun{
+format_toolset(list(my_tool = AgentTool$new(...)))
+}
+}

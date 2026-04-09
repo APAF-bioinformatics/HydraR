@@ -14,6 +14,12 @@ NULL
 #' @description
 #' Executes a raw bash script. Can run within an isolated worktree if configured.
 #'
+#' @return An `AgentBashNode` object.
+#' @examples
+#' \dontrun{
+#' node <- AgentBashNode$new(id = "bash_1")
+#' node$call("echo hello")
+#' }
 #' @export
 AgentBashNode <- R6::R6Class("AgentBashNode",
   inherit = AgentNode,
@@ -80,6 +86,12 @@ AgentBashNode <- R6::R6Class("AgentBashNode",
 #' @description
 #' Executes a python script via system python or reticulate.
 #'
+#' @return An `AgentPythonNode` object.
+#' @examples
+#' \dontrun{
+#' node <- AgentPythonNode$new(id = "py_1")
+#' node$call("print('hello')")
+#' }
 #' @export
 AgentPythonNode <- R6::R6Class("AgentPythonNode",
   inherit = AgentNode,

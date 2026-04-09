@@ -15,3 +15,8 @@ Function or NULL.
 \description{
 Get Logic Function
 }
+\examples{
+\dontrun{
+func <- get_logic("my_logic")
+}
+}

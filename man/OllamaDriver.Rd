@@ -3,8 +3,17 @@
 \name{OllamaDriver}
 \alias{OllamaDriver}
 \title{Ollama Driver R6 Class}
+\value{
+An `OllamaDriver` object.
+}
 \description{
 Driver for the 'ollama' CLI tool (local).
+}
+\examples{
+\dontrun{
+driver <- OllamaDriver$new()
+driver$call("Hello, Llama")
+}
 }
 \section{Super class}{
 \code{\link[HydraR:AgentDriver]{HydraR::AgentDriver}} -> \code{OllamaDriver}

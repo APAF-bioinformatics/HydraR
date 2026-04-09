@@ -15,3 +15,8 @@ String prompt text, or NULL if not found.
 \description{
 Get an LLM Role (System Prompt)
 }
+\examples{
+\dontrun{
+role <- get_role("developer")
+}
+}
