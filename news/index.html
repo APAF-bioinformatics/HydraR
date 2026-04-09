@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">HydraR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,7 +42,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/APAF-bioinformatics/HydraR/blob/main/NEWS.md"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/APAF-bioinformatics/HydraR/blob/v0.2.3/NEWS.md"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
@@ -54,7 +54,10 @@
 <li>Replaced bitwise control characters (<code>\001</code>, <code>\002</code>) in <code>mermaid_parser.R</code> with safe string delimiters (<code>@@@</code>, <code>###</code>) to prevent signal interruptions in static analysis parsers.</li>
 </ul></li>
 <li>
-<strong>Workflow &amp; Automation</strong>: Updated the <code>pkgdown</code> GitHub workflow to ensure unit tests are executed as a prerequisite for documentation deployment.</li>
+<strong>Workflow &amp; Automation</strong>:
+<ul><li>Updated the <code>pkgdown</code> GitHub workflow to ensure unit tests are executed as a prerequisite for documentation deployment.</li>
+<li>Integrated the official <code>ropensci/pkgcheck-action</code> workflow to automate rOpenSci compliance checks on every push.</li>
+</ul></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.2" id="hydrar-022-documentation-overhaul--release-polish">HydraR 0.2.2 (Documentation Overhaul &amp; Release Polish)<a class="anchor" aria-label="anchor" href="#hydrar-022-documentation-overhaul--release-polish"></a></h2>
