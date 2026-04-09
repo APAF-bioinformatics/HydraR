@@ -2,6 +2,10 @@
 
 Implementation of the Anthropic Messages API.
 
+## Value
+
+An \`AnthropicAPIDriver\` object.
+
 ## Super class
 
 [`HydraR::AgentDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.md)
@@ -137,3 +141,12 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+driver <- AnthropicAPIDriver$new()
+driver$call("Hello, Anthropic")
+} # }
+```

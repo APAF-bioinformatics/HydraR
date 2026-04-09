@@ -22,3 +22,11 @@ mermaid_to_dag(mermaid_str, node_factory = auto_node_factory())
 ## Value
 
 The AgentDAG object.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+dag <- mermaid_to_dag("graph TD; A-->B;")
+} # }
+```

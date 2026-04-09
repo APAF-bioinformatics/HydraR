@@ -2,6 +2,10 @@
 
 In-memory storage for messages.
 
+## Value
+
+A \`MemoryMessageLog\` object.
+
 ## Super class
 
 [`HydraR::MessageLog`](https://github.com/APAF-bioinformatics/HydraR/reference/MessageLog.md)
@@ -72,3 +76,11 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+log <- MemoryMessageLog$new()
+} # }
+```

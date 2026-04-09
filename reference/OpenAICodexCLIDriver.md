@@ -105,3 +105,12 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+driver <- OpenAICodexCLIDriver$new()
+driver$call("Hello, Codex")
+} # }
+```

@@ -25,3 +25,11 @@ add_logic_node(id, logic_fn, ...)
 ## Value
 
 AgentLogicNode object.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+add_logic_node("logic1", function() print("Logic"))
+} # }
+```

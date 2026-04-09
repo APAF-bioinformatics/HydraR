@@ -19,3 +19,11 @@ validate_workflow_file(file_path)
 ## Value
 
 Logical TRUE if valid (invisibly). Throws a detailed error on failure.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+validate_workflow_file("wf.yaml")
+} # }
+```

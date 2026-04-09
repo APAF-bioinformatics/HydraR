@@ -18,3 +18,11 @@ init_bot_history(read_only = FALSE)
 ## Value
 
 A DBIConnection object.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+init_bot_history()
+} # }
+```

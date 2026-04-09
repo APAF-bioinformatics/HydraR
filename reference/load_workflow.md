@@ -18,3 +18,11 @@ load_workflow(file_path)
 
 A list containing elements: 'graph', 'initial_state', 'roles', 'logic',
 'raw'.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+wf <- load_workflow("wf.yaml")
+} # }
+```

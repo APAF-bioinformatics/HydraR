@@ -23,3 +23,11 @@ validate_workflow_full(dag, wf)
 ## Value
 
 Logical TRUE if valid, otherwise throws an error.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+validate_workflow_full(dag, wf_data)
+} # }
+```

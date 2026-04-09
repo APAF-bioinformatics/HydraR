@@ -29,3 +29,12 @@ dag_add_logic_node(dag, id, logic_fn, ...)
 ## Value
 
 The modified AgentDAG object (invisibly).
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+dag <- dag_create()
+dag <- dag_add_logic_node(dag, "node1", function() print("Hello"))
+} # }
+```

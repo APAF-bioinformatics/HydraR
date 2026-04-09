@@ -17,3 +17,11 @@ get_role(name)
 ## Value
 
 String prompt text, or NULL if not found.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+role <- get_role("developer")
+} # }
+```

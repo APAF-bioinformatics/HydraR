@@ -18,3 +18,11 @@ is_named_list(x)
 ## Value
 
 Logical.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+is_named_list(list(a = 1))
+} # }
+```

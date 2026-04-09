@@ -3,6 +3,10 @@
 A security wrapper for AgentState that restricts access based on
 node_id. Implements "True Privacy" for inter-agent communication.
 
+## Value
+
+A \`RestrictedState\` object.
+
 ## Public fields
 
 - `state`:
@@ -192,3 +196,11 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+state <- RestrictedState$new(fields = c("a", "b"))
+} # }
+```

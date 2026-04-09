@@ -4,20 +4,6 @@ Returns a node factory closure that resolves \`type=\` annotations
 directly from Mermaid node parameters. Eliminates the need for
 hand-written factory functions per workflow.
 
-Supported \`type=\` values:
-
-- \`"llm"\` – Creates an `AgentLLMNode`. Requires \`role\` or
-  \`role_id\`. Optional: \`driver\`, \`model\`, \`prompt_id\`,
-  \`output_format\`, \`output_path\`.
-
-- \`"logic"\` – Creates an `AgentLogicNode`. Requires \`logic_id\`.
-
-- \`"merge"\` – Creates a Merge Harmonizer via
-  [`create_merge_harmonizer()`](https://github.com/APAF-bioinformatics/HydraR/reference/create_merge_harmonizer.md).
-
-- \`"auto"\` (default if omitted) – Looks up \`id\` in the logic
-  registry.
-
 ## Usage
 
 ``` r

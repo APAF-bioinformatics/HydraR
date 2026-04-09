@@ -21,3 +21,11 @@ register_role(name, prompt_text)
 ## Value
 
 The registry environment (invisibly).
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+register_role("my_role", "You are a helper.")
+} # }
+```

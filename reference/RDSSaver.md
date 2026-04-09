@@ -4,6 +4,10 @@ Lightweight file-based checkpointer using base R
 \`saveRDS\`/\`readRDS\`. Each thread is persisted as a separate \`.rds\`
 file in the specified directory. No external dependencies required.
 
+## Value
+
+An \`RDSSaver\` object.
+
 ## Super class
 
 [`HydraR::Checkpointer`](https://github.com/APAF-bioinformatics/HydraR/reference/Checkpointer.md)
@@ -98,3 +102,11 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+saver <- RDSSaver$new()
+} # }
+```

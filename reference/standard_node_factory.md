@@ -26,3 +26,11 @@ standard_node_factory(id, label, driver = NULL)
 ## Value
 
 AgentNode object.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+node <- standard_node_factory("id", "label")
+} # }
+```

@@ -17,3 +17,11 @@ get_role_prompt(name)
 ## Value
 
 String prompt text.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+prompt <- get_role_prompt("developer")
+} # }
+```

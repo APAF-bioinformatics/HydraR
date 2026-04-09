@@ -2,6 +2,10 @@
 
 Abstract base class for AgentDAG checkpointers.
 
+## Value
+
+A \`Checkpointer\` object.
+
 ## Methods
 
 ### Public methods
@@ -69,3 +73,11 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+cp <- Checkpointer$new(saver = MemorySaver$new())
+} # }
+```

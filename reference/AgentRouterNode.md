@@ -93,3 +93,11 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+node <- AgentRouterNode$new(id = "r1", route_fn = function(s) "next_node")
+} # }
+```

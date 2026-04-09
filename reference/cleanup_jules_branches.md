@@ -39,3 +39,11 @@ cleanup_jules_branches(
 ## Value
 
 A character vector of branches identified for deletion.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+cleanup_jules_branches()
+} # }
+```

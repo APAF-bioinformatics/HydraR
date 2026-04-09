@@ -37,3 +37,11 @@ add_llm_node(id, role, driver, model = NULL, cli_opts = list(), ...)
 ## Value
 
 AgentLLMNode object.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+add_llm_node("llm1", "Assistant", AnthropicAPIDriver$new())
+} # }
+```

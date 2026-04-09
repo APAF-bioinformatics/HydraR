@@ -3,6 +3,10 @@
 Executes a raw bash script. Can run within an isolated worktree if
 configured.
 
+## Value
+
+An \`AgentBashNode\` object.
+
 ## Super class
 
 [`HydraR::AgentNode`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentNode.md)
@@ -97,3 +101,12 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+node <- AgentBashNode$new(id = "bash_1")
+node$call("echo hello")
+} # }
+```

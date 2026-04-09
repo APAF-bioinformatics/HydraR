@@ -100,3 +100,11 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+node <- AgentMapNode$new(id = "map1", map_fn = function(x) x + 1)
+} # }
+```

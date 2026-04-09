@@ -3,6 +3,10 @@
 Defines a tool or action that an agent can perform. Used for
 prompt-based tool discovery.
 
+## Value
+
+An \`AgentTool\` object.
+
 ## Public fields
 
 - `name`:
@@ -86,3 +90,11 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+tool <- AgentTool$new(name = "my_tool", description = "A tool")
+} # }
+```

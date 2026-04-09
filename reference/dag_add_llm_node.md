@@ -41,3 +41,12 @@ dag_add_llm_node(dag, id, role, driver, model = NULL, cli_opts = list(), ...)
 ## Value
 
 The modified AgentDAG object (invisibly).
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+dag <- dag_create()
+dag <- dag_add_llm_node(dag, "node1", "Assistant", AnthropicAPIDriver$new())
+} # }
+```

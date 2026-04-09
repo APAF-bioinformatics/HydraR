@@ -4,6 +4,10 @@ Persists messages to a JSON Lines file. Atomic file appending ensures
 that multiple parallel worktree processes can log messages without
 locking conflicts.
 
+## Value
+
+A \`JSONLMessageLog\` object.
+
 ## Super class
 
 [`HydraR::MessageLog`](https://github.com/APAF-bioinformatics/HydraR/reference/MessageLog.md)
@@ -88,3 +92,11 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+log <- JSONLMessageLog$new(session_id = "test")
+} # }
+```

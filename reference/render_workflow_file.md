@@ -33,3 +33,11 @@ render_workflow_file(file_path, output_file = NULL, status = FALSE, ...)
 
 A \`DiagrammeR\` htmlwidget if \`output_file\` is NULL, otherwise saves
 the file.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+render_workflow_file("wf.yaml")
+} # }
+```

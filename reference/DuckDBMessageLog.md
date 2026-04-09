@@ -3,6 +3,10 @@
 Persists messages to the master DuckDB database. Maintains an open
 connection for efficiency.
 
+## Value
+
+A \`DuckDBMessageLog\` object.
+
 ## Super class
 
 [`HydraR::MessageLog`](https://github.com/APAF-bioinformatics/HydraR/reference/MessageLog.md)
@@ -97,3 +101,11 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+log <- DuckDBMessageLog$new(session_id = "test")
+} # }
+```

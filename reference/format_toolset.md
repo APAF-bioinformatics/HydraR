@@ -17,3 +17,11 @@ format_toolset(tools)
 ## Value
 
 A formatted string containing all tool descriptions.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+format_toolset(list(my_tool = AgentTool$new(...)))
+} # }
+```

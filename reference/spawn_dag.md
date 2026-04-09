@@ -22,3 +22,11 @@ spawn_dag(wf, node_factory = auto_node_factory())
 ## Value
 
 A compiled \`AgentDAG\` object.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+dag <- spawn_dag(load_workflow("wf.yaml"))
+} # }
+```

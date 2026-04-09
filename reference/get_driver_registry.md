@@ -11,3 +11,11 @@ get_driver_registry()
 ## Value
 
 The global DriverRegistry instance.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+reg <- get_driver_registry()
+} # }
+```

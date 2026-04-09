@@ -21,3 +21,11 @@ register_logic(name, fn)
 ## Value
 
 The registry environment (invisibly).
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+register_logic("my_logic", function() {})
+} # }
+```

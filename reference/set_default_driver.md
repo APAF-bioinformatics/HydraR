@@ -13,3 +13,15 @@ set_default_driver(driver)
 - driver:
 
   AgentDriver object or ID string.
+
+## Value
+
+NULL (invisibly)
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+set_default_driver(AnthropicCLIDriver$new())
+} # }
+```

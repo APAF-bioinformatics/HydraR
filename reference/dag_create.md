@@ -17,3 +17,11 @@ dag_create(message_log = NULL)
 ## Value
 
 An AgentDAG object.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+dag <- dag_create()
+} # }
+```

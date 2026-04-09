@@ -2,6 +2,10 @@
 
 Abstract base class for logging inter-agent messages.
 
+## Value
+
+A \`MessageLog\` base object.
+
 ## Methods
 
 ### Public methods
@@ -61,3 +65,12 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# This is an abstract base class.
+# Instantiate a subclass like MemoryMessageLog.
+} # }
+```

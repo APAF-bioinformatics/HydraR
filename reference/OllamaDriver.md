@@ -2,6 +2,10 @@
 
 Driver for the 'ollama' CLI tool (local).
 
+## Value
+
+An \`OllamaDriver\` object.
+
 ## Super class
 
 [`HydraR::AgentDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.md)
@@ -140,3 +144,12 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+driver <- OllamaDriver$new()
+driver$call("Hello, Llama")
+} # }
+```

@@ -23,3 +23,11 @@ resolve_default_driver(driver_id, driver_registry = NULL)
 ## Value
 
 An AgentDriver object.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+drv <- resolve_default_driver(NULL)
+} # }
+```

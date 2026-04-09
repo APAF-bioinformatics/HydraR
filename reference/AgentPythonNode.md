@@ -2,6 +2,10 @@
 
 Executes a python script via system python or reticulate.
 
+## Value
+
+An \`AgentPythonNode\` object.
+
 ## Super class
 
 [`HydraR::AgentNode`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentNode.md)
@@ -100,3 +104,12 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+node <- AgentPythonNode$new(id = "py_1")
+node$call("print('hello')")
+} # }
+```

@@ -22,3 +22,11 @@ reducer_merge_list(current, new)
 ## Value
 
 The merged list.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+reducer_merge_list(list(a = 1), list(b = 2))
+} # }
+```

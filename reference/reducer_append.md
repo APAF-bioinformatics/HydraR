@@ -22,3 +22,11 @@ reducer_append(current, new)
 ## Value
 
 The combined value.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+reducer_append(1, 2)
+} # }
+```

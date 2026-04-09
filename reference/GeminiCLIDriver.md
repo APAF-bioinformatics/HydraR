@@ -2,6 +2,10 @@
 
 Driver for the 'gemini' CLI tool.
 
+## Value
+
+A \`GeminiCLIDriver\` object.
+
 ## Super class
 
 [`HydraR::AgentDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.md)
@@ -125,3 +129,12 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+driver <- GeminiCLIDriver$new()
+driver$call("Hello, Gemini")
+} # }
+```
