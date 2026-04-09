@@ -27,13 +27,15 @@
 #' @examples
 #' \dontrun{
 #' # 1. Register a simple math function
-#' register_logic("add_one", function(state) list(status="ok", output=state$get("x")+1))
+#' register_logic("add_one", function(state) list(status = "ok", output = state$get("x") + 1))
 #'
 #' # 2. Register a complex validation function that uses the Logic Registry
 #' # This function can now be referenced by name 'validate_results' in any YAML workflow.
 #' validate_results <- function(state) {
 #'   results <- state$get("researcher_node")
-#'   if (is.null(results)) return(list(status = "failed", message = "No results found"))
+#'   if (is.null(results)) {
+#'     return(list(status = "failed", message = "No results found"))
+#'   }
 #'   list(status = "success", output = list(valid = TRUE))
 #' }
 #' register_logic("validate_results", validate_results)
@@ -96,7 +98,7 @@ list_logic <- function() {
 #' # Define a specific identity for a bioinformatics analyst
 #' register_role(
 #'   name = "bio_analyst",
-#'   prompt_text = "You are a senior bioinformatician specializing in NGS data. 
+#'   prompt_text = "You are a senior bioinformatician specializing in NGS data.
 #'   Always provide R code for visualization using ggplot2."
 #' )
 #'
@@ -121,7 +123,7 @@ register_role <- function(name, prompt_text) {
 #' \dontrun{
 #' # Resolve a role for an LLM node manually
 #' role_prompt <- get_role("bio_analyst")
-#' node <- AgentLLMNode$new(id="a1", role=role_prompt, driver=GeminiCLIDriver$new())
+#' node <- AgentLLMNode$new(id = "a1", role = role_prompt, driver = GeminiCLIDriver$new())
 #' }
 #' @export
 get_role <- function(name) {

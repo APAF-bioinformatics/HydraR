@@ -293,8 +293,8 @@ utils::globalVariables(c(
 #' @examples
 #' \dontrun{
 #' # 1. Simple shorthand resolution
-#' drv1 <- resolve_default_driver("gemini")      # GeminiCLIDriver
-#' drv2 <- resolve_default_driver("openai_api")  # OpenAIAPIDriver
+#' drv1 <- resolve_default_driver("gemini") # GeminiCLIDriver
+#' drv2 <- resolve_default_driver("openai_api") # OpenAIAPIDriver
 #'
 #' # 2. Resolution with a custom registry context
 #' reg <- DriverRegistry$new()
@@ -447,7 +447,7 @@ resolve_default_driver <- function(driver_id, driver_registry = NULL) {
 #' # 1. Register the required logic in the registry
 #' register_logic("validate_data", function(state) {
 #'   raw <- state$get("A")
-#'   if (nchar(raw) > 100) list(status="success") else list(status="failed")
+#'   if (nchar(raw) > 100) list(status = "success") else list(status = "failed")
 #' })
 #'
 #' # 2. Create the DAG using the automatic factory
