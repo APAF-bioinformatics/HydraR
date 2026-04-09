@@ -21,6 +21,9 @@ functional-style DAG construction."></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Guide</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
@@ -98,15 +101,25 @@ setting <code>tools</code>, <code>prompt_builder</code>, or <code>output_path</c
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># NOTE: Ensure ANTHROPIC_API_KEY is set in your .Renviron file for this example.</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">driver</span> <span class="op">&lt;-</span> <span class="va"><a href="AnthropicAPIDriver.html">AnthropicAPIDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">node</span> <span class="op">&lt;-</span> <span class="fu">add_llm_node</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  id <span class="op">=</span> <span class="st">"coder"</span>,</span></span>
-<span class="r-in"><span>  role <span class="op">=</span> <span class="st">"You are an expert R programmer."</span>,</span></span>
+<span class="r-in"><span><span class="co"># Standard API-based agent with model overrides and safety parameters</span></span></span>
+<span class="r-in"><span><span class="co"># Use Sys.getenv to securely load your API key from .Renviron</span></span></span>
+<span class="r-in"><span><span class="va">driver</span> <span class="op">&lt;-</span> <span class="va"><a href="AnthropicAPIDriver.html">AnthropicAPIDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>api_key <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"ANTHROPIC_API_KEY"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">node_coder</span> <span class="op">&lt;-</span> <span class="fu">add_llm_node</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  id <span class="op">=</span> <span class="st">"optimizer"</span>,</span></span>
+<span class="r-in"><span>  role <span class="op">=</span> <span class="st">"You are an expert at optimizing R code for performance."</span>,</span></span>
 <span class="r-in"><span>  driver <span class="op">=</span> <span class="va">driver</span>,</span></span>
-<span class="r-in"><span>  model <span class="op">=</span> <span class="st">"claude-3-sonnet"</span>,</span></span>
-<span class="r-in"><span>  output_path <span class="op">=</span> <span class="st">"scripts/generated_code.R"</span></span></span>
+<span class="r-in"><span>  model <span class="op">=</span> <span class="st">"claude-3-opus-20240229"</span>,</span></span>
+<span class="r-in"><span>  cli_opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>temperature <span class="op">=</span> <span class="fl">0</span>, max_tokens <span class="op">=</span> <span class="fl">1024</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  output_path <span class="op">=</span> <span class="st">"output/optimized.R"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># CLI-based agent with sandbox permissions and tool discovery</span></span></span>
+<span class="r-in"><span><span class="va">gemini</span> <span class="op">&lt;-</span> <span class="va"><a href="GeminiCLIDriver.html">GeminiCLIDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">node_researcher</span> <span class="op">&lt;-</span> <span class="fu">add_llm_node</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  id <span class="op">=</span> <span class="st">"researcher"</span>,</span></span>
+<span class="r-in"><span>  role <span class="op">=</span> <span class="st">"Find bioinformatics papers on 'single-cell RNA-seq' using PubMed."</span>,</span></span>
+<span class="r-in"><span>  driver <span class="op">=</span> <span class="va">gemini</span>,</span></span>
+<span class="r-in"><span>  cli_opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>allowed_tools <span class="op">=</span> <span class="st">"pubmed_search,read_pdf"</span>, yolo <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>

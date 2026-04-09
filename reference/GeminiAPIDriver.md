@@ -45,7 +45,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### Method [`new()`](https://rdrr.io/r/methods/new.html)
 
 Initialize GeminiAPIDriver
 
@@ -152,9 +152,23 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-# Ensure GOOGLE_API_KEY is set in .Renviron
+# 1. Initialize Gemini Pro API
 driver <- GeminiAPIDriver$new(model = "gemini-1.5-pro")
 
-response <- driver$call("Explain quantum entanglement to a 5-year old.")
+# 2. Advanced call with custom generation config and safety filtering
+response <- driver$call(
+  prompt = "Write a high-performance R function for matrix multiplication.",
+  cli_opts = list(
+    generationConfig = list(
+      temperature = 0.9,
+      topP = 0.8,
+      topK = 40,
+      maxOutputTokens = 2048
+    ),
+    safetySettings = list(
+      list(category = "HARM_CATEGORY_HARASSMENT", threshold = "BLOCK_LOW_AND_ABOVE")
+    )
+  )
+)
 } # }
 ```

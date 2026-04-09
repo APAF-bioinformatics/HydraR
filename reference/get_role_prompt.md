@@ -22,6 +22,8 @@ String prompt text.
 
 ``` r
 if (FALSE) { # \dontrun{
-prompt <- get_role_prompt("developer")
+# Convenience helper to get role prompts from the Logic Registry
+register_role("assistant", "You are a helpful assistant.")
+p <- get_role_prompt("assistant")
 } # }
 ```

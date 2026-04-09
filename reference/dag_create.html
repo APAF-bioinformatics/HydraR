@@ -21,6 +21,9 @@ building orchestration workflows either programmatically or from definitions."><
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Guide</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
@@ -74,13 +77,21 @@ auditing and debugging.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Basic DAG creation</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># 1. Simple Audit-only DAG</span></span></span>
 <span class="r-in"><span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="fu">dag_create</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Creation with a persistent DuckDB audit log</span></span></span>
-<span class="r-in"><span><span class="co"># Recommended for production workflows to ensure audutability.</span></span></span>
+<span class="r-in"><span><span class="co"># 2. Production DAG with persistent DuckDB audit log and custom metadata</span></span></span>
+<span class="r-in"><span><span class="co"># This pattern ensures every agent interaction is recorded for reproducibility.</span></span></span>
 <span class="r-in"><span><span class="va">log</span> <span class="op">&lt;-</span> <span class="va"><a href="DuckDBMessageLog.html">DuckDBMessageLog</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>db_path <span class="op">=</span> <span class="st">"audit_trail.duckdb"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="fu">dag_create</span><span class="op">(</span>message_log <span class="op">=</span> <span class="va">log</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># 3. Advanced setup with a pre-configured memory saver</span></span></span>
+<span class="r-in"><span><span class="va">saver</span> <span class="op">&lt;-</span> <span class="va"><a href="MemorySaver.html">MemorySaver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cp</span> <span class="op">&lt;-</span> <span class="va"><a href="Checkpointer.html">Checkpointer</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>saver <span class="op">=</span> <span class="va">saver</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Note: Checkpointer is typically assigned to the DAG after creation</span></span></span>
+<span class="r-in"><span><span class="va">dag</span><span class="op">$</span><span class="va">checkpointer</span> <span class="op">&lt;-</span> <span class="va">cp</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

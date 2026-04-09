@@ -16,6 +16,10 @@ AgentDriver object or NULL.
 
 ``` r
 if (FALSE) { # \dontrun{
+# Resolve the driver to be used when none is explicitly specified
 drv <- get_default_driver()
+if (!is.null(drv)) {
+  message("Using default provider: ", drv$provider)
+}
 } # }
 ```

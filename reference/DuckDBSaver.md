@@ -37,7 +37,7 @@ A `DuckDBSaver` R6 object.
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### Method [`new()`](https://rdrr.io/r/methods/new.html)
 
 Initialize DuckDBSaver
 
@@ -117,10 +117,18 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-# Use a persistent DuckDB file for all agent states
-saver <- DuckDBSaver$new(db_path = "data/hydrar_states.duckdb")
+# 1. Production-ready persistence using DuckDB
+saver <- DuckDBSaver$new(
+  db_path = "storage/hydrar_main.duckdb",
+  table_name = "workflow_checkpoints"
+)
 
+# 2. Orchestrate a long-running DAG
 dag <- dag_create(checkpointer = saver)
-dag$run(thread_id = "batch_process_alpha")
+dag$run(thread_id = "genomic_alignment_job_42")
+
+# 3. Query the internal storage directly if needed
+library(DBI)
+DBI::dbGetQuery(saver$con, "SELECT thread_id, updated_at FROM workflow_checkpoints")
 } # }
 ```

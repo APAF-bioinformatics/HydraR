@@ -98,6 +98,19 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-node <- AgentObserverNode$new(id = "obs1", observer_fn = function(s) print(s))
+# An observer that logs stats to a file without modifying state
+logger <- function(state) {
+  stats <- state$get_all()
+  writeLines(jsonlite::toJSON(stats), "logs/observation.json")
+  message("Stats observed and written to logs.")
+}
+
+node_obs <- AgentObserverNode$new(
+  id = "status_logger",
+  observe_fn = logger
+)
+
+# Run with dummy state
+node_obs$run(AgentState$new(list(x = 10, y = 20)))
 } # }
 ```

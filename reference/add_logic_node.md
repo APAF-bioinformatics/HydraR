@@ -33,16 +33,24 @@ An `AgentLogicNode` object.
 
 ``` r
 if (FALSE) { # \dontrun{
-# Define a logic function that validates a previous node's output
-validator <- function(state) {
-  raw_data <- state$get("data_fetcher")
-  if (length(raw_data) > 0) {
-    list(status = "success", output = list(valid = TRUE))
+# 1. Validation Logic: Check if previous output meets quality thresholds
+quality_gate <- function(state) {
+  results <- state$get("researcher")
+  if (length(results$papers) >= 5) {
+    list(status = "success", output = list(proceed = TRUE))
   } else {
-    list(status = "failed", output = list(valid = FALSE))
+    # 'pause' status can trigger a human-in-the-loop or a retry loop
+    list(status = "pause", output = list(reason = "insufficient results"))
   }
 }
+node_gate <- add_logic_node("quality_gate", quality_gate)
 
-node <- add_logic_node("data_validator", validator)
+# 2. Data Transformation Logic: Clean and format LLM output
+cleaner <- function(state) {
+  raw_text <- state$get("coder")
+  clean_code <- extract_r_code_advanced(raw_text)
+  list(status = "success", output = list(code = clean_code))
+}
+node_clean <- add_logic_node("cleaner", cleaner)
 } # }
 ```

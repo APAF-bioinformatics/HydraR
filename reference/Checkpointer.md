@@ -80,7 +80,11 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-# Checkpointers are used within AgentDAG$run()
-# Use a concrete implementation like RDSSaver or DuckDBSaver.
+# 1. Abstract interface usage (internal)
+# Checkpointers are passed to dag_create() to enable state persistence.
+dag <- dag_create(
+  checkpointer = RDSSaver$new(dir = "checkpoints"),
+  message_log = JSONLMessageLog$new(file = "logs/messages.jsonl")
+)
 } # }
 ```

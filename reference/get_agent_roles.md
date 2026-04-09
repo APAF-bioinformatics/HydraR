@@ -16,6 +16,8 @@ Character vector of role names.
 
 ``` r
 if (FALSE) { # \dontrun{
-roles <- get_agent_roles()
+# List all personas currently registered in the system
+personas <- get_agent_roles()
+stopifnot("bio_analyst" %in% personas)
 } # }
 ```

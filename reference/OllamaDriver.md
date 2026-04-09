@@ -46,7 +46,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### Method [`new()`](https://rdrr.io/r/methods/new.html)
 
 Initialize OllamaDriver
 
@@ -156,13 +156,19 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-# Use llama3 locally via Ollama
-driver <- OllamaDriver$new(model = "llama3")
+# 1. Use llama3.2 locally via Ollama
+driver <- OllamaDriver$new(model = "llama3.2")
 
-# Call with context size adjustments
+# 2. Call with high-precision sampling and large context window
+# Ideal for summarizing long bioinformatics documents.
 response <- driver$call(
-  prompt = "Summarize the R documentation for 'lapply'.",
-  cli_opts = list(num_ctx = 8192)
+  prompt = "Summarize the technical specifications for the 'samtools' format.",
+  cli_opts = list(
+    num_ctx = 32768,
+    temperature = 0.1,
+    repeat_penalty = 1.2,
+    seed = 42
+  )
 )
 } # }
 ```

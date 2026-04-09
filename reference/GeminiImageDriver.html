@@ -21,6 +21,9 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Guide</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
@@ -91,7 +94,7 @@
 <li><span class="pkg-link" data-pkg="HydraR" data-topic="AgentDriver" data-id="validate_no_injection"><a href="AgentDriver.html#method-validate_no_injection"><code>HydraR::AgentDriver$validate_no_injection()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="HydraR" data-topic="GeminiAPIDriver" data-id="get_capabilities"><a href="GeminiAPIDriver.html#method-get_capabilities"><code>HydraR::GeminiAPIDriver$get_capabilities()</code></a></span></li>
 </ul></details></p><hr><a id="method-GeminiImageDriver-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+<h3 id="method-new-">Method <code><a href="https://rdrr.io/r/methods/new.html" class="external-link">new()</a></code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 <p>Initialize GeminiImageDriver</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/GeminiImageDriver.html">GeminiImageDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -209,15 +212,20 @@ Call Gemini Image API (Multimodal Unified)</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Ensure GOOGLE_API_KEY is set in .Renviron</span></span></span>
-<span class="r-in"><span><span class="va">driver</span> <span class="op">&lt;-</span> <span class="va">GeminiImageDriver</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>output_dir <span class="op">=</span> <span class="st">"plots"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># 1. Generate a high-resolution laboratory illustration</span></span></span>
+<span class="r-in"><span><span class="co"># Multimodal Gemini 3.1 models infer dimensions from prompt + config</span></span></span>
+<span class="r-in"><span><span class="va">driver</span> <span class="op">&lt;-</span> <span class="va">GeminiImageDriver</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>output_dir <span class="op">=</span> <span class="st">"assets/media"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Generate an image and get the local path</span></span></span>
+<span class="r-in"><span><span class="co"># 2. Request a specific aspect ratio and filename</span></span></span>
 <span class="r-in"><span><span class="va">img_path</span> <span class="op">&lt;-</span> <span class="va">driver</span><span class="op">$</span><span class="fu">call</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  prompt <span class="op">=</span> <span class="st">"A futuristic bioinformatics lab with glowing DNA structures"</span>,</span></span>
-<span class="r-in"><span>  cli_opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>aspectRatio <span class="op">=</span> <span class="st">"16:9"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  prompt <span class="op">=</span> <span class="st">"A futuristic bioinformatics lab with DNA holograms, hyper-realistic, 8k"</span>,</span></span>
+<span class="r-in"><span>  cli_opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    aspectRatio <span class="op">=</span> <span class="st">"16:9"</span>,</span></span>
+<span class="r-in"><span>    sampleCount <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>    filename <span class="op">=</span> <span class="st">"hero_dna_lab.png"</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Image saved to: "</span>, <span class="va">img_path</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Hero image saved to: "</span>, <span class="va">img_path</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

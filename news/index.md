@@ -26,6 +26,16 @@
     backward compatibility with global functions in tests.
 - **Clean Registry**: Package now achieves a perfectly clean
   `R CMD check` (0 Errors, 0 Warnings, 0 Notes) on core builds.
+- **Complete Instruction Manual**: Rewrote `vignettes/manual.md` as a
+  16-part narrative-style beginner guide, progressing from a single
+  “hello world” node through loops, YAML workflows, checkpointing, and
+  git worktree isolation. Includes a direct side-by-side comparison
+  showing the YAML-first approach reduces a 40-line R script to 4 lines.
+- **Test Hygiene**: Silenced expected diagnostic warnings across the
+  test suite for cyclic and multi-root graph patterns. Removed
+  deprecated
+  [`testthat::context()`](https://testthat.r-lib.org/reference/context.html)
+  calls.
 
 ## HydraR 0.2.1 (Final Polish & Acknowledgements)
 

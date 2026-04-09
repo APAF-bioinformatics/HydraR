@@ -49,7 +49,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### Method [`new()`](https://rdrr.io/r/methods/new.html)
 
 Initialize GeminiImageDriver
 
@@ -158,14 +158,19 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-# Ensure GOOGLE_API_KEY is set in .Renviron
-driver <- GeminiImageDriver$new(output_dir = "plots")
+# 1. Generate a high-resolution laboratory illustration
+# Multimodal Gemini 3.1 models infer dimensions from prompt + config
+driver <- GeminiImageDriver$new(output_dir = "assets/media")
 
-# Generate an image and get the local path
+# 2. Request a specific aspect ratio and filename
 img_path <- driver$call(
-  prompt = "A futuristic bioinformatics lab with glowing DNA structures",
-  cli_opts = list(aspectRatio = "16:9")
+  prompt = "A futuristic bioinformatics lab with DNA holograms, hyper-realistic, 8k",
+  cli_opts = list(
+    aspectRatio = "16:9",
+    sampleCount = 1,
+    filename = "hero_dna_lab.png"
+  )
 )
-message("Image saved to: ", img_path)
+message("Hero image saved to: ", img_path)
 } # }
 ```

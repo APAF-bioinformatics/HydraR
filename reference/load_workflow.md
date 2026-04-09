@@ -26,14 +26,20 @@ A list representing the workflow structure, including `graph`,
 
 ``` r
 if (FALSE) { # \dontrun{
-# Load a workflow from a YAML file
-# Expected YAML structure:
+# 1. Prepare a YAML workflow with relative logic paths
+# my_workflow.yaml:
+# roles:
+#   analyst: "You are an analyst."
 # graph: |
 #   graph TD
-#     A[type=llm | role=analyst]
-# wf <- load_workflow("config/bioinfo_pipeline.yaml")
+#     A[type=llm | role_id=analyst]-->B[type=logic | logic_id=clean_data]
+# logic:
+#   clean_data: "scripts/clean.R"
 
-# Inspect the initial state defined in the file
-print(wf$initial_state)
+wf <- load_workflow("my_workflow.yaml")
+
+# 2. Key components are resolved during loading
+print(wf$roles$analyst)
+print(wf$logic$clean_data) # Returns the function sourced from scripts/clean.R
 } # }
 ```

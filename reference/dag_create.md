@@ -26,12 +26,20 @@ An `AgentDAG` R6 object.
 
 ``` r
 if (FALSE) { # \dontrun{
-# Basic DAG creation
+library(HydraR)
+
+# 1. Simple Audit-only DAG
 dag <- dag_create()
 
-# Creation with a persistent DuckDB audit log
-# Recommended for production workflows to ensure audutability.
+# 2. Production DAG with persistent DuckDB audit log and custom metadata
+# This pattern ensures every agent interaction is recorded for reproducibility.
 log <- DuckDBMessageLog$new(db_path = "audit_trail.duckdb")
 dag <- dag_create(message_log = log)
+
+# 3. Advanced setup with a pre-configured memory saver
+saver <- MemorySaver$new()
+cp <- Checkpointer$new(saver = saver)
+# Note: Checkpointer is typically assigned to the DAG after creation
+dag$checkpointer <- cp
 } # }
 ```

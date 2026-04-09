@@ -24,6 +24,7 @@ Logical TRUE if valid (invisibly). Throws a detailed error on failure.
 
 ``` r
 if (FALSE) { # \dontrun{
-validate_workflow_file("wf.yaml")
+# Holistic check: schema + topology + R linting
+validate_workflow_file("inst/workflows/bioinfo.yaml")
 } # }
 ```

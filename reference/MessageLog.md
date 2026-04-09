@@ -72,7 +72,10 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-# This is an abstract base class.
-# Use MemoryMessageLog or DuckDBMessageLog instead.
+# 1. Abstract interface usage (internal)
+# Message logs are passed to dag_create() for audit trails.
+dag <- dag_create(
+  message_log = DuckDBMessageLog$new(db_path = "audit.duckdb")
+)
 } # }
 ```

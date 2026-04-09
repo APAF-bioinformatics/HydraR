@@ -109,11 +109,16 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-# Initialize a logger pointing to the default HydraR database
+# 1. Persistent audit logging to DuckDB
 audit_log <- DuckDBMessageLog$new(
-  db_path = "~/.gemini/memory/audit.duckdb"
+  db_path = "data/agent_audit.duckdb"
 )
 
-# Messages are stored in the 'agent_messages' table
+# 2. Attach to a DAG and run
+dag <- dag_create(message_log = audit_log)
+dag$run(thread_id = "experiment_404")
+
+# 3. Retrieve and analyze messages from a previous session
+prev_logs <- audit_log$get_all()
 } # }
 ```

@@ -33,7 +33,7 @@ A `MemorySaver` object.
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### Method [`new()`](https://rdrr.io/r/methods/new.html)
 
 Initialize MemorySaver
 
@@ -103,9 +103,12 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
+# 1. Use MemorySaver for transient testing or short sessions
 saver <- MemorySaver$new()
 dag <- dag_create(checkpointer = saver)
 
-# State is saved in saver$storage environment
+# 2. States are saved in the 'storage' environment under thread_id
+dag$run(thread_id = "test_run_01")
+ls(saver$storage) # Returns "test_run_01"
 } # }
 ```

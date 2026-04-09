@@ -23,6 +23,9 @@ and audit-heavy workflows."></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Guide</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
@@ -160,12 +163,17 @@ created upon the first message log. Defaults to the master
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Initialize a logger pointing to the default HydraR database</span></span></span>
+<span class="r-in"><span><span class="co"># 1. Persistent audit logging to DuckDB</span></span></span>
 <span class="r-in"><span><span class="va">audit_log</span> <span class="op">&lt;-</span> <span class="va">DuckDBMessageLog</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  db_path <span class="op">=</span> <span class="st">"~/.gemini/memory/audit.duckdb"</span></span></span>
+<span class="r-in"><span>  db_path <span class="op">=</span> <span class="st">"data/agent_audit.duckdb"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Messages are stored in the 'agent_messages' table</span></span></span>
+<span class="r-in"><span><span class="co"># 2. Attach to a DAG and run</span></span></span>
+<span class="r-in"><span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="fu"><a href="dag_create.html">dag_create</a></span><span class="op">(</span>message_log <span class="op">=</span> <span class="va">audit_log</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>thread_id <span class="op">=</span> <span class="st">"experiment_404"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># 3. Retrieve and analyze messages from a previous session</span></span></span>
+<span class="r-in"><span><span class="va">prev_logs</span> <span class="op">&lt;-</span> <span class="va">audit_log</span><span class="op">$</span><span class="fu">get_all</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

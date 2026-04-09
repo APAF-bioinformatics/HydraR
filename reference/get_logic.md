@@ -22,6 +22,10 @@ Function or NULL.
 
 ``` r
 if (FALSE) { # \dontrun{
-func <- get_logic("my_logic")
+# Retrieve a function by name for manual node construction
+logic_fn <- get_logic("validate_results")
+if (!is.null(logic_fn)) {
+  node <- AgentLogicNode$new(id = "validator", logic_fn = logic_fn)
+}
 } # }
 ```

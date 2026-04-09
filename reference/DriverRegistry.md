@@ -147,6 +147,16 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
+# 1. Create a registry and register multiple models
 reg <- DriverRegistry$new()
+reg$register(GeminiCLIDriver$new(id = "fast_model", model = "gemini-1.5-flash"))
+reg$register(GeminiCLIDriver$new(id = "smart_model", model = "gemini-1.5-pro"))
+
+# 2. Audit the registered drivers
+summary <- reg$list_drivers()
+print(summary)
+
+# 3. Fetch a specific driver by its shorthand ID
+my_drv <- reg$get("smart_model")
 } # }
 ```

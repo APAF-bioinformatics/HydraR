@@ -29,9 +29,13 @@ A single merged list.
 
 ``` r
 if (FALSE) { # \dontrun{
-current <- list(a = 1, b = 2)
-new <- list(b = 3, c = 4)
-merged <- reducer_merge_list(current, new)
-# Result: list(a = 1, b = 3, c = 4)
+# Deep merging configuration or results
+current_cfg <- list(params = list(temp = 0.5, top_p = 1.0), tags = "v1")
+new_cfg <- list(params = list(temp = 0.7), tags = "v2")
+
+# modifyList behavior ensured: tags is replaced, params is merged
+merged <- reducer_merge_list(current_cfg, new_cfg)
+str(merged)
+# list(params = list(temp = 0.7, top_p = 1.0), tags = "v2")
 } # }
 ```

@@ -22,6 +22,8 @@ String prompt text, or NULL if not found.
 
 ``` r
 if (FALSE) { # \dontrun{
-role <- get_role("developer")
+# Resolve a role for an LLM node manually
+role_prompt <- get_role("bio_analyst")
+node <- AgentLLMNode$new(id="a1", role=role_prompt, driver=GeminiCLIDriver$new())
 } # }
 ```

@@ -106,7 +106,24 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-node <- AgentBashNode$new(id = "bash_1")
-node$call("echo hello")
+# 1. Simple static bash command
+node_simple <- AgentBashNode$new(id = "bash_ls", script = "ls -la")
+
+# 2. Dynamic bash script using state values and environment variables
+# The script is generated at runtime based on the current AgentState.
+dynamic_script <- function(state) {
+  input_file <- state$get("raw_data_path")
+  sprintf("cat %s | grep 'ERR' > failure_log.txt", input_file)
+}
+
+node_dynamic <- AgentBashNode$new(
+  id = "bash_filter",
+  script = dynamic_script,
+  env_vars = list(THRESHOLD = "100", CPU_LIMIT = "4")
+)
+
+# Execute the node
+res <- node_dynamic$run(state = AgentState$new(list(raw_data_path = "data.csv")))
+message(res$output)
 } # }
 ```

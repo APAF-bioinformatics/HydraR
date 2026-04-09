@@ -21,6 +21,9 @@ instantiated AgentNode objects based on inline annotations."></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Guide</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
@@ -80,24 +83,28 @@ annotations (e.g., <code>driver=openai_api</code>).</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Define a workflow entirely in Mermaid syntax</span></span></span>
+<span class="r-in"><span><span class="co"># 'Low Code' workflow: resolve complex attributes from a Mermaid string</span></span></span>
 <span class="r-in"><span><span class="va">mermaid_src</span> <span class="op">&lt;-</span> <span class="st">'</span></span></span>
 <span class="r-in"><span><span class="st">graph TD</span></span></span>
-<span class="r-in"><span><span class="st">  A["Researcher | type=llm | role=Research Assistant | driver=gemini"]</span></span></span>
-<span class="r-in"><span><span class="st">  B["Validator | type=logic | logic_id=validate_fn"]</span></span></span>
+<span class="r-in"><span><span class="st">  A["Data Fetcher | type=llm | role=Expert Bioinformatician | model=gpt-4o"]</span></span></span>
+<span class="r-in"><span><span class="st">  B["Quality Gate | type=logic | logic_id=validate_data"]</span></span></span>
+<span class="r-in"><span><span class="st">  C["Reporter | type=llm | role=Technical Writer | driver=claude_cli"]</span></span></span>
+<span class="r-in"><span><span class="st"></span></span></span>
 <span class="r-in"><span><span class="st">  A --&gt; B</span></span></span>
+<span class="r-in"><span><span class="st">  B --&gt; C</span></span></span>
 <span class="r-in"><span><span class="st">'</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Define the logic referenced in Mermaid</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="register_logic.html">register_logic</a></span><span class="op">(</span><span class="st">"validate_fn"</span>, <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"success"</span>, output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ok <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># 1. Register the required logic in the registry</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="register_logic.html">register_logic</a></span><span class="op">(</span><span class="st">"validate_data"</span>, <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">raw</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"A"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nchar</a></span><span class="op">(</span><span class="va">raw</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">100</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status<span class="op">=</span><span class="st">"success"</span><span class="op">)</span> <span class="kw">else</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status<span class="op">=</span><span class="st">"failed"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Spawn the DAG using the automatic factory</span></span></span>
-<span class="r-in"><span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="va">AgentDAG</span><span class="op">$</span><span class="fu">from_mermaid</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="va">mermaid_src</span>,</span></span>
-<span class="r-in"><span>  node_factory <span class="op">=</span> <span class="fu">auto_node_factory</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># 2. Create the DAG using the automatic factory</span></span></span>
+<span class="r-in"><span><span class="va">factory</span> <span class="op">&lt;-</span> <span class="fu">auto_node_factory</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="fu"><a href="mermaid_to_dag.html">mermaid_to_dag</a></span><span class="op">(</span><span class="va">mermaid_src</span>, node_factory <span class="op">=</span> <span class="va">factory</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Result: n1 is an AgentLLMNode (OpenAI), n2 is Logic, n3 is AgentLLMNode (Claude)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

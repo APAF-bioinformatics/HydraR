@@ -47,14 +47,19 @@ The modified `AgentDAG` object (invisibly).
 
 ``` r
 if (FALSE) { # \dontrun{
-# NOTE: Set GOOGLE_API_KEY in your .Renviron for Gemini drivers.
-
-dag <- dag_create()
-dag_add_llm_node(
-  dag,
-  id = "summary_node",
-  role = "Summarise the following text.",
-  driver = GeminiAPIDriver$new()
-)
+# Chaining nodes using the functional API
+# This pattern is common in complex HydraR orchestration scripts.
+dag <- dag_create() |>
+  dag_add_llm_node(
+    id = "writer",
+    role = "Academic technical writer",
+    driver = OpenAIAPIDriver$new(api_key = Sys.getenv("OPENAI_API_KEY"), model = "gpt-4-turbo")
+  ) |>
+  dag_add_llm_node(
+    id = "critic",
+    role = "Peer reviewer",
+    driver = AnthropicAPIDriver$new(api_key = Sys.getenv("ANTHROPIC_API_KEY"), model = "claude-3-sonnet"),
+    cli_opts = list(temperature = 0.2)
+  )
 } # }
 ```

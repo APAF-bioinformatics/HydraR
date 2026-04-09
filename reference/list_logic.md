@@ -16,6 +16,8 @@ Character vector of names.
 
 ``` r
 if (FALSE) { # \dontrun{
-list_logic()
+# Check which custom logic functions are currently available
+available_logic <- list_logic()
+message("Registered logic: ", paste(available_logic, collapse = ", "))
 } # }
 ```

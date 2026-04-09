@@ -23,6 +23,12 @@ A DBIConnection object.
 
 ``` r
 if (FALSE) { # \dontrun{
-init_bot_history()
+# Connect to the master bot history for auditing
+con <- init_bot_history(read_only = TRUE)
+
+# Use DBI to query the execution logs
+library(DBI)
+dbListTables(con)
+dbDisconnect(con)
 } # }
 ```

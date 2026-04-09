@@ -23,6 +23,9 @@ concurrent access patterns."></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Guide</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
@@ -85,7 +88,7 @@ concurrent access patterns.</p>
 <li><p><a href="#method-DuckDBSaver-get"><code>DuckDBSaver$get()</code></a></p></li>
 <li><p><a href="#method-DuckDBSaver-clone"><code>DuckDBSaver$clone()</code></a></p></li>
 </ul></div><p></p><hr><a id="method-DuckDBSaver-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+<h3 id="method-new-">Method <code><a href="https://rdrr.io/r/methods/new.html" class="external-link">new()</a></code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 <p>Initialize DuckDBSaver</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/DuckDBSaver.html">DuckDBSaver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>con <span class="op">=</span> <span class="cn">NULL</span>, db_path <span class="op">=</span> <span class="cn">NULL</span>, table_name <span class="op">=</span> <span class="st">"agent_checkpoints"</span><span class="op">)</span></span></code></pre></div><p></p></div>
@@ -180,11 +183,19 @@ Load state</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Use a persistent DuckDB file for all agent states</span></span></span>
-<span class="r-in"><span><span class="va">saver</span> <span class="op">&lt;-</span> <span class="va">DuckDBSaver</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>db_path <span class="op">=</span> <span class="st">"data/hydrar_states.duckdb"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># 1. Production-ready persistence using DuckDB</span></span></span>
+<span class="r-in"><span><span class="va">saver</span> <span class="op">&lt;-</span> <span class="va">DuckDBSaver</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  db_path <span class="op">=</span> <span class="st">"storage/hydrar_main.duckdb"</span>,</span></span>
+<span class="r-in"><span>  table_name <span class="op">=</span> <span class="st">"workflow_checkpoints"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># 2. Orchestrate a long-running DAG</span></span></span>
 <span class="r-in"><span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="fu"><a href="dag_create.html">dag_create</a></span><span class="op">(</span>checkpointer <span class="op">=</span> <span class="va">saver</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>thread_id <span class="op">=</span> <span class="st">"batch_process_alpha"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>thread_id <span class="op">=</span> <span class="st">"genomic_alignment_job_42"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># 3. Query the internal storage directly if needed</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dbi.r-dbi.org" class="external-link">DBI</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" class="external-link">dbGetQuery</a></span><span class="op">(</span><span class="va">saver</span><span class="op">$</span><span class="va">con</span>, <span class="st">"SELECT thread_id, updated_at FROM workflow_checkpoints"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

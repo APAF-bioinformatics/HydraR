@@ -33,6 +33,9 @@ Persistence: Automatic state checkpointing and restoration.
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Guide</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
@@ -710,31 +713,33 @@ dag$from_mermaid("graph LR; Start--&gt;End", simple_factory)
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Define a simple linear workflow</span></span></span>
+<span class="r-in"><span><span class="co"># 1. Define a complex DAG with branching, loops, and custom state</span></span></span>
+<span class="r-in"><span><span class="co"># Initializing the orchestrator</span></span></span>
 <span class="r-in"><span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="va">AgentDAG</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Define a logic function</span></span></span>
-<span class="r-in"><span><span class="va">fetch_data</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"success"</span>, output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>raw <span class="op">=</span> <span class="st">"Some data"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="co"># Define logic for data retrieval and quality control</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="register_logic.html">register_logic</a></span><span class="op">(</span><span class="st">"fetcher"</span>, <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status<span class="op">=</span><span class="st">"success"</span>, output<span class="op">=</span><span class="st">"raw data"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="register_logic.html">register_logic</a></span><span class="op">(</span><span class="st">"gate"</span>, <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nchar</a></span><span class="op">(</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"fetcher"</span><span class="op">)</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">5</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status<span class="op">=</span><span class="st">"true"</span><span class="op">)</span> <span class="kw">else</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status<span class="op">=</span><span class="st">"false"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Add nodes</span></span></span>
-<span class="r-in"><span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va"><a href="AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"fetcher"</span>, logic_fn <span class="op">=</span> <span class="va">fetch_data</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="dag_add_llm_node.html">dag_add_llm_node</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="va">dag</span>,</span></span>
-<span class="r-in"><span>  id <span class="op">=</span> <span class="st">"analyzer"</span>,</span></span>
-<span class="r-in"><span>  role <span class="op">=</span> <span class="st">"Analyze the data in the state."</span>,</span></span>
-<span class="r-in"><span>  driver <span class="op">=</span> <span class="va"><a href="GeminiCLIDriver.html">GeminiCLIDriver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># 2. Programmatic Node Construction</span></span></span>
+<span class="r-in"><span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va"><a href="AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"start"</span>, logic_fn <span class="op">=</span> <span class="fu"><a href="get_logic.html">get_logic</a></span><span class="op">(</span><span class="st">"fetcher"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dag</span><span class="op">$</span><span class="fu">add_node</span><span class="op">(</span><span class="va"><a href="AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"check"</span>, logic_fn <span class="op">=</span> <span class="fu"><a href="get_logic.html">get_logic</a></span><span class="op">(</span><span class="st">"gate"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Connect nodes</span></span></span>
-<span class="r-in"><span><span class="va">dag</span><span class="op">$</span><span class="fu">add_edge</span><span class="op">(</span><span class="st">"fetcher"</span>, <span class="st">"analyzer"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># 3. Connecting nodes with status-based edges</span></span></span>
+<span class="r-in"><span><span class="co"># Errors in 'start' go to a terminal cleanup node</span></span></span>
+<span class="r-in"><span><span class="va">dag</span><span class="op">$</span><span class="fu">add_edge</span><span class="op">(</span><span class="st">"start"</span>, <span class="st">"check"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dag</span><span class="op">$</span><span class="fu">add_conditional_edge</span><span class="op">(</span><span class="st">"check"</span>, test <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="va">res</span><span class="op">$</span><span class="va">status</span> <span class="op">==</span> <span class="st">"true"</span>,</span></span>
+<span class="r-in"><span>                         if_true <span class="op">=</span> <span class="st">"process"</span>, if_false <span class="op">=</span> <span class="st">"retry"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Compile and verify the graph</span></span></span>
+<span class="r-in"><span><span class="co"># 4. Multi-agent execution context</span></span></span>
+<span class="r-in"><span><span class="co"># Compiling and running with initial state</span></span></span>
 <span class="r-in"><span><span class="va">dag</span><span class="op">$</span><span class="fu">compile</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">final_state</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>initial_state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>job_id <span class="op">=</span> <span class="st">"123"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Execution requires an initial state</span></span></span>
-<span class="r-in"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>initial_state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>input_file <span class="op">=</span> <span class="st">"raw.txt"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Checking results</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">final_state</span><span class="op">$</span><span class="fu">get_all</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## ------------------------------------------------</span></span></span>

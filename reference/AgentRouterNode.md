@@ -98,6 +98,23 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-node <- AgentRouterNode$new(id = "r1", route_fn = function(s) "next_node")
+# Routing based on an LLM sentiment classification
+classifier <- function(state) {
+  sentiment <- state$get("analyst_output")
+  if (grepl("Positive", sentiment)) {
+    list(target_node = "celebrate", status = "success")
+  } else {
+    list(target_node = "investigate", status = "success")
+  }
+}
+
+node_router <- AgentRouterNode$new(
+  id = "sentiment_router",
+  router_fn = classifier
+)
+
+# Run with dummy state
+res <- node_router$run(AgentState$new(list(analyst_output = "Positive results!")))
+message("Targeting node: ", res$target_node)
 } # }
 ```

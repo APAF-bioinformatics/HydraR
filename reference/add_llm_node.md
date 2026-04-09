@@ -48,15 +48,25 @@ An `AgentLLMNode` object.
 
 ``` r
 if (FALSE) { # \dontrun{
-# NOTE: Ensure ANTHROPIC_API_KEY is set in your .Renviron file for this example.
-
-driver <- AnthropicAPIDriver$new()
-node <- add_llm_node(
-  id = "coder",
-  role = "You are an expert R programmer.",
+# Standard API-based agent with model overrides and safety parameters
+# Use Sys.getenv to securely load your API key from .Renviron
+driver <- AnthropicAPIDriver$new(api_key = Sys.getenv("ANTHROPIC_API_KEY"))
+node_coder <- add_llm_node(
+  id = "optimizer",
+  role = "You are an expert at optimizing R code for performance.",
   driver = driver,
-  model = "claude-3-sonnet",
-  output_path = "scripts/generated_code.R"
+  model = "claude-3-opus-20240229",
+  cli_opts = list(temperature = 0, max_tokens = 1024),
+  output_path = "output/optimized.R"
+)
+
+# CLI-based agent with sandbox permissions and tool discovery
+gemini <- GeminiCLIDriver$new()
+node_researcher <- add_llm_node(
+  id = "researcher",
+  role = "Find bioinformatics papers on 'single-cell RNA-seq' using PubMed.",
+  driver = gemini,
+  cli_opts = list(allowed_tools = "pubmed_search,read_pdf", yolo = TRUE)
 )
 } # }
 ```

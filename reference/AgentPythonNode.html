@@ -19,6 +19,9 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Guide</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
@@ -165,8 +168,28 @@ Run Python Execution</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="va">node</span> <span class="op">&lt;-</span> <span class="va">AgentPythonNode</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"py_1"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">node</span><span class="op">$</span><span class="fu">call</span><span class="op">(</span><span class="st">"print('hello')"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># 1. Pure system-level Python execution (isolated process)</span></span></span>
+<span class="r-in"><span><span class="va">node_sys</span> <span class="op">&lt;-</span> <span class="va">AgentPythonNode</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  id <span class="op">=</span> <span class="st">"py_cleaner"</span>,</span></span>
+<span class="r-in"><span>  script <span class="op">=</span> <span class="st">"print('Cleaning data...'); result = 10"</span>,</span></span>
+<span class="r-in"><span>  engine <span class="op">=</span> <span class="st">"system2"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># 2. Reticulate-based execution with shared memory</span></span></span>
+<span class="r-in"><span><span class="co"># This allows the 'result' variable in Python to be returned as an R object.</span></span></span>
+<span class="r-in"><span><span class="va">node_retic</span> <span class="op">&lt;-</span> <span class="va">AgentPythonNode</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  id <span class="op">=</span> <span class="st">"py_stats"</span>,</span></span>
+<span class="r-in"><span>  script <span class="op">=</span> <span class="st">"</span></span></span>
+<span class="r-in"><span><span class="st">import numpy as np</span></span></span>
+<span class="r-in"><span><span class="st">data = np.array([1, 2, 3, 4, 5])</span></span></span>
+<span class="r-in"><span><span class="st">result = data.mean()</span></span></span>
+<span class="r-in"><span><span class="st">  "</span>,</span></span>
+<span class="r-in"><span>  engine <span class="op">=</span> <span class="st">"reticulate"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Execute and retrieve the 'result' object</span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="va">node_retic</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>state <span class="op">=</span> <span class="va"><a href="AgentState.html">AgentState</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Mean calculated in Python: "</span>, <span class="va">res</span><span class="op">$</span><span class="va">result</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

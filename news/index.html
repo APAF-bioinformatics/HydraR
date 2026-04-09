@@ -19,6 +19,9 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Guide</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
@@ -65,6 +68,10 @@
 </ul></li>
 <li>
 <strong>Clean Registry</strong>: Package now achieves a perfectly clean <code>R CMD check</code> (0 Errors, 0 Warnings, 0 Notes) on core builds.</li>
+<li>
+<strong>Complete Instruction Manual</strong>: Rewrote <code>vignettes/manual.md</code> as a 16-part narrative-style beginner guide, progressing from a single “hello world” node through loops, YAML workflows, checkpointing, and git worktree isolation. Includes a direct side-by-side comparison showing the YAML-first approach reduces a 40-line R script to 4 lines.</li>
+<li>
+<strong>Test Hygiene</strong>: Silenced expected diagnostic warnings across the test suite for cyclic and multi-root graph patterns. Removed deprecated <code><a href="https://testthat.r-lib.org/reference/context.html" class="external-link">testthat::context()</a></code> calls.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.1" id="hydrar-021-final-polish--acknowledgements">HydraR 0.2.1 (Final Polish &amp; Acknowledgements)<a class="anchor" aria-label="anchor" href="#hydrar-021-final-polish--acknowledgements"></a></h2>

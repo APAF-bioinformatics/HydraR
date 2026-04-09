@@ -21,6 +21,9 @@ CLI. Optimized for terminal-based engineering tasks."></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
+    <li><a class="dropdown-item" href="../articles/manual.html">HydraR: The Complete Guide</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/hong_kong_travel.html">Agentic Travel Planning: Sydney to Hong Kong</a></li>
     <li><a class="dropdown-item" href="../articles/sorting_benchmark.html">Parallel Benchmarking with Git Worktrees</a></li>
@@ -192,11 +195,19 @@ Call the LLM</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Initialize the Claude Code CLI driver</span></span></span>
+<span class="r-in"><span><span class="co"># 1. Initialize the Claude Code CLI driver</span></span></span>
 <span class="r-in"><span><span class="va">driver</span> <span class="op">&lt;-</span> <span class="va">AnthropicCLIDriver</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>model <span class="op">=</span> <span class="st">"sonnet"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Claude CLI handles complex engineering tasks natively</span></span></span>
-<span class="r-in"><span><span class="va">response</span> <span class="op">&lt;-</span> <span class="va">driver</span><span class="op">$</span><span class="fu">call</span><span class="op">(</span><span class="st">"Refactor R/dag.R to use R6 private methods."</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># 2. Execute a complex engineering task with budget constraints</span></span></span>
+<span class="r-in"><span><span class="co"># and permission skipping for non-interactive automation.</span></span></span>
+<span class="r-in"><span><span class="va">response</span> <span class="op">&lt;-</span> <span class="va">driver</span><span class="op">$</span><span class="fu">call</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  prompt <span class="op">=</span> <span class="st">"Refactor R/dag.R to use R6 private methods."</span>,</span></span>
+<span class="r-in"><span>  cli_opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    dangerously_skip_permissions <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>    max_budget_usd <span class="op">=</span> <span class="fl">5.0</span>,</span></span>
+<span class="r-in"><span>    verbose <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

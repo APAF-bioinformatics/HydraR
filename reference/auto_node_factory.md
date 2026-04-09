@@ -36,23 +36,27 @@ The factory supports the following `type=` parameters in Mermaid labels:
 
 ``` r
 if (FALSE) { # \dontrun{
-# Define a workflow entirely in Mermaid syntax
+# 'Low Code' workflow: resolve complex attributes from a Mermaid string
 mermaid_src <- '
 graph TD
-  A["Researcher | type=llm | role=Research Assistant | driver=gemini"]
-  B["Validator | type=logic | logic_id=validate_fn"]
+  A["Data Fetcher | type=llm | role=Expert Bioinformatician | model=gpt-4o"]
+  B["Quality Gate | type=logic | logic_id=validate_data"]
+  C["Reporter | type=llm | role=Technical Writer | driver=claude_cli"]
+
   A --> B
+  B --> C
 '
 
-# Define the logic referenced in Mermaid
-register_logic("validate_fn", function(state) {
-  list(status = "success", output = list(ok = TRUE))
+# 1. Register the required logic in the registry
+register_logic("validate_data", function(state) {
+  raw <- state$get("A")
+  if (nchar(raw) > 100) list(status="success") else list(status="failed")
 })
 
-# Spawn the DAG using the automatic factory
-dag <- AgentDAG$from_mermaid(
-  mermaid_src,
-  node_factory = auto_node_factory()
-)
+# 2. Create the DAG using the automatic factory
+factory <- auto_node_factory()
+dag <- mermaid_to_dag(mermaid_src, node_factory = factory)
+
+# Result: n1 is an AgentLLMNode (OpenAI), n2 is Logic, n3 is AgentLLMNode (Claude)
 } # }
 ```

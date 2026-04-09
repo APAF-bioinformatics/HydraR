@@ -22,6 +22,11 @@ NULL (invisibly)
 
 ``` r
 if (FALSE) { # \dontrun{
-set_default_driver(AnthropicCLIDriver$new())
+# 1. Set a global default driver for all LLM nodes
+set_default_driver(AnthropicCLIDriver$new(model = "claude-3-opus"))
+
+# 2. Or set it using an ID already present in the registry
+get_driver_registry()$register(GeminiCLIDriver$new(id = "fast-gen"))
+set_default_driver("fast-gen")
 } # }
 ```
