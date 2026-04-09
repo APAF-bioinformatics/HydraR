@@ -1,8 +1,7 @@
 # \<!– APAF Bioinformatics \| factory.R \| Approved \| 2026-03-30 –\> Resolve a Default Driver from Shorthand ID
 
-Constructs an AgentDriver from a well-known shorthand string like
-\`"gemini"\`, \`"claude"\`, or \`"openai"\`. Tries the global
-DriverRegistry first; falls back to constructing a new CLI driver.
+Provides a mechanism to quickly obtain a pre-configured `AgentDriver`
+using logic-friendly keys like `"gemini"`, `"claude"`, or `"openai"`.
 
 ## Usage
 
@@ -14,20 +13,29 @@ resolve_default_driver(driver_id, driver_registry = NULL)
 
 - driver_id:
 
-  String. Driver shorthand (e.g., \`"gemini"\`, \`"claude"\`).
+  String. A shorthand identifier. Supported values include: `"gemini"`,
+  `"gemini_api"`, `"anthropic"`, `"anthropic_api"`, `"openai"`,
+  `"openai_api"`, and `"ollama"`.
 
 - driver_registry:
 
-  Optional DriverRegistry object.
+  DriverRegistry. An optional registry object to look up custom drivers
+  first. If omitted, the global
+  [`get_driver_registry()`](https://github.com/APAF-bioinformatics/HydraR/reference/get_driver_registry.md)
+  is used.
 
 ## Value
 
-An AgentDriver object.
+An `AgentDriver` object.
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-drv <- resolve_default_driver(NULL)
+# Retrieve the default Gemini CLI driver
+drv <- resolve_default_driver("gemini")
+
+# Retrieve a registered API driver
+drv_api <- resolve_default_driver("openai_api")
 } # }
 ```

@@ -1,11 +1,19 @@
 # Agent State R6 Class
 
 A strongly typed, centrally managed state object for passing data
-between nodes in an AgentDAG.
+between nodes in an AgentDAG. It supports declarative schemas for
+validation and functional "reducers" for sophisticated state merging
+during execution.
 
 ## Value
 
-An \`AgentState\` R6 object.
+An `AgentState` R6 object.
+
+## Details
+
+The `AgentState` is the single source of truth for a DAG. It is designed
+to be serializable, allowing the entire workflow state to be
+checkpointed and restored.
 
 ## Public fields
 
@@ -57,15 +65,20 @@ Initialize AgentState
 
 - `initial_data`:
 
-  List of initial state variables or String.
+  List or String. The starting data for the state. If a list, it is
+  merged into the environment. If a string, it is stored under the key
+  `"input"`.
 
 - `reducers`:
 
-  Named list of reducer functions.
+  Named list of functions or character names. Maps state keys to
+  functions that define how new values are merged with current values
+  (e.g., `append` or `sum`).
 
 - `schema`:
 
-  Named list of expected types. Get a state variable
+  Named list of character strings. Defines the expected class/type for
+  specific keys (e.g., `list(count = "numeric")`). Get a state variable
 
 ------------------------------------------------------------------------
 
@@ -79,15 +92,16 @@ Initialize AgentState
 
 - `key`:
 
-  String.
+  String. The name of the variable to retrieve.
 
 - `default`:
 
-  Value to return if key not found.
+  Value. The value to return if the key is not found in the state.
 
 #### Returns
 
-The value. Get all state variables as a list
+The value associated with the key, or the default. Get all state
+variables as a list
 
 ------------------------------------------------------------------------
 
@@ -205,7 +219,16 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
-state <- AgentState$new(initial_data = list(topic = "R"))
-state$get("topic")
-#> [1] "R"
+if (FALSE) { # \dontrun{
+# Initialize state with a schema and a reducer
+state <- AgentState$new(
+  initial_data = list(count = 0, history = list()),
+  schema = list(count = "numeric", history = "list"),
+  reducers = list(history = reducer_append)
+)
+
+# Updates to 'history' will now use the append reducer
+state$update(list(history = "Event 1"))
+message(state$get("history")) # [1] "Event 1"
+} # }
 ```

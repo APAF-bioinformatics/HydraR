@@ -1,11 +1,12 @@
 # DuckDBSaver Checkpointer
 
-Persistent implementation of the Checkpointer interface using DuckDB.
-Supports both direct DBI connections and file paths.
+A production-grade `Checkpointer` that utilizes DuckDB for
+high-performance state persistence. Supports BLOB storage of serialized
+R objects and concurrent access patterns.
 
 ## Value
 
-A \`DuckDBSaver\` R6 object.
+A `DuckDBSaver` R6 object.
 
 ## Super class
 
@@ -48,15 +49,17 @@ Initialize DuckDBSaver
 
 - `con`:
 
-  DBIConnection. Optional if db_path is provided.
+  DBIConnection. An existing DBI connection to a DuckDB instance.
 
 - `db_path`:
 
-  String path to DuckDB file. Optional if con is provided.
+  String. Path to a DuckDB file. If provided, the driver will handle the
+  connection internally.
 
 - `table_name`:
 
-  Name of the table to store checkpoints in. Save state
+  String. The name of the table used to store checkpoints. Defaults to
+  `"agent_checkpoints"`. Save state
 
 ------------------------------------------------------------------------
 
@@ -114,6 +117,10 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-saver <- DuckDBSaver$new(db_path = "checkpoints.duckdb")
+# Use a persistent DuckDB file for all agent states
+saver <- DuckDBSaver$new(db_path = "data/hydrar_states.duckdb")
+
+dag <- dag_create(checkpointer = saver)
+dag$run(thread_id = "batch_process_alpha")
 } # }
 ```

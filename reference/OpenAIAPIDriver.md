@@ -1,10 +1,17 @@
 # OpenAI API Driver
 
-Implementation of the OpenAI Chat Completions API.
+A specialized `AgentDriver` that interacts with the OpenAI Chat
+Completions API. Requires an active OpenAI account and API key.
 
 ## Value
 
-An \`OpenAIAPIDriver\` object.
+An `OpenAIAPIDriver` object.
+
+## Details
+
+**Setup**: To use this driver, you must set the `OPENAI_API_KEY`
+environment variable. It is recommended to add this to your `.Renviron`
+file: `OPENAI_API_KEY="sk-..."`
 
 ## Super class
 
@@ -56,23 +63,25 @@ Initialize OpenAIAPIDriver
 
 - `id`:
 
-  String. Unique identifier.
+  String. Unique identifier for this driver instance.
 
 - `model`:
 
-  String. Model name.
+  String. The OpenAI model ID (e.g., `"gpt-4"`, `"gpt-3.5-turbo"`).
 
 - `validation_mode`:
 
-  String. "warning" or "strict".
+  String. Either `"warning"` or `"strict"`. Controls how schema
+  mismatches are handled.
 
 - `working_dir`:
 
-  String. Optional. Path to worktree.
+  String. Optional. The directory where output files should be
+  generated.
 
 #### Returns
 
-A new \`OpenAIAPIDriver\` object. Get Capabilities
+A new `OpenAIAPIDriver` object. Get Capabilities
 
 ------------------------------------------------------------------------
 
@@ -104,27 +113,29 @@ A list of capabilities. Call OpenAI API
 
 - `prompt`:
 
-  String. The prompt text.
+  String. The primary user message or instruction sent to the LLM.
 
 - `model`:
 
-  String. Optional model override.
+  String. Optional model override for this specific call.
 
 - `system_prompt`:
 
-  String. Optional system prompt.
+  String. Optional system-level instruction (role-playing or
+  constraint).
 
 - `cli_opts`:
 
-  List. Additional API options.
+  List. Additional parameters passed to the JSON body (e.g.,
+  `temperature = 0.7`).
 
 - `...`:
 
-  Additional arguments.
+  Additional arguments. Passed through to the internal request handler.
 
 #### Returns
 
-String. LLM response.
+String. The text content of the LLM's response.
 
 ------------------------------------------------------------------------
 
@@ -146,7 +157,11 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-driver <- OpenAIAPIDriver$new()
-driver$call("Hello, OpenAI")
+# Ensure OPENAI_API_KEY is set in .Renviron
+driver <- OpenAIAPIDriver$new(model = "gpt-4-turbo")
+
+# Perform a basic call
+response <- driver$call("What is the capital of France?")
+message(response)
 } # }
 ```

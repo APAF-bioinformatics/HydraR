@@ -1,10 +1,12 @@
 # Message Log Base R6 Class
 
-Abstract base class for logging inter-agent messages.
+An abstract base class defining the interface for message logging in
+HydraR. Subclasses provide concrete storage implementations (Memory,
+File, Database).
 
 ## Value
 
-A \`MessageLog\` base object.
+A `MessageLog` base object.
 
 ## Methods
 
@@ -71,6 +73,6 @@ The objects of this class are cloneable with this method.
 ``` r
 if (FALSE) { # \dontrun{
 # This is an abstract base class.
-# Instantiate a subclass like MemoryMessageLog.
+# Use MemoryMessageLog or DuckDBMessageLog instead.
 } # }
 ```

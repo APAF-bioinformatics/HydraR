@@ -1,10 +1,12 @@
 # Checkpointer Interface
 
-Abstract base class for AgentDAG checkpointers.
+An abstract base class defining the contract for state persistence and
+recovery in HydraR. Checkpointers allow a DAG to be paused and resumed
+across sessions by saving the `AgentState` after each node execution.
 
 ## Value
 
-A \`Checkpointer\` object.
+A `Checkpointer` object.
 
 ## Methods
 
@@ -30,15 +32,15 @@ Persist state to the checkpointer.
 
 - `thread_id`:
 
-  String. Identifier for the execution thread.
+  String. A unique identifier for the execution thread or session.
 
 - `state`:
 
-  AgentState object. The state to save.
+  AgentState. The `AgentState` object to be persisted.
 
 #### Returns
 
-NULL (called for side effect). Load state
+NULL (called for side effect). Load state from the checkpointer
 
 ------------------------------------------------------------------------
 
@@ -52,11 +54,11 @@ NULL (called for side effect). Load state
 
 - `thread_id`:
 
-  String. Identifier for the execution thread.
+  String. The unique identifier associated with the saved state.
 
 #### Returns
 
-AgentState object or NULL if not found.
+AgentState object or NULL if no checkpoint is found for the thread.
 
 ------------------------------------------------------------------------
 
@@ -78,6 +80,7 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-cp <- Checkpointer$new(saver = MemorySaver$new())
+# Checkpointers are used within AgentDAG$run()
+# Use a concrete implementation like RDSSaver or DuckDBSaver.
 } # }
 ```

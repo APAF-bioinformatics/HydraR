@@ -30,9 +30,9 @@ Specialized nodes for LLM interaction, logical routing, and scaling.
 - [`AgentPythonNode`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentPythonNode.md)
   : Python Execution Node
 - [`add_llm_node()`](https://github.com/APAF-bioinformatics/HydraR/reference/add_llm_node.md)
-  : Create an LLM Agent Node easily
+  : Create an LLM Agent Node
 - [`add_logic_node()`](https://github.com/APAF-bioinformatics/HydraR/reference/add_logic_node.md)
-  : Create an R Logic Node easily
+  : Create an R Logic Node
 - [`dag_add_llm_node()`](https://github.com/APAF-bioinformatics/HydraR/reference/dag_add_llm_node.md)
   : Add an LLM Agent Node directly to a DAG
 - [`dag_add_logic_node()`](https://github.com/APAF-bioinformatics/HydraR/reference/dag_add_logic_node.md)

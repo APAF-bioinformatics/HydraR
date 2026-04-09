@@ -1,7 +1,9 @@
 # Built-in Reducer: Merge List
 
-Merges two named lists using functional patterns. Overwrites current for
-matching keys.
+A functional reducer that performs a deep merge of two named lists. It
+uses [`utils::modifyList`](https://rdrr.io/r/utils/modifyList.html)
+internally, ensuring that existing keys are overwritten by new values
+while preserving other keys.
 
 ## Usage
 
@@ -13,20 +15,23 @@ reducer_merge_list(current, new)
 
 - current:
 
-  The current state list.
+  The current list in the state.
 
 - new:
 
-  The new list to merge.
+  The new list to merge in.
 
 ## Value
 
-The merged list.
+A single merged list.
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-reducer_merge_list(list(a = 1), list(b = 2))
+current <- list(a = 1, b = 2)
+new <- list(b = 3, c = 4)
+merged <- reducer_merge_list(current, new)
+# Result: list(a = 1, b = 3, c = 4)
 } # }
 ```

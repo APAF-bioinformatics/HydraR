@@ -1,7 +1,11 @@
 # Spawn an AgentDAG from a Workflow Object
 
-High-level 'Low Code' helper that instantiates, configures, and compiles
-an AgentDAG based on a workflow list (from \`load_workflow\`).
+A high-level helper that orchestrates the "Low Code" lifecycle: it takes
+a workflow definition (from
+[`load_workflow`](https://github.com/APAF-bioinformatics/HydraR/reference/load_workflow.md)),
+parses the internal graph structure, instantiates all nodes via the
+provided factory, applies conditional/error edges, and performs a final
+compilation check.
 
 ## Usage
 
@@ -13,20 +17,27 @@ spawn_dag(wf, node_factory = auto_node_factory())
 
 - wf:
 
-  List. The workflow object.
+  List. A workflow object previously returned by
+  [`load_workflow()`](https://github.com/APAF-bioinformatics/HydraR/reference/load_workflow.md).
 
 - node_factory:
 
-  Function. Defaults to \`auto_node_factory()\`.
+  Function. An optional factory function to map Mermaid labels to nodes.
+  Defaults to
+  [`auto_node_factory`](https://github.com/APAF-bioinformatics/HydraR/reference/auto_node_factory.md).
 
 ## Value
 
-A compiled \`AgentDAG\` object.
+A compiled and ready-to-run `AgentDAG` object.
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-dag <- spawn_dag(load_workflow("wf.yaml"))
+# Full lifecycle: Load -> Spawn -> Run
+wf <- load_workflow("orchestration_plans/main.yaml")
+dag <- spawn_dag(wf)
+
+results <- dag$run(initial_state = wf$initial_state)
 } # }
 ```

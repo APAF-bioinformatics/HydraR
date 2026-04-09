@@ -1,10 +1,15 @@
 # Gemini Image API Driver R6 Class
 
-Driver for Google Gemini's multimodal image generation (2026 models).
+A specialized driver for Gemini's multimodal and image generation
+capabilities (supporting Imagen and native Gemini 3.x modalities).
 
 ## Value
 
-A \`GeminiImageDriver\` R6 object.
+A `GeminiImageDriver` R6 object.
+
+## Details
+
+**Setup**: Requires `GOOGLE_API_KEY` in your `.Renviron`.
 
 ## Super classes
 
@@ -63,27 +68,33 @@ Initialize GeminiImageDriver
 
 - `id`:
 
-  String.
+  String. Unique identifier for the image driver.
 
 - `model`:
 
-  String. Default "imagen-3.0-generate-001".
+  String. Google model ID (defaults to multimodal flash).
 
 - `output_dir`:
 
-  String.
+  String. The directory where generated images will be saved.
 
 - `aspect_ratio`:
 
-  String.
+  String. The default aspect ratio for generated images (e.g., `"16:9"`,
+  `"1:1"`).
 
 - `validation_mode`:
 
-  String.
+  String. Controls schema enforcement.
 
 - `working_dir`:
 
-  String. Call Gemini Image API (Multimodal Unified)
+  String. Optional path for isolated execution.
+
+#### Returns
+
+A new `GeminiImageDriver` instance. Call Gemini Image API (Multimodal
+Unified)
 
 ------------------------------------------------------------------------
 
@@ -147,6 +158,14 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-driver <- GeminiImageDriver$new()
+# Ensure GOOGLE_API_KEY is set in .Renviron
+driver <- GeminiImageDriver$new(output_dir = "plots")
+
+# Generate an image and get the local path
+img_path <- driver$call(
+  prompt = "A futuristic bioinformatics lab with glowing DNA structures",
+  cli_opts = list(aspectRatio = "16:9")
+)
+message("Image saved to: ", img_path)
 } # }
 ```

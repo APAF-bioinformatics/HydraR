@@ -1,10 +1,19 @@
 # Gemini CLI Driver R6 Class
 
-Driver for the 'gemini' CLI tool.
+A specialized `AgentDriver` that invokes the Google `gemini` CLI tool.
+This is the preferred driver for workflows requiring local tool use and
+filesystem interaction via the Google-native MCP bridge.
 
 ## Value
 
-A \`GeminiCLIDriver\` object.
+A `GeminiCLIDriver` object.
+
+## Details
+
+**Setup**: Requires the `gemini` CLI to be installed and in your PATH.
+You can override the binary path using:
+`options(HydraR.gemini_path = "/path/to/gemini")` or by setting the
+`HYDRAR_GEMINI_PATH` environment variable in your `.Renviron`.
 
 ## Super class
 
@@ -56,23 +65,25 @@ Initialize GeminiCLIDriver
 
 - `id`:
 
-  Unique identifier.
+  String. Unique identifier for this driver.
 
 - `model`:
 
-  String. Optional model.
+  String. The Gemini model ID (e.g., `"gemini-1.5-flash"`).
 
 - `validation_mode`:
 
-  String. "warning" or "strict".
+  String. Either `"warning"` or `"strict"`.
 
 - `working_dir`:
 
-  String. Optional. Path to isolated Git worktree.
+  String. Optional. Path to an isolated git worktree where the CLI will
+  execute.
 
 - `repo_root`:
 
-  String. Path to the main repository root. Call the LLM
+  String. Optional. Path to the main repository to enable cross-worktree
+  context. Call the LLM
 
 ------------------------------------------------------------------------
 
@@ -134,7 +145,13 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-driver <- GeminiCLIDriver$new()
-driver$call("Hello, Gemini")
+# Standard CLI-based agent
+driver <- GeminiCLIDriver$new(model = "gemini-1.5-pro")
+
+# Call with specific CLI flags (e.g., allowing specific tools)
+response <- driver$call(
+  prompt = "List all files in the current directory.",
+  cli_opts = list(allowed_tools = "ls,grep")
+)
 } # }
 ```

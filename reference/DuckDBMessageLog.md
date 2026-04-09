@@ -1,11 +1,12 @@
 # DuckDB Message Log R6 Class
 
-Persists messages to the master DuckDB database. Maintains an open
-connection for efficiency.
+A persistent implementation of `MessageLog` that writes messages to a
+centralized DuckDB database. This is the recommended logger for
+production and audit-heavy workflows.
 
 ## Value
 
-A \`DuckDBMessageLog\` object.
+A `DuckDBMessageLog` object.
 
 ## Super class
 
@@ -46,11 +47,13 @@ Initialize DuckDBMessageLog.
 
 - `db_path`:
 
-  String.
+  String. Path to the DuckDB file. If the file does not exist, it will
+  be created upon the first message log. Defaults to the master
+  `bot_history.duckdb`.
 
 #### Returns
 
-A new \`DuckDBMessageLog\` object.
+A new `DuckDBMessageLog` object.
 
 ------------------------------------------------------------------------
 
@@ -106,6 +109,11 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-log <- DuckDBMessageLog$new(session_id = "test")
+# Initialize a logger pointing to the default HydraR database
+audit_log <- DuckDBMessageLog$new(
+  db_path = "~/.gemini/memory/audit.duckdb"
+)
+
+# Messages are stored in the 'agent_messages' table
 } # }
 ```

@@ -1,10 +1,17 @@
 # Anthropic API Driver
 
-Implementation of the Anthropic Messages API.
+A specialized `AgentDriver` for the Anthropic Messages API, providing
+access to the Claude family of models.
 
 ## Value
 
-An \`AnthropicAPIDriver\` object.
+An `AnthropicAPIDriver` object.
+
+## Details
+
+**Setup**: To use this driver, you must set the `ANTHROPIC_API_KEY`
+environment variable. It is recommended to add this to your `.Renviron`
+file: `ANTHROPIC_API_KEY="sk-ant-..."`
 
 ## Super class
 
@@ -56,23 +63,23 @@ Initialize AnthropicAPIDriver
 
 - `id`:
 
-  String. Unique identifier.
+  String. Unique identifier for this driver instance.
 
 - `model`:
 
-  String. Model name.
+  String. The Anthropic model ID (e.g., `"claude-3-sonnet"`).
 
 - `validation_mode`:
 
-  String. "warning" or "strict".
+  String. Driver validation strictness level.
 
 - `working_dir`:
 
-  String. Optional. Path to worktree.
+  String. Optional. Base directory for file-system operations.
 
 #### Returns
 
-A new \`AnthropicAPIDriver\` object. Get Capabilities
+A new `AnthropicAPIDriver` object. Get Capabilities
 
 ------------------------------------------------------------------------
 
@@ -146,7 +153,13 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-driver <- AnthropicAPIDriver$new()
-driver$call("Hello, Anthropic")
+# Ensure ANTHROPIC_API_KEY is set in .Renviron
+driver <- AnthropicAPIDriver$new(model = "claude-3-opus-20240229")
+
+response <- driver$call(
+  prompt = "Write a poem about recursive graphs.",
+  cli_opts = list(temperature = 0)
+)
+message(response)
 } # }
 ```

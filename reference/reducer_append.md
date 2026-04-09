@@ -1,7 +1,8 @@
 # Built-in Reducer: Append
 
-Appends new elements to a vector or list. For large accumulations, users
-should consider using lists and flattening later.
+A functional reducer that appends new elements to an existing vector or
+list. This is the standard pattern for accumulating results or logs
+across multiple agent steps.
 
 ## Usage
 
@@ -13,20 +14,24 @@ reducer_append(current, new)
 
 - current:
 
-  The current state value.
+  The current value in the state.
 
 - new:
 
-  The new value to append.
+  The new value to be added.
 
 ## Value
 
-The combined value.
+A combined vector or list containing both `current` and `new`.
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-reducer_append(1, 2)
+# Used in AgentState initialization
+state <- AgentState$new(
+  initial_data = list(logs = list()),
+  reducers = list(logs = reducer_append)
+)
 } # }
 ```

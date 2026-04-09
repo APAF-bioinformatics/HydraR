@@ -1,10 +1,16 @@
 # Copilot CLI Driver R6 Class
 
-Driver for the 'gh copilot' CLI tool.
+A specialized `AgentDriver` for the GitHub `gh copilot` CLI extension.
 
 ## Value
 
-A \`CopilotCLIDriver\` object.
+A `CopilotCLIDriver` object.
+
+## Details
+
+**Setup**: Requires the GitHub CLI (`gh`) and the `copilot` extension
+(`gh extension install github/gh-copilot`). Must be authenticated via
+`gh auth login`.
 
 ## Super class
 
@@ -108,7 +114,10 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
+# Use GitHub Copilot in the CLI
 driver <- CopilotCLIDriver$new()
-driver$call("Write a simple function")
+
+# Suggest a complex regex for email validation
+response <- driver$call("Create a regex for validating RFC-5322 emails.")
 } # }
 ```

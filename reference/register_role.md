@@ -1,6 +1,8 @@
 # Register an LLM Role (System Prompt)
 
-Register an LLM Role (System Prompt)
+Stores a persistent system prompt or "identity" in the registry. This is
+useful for centralizing agent personas so they can be reused across
+multiple DAGs or workflows.
 
 ## Usage
 
@@ -12,11 +14,12 @@ register_role(name, prompt_text)
 
 - name:
 
-  String. Unique identifier for the role.
+  String. A unique, logic-friendly identifier for the role (e.g.,
+  `"critic"`).
 
 - prompt_text:
 
-  String. The system prompt text.
+  String. The full text of the system prompt the LLM should assume.
 
 ## Value
 
@@ -26,6 +29,9 @@ The registry environment (invisibly).
 
 ``` r
 if (FALSE) { # \dontrun{
-register_role("my_role", "You are a helper.")
+register_role(
+  name = "r_developer",
+  prompt_text = "You are an expert R developer specializing in R6 and S4."
+)
 } # }
 ```

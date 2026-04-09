@@ -1,11 +1,20 @@
 # Agent Graph R6 Class
 
-Defines and executes a Directed Graph of AgentNodes. Supports both pure
-DAG execution (parallel) and iterative loops via conditional edges.
+The core orchestrator in HydraR, `AgentDAG` defines and executes a
+Directed Graph of `AgentNode` objects. It supports:
+
+- **Pure DAGs**: Parallel execution using `furrr`.
+
+- **Cycles & Loops**: Iterative execution via conditional edges.
+
+- **State Isolation**: Parallel branch execution in isolated git
+  worktrees.
+
+- **Persistence**: Automatic state checkpointing and restoration.
 
 ## Value
 
-An \`AgentDAG\` R6 object.
+An `AgentDAG` R6 object.
 
 ## Public fields
 
@@ -93,15 +102,24 @@ An \`AgentDAG\` R6 object.
 
 ### Method `new()`
 
-Initialize AgentDAG Set Start Node(s)
+Initialize AgentDAG
 
 #### Usage
 
     AgentDAG$new()
 
+#### Returns
+
+A new `AgentDAG` instance with empty node and edge lists.
+
 ------------------------------------------------------------------------
 
 ### Method `set_start_node()`
+
+Set Start Node(s) Explicitly defines the entry point(s) of the graph. If
+not called, the engine defaults to nodes with an in-degree of 0.
+Required for graphs with cycles or where execution must start at a
+specific node.
 
 #### Usage
 
@@ -111,15 +129,18 @@ Initialize AgentDAG Set Start Node(s)
 
 - `node_ids`:
 
-  Character vector of node IDs.
+  Character vector. A vector of one or more node IDs. These nodes must
+  already exist in the DAG (added via `add_node`).
 
 #### Returns
 
-The AgentDAG object (invisibly). Add a Node
+The `AgentDAG` object (invisibly).
 
 ------------------------------------------------------------------------
 
 ### Method [`add_node()`](https://rich-iannone.github.io/DiagrammeR/reference/add_node.html)
+
+Add a Node Registers an `AgentNode` object into the graph.
 
 #### Usage
 
@@ -129,15 +150,19 @@ The AgentDAG object (invisibly). Add a Node
 
 - `node`:
 
-  AgentNode object.
+  AgentNode. An instance of `AgentNode` or a subclass (e.g.,
+  `AgentLLMNode`). The ID of the node must be unique within the DAG.
 
 #### Returns
 
-The AgentDAG object (invisibly). Add an Edge
+The `AgentDAG` object (invisibly).
 
 ------------------------------------------------------------------------
 
 ### Method [`add_edge()`](https://rich-iannone.github.io/DiagrammeR/reference/add_edge.html)
+
+Add an Edge Creates a directed connection between nodes. Also supports
+specialized edge types (Error, Test, Fail) via labeling.
 
 #### Usage
 
@@ -147,23 +172,34 @@ The AgentDAG object (invisibly). Add an Edge
 
 - `from`:
 
-  String or character vector of node IDs.
+  String or Character vector. The source node ID(s).
 
 - `to`:
 
-  String node ID.
+  String. The destination node ID.
 
 - `label`:
 
-  Optional string label for the edge.
+  String. Optional label for the edge. In HydraR, certain labels trigger
+  logic:
+
+  - `"error"` or `"failover"`: Creates an error edge.
+
+  - `"Test"`: Creates a conditional edge (true path).
+
+  - `"Fail"`: Creates a conditional edge (false path).
 
 #### Returns
 
-The AgentDAG object (invisibly). Add a Conditional Edge (Loop Support)
+The `AgentDAG` object (invisibly).
 
 ------------------------------------------------------------------------
 
 ### Method `add_conditional_edge()`
+
+Add a Conditional Edge (Loop Support) Adds branching logic to the graph.
+After the `from` node executes, the `test` function is evaluated against
+the node's result.
 
 #### Usage
 
@@ -178,24 +214,30 @@ The AgentDAG object (invisibly). Add a Conditional Edge (Loop Support)
 
 - `from`:
 
-  String node ID.
+  String. The ID of the source node.
 
 - `test`:
 
-  Function(output) -\> Logical.
+  Function. A predicate function that takes the node result list and
+  returns `TRUE` or `FALSE`.
 
 - `if_true`:
 
-  String node ID (next node if test is TRUE) or NULL.
+  String. Optional ID of the node to execute if the test passes.
 
 - `if_false`:
 
-  String node ID (next node if test is FALSE) or NULL. Add an Error Edge
-  (Failover Support)
+  String. Optional ID of the node to execute if the test fails.
+
+#### Returns
+
+The `AgentDAG` object (invisibly).
 
 ------------------------------------------------------------------------
 
 ### Method `add_error_edge()`
+
+Add an Error Edge (Failover Support)
 
 #### Usage
 
@@ -213,11 +255,17 @@ The AgentDAG object (invisibly). Add a Conditional Edge (Loop Support)
 
 #### Returns
 
-The AgentDAG object (invisibly). Run the Graph
+The AgentDAG object (invisibly).
 
 ------------------------------------------------------------------------
 
 ### Method `run()`
+
+Run the Graph The primary execution engine for the `AgentDAG`. It
+manages the orchestration lifecycle, including state initialization /
+recovery, worktree setup for isolation, and routing between nodes. It
+automatically switches between linear (parallel-capable) and iterative
+execution modes based on the graph's complexity.
 
 #### Usage
 
@@ -239,53 +287,73 @@ The AgentDAG object (invisibly). Run the Graph
 
 - `initial_state`:
 
-  List, AgentState object, or String. Optional if resuming.
+  List, AgentState, or String. The starting data for the workflow. Can
+  be a named list of R objects, an existing `AgentState` instance, or a
+  path to a checkpoint (if supported). Required unless resuming from a
+  checkpointer.
 
 - `max_steps`:
 
-  Integer. Maximum iterations to prevent infinite loops. Default is 25.
+  Integer. The maximum number of node executions allowed in a single
+  `run()` call. Prevents infinite loops in cyclic graphs. Default is 25.
 
 - `checkpointer`:
 
-  Checkpointer object. Optional.
+  Checkpointer. An optional `Checkpointer` R6 object. If provided, the
+  state is automatically saved after every node execution.
 
 - `thread_id`:
 
-  String. Identifier for the execution thread. Required if using
-  checkpointer.
+  String. A unique identifier for this execution "thread" or session.
+  Required if using a `checkpointer` to resolve the correct state from
+  storage.
 
 - `resume_from`:
 
-  String. Node ID to resume execution from.
+  String. Optional node ID. If provided (or found in a checkpoint),
+  execution will skip completed nodes and start from this point.
 
 - `use_worktrees`:
 
-  Logical. Whether to use isolated git worktrees for parallel branches.
+  Logical. Enable branch isolation. If `TRUE`, parallel branches are
+  executed in separate git worktrees, preventing file-system conflicts
+  between agents.
 
 - `repo_root`:
 
-  String. Path to the main git repository.
+  String. Path to the master git repository. Required if `use_worktrees`
+  is `TRUE`.
 
 - `cleanup_policy`:
 
-  String. "auto", "none", or "aggressive".
+  String. One of `"auto"` (default), `"none"`, or `"aggressive"`.
+  Determines how worktrees are removed after execution.
 
 - `fail_if_dirty`:
 
-  Logical. Whether to fail if repo has uncommitted changes.
+  Logical. If `TRUE`, execution fails if the `repo_root` has uncommitted
+  changes (recommended for reproducibility when using worktrees).
 
 - `packages`:
 
-  Character vector. Packages to load in parallel workers.
+  Character vector. A list of R packages to load on parallel worker
+  nodes (passed to `furrr`).
 
 - `...`:
 
-  Additional arguments passed to node run methods.
+  Additional arguments. Passed down to individual `node$run()` calls.
 
 #### Returns
 
-List of results for each node, and the final state. Internal: Linear DAG
-Execution
+A list containing:
+
+- `results`: A named list of each node's output.
+
+- `state`: The final `AgentState` object.
+
+- `status`: `"completed"` or `"paused"`.
+
+Internal: Linear DAG Execution
 
 ------------------------------------------------------------------------
 
@@ -381,11 +449,15 @@ Execution result list. Internal: Iterative Execution
 
 - `packages`:
 
-  Character vector. Packages to load in parallel workers.
+  Character vector. Packages to load in parallel workers. Visualize the
+  Graph
 
 ------------------------------------------------------------------------
 
 ### Method [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
+
+Generates a visual representation of the DAG using Mermaid or DOT
+syntax.
 
 #### Usage
 
@@ -401,33 +473,49 @@ Execution result list. Internal: Iterative Execution
 
 - `type`:
 
-  String. Type of plot ("mermaid" or "grViz").
+  String. Either `"mermaid"` (default) for web-native rendering or
+  `"grViz"` for DiagrammeR/Graphviz.
 
 - `status`:
 
-  Logical. If TRUE, styling is applied to nodes/edges based on results.
+  Logical. If `TRUE`, colors nodes based on the results in the current
+  trace log (Green: Success, Red: Failed, Yellow: Paused).
 
 - `details`:
 
-  Logical. If TRUE, node parameters are serialized into labels.
+  Logical. If `TRUE`, injects node parameters into the labels.
 
 - `include_params`:
 
-  Character vector. Optional whitelist of parameters to show.
+  Character vector. Optional whitelist of parameter names to display
+  when `details` is `TRUE`.
 
 - `show_edge_labels`:
 
-  Logical. Whether to show labels on edges.
+  Logical. Whether to display labels (e.g., "Test", "Fail") on edges.
 
 #### Returns
 
-The mermaid/dot string (invisibly). Get Terminal Nodes
+The Mermaid/DOT source string (invisibly).
+
+#### Examples
+
+    \dontrun{
+    dag <- dag_create()
+    dag$add_node(AgentNode$new("A"))
+    dag$add_node(AgentNode$new("B"))
+    dag$add_edge("A", "B", label = "proceed")
+
+    # Generate Mermaid string
+    m_src <- dag$plot(type = "mermaid", show_edge_labels = TRUE)
+    cat(m_src)
+    }
 
 ------------------------------------------------------------------------
 
 ### Method `get_terminal_nodes()`
 
-Identifies nodes with no outgoing edges.
+Get Terminal Nodes Identifies nodes with no outgoing edges.
 
 #### Usage
 
@@ -435,13 +523,13 @@ Identifies nodes with no outgoing edges.
 
 #### Returns
 
-Character vector of node IDs. Get Start Nodes (Roots)
+Character vector of node IDs.
 
 ------------------------------------------------------------------------
 
 ### Method `get_start_nodes()`
 
-Identifies nodes with no incoming edges.
+Get Start Nodes (Roots) Identifies nodes with no incoming edges.
 
 #### Usage
 
@@ -455,20 +543,34 @@ Character vector of node IDs. Compile the Graph
 
 ### Method `compile()`
 
-Rebuilds the internal graph representation and performs validation
-checks.
+Rebuilds the internal `igraph` representation and performs validation
+checks such as cycle detection, start node disambiguation, and
+reachability analysis. This must be called before `run()`.
 
 #### Usage
 
     AgentDAG$compile()
 
+#### Details
+
+Compilation will throw errors if:
+
+- Cycles are found in a pure DAG (no conditional edges).
+
+- Multiple root nodes are found without an explicit `start_node`.
+
+- Node IDs used in edges do not exist.
+
 #### Returns
 
-The AgentDAG object (invisibly). Save the Execution Trace
+The `AgentDAG` object (invisibly). Save the Execution Trace
 
 ------------------------------------------------------------------------
 
 ### Method `save_trace()`
+
+Exports the detailed telemetry from the last execution (durations,
+status, outputs) to a JSON file.
 
 #### Usage
 
@@ -478,11 +580,18 @@ The AgentDAG object (invisibly). Save the Execution Trace
 
 - `file`:
 
-  String. Output path for the JSON trace. Create Graph from Mermaid
+  String. Path to the output JSON file. Defaults to `"dag_trace.json"`.
+
+#### Returns
+
+The `AgentDAG` object (invisibly). Create Graph from Mermaid
 
 ------------------------------------------------------------------------
 
 ### Method `from_mermaid()`
+
+A static-like method to populate a DAG from a Mermaid string using a
+custom node factory.
 
 #### Usage
 
@@ -492,15 +601,30 @@ The AgentDAG object (invisibly). Save the Execution Trace
 
 - `mermaid_str`:
 
-  String. Mermaid syntax.
+  String. A valid Mermaid graph definition (e.g., `"graph TD; A-->B"`).
 
 - `node_factory`:
 
-  Function(id, label, params) -\> AgentNode.
+  Function. A closure mapping Mermaid labels and parameters to
+  `AgentNode` instances. See
+  [`auto_node_factory`](https://github.com/APAF-bioinformatics/HydraR/reference/auto_node_factory.md)
+  for the standard implementation.
 
 #### Returns
 
-The AgentDAG object.
+The `AgentDAG` object (invisibly).
+
+#### Examples
+
+    \dontrun{
+    # Use a custom factory to map all nodes to Logic nodes
+    simple_factory <- function(id, label, params) {
+      AgentLogicNode$new(id = id, logic_fn = function(s) list(status="ok"))
+    }
+
+    dag <- AgentDAG$new()
+    dag$from_mermaid("graph LR; Start-->End", simple_factory)
+    }
 
 ------------------------------------------------------------------------
 
@@ -521,15 +645,60 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
-dag <- AgentDAG$new()
-node <- AgentLogicNode$new("start", function(state) list(status = "success"))
-dag$add_node(node)
 if (FALSE) { # \dontrun{
+# Define a simple linear workflow
 dag <- AgentDAG$new()
+
+# Define a logic function
+fetch_data <- function(state) {
+  list(status = "success", output = list(raw = "Some data"))
+}
+
+# Add nodes
+dag$add_node(AgentLogicNode$new("fetcher", logic_fn = fetch_data))
+dag_add_llm_node(
+  dag,
+  id = "analyzer",
+  role = "Analyze the data in the state.",
+  driver = GeminiCLIDriver$new()
+)
+
+# Connect nodes
+dag$add_edge("fetcher", "analyzer")
+
+# Compile and verify the graph
+dag$compile()
+
+# Execution requires an initial state
+results <- dag$run(initial_state = list(input_file = "raw.txt"))
+} # }
+
+## ------------------------------------------------
+## Method `AgentDAG$plot`
+## ------------------------------------------------
+
+if (FALSE) { # \dontrun{
+dag <- dag_create()
 dag$add_node(AgentNode$new("A"))
 dag$add_node(AgentNode$new("B"))
-dag$add_edge("A", "B")
-dag$set_start_node("A")
-dag$compile()
+dag$add_edge("A", "B", label = "proceed")
+
+# Generate Mermaid string
+m_src <- dag$plot(type = "mermaid", show_edge_labels = TRUE)
+cat(m_src)
+} # }
+
+## ------------------------------------------------
+## Method `AgentDAG$from_mermaid`
+## ------------------------------------------------
+
+if (FALSE) { # \dontrun{
+# Use a custom factory to map all nodes to Logic nodes
+simple_factory <- function(id, label, params) {
+  AgentLogicNode$new(id = id, logic_fn = function(s) list(status="ok"))
+}
+
+dag <- AgentDAG$new()
+dag$from_mermaid("graph LR; Start-->End", simple_factory)
 } # }
 ```

@@ -1,10 +1,17 @@
 # Ollama Driver R6 Class
 
-Driver for the 'ollama' CLI tool (local).
+A specialized `AgentDriver` for local execution of Open source models
+via the `ollama` CLI. Ideal for air-gapped or privacy-sensitive
+workflows.
 
 ## Value
 
-An \`OllamaDriver\` object.
+An `OllamaDriver` object.
+
+## Details
+
+**Setup**: Ensure the `ollama` server is running locally. You can
+specify the binary path via `options(HydraR.ollama_path = "...")`.
 
 ## Super class
 
@@ -149,7 +156,13 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-driver <- OllamaDriver$new()
-driver$call("Hello, Llama")
+# Use llama3 locally via Ollama
+driver <- OllamaDriver$new(model = "llama3")
+
+# Call with context size adjustments
+response <- driver$call(
+  prompt = "Summarize the R documentation for 'lapply'.",
+  cli_opts = list(num_ctx = 8192)
+)
 } # }
 ```
