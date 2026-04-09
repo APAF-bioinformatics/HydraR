@@ -9,14 +9,28 @@
 #' Gemini CLI Driver R6 Class
 #'
 #' @description
-#' Driver for the 'gemini' CLI tool.
+#' A specialized \code{AgentDriver} that invokes the Google \code{gemini} CLI
+#' tool. This is the preferred driver for workflows requiring local tool use
+#' and filesystem interaction via the Google-native MCP bridge.
 #'
-#' @importFrom R6 R6Class
-#' @return A `GeminiCLIDriver` object.
+#' @details
+#' \strong{Setup}: Requires the \code{gemini} CLI to be installed and in your
+#' PATH. You can override the binary path using:
+#' \code{options(HydraR.gemini_path = "/path/to/gemini")} or by setting the
+#' \code{HYDRAR_GEMINI_PATH} environment variable in your \code{.Renviron}.
+#'
+#' @return A \code{GeminiCLIDriver} object.
+#'
 #' @examples
 #' \dontrun{
-#' driver <- GeminiCLIDriver$new()
-#' driver$call("Hello, Gemini")
+#' # Standard CLI-based agent
+#' driver <- GeminiCLIDriver$new(model = "gemini-1.5-pro")
+#'
+#' # Call with specific CLI flags (e.g., allowing specific tools)
+#' response <- driver$call(
+#'   prompt = "List all files in the current directory.",
+#'   cli_opts = list(allowed_tools = "ls,grep")
+#' )
 #' }
 #' @export
 GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
@@ -26,11 +40,16 @@ GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
     model = NULL,
 
     #' @description Initialize GeminiCLIDriver
-    #' @param id Unique identifier.
-    #' @param model String. Optional model.
-    #' @param validation_mode String. "warning" or "strict".
-    #' @param working_dir String. Optional. Path to isolated Git worktree.
-    #' @param repo_root String. Path to the main repository root.
+    #' @param id String.
+    #' Unique identifier for this driver.
+    #' @param model String.
+    #' The Gemini model ID (e.g., \code{"gemini-1.5-flash"}).
+    #' @param validation_mode String.
+    #' Either \code{"warning"} or \code{"strict"}.
+    #' @param working_dir String.
+    #' Optional. Path to an isolated git worktree where the CLI will execute.
+    #' @param repo_root String.
+    #' Optional. Path to the main repository to enable cross-worktree context.
     initialize = function(id = "gemini_cli", model = "gemini-2.5-flash", validation_mode = "warning", working_dir = NULL, repo_root = NULL) {
       super$initialize(id, provider = "google", model_name = model, validation_mode = validation_mode, working_dir = working_dir, repo_root = repo_root)
       self$model <- model
@@ -127,14 +146,25 @@ GeminiCLIDriver <- R6::R6Class("GeminiCLIDriver",
 #' Ollama Driver R6 Class
 #'
 #' @description
-#' Driver for the 'ollama' CLI tool (local).
+#' A specialized \code{AgentDriver} for local execution of Open source models
+#' via the \code{ollama} CLI. Ideal for air-gapped or privacy-sensitive workflows.
 #'
-#' @importFrom R6 R6Class
-#' @return An `OllamaDriver` object.
+#' @details
+#' \strong{Setup}: Ensure the \code{ollama} server is running locally. You can
+#' specify the binary path via \code{options(HydraR.ollama_path = "...")}.
+#'
+#' @return An \code{OllamaDriver} object.
+#'
 #' @examples
 #' \dontrun{
-#' driver <- OllamaDriver$new()
-#' driver$call("Hello, Llama")
+#' # Use llama3 locally via Ollama
+#' driver <- OllamaDriver$new(model = "llama3")
+#'
+#' # Call with context size adjustments
+#' response <- driver$call(
+#'   prompt = "Summarize the R documentation for 'lapply'.",
+#'   cli_opts = list(num_ctx = 8192)
+#' )
 #' }
 #' @export
 OllamaDriver <- R6::R6Class("OllamaDriver",
@@ -218,13 +248,23 @@ OllamaDriver <- R6::R6Class("OllamaDriver",
 #' Anthropic CLI Driver
 #'
 #' @description
-#' Driver for the Anthropic `claude` (Claude Code) CLI.
+#' A specialized \code{AgentDriver} for the Anthropic \code{claude} (Claude Code)
+#' CLI. Optimized for terminal-based engineering tasks.
 #'
-#' @return An `AnthropicCLIDriver` object.
+#' @details
+#' \strong{Setup}: Requires \code{claude} (Anthropic CLI) to be installed and
+#' authenticated. Configure the path via \code{options(HydraR.claude_path = "...")}
+#' or in your \code{.Renviron}.
+#'
+#' @return An \code{AnthropicCLIDriver} object.
+#'
 #' @examples
 #' \dontrun{
-#' driver <- AnthropicCLIDriver$new()
-#' driver$call("Hello, Claude")
+#' # Initialize the Claude Code CLI driver
+#' driver <- AnthropicCLIDriver$new(model = "sonnet")
+#'
+#' # Claude CLI handles complex engineering tasks natively
+#' response <- driver$call("Refactor R/dag.R to use R6 private methods.")
 #' }
 #' @export
 AnthropicCLIDriver <- R6::R6Class(
@@ -306,14 +346,22 @@ AnthropicCLIDriver <- R6::R6Class(
 #' Copilot CLI Driver R6 Class
 #'
 #' @description
-#' Driver for the 'gh copilot' CLI tool.
+#' A specialized \code{AgentDriver} for the GitHub \code{gh copilot} CLI extension.
 #'
-#' @importFrom R6 R6Class
-#' @return A `CopilotCLIDriver` object.
+#' @details
+#' \strong{Setup}: Requires the GitHub CLI (\code{gh}) and the \code{copilot}
+#' extension (\code{gh extension install github/gh-copilot}). Must be
+#' authenticated via \code{gh auth login}.
+#'
+#' @return A \code{CopilotCLIDriver} object.
+#'
 #' @examples
 #' \dontrun{
+#' # Use GitHub Copilot in the CLI
 #' driver <- CopilotCLIDriver$new()
-#' driver$call("Write a simple function")
+#'
+#' # Suggest a complex regex for email validation
+#' response <- driver$call("Create a regex for validating RFC-5322 emails.")
 #' }
 #' @export
 CopilotCLIDriver <- R6::R6Class("CopilotCLIDriver",
@@ -381,13 +429,17 @@ CopilotCLIDriver <- R6::R6Class("CopilotCLIDriver",
 #' OpenAI Codex CLI Driver R6 Class
 #'
 #' @description
-#' Driver for the official `codex` CLI tool (v0.118+).
+#' A specialized \code{AgentDriver} for the official \code{codex} CLI tool (v0.118+).
+#' This model is legacy but still supported for specific code-generation tasks.
 #'
-#' @return An `OpenAICodexCLIDriver` object.
+#' @return An \code{OpenAICodexCLIDriver} object.
+#'
 #' @examples
 #' \dontrun{
+#' # Ensure Codex CLI is installed and authenticated
 #' driver <- OpenAICodexCLIDriver$new()
-#' driver$call("Hello, Codex")
+#'
+#' response <- driver$call("Create a data.frame with 5 rows and 2 columns.")
 #' }
 #' @export
 OpenAICodexCLIDriver <- R6::R6Class(

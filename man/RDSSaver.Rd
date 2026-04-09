@@ -4,16 +4,21 @@
 \alias{RDSSaver}
 \title{RDS File Checkpointer}
 \value{
-An `RDSSaver` object.
+An \code{RDSSaver} object.
 }
 \description{
-Lightweight file-based checkpointer using base R `saveRDS`/`readRDS`.
-Each thread is persisted as a separate `.rds` file in the specified directory.
-No external dependencies required.
+A lightweight, file-based checkpointer that uses R's native \code{saveRDS}
+and \code{readRDS} functions. Each thread is saved as an individual \code{.rds}
+file in a specified directory.
 }
 \examples{
 \dontrun{
-saver <- RDSSaver$new()
+# Save checkpoints to a local directory
+saver <- RDSSaver$new(dir = "my_checkpoints")
+
+# Later, resume execution using the same thread_id
+dag <- dag_create(checkpointer = saver)
+dag$run(thread_id = "session_001")
 }
 }
 \section{Super class}{

@@ -2,31 +2,48 @@
 % Please edit documentation in R/factory.R
 \name{add_llm_node}
 \alias{add_llm_node}
-\title{Create an LLM Agent Node easily}
+\title{Create an LLM Agent Node}
 \usage{
 add_llm_node(id, role, driver, model = NULL, cli_opts = list(), ...)
 }
 \arguments{
-\item{id}{String. Unique identifier for the node.}
+\item{id}{String.
+A unique identifier for the node within the DAG.}
 
-\item{role}{String. System prompt/role for the agent.}
+\item{role}{String.
+The system prompt or identity the LLM should assume (e.g., "Python Developer").}
 
-\item{driver}{AgentDriver object.}
+\item{driver}{AgentDriver.
+An R6 driver object (e.g., \code{GeminiCLIDriver}) that handles the LLM API.}
 
-\item{model}{String. Optional model override.}
+\item{model}{String.
+Optional model name override (e.g., "gpt-4"). Defaults to driver default.}
 
-\item{cli_opts}{List. Optional CLI options.}
+\item{cli_opts}{List.
+Optional parameters passed to the underlying CLI or API call.}
 
-\item{...}{Additional arguments passed to AgentLLMNode$new()}
+\item{...}{Additional arguments.
+Passed directly to the \code{AgentLLMNode$new()} constructor. Useful for
+setting \code{tools}, \code{prompt_builder}, or \code{output_path}.}
 }
 \value{
-AgentLLMNode object.
+An \code{AgentLLMNode} object.
 }
 \description{
-Create an LLM Agent Node easily
+A convenience wrapper to instantiate an \code{AgentLLMNode}. Useful for
+functional-style DAG construction.
 }
 \examples{
 \dontrun{
-add_llm_node("llm1", "Assistant", AnthropicAPIDriver$new())
+# NOTE: Ensure ANTHROPIC_API_KEY is set in your .Renviron file for this example.
+
+driver <- AnthropicAPIDriver$new()
+node <- add_llm_node(
+  id = "coder",
+  role = "You are an expert R programmer.",
+  driver = driver,
+  model = "claude-3-sonnet",
+  output_path = "scripts/generated_code.R"
+)
 }
 }

@@ -4,15 +4,19 @@
 \alias{MemorySaver}
 \title{MemorySaver Checkpointer}
 \value{
-A `MemorySaver` object.
+A \code{MemorySaver} object.
 }
 \description{
-In-memory implementation of the Checkpointer interface.
-Stores checkpoints in an R environment.
+An in-memory implementation of the \code{Checkpointer} interface. Stores
+checkpoints in a dedicated R environment. This is useful for testing or
+short-lived sessions where persistence to disk is not required.
 }
 \examples{
 \dontrun{
 saver <- MemorySaver$new()
+dag <- dag_create(checkpointer = saver)
+
+# State is saved in saver$storage environment
 }
 }
 \section{Super class}{

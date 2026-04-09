@@ -7,24 +7,45 @@
 auto_node_factory(driver_registry = NULL)
 }
 \arguments{
-\item{driver_registry}{Optional DriverRegistry object. Defaults to global.}
+\item{driver_registry}{DriverRegistry.
+An optional registry used to resolve drivers specified in Mermaid
+annotations (e.g., \code{driver=openai_api}).}
 }
 \value{
-A function(id, label, params) -> AgentNode.
+A function that takes \code{(id, label, params)} and returns an \code{AgentNode}.
 }
 \description{
-Returns a node factory closure that resolves `type=` annotations
-directly from Mermaid node parameters. Eliminates the need for
-hand-written factory functions per workflow.
+Generates a closure that can resolve Mermaid node labels into fully
+instantiated \code{AgentNode} objects based on inline annotations.
+}
+\details{
+The factory supports the following \code{type=} parameters in Mermaid labels:
+\itemize{
+  \item \code{llm}: Creates an \code{AgentLLMNode}. Requires \code{role} or \code{role_id}.
+  \item \code{logic}: Creates an \code{AgentLogicNode}. Requires \code{logic_id}.
+  \item \code{router}: Creates an \code{AgentRouterNode}. Requires \code{logic_id}.
+  \item \code{map}: Creates an \code{AgentMapNode}. Requires \code{logic_id} and \code{map_key}.
+}
 }
 \examples{
 \dontrun{
+# Define a workflow entirely in Mermaid syntax
 mermaid_src <- '
 graph TD
   A["Researcher | type=llm | role=Research Assistant | driver=gemini"]
   B["Validator | type=logic | logic_id=validate_fn"]
   A --> B
 '
-dag <- AgentDAG$from_mermaid(mermaid_src, node_factory = auto_node_factory())
+
+# Define the logic referenced in Mermaid
+register_logic("validate_fn", function(state) {
+  list(status = "success", output = list(ok = TRUE))
+})
+
+# Spawn the DAG using the automatic factory
+dag <- AgentDAG$from_mermaid(
+  mermaid_src,
+  node_factory = auto_node_factory()
+)
 }
 }

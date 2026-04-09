@@ -2,25 +2,40 @@
 % Please edit documentation in R/factory.R
 \name{add_logic_node}
 \alias{add_logic_node}
-\title{Create an R Logic Node easily}
+\title{Create an R Logic Node}
 \usage{
 add_logic_node(id, logic_fn, ...)
 }
 \arguments{
-\item{id}{String. Unique identifier for the node.}
+\item{id}{String.
+A unique identifier for the node.}
 
-\item{logic_fn}{Function. Pure R function taking an AgentState object.}
+\item{logic_fn}{Function.
+An R function that accepts an \code{AgentState} object as its first argument
+and returns a list with at least \code{status} and \code{output}.}
 
-\item{...}{Additional arguments passed to AgentLogicNode$new()}
+\item{...}{Additional arguments.
+Passed directly to the \code{AgentLogicNode$new()} constructor.}
 }
 \value{
-AgentLogicNode object.
+An \code{AgentLogicNode} object.
 }
 \description{
-Create an R Logic Node easily
+A convenience wrapper to instantiate an \code{AgentLogicNode}. Nodes created
+this way execute pure R code rather than calling an LLM.
 }
 \examples{
 \dontrun{
-add_logic_node("logic1", function() print("Logic"))
+# Define a logic function that validates a previous node's output
+validator <- function(state) {
+  raw_data <- state$get("data_fetcher")
+  if (length(raw_data) > 0) {
+    list(status = "success", output = list(valid = TRUE))
+  } else {
+    list(status = "failed", output = list(valid = FALSE))
+  }
+}
+
+node <- add_logic_node("data_validator", validator)
 }
 }

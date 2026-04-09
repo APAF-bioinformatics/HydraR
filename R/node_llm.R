@@ -9,12 +9,27 @@
 #' Agent LLM Node R6 Class
 #'
 #' @description
-#' A node that uses an LLM driver for execution.
+#' A specialized \code{AgentNode} that leverages a Large Language Model (LLM)
+#' to generate outputs from prompts. It manages prompt construction by combining
+#' a persistent \code{role} (system prompt) with dynamic context from the
+#' \code{AgentState}. It also handles tool injection and automatic context
+#' discovery from local files (e.g., \code{agents.md}, \code{skills.md}).
 #'
-#' @return An `AgentLLMNode` object.
+#' @return An \code{AgentLLMNode} object.
 #' @examples
 #' \dontrun{
-#' node <- AgentLLMNode$new("chat", role = "helpful assistant")
+#' # NOTE: Set ANTHROPIC_API_KEY in your .Renviron file
+#' driver <- AnthropicAPIDriver$new()
+#'
+#' # Create a node with a prompt builder that pulls from state
+#' node <- AgentLLMNode$new(
+#'   id = "summarizer",
+#'   role = "You are a concise summarizer.",
+#'   driver = driver,
+#'   prompt_builder = function(state) {
+#'     sprintf("Summarise this text: %s", state$get("input_text"))
+#'   }
+#' )
 #' }
 #' @importFrom R6 R6Class
 #' @export
@@ -42,17 +57,29 @@ AgentLLMNode <- R6::R6Class("AgentLLMNode",
 
 
     #' @description Initialize AgentLLMNode
-    #' @param id Unique identifier.
-    #' @param role System prompt.
-    #' @param driver AgentDriver object.
-    #' @param model String. Optional model override.
-    #' @param cli_opts List. Optional default CLI options.
-    #' @param prompt_builder Function(state) -> String.
-    #' @param tools List of AgentTool objects.
-    #' @param label Optional human-readable name.
-    #' @param params Optional list of parameters.
-    #' @param agents_files Optional character vector of paths to agents.md files.
-    #' @param skills_files Optional character vector of paths to skills.md files.
+    #' @param id String.
+    #' Unique identifier for the node.
+    #' @param role String.
+    #' The primary system prompt or persona the LLM should assume.
+    #' @param driver AgentDriver.
+    #' An instance of an \code{AgentDriver} subclass (CLI or API based).
+    #' @param model String.
+    #' Optional. The specific model to use (overrides driver default).
+    #' @param cli_opts List.
+    #' Optional. Named list of parameters for the LLM call (e.g., temperature).
+    #' @param prompt_builder Function.
+    #' Optional. A function that takes an \code{AgentState} and returns a
+    #' string prompt. If omitted, the node serializes the entire state as JSON.
+    #' @param tools List.
+    #' A list of \code{AgentTool} objects available for the agent to use.
+    #' @param label String.
+    #' Human-readable name for visualization.
+    #' @param params List.
+    #' Additional configuration (e.g., \code{output_format="r"}).
+    #' @param agents_files Character vector.
+    #' Optional paths to markdown files containing agent interaction guidelines.
+    #' @param skills_files Character vector.
+    #' Optional paths to markdown files containing specialized tool instructions.
     initialize = function(id, role, driver, model = NULL, cli_opts = list(), prompt_builder = NULL, tools = list(), label = NULL, params = list(), agents_files = NULL, skills_files = NULL) {
       super$initialize(id, label = label, params = params)
       stopifnot(is.character(role) && length(role) == 1)
@@ -70,9 +97,17 @@ AgentLLMNode <- R6::R6Class("AgentLLMNode",
 
 
     #' Run the LLM Node
-    #' @param state AgentState object.
+    #'
+    #' @description
+    #' Executes the LLM call. This method handles prompt construction,
+    #' tool injection, context file discovery, and driver invocation.
+    #'
+    #' @param state AgentState.
+    #' The centralized state object for the workflow.
     #' @param ... Additional arguments.
-    #' @return List with status, output, and metadata.
+    #' Passed through to the driver's \code{call()} method.
+    #' @return A list containing \code{status}, \code{output} (the LLM response),
+    #' \code{raw} (the full driver response), and meta-information.
     run = function(state, ...) {
       # Determine prompt suffix
       input_text <- if (!is.null(self$prompt_builder)) {

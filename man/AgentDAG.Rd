@@ -4,23 +4,74 @@
 \alias{AgentDAG}
 \title{Agent Graph R6 Class}
 \value{
-An `AgentDAG` R6 object.
+An \code{AgentDAG} R6 object.
 }
 \description{
-Defines and executes a Directed Graph of AgentNodes.
-Supports both pure DAG execution (parallel) and iterative loops via conditional edges.
+The core orchestrator in HydraR, \code{AgentDAG} defines and executes a
+Directed Graph of \code{AgentNode} objects. It supports:
+\itemize{
+  \item \strong{Pure DAGs}: Parallel execution using \code{furrr}.
+  \item \strong{Cycles & Loops}: Iterative execution via conditional edges.
+  \item \strong{State Isolation}: Parallel branch execution in isolated git worktrees.
+  \item \strong{Persistence}: Automatic state checkpointing and restoration.
+}
 }
 \examples{
-dag <- AgentDAG$new()
-node <- AgentLogicNode$new("start", function(state) list(status = "success"))
-dag$add_node(node)
 \dontrun{
+# Define a simple linear workflow
 dag <- AgentDAG$new()
+
+# Define a logic function
+fetch_data <- function(state) {
+  list(status = "success", output = list(raw = "Some data"))
+}
+
+# Add nodes
+dag$add_node(AgentLogicNode$new("fetcher", logic_fn = fetch_data))
+dag_add_llm_node(
+  dag,
+  id = "analyzer",
+  role = "Analyze the data in the state.",
+  driver = GeminiCLIDriver$new()
+)
+
+# Connect nodes
+dag$add_edge("fetcher", "analyzer")
+
+# Compile and verify the graph
+dag$compile()
+
+# Execution requires an initial state
+results <- dag$run(initial_state = list(input_file = "raw.txt"))
+}
+
+## ------------------------------------------------
+## Method `AgentDAG$plot`
+## ------------------------------------------------
+
+\dontrun{
+dag <- dag_create()
 dag$add_node(AgentNode$new("A"))
 dag$add_node(AgentNode$new("B"))
-dag$add_edge("A", "B")
-dag$set_start_node("A")
-dag$compile()
+dag$add_edge("A", "B", label = "proceed")
+
+# Generate Mermaid string
+m_src <- dag$plot(type = "mermaid", show_edge_labels = TRUE)
+cat(m_src)
+}
+
+## ------------------------------------------------
+## Method `AgentDAG$from_mermaid`
+## ------------------------------------------------
+
+\dontrun{
+# Use a custom factory to map all nodes to Logic nodes
+simple_factory <- function(id, label, params) {
+  AgentLogicNode$new(id = id, logic_fn = function(s) list(status="ok"))
+}
+
+dag <- AgentDAG$new()
+dag$from_mermaid("graph LR; Start-->End", simple_factory)
 }
 }
 \section{Public fields}{
@@ -76,16 +127,22 @@ dag$compile()
 \if{latex}{\out{\hypertarget{method-AgentDAG-new}{}}}
 \subsection{Method \code{new()}}{
 Initialize AgentDAG
-Set Start Node(s)
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentDAG$new()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A new \code{AgentDAG} instance with empty node and edge lists.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AgentDAG-set_start_node"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentDAG-set_start_node}{}}}
 \subsection{Method \code{set_start_node()}}{
+Set Start Node(s)
+Explicitly defines the entry point(s) of the graph. If not called, the
+engine defaults to nodes with an in-degree of 0. Required for graphs
+with cycles or where execution must start at a specific node.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentDAG$set_start_node(node_ids)}\if{html}{\out{</div>}}
 }
@@ -93,19 +150,22 @@ Set Start Node(s)
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{node_ids}}{Character vector of node IDs.}
+\item{\code{node_ids}}{Character vector.
+A vector of one or more node IDs. These nodes must already exist in the
+DAG (added via \code{add_node}).}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-The AgentDAG object (invisibly).
-Add a Node
+The \code{AgentDAG} object (invisibly).
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AgentDAG-add_node"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentDAG-add_node}{}}}
 \subsection{Method \code{add_node()}}{
+Add a Node
+Registers an \code{AgentNode} object into the graph.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentDAG$add_node(node)}\if{html}{\out{</div>}}
 }
@@ -113,19 +173,23 @@ Add a Node
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{node}}{AgentNode object.}
+\item{\code{node}}{AgentNode.
+An instance of \code{AgentNode} or a subclass (e.g., \code{AgentLLMNode}).
+The ID of the node must be unique within the DAG.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-The AgentDAG object (invisibly).
-Add an Edge
+The \code{AgentDAG} object (invisibly).
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AgentDAG-add_edge"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentDAG-add_edge}{}}}
 \subsection{Method \code{add_edge()}}{
+Add an Edge
+Creates a directed connection between nodes. Also supports specialized
+edge types (Error, Test, Fail) via labeling.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentDAG$add_edge(from, to, label = NULL)}\if{html}{\out{</div>}}
 }
@@ -133,23 +197,33 @@ Add an Edge
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{from}}{String or character vector of node IDs.}
+\item{\code{from}}{String or Character vector.
+The source node ID(s).}
 
-\item{\code{to}}{String node ID.}
+\item{\code{to}}{String.
+The destination node ID.}
 
-\item{\code{label}}{Optional string label for the edge.}
+\item{\code{label}}{String.
+Optional label for the edge. In HydraR, certain labels trigger logic:
+\itemize{
+  \item \code{"error"} or \code{"failover"}: Creates an error edge.
+  \item \code{"Test"}: Creates a conditional edge (true path).
+  \item \code{"Fail"}: Creates a conditional edge (false path).
+}}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-The AgentDAG object (invisibly).
-Add a Conditional Edge (Loop Support)
+The \code{AgentDAG} object (invisibly).
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AgentDAG-add_conditional_edge"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentDAG-add_conditional_edge}{}}}
 \subsection{Method \code{add_conditional_edge()}}{
+Add a Conditional Edge (Loop Support)
+Adds branching logic to the graph. After the \code{from} node executes,
+the \code{test} function is evaluated against the node's result.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentDAG$add_conditional_edge(
   from,
@@ -162,22 +236,30 @@ Add a Conditional Edge (Loop Support)
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{from}}{String node ID.}
+\item{\code{from}}{String.
+The ID of the source node.}
 
-\item{\code{test}}{Function(output) -> Logical.}
+\item{\code{test}}{Function.
+A predicate function that takes the node result list and returns
+\code{TRUE} or \code{FALSE}.}
 
-\item{\code{if_true}}{String node ID (next node if test is TRUE) or NULL.}
+\item{\code{if_true}}{String.
+Optional ID of the node to execute if the test passes.}
 
-\item{\code{if_false}}{String node ID (next node if test is FALSE) or NULL.
-Add an Error Edge (Failover Support)}
+\item{\code{if_false}}{String.
+Optional ID of the node to execute if the test fails.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{AgentDAG} object (invisibly).
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AgentDAG-add_error_edge"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentDAG-add_error_edge}{}}}
 \subsection{Method \code{add_error_edge()}}{
+Add an Error Edge (Failover Support)
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentDAG$add_error_edge(from, to)}\if{html}{\out{</div>}}
 }
@@ -193,13 +275,18 @@ Add an Error Edge (Failover Support)}
 }
 \subsection{Returns}{
 The AgentDAG object (invisibly).
-Run the Graph
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AgentDAG-run"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentDAG-run}{}}}
 \subsection{Method \code{run()}}{
+Run the Graph
+The primary execution engine for the \code{AgentDAG}. It manages the orchestration
+lifecycle, including state initialization / recovery, worktree setup for
+isolation, and routing between nodes. It automatically switches between
+linear (parallel-capable) and iterative execution modes based on the
+graph's complexity.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentDAG$run(
   initial_state = NULL,
@@ -219,32 +306,57 @@ Run the Graph
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{initial_state}}{List, AgentState object, or String. Optional if resuming.}
+\item{\code{initial_state}}{List, AgentState, or String.
+The starting data for the workflow. Can be a named list of R objects,
+an existing \code{AgentState} instance, or a path to a checkpoint (if supported).
+Required unless resuming from a checkpointer.}
 
-\item{\code{max_steps}}{Integer. Maximum iterations to prevent infinite loops. Default is 25.}
+\item{\code{max_steps}}{Integer.
+The maximum number of node executions allowed in a single \code{run()} call.
+Prevents infinite loops in cyclic graphs. Default is 25.}
 
-\item{\code{checkpointer}}{Checkpointer object. Optional.}
+\item{\code{checkpointer}}{Checkpointer.
+An optional \code{Checkpointer} R6 object. If provided, the state is
+automatically saved after every node execution.}
 
-\item{\code{thread_id}}{String. Identifier for the execution thread. Required if using checkpointer.}
+\item{\code{thread_id}}{String.
+A unique identifier for this execution "thread" or session. Required if
+using a \code{checkpointer} to resolve the correct state from storage.}
 
-\item{\code{resume_from}}{String. Node ID to resume execution from.}
+\item{\code{resume_from}}{String.
+Optional node ID. If provided (or found in a checkpoint), execution will
+skip completed nodes and start from this point.}
 
-\item{\code{use_worktrees}}{Logical. Whether to use isolated git worktrees for parallel branches.}
+\item{\code{use_worktrees}}{Logical.
+Enable branch isolation. If \code{TRUE}, parallel branches are executed
+in separate git worktrees, preventing file-system conflicts between agents.}
 
-\item{\code{repo_root}}{String. Path to the main git repository.}
+\item{\code{repo_root}}{String.
+Path to the master git repository. Required if \code{use_worktrees} is \code{TRUE}.}
 
-\item{\code{cleanup_policy}}{String. "auto", "none", or "aggressive".}
+\item{\code{cleanup_policy}}{String.
+One of \code{"auto"} (default), \code{"none"}, or \code{"aggressive"}.
+Determines how worktrees are removed after execution.}
 
-\item{\code{fail_if_dirty}}{Logical. Whether to fail if repo has uncommitted changes.}
+\item{\code{fail_if_dirty}}{Logical.
+If \code{TRUE}, execution fails if the \code{repo_root} has uncommitted
+changes (recommended for reproducibility when using worktrees).}
 
-\item{\code{packages}}{Character vector. Packages to load in parallel workers.}
+\item{\code{packages}}{Character vector.
+A list of R packages to load on parallel worker nodes (passed to \code{furrr}).}
 
-\item{\code{...}}{Additional arguments passed to node run methods.}
+\item{\code{...}}{Additional arguments.
+Passed down to individual \code{node$run()} calls.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-List of results for each node, and the final state.
+A list containing:
+\itemize{
+  \item \code{results}: A named list of each node's output.
+  \item \code{state}: The final \code{AgentState} object.
+  \item \code{status}: \code{"completed"} or \code{"paused"}.
+}
 Internal: Linear DAG Execution
 }
 }
@@ -319,7 +431,8 @@ Internal: Iterative Execution
 
 \item{\code{fail_if_dirty}}{Logical.}
 
-\item{\code{packages}}{Character vector. Packages to load in parallel workers.}
+\item{\code{packages}}{Character vector. Packages to load in parallel workers.
+Visualize the Graph}
 }
 \if{html}{\out{</div>}}
 }
@@ -328,6 +441,7 @@ Internal: Iterative Execution
 \if{html}{\out{<a id="method-AgentDAG-plot"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentDAG-plot}{}}}
 \subsection{Method \code{plot()}}{
+Generates a visual representation of the DAG using Mermaid or DOT syntax.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentDAG$plot(
   type = "mermaid",
@@ -341,27 +455,51 @@ Internal: Iterative Execution
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{type}}{String. Type of plot ("mermaid" or "grViz").}
+\item{\code{type}}{String.
+Either \code{"mermaid"} (default) for web-native rendering or \code{"grViz"}
+for DiagrammeR/Graphviz.}
 
-\item{\code{status}}{Logical. If TRUE, styling is applied to nodes/edges based on results.}
+\item{\code{status}}{Logical.
+If \code{TRUE}, colors nodes based on the results in the current trace log
+(Green: Success, Red: Failed, Yellow: Paused).}
 
-\item{\code{details}}{Logical. If TRUE, node parameters are serialized into labels.}
+\item{\code{details}}{Logical.
+If \code{TRUE}, injects node parameters into the labels.}
 
-\item{\code{include_params}}{Character vector. Optional whitelist of parameters to show.}
+\item{\code{include_params}}{Character vector.
+Optional whitelist of parameter names to display when \code{details} is \code{TRUE}.}
 
-\item{\code{show_edge_labels}}{Logical. Whether to show labels on edges.}
+\item{\code{show_edge_labels}}{Logical.
+Whether to display labels (e.g., "Test", "Fail") on edges.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-The mermaid/dot string (invisibly).
-Get Terminal Nodes
+The Mermaid/DOT source string (invisibly).
 }
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{\dontrun{
+dag <- dag_create()
+dag$add_node(AgentNode$new("A"))
+dag$add_node(AgentNode$new("B"))
+dag$add_edge("A", "B", label = "proceed")
+
+# Generate Mermaid string
+m_src <- dag$plot(type = "mermaid", show_edge_labels = TRUE)
+cat(m_src)
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AgentDAG-get_terminal_nodes"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentDAG-get_terminal_nodes}{}}}
 \subsection{Method \code{get_terminal_nodes()}}{
+Get Terminal Nodes
 Identifies nodes with no outgoing edges.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentDAG$get_terminal_nodes()}\if{html}{\out{</div>}}
@@ -369,13 +507,13 @@ Identifies nodes with no outgoing edges.
 
 \subsection{Returns}{
 Character vector of node IDs.
-Get Start Nodes (Roots)
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AgentDAG-get_start_nodes"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentDAG-get_start_nodes}{}}}
 \subsection{Method \code{get_start_nodes()}}{
+Get Start Nodes (Roots)
 Identifies nodes with no incoming edges.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentDAG$get_start_nodes()}\if{html}{\out{</div>}}
@@ -390,13 +528,24 @@ Compile the Graph
 \if{html}{\out{<a id="method-AgentDAG-compile"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentDAG-compile}{}}}
 \subsection{Method \code{compile()}}{
-Rebuilds the internal graph representation and performs validation checks.
+Rebuilds the internal \code{igraph} representation and performs validation
+checks such as cycle detection, start node disambiguation, and
+reachability analysis. This must be called before \code{run()}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentDAG$compile()}\if{html}{\out{</div>}}
 }
 
+\subsection{Details}{
+Compilation will throw errors if:
+\itemize{
+  \item Cycles are found in a pure DAG (no conditional edges).
+  \item Multiple root nodes are found without an explicit \code{start_node}.
+  \item Node IDs used in edges do not exist.
+}
+}
+
 \subsection{Returns}{
-The AgentDAG object (invisibly).
+The \code{AgentDAG} object (invisibly).
 Save the Execution Trace
 }
 }
@@ -404,6 +553,8 @@ Save the Execution Trace
 \if{html}{\out{<a id="method-AgentDAG-save_trace"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentDAG-save_trace}{}}}
 \subsection{Method \code{save_trace()}}{
+Exports the detailed telemetry from the last execution (durations,
+status, outputs) to a JSON file.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentDAG$save_trace(file = "dag_trace.json")}\if{html}{\out{</div>}}
 }
@@ -411,16 +562,22 @@ Save the Execution Trace
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{file}}{String. Output path for the JSON trace.
-Create Graph from Mermaid}
+\item{\code{file}}{String.
+Path to the output JSON file. Defaults to \code{"dag_trace.json"}.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{AgentDAG} object (invisibly).
+Create Graph from Mermaid
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AgentDAG-from_mermaid"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentDAG-from_mermaid}{}}}
 \subsection{Method \code{from_mermaid()}}{
+A static-like method to populate a DAG from a Mermaid string using a
+custom node factory.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentDAG$from_mermaid(mermaid_str, node_factory)}\if{html}{\out{</div>}}
 }
@@ -428,15 +585,35 @@ Create Graph from Mermaid}
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{mermaid_str}}{String. Mermaid syntax.}
+\item{\code{mermaid_str}}{String.
+A valid Mermaid graph definition (e.g., \code{"graph TD; A-->B"}).}
 
-\item{\code{node_factory}}{Function(id, label, params) -> AgentNode.}
+\item{\code{node_factory}}{Function.
+A closure mapping Mermaid labels and parameters to \code{AgentNode}
+instances. See \code{\link{auto_node_factory}} for the standard
+implementation.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-The AgentDAG object.
+The \code{AgentDAG} object (invisibly).
 }
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{\dontrun{
+# Use a custom factory to map all nodes to Logic nodes
+simple_factory <- function(id, label, params) {
+  AgentLogicNode$new(id = id, logic_fn = function(s) list(status="ok"))
+}
+
+dag <- AgentDAG$new()
+dag$from_mermaid("graph LR; Start-->End", simple_factory)
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AgentDAG-clone"></a>}}

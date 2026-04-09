@@ -8,13 +8,15 @@
 
 #' Message Log Base R6 Class
 #'
-#' @description Abstract base class for logging inter-agent messages.
-#' @importFrom R6 R6Class
-#' @return A `MessageLog` base object.
+#' @description
+#' An abstract base class defining the interface for message logging in HydraR.
+#' Subclasses provide concrete storage implementations (Memory, File, Database).
+#'
+#' @return A \code{MessageLog} base object.
 #' @examples
 #' \dontrun{
 #' # This is an abstract base class.
-#' # Instantiate a subclass like MemoryMessageLog.
+#' # Use MemoryMessageLog or DuckDBMessageLog instead.
 #' }
 #' @export
 MessageLog <- R6::R6Class("MessageLog",
@@ -35,11 +37,20 @@ MessageLog <- R6::R6Class("MessageLog",
 
 #' Memory Message Log R6 Class
 #'
-#' @description In-memory storage for messages.
-#' @return A `MemoryMessageLog` object.
+#' @description
+#' A non-persistent, in-memory implementation of \code{MessageLog}. Messages
+#' are stored in an internal list that exists only for the duration of the
+#' R session.
+#'
+#' @return A \code{MemoryMessageLog} object.
+#'
 #' @examples
 #' \dontrun{
+#' # Create a new memory logger
 #' log <- MemoryMessageLog$new()
+#'
+#' # The DAG will automatically call log$log() during execution
+#' dag <- dag_create(message_log = log)
 #' }
 #' @export
 MemoryMessageLog <- R6::R6Class("MemoryMessageLog",
@@ -64,11 +75,21 @@ MemoryMessageLog <- R6::R6Class("MemoryMessageLog",
 
 #' DuckDB Message Log R6 Class
 #'
-#' @description Persists messages to the master DuckDB database. Maintains an open connection for efficiency.
-#' @return A `DuckDBMessageLog` object.
+#' @description
+#' A persistent implementation of \code{MessageLog} that writes messages to a
+#' centralized DuckDB database. This is the recommended logger for production
+#' and audit-heavy workflows.
+#'
+#' @return A \code{DuckDBMessageLog} object.
+#'
 #' @examples
 #' \dontrun{
-#' log <- DuckDBMessageLog$new(session_id = "test")
+#' # Initialize a logger pointing to the default HydraR database
+#' audit_log <- DuckDBMessageLog$new(
+#'   db_path = "~/.gemini/memory/audit.duckdb"
+#' )
+#'
+#' # Messages are stored in the 'agent_messages' table
 #' }
 #' @export
 DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
@@ -96,7 +117,10 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
     db_path = NULL,
     #' @description Initialize DuckDBMessageLog.
     #' @param db_path String.
-    #' @return A new `DuckDBMessageLog` object.
+    #' Path to the DuckDB file. If the file does not exist, it will be
+    #' created upon the first message log. Defaults to the master
+    #' \code{bot_history.duckdb}.
+    #' @return A new \code{DuckDBMessageLog} object.
     initialize = function(db_path = "~/.gemini/memory/bot_history.duckdb") {
       self$db_path <- path.expand(db_path)
     },
@@ -177,13 +201,20 @@ DuckDBMessageLog <- R6::R6Class("DuckDBMessageLog",
 
 #' JSONL Message Log R6 Class
 #'
-#' @description Persists messages to a JSON Lines file. Atomic file appending
-#' ensures that multiple parallel worktree processes can log messages
-#' without locking conflicts.
-#' @return A `JSONLMessageLog` object.
+#' @description
+#' A file-based implementation of \code{MessageLog} that appends messages to
+#' a JSON Lines file. This implementation is safe for parallel execution across
+#' git worktrees as it uses atomic line appending.
+#'
+#' @return A \code{JSONLMessageLog} object.
+#'
 #' @examples
 #' \dontrun{
-#' log <- JSONLMessageLog$new(session_id = "test")
+#' # Create a logger that writes to a specific project file
+#' file_log <- JSONLMessageLog$new(path = "workflow_audit.jsonl")
+#'
+#' # Executing a DAG with this logger will populate the file
+#' dag <- dag_create(message_log = file_log)
 #' }
 #' @export
 JSONLMessageLog <- R6::R6Class("JSONLMessageLog",
@@ -193,6 +224,7 @@ JSONLMessageLog <- R6::R6Class("JSONLMessageLog",
     path = NULL,
     #' @description Initialize JSONLMessageLog.
     #' @param path String.
+    #' The output file path for the JSON Lines log. Defaults to a temporary file.
     initialize = function(path = tempfile(fileext = ".jsonl")) {
       self$path <- path
     },

@@ -10,12 +10,29 @@
 #'
 #' @description
 #' A strongly typed, centrally managed state object for passing data
-#' between nodes in an AgentDAG.
+#' between nodes in an AgentDAG. It supports declarative schemas for validation
+#' and functional "reducers" for sophisticated state merging during execution.
 #'
-#' @return An `AgentState` R6 object.
+#' @details
+#' The \code{AgentState} is the single source of truth for a DAG. It is designed
+#' to be serializable, allowing the entire workflow state to be checkpointed
+#' and restored.
+#'
+#' @return An \code{AgentState} R6 object.
+#'
 #' @examples
-#' state <- AgentState$new(initial_data = list(topic = "R"))
-#' state$get("topic")
+#' \dontrun{
+#' # Initialize state with a schema and a reducer
+#' state <- AgentState$new(
+#'   initial_data = list(count = 0, history = list()),
+#'   schema = list(count = "numeric", history = "list"),
+#'   reducers = list(history = reducer_append)
+#' )
+#'
+#' # Updates to 'history' will now use the append reducer
+#' state$update(list(history = "Event 1"))
+#' message(state$get("history")) # [1] "Event 1"
+#' }
 #' @importFrom R6 R6Class
 #' @importFrom purrr iwalk walk
 #' @export
@@ -29,9 +46,15 @@ AgentState <- R6::R6Class("AgentState",
     schema = list(),
 
     #' @description Initialize AgentState
-    #' @param initial_data List of initial state variables or String.
-    #' @param reducers Named list of reducer functions.
-    #' @param schema Named list of expected types.
+    #' @param initial_data List or String.
+    #' The starting data for the state. If a list, it is merged into the
+    #' environment. If a string, it is stored under the key \code{"input"}.
+    #' @param reducers Named list of functions or character names.
+    #' Maps state keys to functions that define how new values are merged
+    #' with current values (e.g., \code{append} or \code{sum}).
+    #' @param schema Named list of character strings.
+    #' Defines the expected class/type for specific keys (e.g.,
+    #' \code{list(count = "numeric")}).
     initialize = function(initial_data = list(), reducers = list(), schema = list()) {
       self$data <- new.env(parent = emptyenv())
 
@@ -62,8 +85,10 @@ AgentState <- R6::R6Class("AgentState",
 
     #' Get a state variable
     #' @param key String.
-    #' @param default Value to return if key not found.
-    #' @return The value.
+    #' The name of the variable to retrieve.
+    #' @param default Value.
+    #' The value to return if the key is not found in the state.
+    #' @return The value associated with the key, or the default.
     get = function(key, default = NULL) {
       if (exists(key, envir = self$data)) {
         return(get(key, envir = self$data))
@@ -163,14 +188,22 @@ AgentState <- R6::R6Class("AgentState",
 
 #' Built-in Reducer: Append
 #'
-#' Appends new elements to a vector or list. For large accumulations,
-#' users should consider using lists and flattening later.
-#' @param current The current state value.
-#' @param new The new value to append.
-#' @return The combined value.
+#' @description
+#' A functional reducer that appends new elements to an existing vector or
+#' list. This is the standard pattern for accumulating results or logs
+#' across multiple agent steps.
+#'
+#' @param current The current value in the state.
+#' @param new The new value to be added.
+#' @return A combined vector or list containing both \code{current} and \code{new}.
+#'
 #' @examples
 #' \dontrun{
-#' reducer_append(1, 2)
+#' # Used in AgentState initialization
+#' state <- AgentState$new(
+#'   initial_data = list(logs = list()),
+#'   reducers = list(logs = reducer_append)
+#' )
 #' }
 #' @export
 reducer_append <- function(current, new) {
@@ -183,14 +216,21 @@ reducer_append <- function(current, new) {
 
 #' Built-in Reducer: Merge List
 #'
-#' Merges two named lists using functional patterns.
-#' Overwrites current for matching keys.
-#' @param current The current state list.
-#' @param new The new list to merge.
-#' @return The merged list.
+#' @description
+#' A functional reducer that performs a deep merge of two named lists. It
+#' uses \code{utils::modifyList} internally, ensuring that existing keys are
+#' overwritten by new values while preserving other keys.
+#'
+#' @param current The current list in the state.
+#' @param new The new list to merge in.
+#' @return A single merged list.
+#'
 #' @examples
 #' \dontrun{
-#' reducer_merge_list(list(a = 1), list(b = 2))
+#' current <- list(a = 1, b = 2)
+#' new <- list(b = 3, c = 4)
+#' merged <- reducer_merge_list(current, new)
+#' # Result: list(a = 1, b = 3, c = 4)
 #' }
 #' @export
 reducer_merge_list <- function(current, new) {

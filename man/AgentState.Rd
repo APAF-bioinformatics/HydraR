@@ -4,15 +4,31 @@
 \alias{AgentState}
 \title{Agent State R6 Class}
 \value{
-An `AgentState` R6 object.
+An \code{AgentState} R6 object.
 }
 \description{
 A strongly typed, centrally managed state object for passing data
-between nodes in an AgentDAG.
+between nodes in an AgentDAG. It supports declarative schemas for validation
+and functional "reducers" for sophisticated state merging during execution.
+}
+\details{
+The \code{AgentState} is the single source of truth for a DAG. It is designed
+to be serializable, allowing the entire workflow state to be checkpointed
+and restored.
 }
 \examples{
-state <- AgentState$new(initial_data = list(topic = "R"))
-state$get("topic")
+\dontrun{
+# Initialize state with a schema and a reducer
+state <- AgentState$new(
+  initial_data = list(count = 0, history = list()),
+  schema = list(count = "numeric", history = "list"),
+  reducers = list(history = reducer_append)
+)
+
+# Updates to 'history' will now use the append reducer
+state$update(list(history = "Event 1"))
+message(state$get("history")) # [1] "Event 1"
+}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -51,11 +67,17 @@ Initialize AgentState
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{initial_data}}{List of initial state variables or String.}
+\item{\code{initial_data}}{List or String.
+The starting data for the state. If a list, it is merged into the
+environment. If a string, it is stored under the key \code{"input"}.}
 
-\item{\code{reducers}}{Named list of reducer functions.}
+\item{\code{reducers}}{Named list of functions or character names.
+Maps state keys to functions that define how new values are merged
+with current values (e.g., \code{append} or \code{sum}).}
 
-\item{\code{schema}}{Named list of expected types.
+\item{\code{schema}}{Named list of character strings.
+Defines the expected class/type for specific keys (e.g.,
+\code{list(count = "numeric")}).
 Get a state variable}
 }
 \if{html}{\out{</div>}}
@@ -72,14 +94,16 @@ Get a state variable}
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{key}}{String.}
+\item{\code{key}}{String.
+The name of the variable to retrieve.}
 
-\item{\code{default}}{Value to return if key not found.}
+\item{\code{default}}{Value.
+The value to return if the key is not found in the state.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-The value.
+The value associated with the key, or the default.
 Get all state variables as a list
 }
 }

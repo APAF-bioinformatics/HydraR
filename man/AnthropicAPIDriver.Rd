@@ -4,15 +4,27 @@
 \alias{AnthropicAPIDriver}
 \title{Anthropic API Driver}
 \value{
-An `AnthropicAPIDriver` object.
+An \code{AnthropicAPIDriver} object.
 }
 \description{
-Implementation of the Anthropic Messages API.
+A specialized \code{AgentDriver} for the Anthropic Messages API, providing
+access to the Claude family of models.
+}
+\details{
+\strong{Setup}: To use this driver, you must set the \code{ANTHROPIC_API_KEY}
+environment variable. It is recommended to add this to your \code{.Renviron} file:
+\code{ANTHROPIC_API_KEY="sk-ant-..."}
 }
 \examples{
 \dontrun{
-driver <- AnthropicAPIDriver$new()
-driver$call("Hello, Anthropic")
+# Ensure ANTHROPIC_API_KEY is set in .Renviron
+driver <- AnthropicAPIDriver$new(model = "claude-3-opus-20240229")
+
+response <- driver$call(
+  prompt = "Write a poem about recursive graphs.",
+  cli_opts = list(temperature = 0)
+)
+message(response)
 }
 }
 \section{Super class}{
@@ -62,18 +74,22 @@ Initialize AnthropicAPIDriver
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{id}}{String. Unique identifier.}
+\item{\code{id}}{String.
+Unique identifier for this driver instance.}
 
-\item{\code{model}}{String. Model name.}
+\item{\code{model}}{String.
+The Anthropic model ID (e.g., \code{"claude-3-sonnet"}).}
 
-\item{\code{validation_mode}}{String. "warning" or "strict".}
+\item{\code{validation_mode}}{String.
+Driver validation strictness level.}
 
-\item{\code{working_dir}}{String. Optional. Path to worktree.}
+\item{\code{working_dir}}{String.
+Optional. Base directory for file-system operations.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A new `AnthropicAPIDriver` object.
+A new \code{AnthropicAPIDriver} object.
 Get Capabilities
 }
 }

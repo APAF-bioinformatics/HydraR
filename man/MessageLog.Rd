@@ -4,15 +4,16 @@
 \alias{MessageLog}
 \title{Message Log Base R6 Class}
 \value{
-A `MessageLog` base object.
+A \code{MessageLog} base object.
 }
 \description{
-Abstract base class for logging inter-agent messages.
+An abstract base class defining the interface for message logging in HydraR.
+Subclasses provide concrete storage implementations (Memory, File, Database).
 }
 \examples{
 \dontrun{
 # This is an abstract base class.
-# Instantiate a subclass like MemoryMessageLog.
+# Use MemoryMessageLog or DuckDBMessageLog instead.
 }
 }
 \section{Methods}{

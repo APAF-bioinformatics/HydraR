@@ -4,15 +4,23 @@
 \alias{CopilotCLIDriver}
 \title{Copilot CLI Driver R6 Class}
 \value{
-A `CopilotCLIDriver` object.
+A \code{CopilotCLIDriver} object.
 }
 \description{
-Driver for the 'gh copilot' CLI tool.
+A specialized \code{AgentDriver} for the GitHub \code{gh copilot} CLI extension.
+}
+\details{
+\strong{Setup}: Requires the GitHub CLI (\code{gh}) and the \code{copilot}
+extension (\code{gh extension install github/gh-copilot}). Must be
+authenticated via \code{gh auth login}.
 }
 \examples{
 \dontrun{
+# Use GitHub Copilot in the CLI
 driver <- CopilotCLIDriver$new()
-driver$call("Write a simple function")
+
+# Suggest a complex regex for email validation
+response <- driver$call("Create a regex for validating RFC-5322 emails.")
 }
 }
 \section{Super class}{

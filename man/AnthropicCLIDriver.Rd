@@ -4,15 +4,24 @@
 \alias{AnthropicCLIDriver}
 \title{Anthropic CLI Driver}
 \value{
-An `AnthropicCLIDriver` object.
+An \code{AnthropicCLIDriver} object.
 }
 \description{
-Driver for the Anthropic `claude` (Claude Code) CLI.
+A specialized \code{AgentDriver} for the Anthropic \code{claude} (Claude Code)
+CLI. Optimized for terminal-based engineering tasks.
+}
+\details{
+\strong{Setup}: Requires \code{claude} (Anthropic CLI) to be installed and
+authenticated. Configure the path via \code{options(HydraR.claude_path = "...")}
+or in your \code{.Renviron}.
 }
 \examples{
 \dontrun{
-driver <- AnthropicCLIDriver$new()
-driver$call("Hello, Claude")
+# Initialize the Claude Code CLI driver
+driver <- AnthropicCLIDriver$new(model = "sonnet")
+
+# Claude CLI handles complex engineering tasks natively
+response <- driver$call("Refactor R/dag.R to use R6 private methods.")
 }
 }
 \section{Super class}{

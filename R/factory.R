@@ -7,12 +7,27 @@
 # ==============================================================
 
 #' Create an Agent Graph
-#' @param message_log MessageLog. Optional audit log for the DAG.
-#' @return An AgentDAG object.
+#'
+#' @description
+#' Initializes a new \code{AgentDAG} object. This is the primary entry point for
+#' building orchestration workflows either programmatically or from definitions.
+#'
+#' @param message_log MessageLog.
+#' An optional \code{MessageLog} R6 object (e.g., \code{MemoryMessageLog} or
+#' \code{DuckDBMessageLog}) used to capture all inter-node communication for
+#' auditing and debugging.
+#'
+#' @return An \code{AgentDAG} R6 object.
 #'
 #' @examples
 #' \dontrun{
+#' # Basic DAG creation
 #' dag <- dag_create()
+#'
+#' # Creation with a persistent DuckDB audit log
+#' # Recommended for production workflows to ensure audutability.
+#' log <- DuckDBMessageLog$new(db_path = "audit_trail.duckdb")
+#' dag <- dag_create(message_log = log)
 #' }
 dag_create <- function(message_log = NULL) {
   dag <- AgentDAG$new()
@@ -21,34 +36,74 @@ dag_create <- function(message_log = NULL) {
 }
 
 
-#' Create an LLM Agent Node easily
+#' Create an LLM Agent Node
 #'
-#' @param id String. Unique identifier for the node.
-#' @param role String. System prompt/role for the agent.
-#' @param driver AgentDriver object.
-#' @param model String. Optional model override.
-#' @param cli_opts List. Optional CLI options.
-#' @param ... Additional arguments passed to AgentLLMNode$new()
-#' @return AgentLLMNode object.
+#' @description
+#' A convenience wrapper to instantiate an \code{AgentLLMNode}. Useful for
+#' functional-style DAG construction.
+#'
+#' @param id String.
+#' A unique identifier for the node within the DAG.
+#' @param role String.
+#' The system prompt or identity the LLM should assume (e.g., "Python Developer").
+#' @param driver AgentDriver.
+#' An R6 driver object (e.g., \code{GeminiCLIDriver}) that handles the LLM API.
+#' @param model String.
+#' Optional model name override (e.g., "gpt-4"). Defaults to driver default.
+#' @param cli_opts List.
+#' Optional parameters passed to the underlying CLI or API call.
+#' @param ... Additional arguments.
+#' Passed directly to the \code{AgentLLMNode$new()} constructor. Useful for
+#' setting \code{tools}, \code{prompt_builder}, or \code{output_path}.
+#'
+#' @return An \code{AgentLLMNode} object.
 #'
 #' @examples
 #' \dontrun{
-#' add_llm_node("llm1", "Assistant", AnthropicAPIDriver$new())
+#' # NOTE: Ensure ANTHROPIC_API_KEY is set in your .Renviron file for this example.
+#'
+#' driver <- AnthropicAPIDriver$new()
+#' node <- add_llm_node(
+#'   id = "coder",
+#'   role = "You are an expert R programmer.",
+#'   driver = driver,
+#'   model = "claude-3-sonnet",
+#'   output_path = "scripts/generated_code.R"
+#' )
 #' }
 add_llm_node <- function(id, role, driver, model = NULL, cli_opts = list(), ...) {
   AgentLLMNode$new(id = id, role = role, driver = driver, model = model, cli_opts = cli_opts, ...)
 }
 
-#' Create an R Logic Node easily
+#' Create an R Logic Node
 #'
-#' @param id String. Unique identifier for the node.
-#' @param logic_fn Function. Pure R function taking an AgentState object.
-#' @param ... Additional arguments passed to AgentLogicNode$new()
-#' @return AgentLogicNode object.
+#' @description
+#' A convenience wrapper to instantiate an \code{AgentLogicNode}. Nodes created
+#' this way execute pure R code rather than calling an LLM.
+#'
+#' @param id String.
+#' A unique identifier for the node.
+#' @param logic_fn Function.
+#' An R function that accepts an \code{AgentState} object as its first argument
+#' and returns a list with at least \code{status} and \code{output}.
+#' @param ... Additional arguments.
+#' Passed directly to the \code{AgentLogicNode$new()} constructor.
+#'
+#' @return An \code{AgentLogicNode} object.
 #'
 #' @examples
 #' \dontrun{
-#' add_logic_node("logic1", function() print("Logic"))
+#' # Define a logic function that validates a previous node's output
+#' validator <- function(state) {
+#'   raw_data <- state$get("data_fetcher")
+#'   if (length(raw_data) > 0) {
+#'     list(status = "success", output = list(valid = TRUE))
+#'   } else {
+#'     list(status = "failed", output = list(valid = FALSE))
+#'   }
+#' }
+#'
+#' node <- add_logic_node("data_validator", validator)
 #' }
 add_logic_node <- function(id, logic_fn, ...) {
   AgentLogicNode$new(id = id, logic_fn = logic_fn, ...)
@@ -56,19 +111,38 @@ add_logic_node <- function(id, logic_fn, ...) {
 
 #' Add an LLM Agent Node directly to a DAG
 #'
-#' @param dag AgentDAG object.
-#' @param id String. Unique identifier for the node.
-#' @param role String. System prompt/role for the agent.
-#' @param driver AgentDriver object.
-#' @param model String. Optional model override.
-#' @param cli_opts List. Optional CLI options.
-#' @param ... Additional arguments passed to AgentLLMNode$new()
-#' @return The modified AgentDAG object (invisibly).
+#' @description
+#' Instantiates an \code{AgentLLMNode} and appends it to the provided \code{AgentDAG}
+#' in one step.
+#'
+#' @param dag AgentDAG.
+#' The graph object to which the node will be added.
+#' @param id String.
+#' Unique identifier for the node.
+#' @param role String.
+#' System prompt/role for the agent.
+#' @param driver AgentDriver.
+#' The LLM driver instance.
+#' @param model String.
+#' Optional model name override.
+#' @param cli_opts List.
+#' Optional CLI/API parameters.
+#' @param ... Additional arguments.
+#' Passed to \code{AgentLLMNode$new()}.
+#'
+#' @return The modified \code{AgentDAG} object (invisibly).
 #'
 #' @examples
 #' \dontrun{
+#' # NOTE: Set GOOGLE_API_KEY in your .Renviron for Gemini drivers.
+#'
 #' dag <- dag_create()
-#' dag <- dag_add_llm_node(dag, "node1", "Assistant", AnthropicAPIDriver$new())
+#' dag_add_llm_node(
+#'   dag,
+#'   id = "summary_node",
+#'   role = "Summarise the following text.",
+#'   driver = GeminiAPIDriver$new()
+#' )
 #' }
 dag_add_llm_node <- function(dag, id, role, driver, model = NULL, cli_opts = list(), ...) {
   if (!inherits(dag, "AgentDAG")) {
@@ -161,16 +235,26 @@ utils::globalVariables(c(
 #' Resolve a Default Driver from Shorthand ID
 #'
 #' @description
-#' Constructs an AgentDriver from a well-known shorthand string like
-#' `"gemini"`, `"claude"`, or `"openai"`. Tries the global DriverRegistry
-#' first; falls back to constructing a new CLI driver.
+#' Provides a mechanism to quickly obtain a pre-configured \code{AgentDriver}
+#' using logic-friendly keys like \code{"gemini"}, \code{"claude"}, or \code{"openai"}.
 #'
-#' @param driver_id String. Driver shorthand (e.g., `"gemini"`, `"claude"`).
-#' @param driver_registry Optional DriverRegistry object.
-#' @return An AgentDriver object.
+#' @param driver_id String.
+#' A shorthand identifier. Supported values include: \code{"gemini"},
+#' \code{"gemini_api"}, \code{"anthropic"}, \code{"anthropic_api"},
+#' \code{"openai"}, \code{"openai_api"}, and \code{"ollama"}.
+#' @param driver_registry DriverRegistry.
+#' An optional registry object to look up custom drivers first. If omitted,
+#' the global \code{get_driver_registry()} is used.
+#'
+#' @return An \code{AgentDriver} object.
+#'
 #' @examples
 #' \dontrun{
-#' drv <- resolve_default_driver(NULL)
+#' # Retrieve the default Gemini CLI driver
+#' drv <- resolve_default_driver("gemini")
+#'
+#' # Retrieve a registered API driver
+#' drv_api <- resolve_default_driver("openai_api")
 #' }
 #' @export
 resolve_default_driver <- function(driver_id, driver_registry = NULL) {
@@ -230,8 +314,12 @@ resolve_default_driver <- function(driver_id, driver_registry = NULL) {
 .build_logic_node <- function(id, label, params) {
   logic_id <- params[["logic_id"]]
   if (is.null(logic_id)) stop(sprintf("Node '%s' (type=logic): 'logic_id' parameter is required.", id))
+  # Search registry then global environment for backwards compatibility in tests
   logic_fn <- get_logic(logic_id)
-  if (is.null(logic_fn)) stop(sprintf("Node '%s' (type=logic): logic_id '%s' not found.", id, logic_id))
+  if (is.null(logic_fn)) {
+    logic_fn <- tryCatch(get(logic_id, mode = "function"), error = function(e) NULL)
+  }
+  if (is.null(logic_fn)) stop(sprintf("Node '%s' (type=logic): logic_id '%s' not found in registry.", id, logic_id))
   AgentLogicNode$new(id = id, logic_fn = logic_fn, label = label, params = params)
 }
 
@@ -241,7 +329,10 @@ resolve_default_driver <- function(driver_id, driver_registry = NULL) {
   logic_id <- params[["logic_id"]]
   if (is.null(logic_id)) stop(sprintf("Node '%s' (type=router): 'logic_id' required.", id))
   router_fn <- get_logic(logic_id)
-  if (is.null(router_fn)) stop(sprintf("Node '%s' (type=router): logic_id '%s' not found.", id, logic_id))
+  if (is.null(router_fn)) {
+    router_fn <- tryCatch(get(logic_id, mode = "function"), error = function(e) NULL)
+  }
+  if (is.null(router_fn)) stop(sprintf("Node '%s' (type=router): logic_id '%s' not found in registry.", id, logic_id))
   AgentRouterNode$new(id = id, router_fn = router_fn, label = label, params = params)
 }
 
@@ -252,7 +343,10 @@ resolve_default_driver <- function(driver_id, driver_registry = NULL) {
   map_key <- params[["map_key"]]
   if (is.null(logic_id) || is.null(map_key)) stop(sprintf("Node '%s' (type=map): 'logic_id' and 'map_key' required.", id))
   logic_fn <- get_logic(logic_id)
-  if (is.null(logic_fn)) stop(sprintf("Node '%s' (type=map): logic_id '%s' not found.", id, logic_id))
+  if (is.null(logic_fn)) {
+    logic_fn <- tryCatch(get(logic_id, mode = "function"), error = function(e) NULL)
+  }
+  if (is.null(logic_fn)) stop(sprintf("Node '%s' (type=map): logic_id '%s' not found in registry.", id, logic_id))
   AgentMapNode$new(id = id, map_key = map_key, logic_fn = logic_fn, label = label, params = params)
 }
 
@@ -262,29 +356,54 @@ resolve_default_driver <- function(driver_id, driver_registry = NULL) {
   logic_id <- params[["logic_id"]]
   if (is.null(logic_id)) stop(sprintf("Node '%s' (type=observer): 'logic_id' required.", id))
   observe_fn <- get_logic(logic_id)
-  if (is.null(observe_fn)) stop(sprintf("Node '%s' (type=observer): logic_id '%s' not found.", id, logic_id))
+  if (is.null(observe_fn)) {
+    observe_fn <- tryCatch(get(logic_id, mode = "function"), error = function(e) NULL)
+  }
+  if (is.null(observe_fn)) stop(sprintf("Node '%s' (type=observer): logic_id '%s' not found in registry.", id, logic_id))
   AgentObserverNode$new(id = id, observe_fn = observe_fn, label = label, params = params)
 }
 
 #' Automatic Node Factory for Mermaid-as-Source
 #'
 #' @description
-#' Returns a node factory closure that resolves `type=` annotations
-#' directly from Mermaid node parameters. Eliminates the need for
-#' hand-written factory functions per workflow.
+#' Generates a closure that can resolve Mermaid node labels into fully
+#' instantiated \code{AgentNode} objects based on inline annotations.
 #'
-#' @param driver_registry Optional DriverRegistry object. Defaults to global.
-#' @return A function(id, label, params) -> AgentNode.
+#' @details
+#' The factory supports the following \code{type=} parameters in Mermaid labels:
+#' \itemize{
+#'   \item \code{llm}: Creates an \code{AgentLLMNode}. Requires \code{role} or \code{role_id}.
+#'   \item \code{logic}: Creates an \code{AgentLogicNode}. Requires \code{logic_id}.
+#'   \item \code{router}: Creates an \code{AgentRouterNode}. Requires \code{logic_id}.
+#'   \item \code{map}: Creates an \code{AgentMapNode}. Requires \code{logic_id} and \code{map_key}.
+#' }
+#'
+#' @param driver_registry DriverRegistry.
+#' An optional registry used to resolve drivers specified in Mermaid
+#' annotations (e.g., \code{driver=openai_api}).
+#'
+#' @return A function that takes \code{(id, label, params)} and returns an \code{AgentNode}.
 #'
 #' @examples
 #' \dontrun{
+#' # Define a workflow entirely in Mermaid syntax
 #' mermaid_src <- '
 #' graph TD
 #'   A["Researcher | type=llm | role=Research Assistant | driver=gemini"]
 #'   B["Validator | type=logic | logic_id=validate_fn"]
 #'   A --> B
 #' '
-#' dag <- AgentDAG$from_mermaid(mermaid_src, node_factory = auto_node_factory())
+#'
+#' # Define the logic referenced in Mermaid
+#' register_logic("validate_fn", function(state) {
+#'   list(status = "success", output = list(ok = TRUE))
+#' })
+#'
+#' # Spawn the DAG using the automatic factory
+#' dag <- AgentDAG$from_mermaid(
+#'   mermaid_src,
+#'   node_factory = auto_node_factory()
+#' )
 #' }
 #' @export
 auto_node_factory <- function(driver_registry = NULL) {

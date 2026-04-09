@@ -9,15 +9,26 @@
 #' OpenAI API Driver
 #'
 #' @description
-#' Implementation of the OpenAI Chat Completions API.
+#' A specialized \code{AgentDriver} that interacts with the OpenAI Chat
+#' Completions API. Requires an active OpenAI account and API key.
+#'
+#' @details
+#' \strong{Setup}: To use this driver, you must set the \code{OPENAI_API_KEY}
+#' environment variable. It is recommended to add this to your \code{.Renviron} file:
+#' \code{OPENAI_API_KEY="sk-..."}
 #'
 #' @importFrom httr2 request req_auth_bearer_token req_body_json req_retry req_perform resp_body_json resp_body_string resp_status_desc req_url_query req_headers
 #' @importFrom base64enc base64decode
-#' @return An `OpenAIAPIDriver` object.
+#' @return An \code{OpenAIAPIDriver} object.
+#'
 #' @examples
 #' \dontrun{
-#' driver <- OpenAIAPIDriver$new()
-#' driver$call("Hello, OpenAI")
+#' # Ensure OPENAI_API_KEY is set in .Renviron
+#' driver <- OpenAIAPIDriver$new(model = "gpt-4-turbo")
+#'
+#' # Perform a basic call
+#' response <- driver$call("What is the capital of France?")
+#' message(response)
 #' }
 #' @export
 OpenAIAPIDriver <- R6::R6Class(
@@ -28,11 +39,16 @@ OpenAIAPIDriver <- R6::R6Class(
     api_url = "https://api.openai.com/v1/chat/completions",
 
     #' @description Initialize OpenAIAPIDriver
-    #' @param id String. Unique identifier.
-    #' @param model String. Model name.
-    #' @param validation_mode String. "warning" or "strict".
-    #' @param working_dir String. Optional. Path to worktree.
-    #' @return A new `OpenAIAPIDriver` object.
+    #' @param id String.
+    #' Unique identifier for this driver instance.
+    #' @param model String.
+    #' The OpenAI model ID (e.g., \code{"gpt-4"}, \code{"gpt-3.5-turbo"}).
+    #' @param validation_mode String.
+    #' Either \code{"warning"} or \code{"strict"}. Controls how schema
+    #' mismatches are handled.
+    #' @param working_dir String.
+    #' Optional. The directory where output files should be generated.
+    #' @return A new \code{OpenAIAPIDriver} object.
     initialize = function(id = "openai_api", model = "gpt-5.4-mini", validation_mode = "warning", working_dir = NULL) {
       super$initialize(id, provider = "openai", model_name = model, validation_mode = validation_mode, working_dir = working_dir)
       self$supported_opts <- c("temperature", "max_tokens", "top_p", "frequency_penalty", "presence_penalty", "response_format")
@@ -45,12 +61,17 @@ OpenAIAPIDriver <- R6::R6Class(
     },
 
     #' Call OpenAI API
-    #' @param prompt String. The prompt text.
-    #' @param model String. Optional model override.
-    #' @param system_prompt String. Optional system prompt.
-    #' @param cli_opts List. Additional API options.
+    #' @param prompt String.
+    #' The primary user message or instruction sent to the LLM.
+    #' @param model String.
+    #' Optional model override for this specific call.
+    #' @param system_prompt String.
+    #' Optional system-level instruction (role-playing or constraint).
+    #' @param cli_opts List.
+    #' Additional parameters passed to the JSON body (e.g., \code{temperature = 0.7}).
     #' @param ... Additional arguments.
-    #' @return String. LLM response.
+    #' Passed through to the internal request handler.
+    #' @return String. The text content of the LLM's response.
     call = function(prompt, model = NULL, system_prompt = NULL, cli_opts = list(), ...) {
       if (!requireNamespace("httr2", quietly = TRUE)) {
         stop("Package 'httr2' is required for OpenAIAPIDriver. Install it with install.packages('httr2').")
@@ -111,13 +132,26 @@ OpenAIAPIDriver <- R6::R6Class(
 #' Anthropic API Driver
 #'
 #' @description
-#' Implementation of the Anthropic Messages API.
+#' A specialized \code{AgentDriver} for the Anthropic Messages API, providing
+#' access to the Claude family of models.
 #'
-#' @return An `AnthropicAPIDriver` object.
+#' @details
+#' \strong{Setup}: To use this driver, you must set the \code{ANTHROPIC_API_KEY}
+#' environment variable. It is recommended to add this to your \code{.Renviron} file:
+#' \code{ANTHROPIC_API_KEY="sk-ant-..."}
+#'
+#' @return An \code{AnthropicAPIDriver} object.
+#'
 #' @examples
 #' \dontrun{
-#' driver <- AnthropicAPIDriver$new()
-#' driver$call("Hello, Anthropic")
+#' # Ensure ANTHROPIC_API_KEY is set in .Renviron
+#' driver <- AnthropicAPIDriver$new(model = "claude-3-opus-20240229")
+#'
+#' response <- driver$call(
+#'   prompt = "Write a poem about recursive graphs.",
+#'   cli_opts = list(temperature = 0)
+#' )
+#' message(response)
 #' }
 #' @export
 AnthropicAPIDriver <- R6::R6Class(
@@ -128,11 +162,15 @@ AnthropicAPIDriver <- R6::R6Class(
     api_url = "https://api.anthropic.com/v1/messages",
 
     #' @description Initialize AnthropicAPIDriver
-    #' @param id String. Unique identifier.
-    #' @param model String. Model name.
-    #' @param validation_mode String. "warning" or "strict".
-    #' @param working_dir String. Optional. Path to worktree.
-    #' @return A new `AnthropicAPIDriver` object.
+    #' @param id String.
+    #' Unique identifier for this driver instance.
+    #' @param model String.
+    #' The Anthropic model ID (e.g., \code{"claude-3-sonnet"}).
+    #' @param validation_mode String.
+    #' Driver validation strictness level.
+    #' @param working_dir String.
+    #' Optional. Base directory for file-system operations.
+    #' @return A new \code{AnthropicAPIDriver} object.
     initialize = function(id = "anthropic_api", model = "claude-sonnet-4-6", validation_mode = "warning", working_dir = NULL) {
       super$initialize(id, provider = "anthropic", model_name = model, validation_mode = validation_mode, working_dir = working_dir)
       self$supported_opts <- c("max_tokens", "metadata", "stop_sequences", "system", "temperature", "top_k", "top_p")
@@ -215,11 +253,21 @@ AnthropicAPIDriver <- R6::R6Class(
 
 #' Gemini API Driver R6 Class
 #'
-#' @description Driver for Google Gemini (AI Studio) API.
-#' @return A `GeminiAPIDriver` R6 object.
+#' @description
+#' A specialized \code{AgentDriver} for the Google Gemini API (AI Studio / Vertex AI).
+#'
+#' @details
+#' \strong{Setup}: Requires the \code{GOOGLE_API_KEY} environment variable to
+#' be set. Add it to your \code{.Renviron}: \code{GOOGLE_API_KEY="AIza..."}
+#'
+#' @return A \code{GeminiAPIDriver} R6 object.
+#'
 #' @examples
 #' \dontrun{
-#' driver <- GeminiAPIDriver$new()
+#' # Ensure GOOGLE_API_KEY is set in .Renviron
+#' driver <- GeminiAPIDriver$new(model = "gemini-1.5-pro")
+#'
+#' response <- driver$call("Explain quantum entanglement to a 5-year old.")
 #' }
 #' @export
 GeminiAPIDriver <- R6::R6Class("GeminiAPIDriver",
@@ -229,29 +277,37 @@ GeminiAPIDriver <- R6::R6Class("GeminiAPIDriver",
     api_base = "https://generativelanguage.googleapis.com/v1beta",
 
     #' @description Initialize GeminiAPIDriver
-    #' @param id String. Unique identifier.
-    #' @param model String. Model name.
-    #' @param validation_mode String. "warning" or "strict".
-    #' @param working_dir String. Optional. Path to worktree.
-    #' @return A new `GeminiAPIDriver` object.
+    #' @param id String.
+    #' Unique identifier for this driver.
+    #' @param model String.
+    #' Google model ID (e.g., \code{"gemini-1.5-flash"}).
+    #' @param validation_mode String.
+    #' Controls schema enforcement behavior.
+    #' @param working_dir String.
+    #' Optional path for isolated execution.
+    #' @return A new \code{GeminiAPIDriver} object.
     initialize = function(id = "gemini_api", model = "gemini-3.1-flash-lite-preview", validation_mode = "warning", working_dir = NULL) {
       super$initialize(id, provider = "google", model_name = model, validation_mode = validation_mode, working_dir = working_dir)
       self$supported_opts <- c("generationConfig", "safetySettings", "systemInstruction", "tools")
     },
 
     #' Get Capabilities
-    #' @return A list of capabilities.
+    #' @return A list of capabilities supported by the Gemini API.
     get_capabilities = function() {
       list(streaming = TRUE, json_mode = TRUE, tools = TRUE)
     },
 
     #' Call Gemini API
-    #' @param prompt String. The prompt text.
-    #' @param model String. Optional model override.
-    #' @param system_prompt String. Optional system prompt.
-    #' @param cli_opts List. Additional API options.
-    #' @param ... Additional arguments.
-    #' @return String. LLM response.
+    #' @param prompt String.
+    #' The prompt or query provided by the user.
+    #' @param model String.
+    #' Optional override for the model ID.
+    #' @param system_prompt String.
+    #' Optional system-level instructions for the model.
+    #' @param cli_opts List.
+    #' Advanced API parameters (e.g., \code{generationConfig}).
+    #' @param ... Additional arguments passed to the requester.
+    #' @return String. The text response generated by Gemini.
     call = function(prompt, model = NULL, system_prompt = NULL, cli_opts = list(), ...) {
       if (!requireNamespace("httr2", quietly = TRUE)) {
         stop("Package 'httr2' is required for GeminiAPIDriver.")
@@ -306,11 +362,26 @@ GeminiAPIDriver <- R6::R6Class("GeminiAPIDriver",
 
 #' Gemini Image API Driver R6 Class
 #'
-#' @description Driver for Google Gemini's multimodal image generation (2026 models).
-#' @return A `GeminiImageDriver` R6 object.
+#' @description
+#' A specialized driver for Gemini's multimodal and image generation capabilities
+#' (supporting Imagen and native Gemini 3.x modalities).
+#'
+#' @details
+#' \strong{Setup}: Requires \code{GOOGLE_API_KEY} in your \code{.Renviron}.
+#'
+#' @return A \code{GeminiImageDriver} R6 object.
+#'
 #' @examples
 #' \dontrun{
-#' driver <- GeminiImageDriver$new()
+#' # Ensure GOOGLE_API_KEY is set in .Renviron
+#' driver <- GeminiImageDriver$new(output_dir = "plots")
+#'
+#' # Generate an image and get the local path
+#' img_path <- driver$call(
+#'   prompt = "A futuristic bioinformatics lab with glowing DNA structures",
+#'   cli_opts = list(aspectRatio = "16:9")
+#' )
+#' message("Image saved to: ", img_path)
 #' }
 #' @export
 GeminiImageDriver <- R6::R6Class("GeminiImageDriver",
@@ -323,11 +394,18 @@ GeminiImageDriver <- R6::R6Class("GeminiImageDriver",
 
     #' @description Initialize GeminiImageDriver
     #' @param id String.
-    #' @param model String. Default "imagen-3.0-generate-001".
+    #' Unique identifier for the image driver.
+    #' @param model String.
+    #' Google model ID (defaults to multimodal flash).
     #' @param output_dir String.
+    #' The directory where generated images will be saved.
     #' @param aspect_ratio String.
+    #' The default aspect ratio for generated images (e.g., \code{"16:9"}, \code{"1:1"}).
     #' @param validation_mode String.
+    #' Controls schema enforcement.
     #' @param working_dir String.
+    #' Optional path for isolated execution.
+    #' @return A new \code{GeminiImageDriver} instance.
     initialize = function(id = "gemini_image", model = "gemini-3.1-flash-image-preview", output_dir = "images", aspect_ratio = "1:1", validation_mode = "warning", working_dir = NULL) {
       super$initialize(id, model = model, validation_mode = validation_mode, working_dir = working_dir)
       self$output_dir <- output_dir

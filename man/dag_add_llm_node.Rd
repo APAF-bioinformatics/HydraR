@@ -7,29 +7,44 @@
 dag_add_llm_node(dag, id, role, driver, model = NULL, cli_opts = list(), ...)
 }
 \arguments{
-\item{dag}{AgentDAG object.}
+\item{dag}{AgentDAG.
+The graph object to which the node will be added.}
 
-\item{id}{String. Unique identifier for the node.}
+\item{id}{String.
+Unique identifier for the node.}
 
-\item{role}{String. System prompt/role for the agent.}
+\item{role}{String.
+System prompt/role for the agent.}
 
-\item{driver}{AgentDriver object.}
+\item{driver}{AgentDriver.
+The LLM driver instance.}
 
-\item{model}{String. Optional model override.}
+\item{model}{String.
+Optional model name override.}
 
-\item{cli_opts}{List. Optional CLI options.}
+\item{cli_opts}{List.
+Optional CLI/API parameters.}
 
-\item{...}{Additional arguments passed to AgentLLMNode$new()}
+\item{...}{Additional arguments.
+Passed to \code{AgentLLMNode$new()}.}
 }
 \value{
-The modified AgentDAG object (invisibly).
+The modified \code{AgentDAG} object (invisibly).
 }
 \description{
-Add an LLM Agent Node directly to a DAG
+Instantiates an \code{AgentLLMNode} and appends it to the provided \code{AgentDAG}
+in one step.
 }
 \examples{
 \dontrun{
+# NOTE: Set GOOGLE_API_KEY in your .Renviron for Gemini drivers.
+
 dag <- dag_create()
-dag <- dag_add_llm_node(dag, "node1", "Assistant", AnthropicAPIDriver$new())
+dag_add_llm_node(
+  dag,
+  id = "summary_node",
+  role = "Summarise the following text.",
+  driver = GeminiAPIDriver$new()
+)
 }
 }

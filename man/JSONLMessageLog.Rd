@@ -4,16 +4,20 @@
 \alias{JSONLMessageLog}
 \title{JSONL Message Log R6 Class}
 \value{
-A `JSONLMessageLog` object.
+A \code{JSONLMessageLog} object.
 }
 \description{
-Persists messages to a JSON Lines file. Atomic file appending
-ensures that multiple parallel worktree processes can log messages
-without locking conflicts.
+A file-based implementation of \code{MessageLog} that appends messages to
+a JSON Lines file. This implementation is safe for parallel execution across
+git worktrees as it uses atomic line appending.
 }
 \examples{
 \dontrun{
-log <- JSONLMessageLog$new(session_id = "test")
+# Create a logger that writes to a specific project file
+file_log <- JSONLMessageLog$new(path = "workflow_audit.jsonl")
+
+# Executing a DAG with this logger will populate the file
+dag <- dag_create(message_log = file_log)
 }
 }
 \section{Super class}{
@@ -47,7 +51,8 @@ Initialize JSONLMessageLog.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{path}}{String.}
+\item{\code{path}}{String.
+The output file path for the JSON Lines log. Defaults to a temporary file.}
 }
 \if{html}{\out{</div>}}
 }

@@ -4,15 +4,25 @@
 \alias{OpenAIAPIDriver}
 \title{OpenAI API Driver}
 \value{
-An `OpenAIAPIDriver` object.
+An \code{OpenAIAPIDriver} object.
 }
 \description{
-Implementation of the OpenAI Chat Completions API.
+A specialized \code{AgentDriver} that interacts with the OpenAI Chat
+Completions API. Requires an active OpenAI account and API key.
+}
+\details{
+\strong{Setup}: To use this driver, you must set the \code{OPENAI_API_KEY}
+environment variable. It is recommended to add this to your \code{.Renviron} file:
+\code{OPENAI_API_KEY="sk-..."}
 }
 \examples{
 \dontrun{
-driver <- OpenAIAPIDriver$new()
-driver$call("Hello, OpenAI")
+# Ensure OPENAI_API_KEY is set in .Renviron
+driver <- OpenAIAPIDriver$new(model = "gpt-4-turbo")
+
+# Perform a basic call
+response <- driver$call("What is the capital of France?")
+message(response)
 }
 }
 \section{Super class}{
@@ -62,18 +72,23 @@ Initialize OpenAIAPIDriver
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{id}}{String. Unique identifier.}
+\item{\code{id}}{String.
+Unique identifier for this driver instance.}
 
-\item{\code{model}}{String. Model name.}
+\item{\code{model}}{String.
+The OpenAI model ID (e.g., \code{"gpt-4"}, \code{"gpt-3.5-turbo"}).}
 
-\item{\code{validation_mode}}{String. "warning" or "strict".}
+\item{\code{validation_mode}}{String.
+Either \code{"warning"} or \code{"strict"}. Controls how schema
+mismatches are handled.}
 
-\item{\code{working_dir}}{String. Optional. Path to worktree.}
+\item{\code{working_dir}}{String.
+Optional. The directory where output files should be generated.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A new `OpenAIAPIDriver` object.
+A new \code{OpenAIAPIDriver} object.
 Get Capabilities
 }
 }
@@ -107,20 +122,25 @@ Call OpenAI API
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{prompt}}{String. The prompt text.}
+\item{\code{prompt}}{String.
+The primary user message or instruction sent to the LLM.}
 
-\item{\code{model}}{String. Optional model override.}
+\item{\code{model}}{String.
+Optional model override for this specific call.}
 
-\item{\code{system_prompt}}{String. Optional system prompt.}
+\item{\code{system_prompt}}{String.
+Optional system-level instruction (role-playing or constraint).}
 
-\item{\code{cli_opts}}{List. Additional API options.}
+\item{\code{cli_opts}}{List.
+Additional parameters passed to the JSON body (e.g., \code{temperature = 0.7}).}
 
-\item{\code{...}}{Additional arguments.}
+\item{\code{...}}{Additional arguments.
+Passed through to the internal request handler.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-String. LLM response.
+String. The text content of the LLM's response.
 }
 }
 \if{html}{\out{<hr>}}

@@ -4,15 +4,18 @@
 \alias{OpenAICodexCLIDriver}
 \title{OpenAI Codex CLI Driver R6 Class}
 \value{
-An `OpenAICodexCLIDriver` object.
+An \code{OpenAICodexCLIDriver} object.
 }
 \description{
-Driver for the official `codex` CLI tool (v0.118+).
+A specialized \code{AgentDriver} for the official \code{codex} CLI tool (v0.118+).
+This model is legacy but still supported for specific code-generation tasks.
 }
 \examples{
 \dontrun{
+# Ensure Codex CLI is installed and authenticated
 driver <- OpenAICodexCLIDriver$new()
-driver$call("Hello, Codex")
+
+response <- driver$call("Create a data.frame with 5 rows and 2 columns.")
 }
 }
 \section{Super class}{

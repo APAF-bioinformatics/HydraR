@@ -4,14 +4,20 @@
 \alias{MemoryMessageLog}
 \title{Memory Message Log R6 Class}
 \value{
-A `MemoryMessageLog` object.
+A \code{MemoryMessageLog} object.
 }
 \description{
-In-memory storage for messages.
+A non-persistent, in-memory implementation of \code{MessageLog}. Messages
+are stored in an internal list that exists only for the duration of the
+R session.
 }
 \examples{
 \dontrun{
+# Create a new memory logger
 log <- MemoryMessageLog$new()
+
+# The DAG will automatically call log$log() during execution
+dag <- dag_create(message_log = log)
 }
 }
 \section{Super class}{

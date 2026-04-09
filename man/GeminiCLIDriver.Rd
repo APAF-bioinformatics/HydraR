@@ -4,15 +4,29 @@
 \alias{GeminiCLIDriver}
 \title{Gemini CLI Driver R6 Class}
 \value{
-A `GeminiCLIDriver` object.
+A \code{GeminiCLIDriver} object.
 }
 \description{
-Driver for the 'gemini' CLI tool.
+A specialized \code{AgentDriver} that invokes the Google \code{gemini} CLI
+tool. This is the preferred driver for workflows requiring local tool use
+and filesystem interaction via the Google-native MCP bridge.
+}
+\details{
+\strong{Setup}: Requires the \code{gemini} CLI to be installed and in your
+PATH. You can override the binary path using:
+\code{options(HydraR.gemini_path = "/path/to/gemini")} or by setting the
+\code{HYDRAR_GEMINI_PATH} environment variable in your \code{.Renviron}.
 }
 \examples{
 \dontrun{
-driver <- GeminiCLIDriver$new()
-driver$call("Hello, Gemini")
+# Standard CLI-based agent
+driver <- GeminiCLIDriver$new(model = "gemini-1.5-pro")
+
+# Call with specific CLI flags (e.g., allowing specific tools)
+response <- driver$call(
+  prompt = "List all files in the current directory.",
+  cli_opts = list(allowed_tools = "ls,grep")
+)
 }
 }
 \section{Super class}{
@@ -63,15 +77,20 @@ Initialize GeminiCLIDriver
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{id}}{Unique identifier.}
+\item{\code{id}}{String.
+Unique identifier for this driver.}
 
-\item{\code{model}}{String. Optional model.}
+\item{\code{model}}{String.
+The Gemini model ID (e.g., \code{"gemini-1.5-flash"}).}
 
-\item{\code{validation_mode}}{String. "warning" or "strict".}
+\item{\code{validation_mode}}{String.
+Either \code{"warning"} or \code{"strict"}.}
 
-\item{\code{working_dir}}{String. Optional. Path to isolated Git worktree.}
+\item{\code{working_dir}}{String.
+Optional. Path to an isolated git worktree where the CLI will execute.}
 
-\item{\code{repo_root}}{String. Path to the main repository root.
+\item{\code{repo_root}}{String.
+Optional. Path to the main repository to enable cross-worktree context.
 Call the LLM}
 }
 \if{html}{\out{</div>}}

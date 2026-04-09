@@ -10,12 +10,28 @@
 .hydra_registry <- new.env(parent = emptyenv())
 
 #' Register Logic Function
-#' @param name String. Unique identifier for the function.
-#' @param fn Function. The R function to store.
+#'
+#' @description
+#' Stores a pure R function in a centralized logic registry. This allows the
+#' function to be referenced by name in Mermaid diagrams or YAML/JSON workflow
+#' definitions without needing to pass the function object across environments.
+#'
+#' @param name String.
+#' A unique identifier for the function (e.g., \code{"validate_data"}).
+#' @param fn Function.
+#' The R function to be registered. It should typically accept an
+#' \code{AgentState} or \code{RestrictedState} object.
+#'
 #' @return The registry environment (invisibly).
+#'
 #' @examples
 #' \dontrun{
-#' register_logic("my_logic", function() {})
+#' # Register a logic function for use in a DAG
+#' my_fn <- function(state) {
+#'   input <- state$get("raw_input")
+#'   list(status = "success", output = nchar(input))
+#' }
+#' register_logic("calculate_length", my_fn)
 #' }
 #' @export
 register_logic <- function(name, fn) {
@@ -51,12 +67,25 @@ list_logic <- function() {
 }
 
 #' Register an LLM Role (System Prompt)
-#' @param name String. Unique identifier for the role.
-#' @param prompt_text String. The system prompt text.
+#'
+#' @description
+#' Stores a persistent system prompt or "identity" in the registry. This is
+#' useful for centralizing agent personas so they can be reused across
+#' multiple DAGs or workflows.
+#'
+#' @param name String.
+#' A unique, logic-friendly identifier for the role (e.g., \code{"critic"}).
+#' @param prompt_text String.
+#' The full text of the system prompt the LLM should assume.
+#'
 #' @return The registry environment (invisibly).
+#'
 #' @examples
 #' \dontrun{
-#' register_role("my_role", "You are a helper.")
+#' register_role(
+#'   name = "r_developer",
+#'   prompt_text = "You are an expert R developer specializing in R6 and S4."
+#' )
 #' }
 #' @export
 register_role <- function(name, prompt_text) {
@@ -96,11 +125,29 @@ get_agent_roles <- function() {
 }
 
 #' Load Multi-Agent Workflow from File
-#' @param file_path String. Path to the YAML or JSON workflow definition.
-#' @return A list containing elements: 'graph', 'initial_state', 'roles', 'logic', 'raw'.
+#'
+#' @description
+#' Parses a declarative workflow definition from a YAML or JSON file. This
+#' function handles the resolution of external logic files and role-playing
+#' identities referenced in the definition.
+#'
+#' @param file_path String.
+#' The absolute or relative path to a \code{.yml}, \code{.yaml}, or \code{.json} file.
+#'
+#' @return A list representing the workflow structure, including \code{graph},
+#' \code{initial_state}, \code{roles}, and \code{logic} mapping.
+#'
 #' @examples
 #' \dontrun{
-#' wf <- load_workflow("wf.yaml")
+#' # Load a workflow from a YAML file
+#' # Expected YAML structure:
+#' # graph: |
+#' #   graph TD
+#' #     A[type=llm | role=analyst]
+#' # wf <- load_workflow("config/bioinfo_pipeline.yaml")
+#'
+#' # Inspect the initial state defined in the file
+#' print(wf$initial_state)
 #' }
 #' @export
 load_workflow <- function(file_path) {
@@ -166,15 +213,26 @@ load_workflow <- function(file_path) {
 #' Spawn an AgentDAG from a Workflow Object
 #'
 #' @description
-#' High-level 'Low Code' helper that instantiates, configures, and compiles
-#' an AgentDAG based on a workflow list (from `load_workflow`).
+#' A high-level helper that orchestrates the "Low Code" lifecycle: it takes
+#' a workflow definition (from \code{\link{load_workflow}}), parses the
+#' internal graph structure, instantiates all nodes via the provided factory,
+#' applies conditional/error edges, and performs a final compilation check.
 #'
-#' @param wf List. The workflow object.
-#' @param node_factory Function. Defaults to `auto_node_factory()`.
-#' @return A compiled `AgentDAG` object.
+#' @param wf List.
+#' A workflow object previously returned by \code{load_workflow()}.
+#' @param node_factory Function.
+#' An optional factory function to map Mermaid labels to nodes. Defaults to
+#' \code{\link{auto_node_factory}}.
+#'
+#' @return A compiled and ready-to-run \code{AgentDAG} object.
+#'
 #' @examples
 #' \dontrun{
-#' dag <- spawn_dag(load_workflow("wf.yaml"))
+#' # Full lifecycle: Load -> Spawn -> Run
+#' wf <- load_workflow("orchestration_plans/main.yaml")
+#' dag <- spawn_dag(wf)
+#'
+#' results <- dag$run(initial_state = wf$initial_state)
 #' }
 #' @export
 spawn_dag <- function(wf, node_factory = auto_node_factory()) {

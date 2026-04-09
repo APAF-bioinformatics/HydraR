@@ -9,28 +9,35 @@
 #' Checkpointer Interface
 #'
 #' @description
-#' Abstract base class for AgentDAG checkpointers.
+#' An abstract base class defining the contract for state persistence and
+#' recovery in HydraR. Checkpointers allow a DAG to be paused and resumed
+#' across sessions by saving the \code{AgentState} after each node execution.
 #'
 #' @importFrom R6 R6Class
-#' @return A `Checkpointer` object.
+#' @return A \code{Checkpointer} object.
+#'
 #' @examples
 #' \dontrun{
-#' cp <- Checkpointer$new(saver = MemorySaver$new())
+#' # Checkpointers are used within AgentDAG$run()
+#' # Use a concrete implementation like RDSSaver or DuckDBSaver.
 #' }
 #' @export
 Checkpointer <- R6::R6Class("Checkpointer",
   public = list(
     #' @description Persist state to the checkpointer.
-    #' @param thread_id String. Identifier for the execution thread.
-    #' @param state AgentState object. The state to save.
+    #' @param thread_id String.
+    #' A unique identifier for the execution thread or session.
+    #' @param state AgentState.
+    #' The \code{AgentState} object to be persisted.
     #' @return NULL (called for side effect).
     put = function(thread_id, state) {
       stop("Method 'put' must be implemented by subclass.")
     },
 
-    #' Load state
-    #' @param thread_id String. Identifier for the execution thread.
-    #' @return AgentState object or NULL if not found.
+    #' Load state from the checkpointer
+    #' @param thread_id String.
+    #' The unique identifier associated with the saved state.
+    #' @return AgentState object or NULL if no checkpoint is found for the thread.
     get = function(thread_id) {
       stop("Method 'get' must be implemented by subclass.")
     }
@@ -40,14 +47,19 @@ Checkpointer <- R6::R6Class("Checkpointer",
 #' MemorySaver Checkpointer
 #'
 #' @description
-#' In-memory implementation of the Checkpointer interface.
-#' Stores checkpoints in an R environment.
+#' An in-memory implementation of the \code{Checkpointer} interface. Stores
+#' checkpoints in a dedicated R environment. This is useful for testing or
+#' short-lived sessions where persistence to disk is not required.
 #'
 #' @importFrom R6 R6Class
-#' @return A `MemorySaver` object.
+#' @return A \code{MemorySaver} object.
+#'
 #' @examples
 #' \dontrun{
 #' saver <- MemorySaver$new()
+#' dag <- dag_create(checkpointer = saver)
+#'
+#' # State is saved in saver$storage environment
 #' }
 #' @export
 MemorySaver <- R6::R6Class("MemorySaver",
@@ -106,15 +118,21 @@ MemorySaver <- R6::R6Class("MemorySaver",
 #' RDS File Checkpointer
 #'
 #' @description
-#' Lightweight file-based checkpointer using base R `saveRDS`/`readRDS`.
-#' Each thread is persisted as a separate `.rds` file in the specified directory.
-#' No external dependencies required.
+#' A lightweight, file-based checkpointer that uses R's native \code{saveRDS}
+#' and \code{readRDS} functions. Each thread is saved as an individual \code{.rds}
+#' file in a specified directory.
 #'
 #' @importFrom R6 R6Class
-#' @return An `RDSSaver` object.
+#' @return An \code{RDSSaver} object.
+#'
 #' @examples
 #' \dontrun{
-#' saver <- RDSSaver$new()
+#' # Save checkpoints to a local directory
+#' saver <- RDSSaver$new(dir = "my_checkpoints")
+#'
+#' # Later, resume execution using the same thread_id
+#' dag <- dag_create(checkpointer = saver)
+#' dag$run(thread_id = "session_001")
 #' }
 #' @export
 RDSSaver <- R6::R6Class("RDSSaver",
@@ -172,13 +190,19 @@ RDSSaver <- R6::R6Class("RDSSaver",
 #' DuckDBSaver Checkpointer
 #'
 #' @description
-#' Persistent implementation of the Checkpointer interface using DuckDB.
-#' Supports both direct DBI connections and file paths.
+#' A production-grade \code{Checkpointer} that utilizes DuckDB for high-performance
+#' state persistence. Supports BLOB storage of serialized R objects and
+#' concurrent access patterns.
 #'
-#' @return A `DuckDBSaver` R6 object.
+#' @return A \code{DuckDBSaver} R6 object.
+#'
 #' @examples
 #' \dontrun{
-#' saver <- DuckDBSaver$new(db_path = "checkpoints.duckdb")
+#' # Use a persistent DuckDB file for all agent states
+#' saver <- DuckDBSaver$new(db_path = "data/hydrar_states.duckdb")
+#'
+#' dag <- dag_create(checkpointer = saver)
+#' dag$run(thread_id = "batch_process_alpha")
 #' }
 #' @importFrom R6 R6Class
 #' @importFrom DBI dbExecute dbWriteTable dbGetQuery dbDisconnect dbConnect
@@ -192,9 +216,14 @@ DuckDBSaver <- R6::R6Class("DuckDBSaver",
     table_name = "agent_checkpoints",
 
     #' @description Initialize DuckDBSaver
-    #' @param con DBIConnection. Optional if db_path is provided.
-    #' @param db_path String path to DuckDB file. Optional if con is provided.
-    #' @param table_name Name of the table to store checkpoints in.
+    #' @param con DBIConnection.
+    #' An existing DBI connection to a DuckDB instance.
+    #' @param db_path String.
+    #' Path to a DuckDB file. If provided, the driver will handle the
+    #' connection internally.
+    #' @param table_name String.
+    #' The name of the table used to store checkpoints. Defaults to
+    #' \code{"agent_checkpoints"}.
     initialize = function(con = NULL, db_path = NULL, table_name = "agent_checkpoints") {
       if (!is.character(table_name) || length(table_name) != 1 || !grepl("^[a-zA-Z0-9_]+$", table_name)) {
         stop("Invalid table_name: must be a single string containing only alphanumeric characters and underscores.")

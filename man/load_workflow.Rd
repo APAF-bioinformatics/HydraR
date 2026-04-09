@@ -7,16 +7,28 @@
 load_workflow(file_path)
 }
 \arguments{
-\item{file_path}{String. Path to the YAML or JSON workflow definition.}
+\item{file_path}{String.
+The absolute or relative path to a \code{.yml}, \code{.yaml}, or \code{.json} file.}
 }
 \value{
-A list containing elements: 'graph', 'initial_state', 'roles', 'logic', 'raw'.
+A list representing the workflow structure, including \code{graph},
+\code{initial_state}, \code{roles}, and \code{logic} mapping.
 }
 \description{
-Load Multi-Agent Workflow from File
+Parses a declarative workflow definition from a YAML or JSON file. This
+function handles the resolution of external logic files and role-playing
+identities referenced in the definition.
 }
 \examples{
 \dontrun{
-wf <- load_workflow("wf.yaml")
+# Load a workflow from a YAML file
+# Expected YAML structure:
+# graph: |
+#   graph TD
+#     A[type=llm | role=analyst]
+# wf <- load_workflow("config/bioinfo_pipeline.yaml")
+
+# Inspect the initial state defined in the file
+print(wf$initial_state)
 }
 }

@@ -7,16 +7,26 @@
 dag_create(message_log = NULL)
 }
 \arguments{
-\item{message_log}{MessageLog. Optional audit log for the DAG.}
+\item{message_log}{MessageLog.
+An optional \code{MessageLog} R6 object (e.g., \code{MemoryMessageLog} or
+\code{DuckDBMessageLog}) used to capture all inter-node communication for
+auditing and debugging.}
 }
 \value{
-An AgentDAG object.
+An \code{AgentDAG} R6 object.
 }
 \description{
-Create an Agent Graph
+Initializes a new \code{AgentDAG} object. This is the primary entry point for
+building orchestration workflows either programmatically or from definitions.
 }
 \examples{
 \dontrun{
+# Basic DAG creation
 dag <- dag_create()
+
+# Creation with a persistent DuckDB audit log
+# Recommended for production workflows to ensure audutability.
+log <- DuckDBMessageLog$new(db_path = "audit_trail.duckdb")
+dag <- dag_create(message_log = log)
 }
 }

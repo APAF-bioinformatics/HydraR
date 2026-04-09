@@ -7,18 +7,28 @@
 register_logic(name, fn)
 }
 \arguments{
-\item{name}{String. Unique identifier for the function.}
+\item{name}{String.
+A unique identifier for the function (e.g., \code{"validate_data"}).}
 
-\item{fn}{Function. The R function to store.}
+\item{fn}{Function.
+The R function to be registered. It should typically accept an
+\code{AgentState} or \code{RestrictedState} object.}
 }
 \value{
 The registry environment (invisibly).
 }
 \description{
-Register Logic Function
+Stores a pure R function in a centralized logic registry. This allows the
+function to be referenced by name in Mermaid diagrams or YAML/JSON workflow
+definitions without needing to pass the function object across environments.
 }
 \examples{
 \dontrun{
-register_logic("my_logic", function() {})
+# Register a logic function for use in a DAG
+my_fn <- function(state) {
+  input <- state$get("raw_input")
+  list(status = "success", output = nchar(input))
+}
+register_logic("calculate_length", my_fn)
 }
 }

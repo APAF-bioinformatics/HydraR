@@ -7,19 +7,28 @@
 spawn_dag(wf, node_factory = auto_node_factory())
 }
 \arguments{
-\item{wf}{List. The workflow object.}
+\item{wf}{List.
+A workflow object previously returned by \code{load_workflow()}.}
 
-\item{node_factory}{Function. Defaults to `auto_node_factory()`.}
+\item{node_factory}{Function.
+An optional factory function to map Mermaid labels to nodes. Defaults to
+\code{\link{auto_node_factory}}.}
 }
 \value{
-A compiled `AgentDAG` object.
+A compiled and ready-to-run \code{AgentDAG} object.
 }
 \description{
-High-level 'Low Code' helper that instantiates, configures, and compiles
-an AgentDAG based on a workflow list (from `load_workflow`).
+A high-level helper that orchestrates the "Low Code" lifecycle: it takes
+a workflow definition (from \code{\link{load_workflow}}), parses the
+internal graph structure, instantiates all nodes via the provided factory,
+applies conditional/error edges, and performs a final compilation check.
 }
 \examples{
 \dontrun{
-dag <- spawn_dag(load_workflow("wf.yaml"))
+# Full lifecycle: Load -> Spawn -> Run
+wf <- load_workflow("orchestration_plans/main.yaml")
+dag <- spawn_dag(wf)
+
+results <- dag$run(initial_state = wf$initial_state)
 }
 }

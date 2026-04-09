@@ -4,14 +4,21 @@
 \alias{DuckDBMessageLog}
 \title{DuckDB Message Log R6 Class}
 \value{
-A `DuckDBMessageLog` object.
+A \code{DuckDBMessageLog} object.
 }
 \description{
-Persists messages to the master DuckDB database. Maintains an open connection for efficiency.
+A persistent implementation of \code{MessageLog} that writes messages to a
+centralized DuckDB database. This is the recommended logger for production
+and audit-heavy workflows.
 }
 \examples{
 \dontrun{
-log <- DuckDBMessageLog$new(session_id = "test")
+# Initialize a logger pointing to the default HydraR database
+audit_log <- DuckDBMessageLog$new(
+  db_path = "~/.gemini/memory/audit.duckdb"
+)
+
+# Messages are stored in the 'agent_messages' table
 }
 }
 \section{Super class}{
@@ -48,12 +55,15 @@ Initialize DuckDBMessageLog.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{db_path}}{String.}
+\item{\code{db_path}}{String.
+Path to the DuckDB file. If the file does not exist, it will be
+created upon the first message log. Defaults to the master
+\code{bot_history.duckdb}.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A new `DuckDBMessageLog` object.
+A new \code{DuckDBMessageLog} object.
 }
 }
 \if{html}{\out{<hr>}}

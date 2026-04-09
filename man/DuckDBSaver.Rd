@@ -4,15 +4,20 @@
 \alias{DuckDBSaver}
 \title{DuckDBSaver Checkpointer}
 \value{
-A `DuckDBSaver` R6 object.
+A \code{DuckDBSaver} R6 object.
 }
 \description{
-Persistent implementation of the Checkpointer interface using DuckDB.
-Supports both direct DBI connections and file paths.
+A production-grade \code{Checkpointer} that utilizes DuckDB for high-performance
+state persistence. Supports BLOB storage of serialized R objects and
+concurrent access patterns.
 }
 \examples{
 \dontrun{
-saver <- DuckDBSaver$new(db_path = "checkpoints.duckdb")
+# Use a persistent DuckDB file for all agent states
+saver <- DuckDBSaver$new(db_path = "data/hydrar_states.duckdb")
+
+dag <- dag_create(checkpointer = saver)
+dag$run(thread_id = "batch_process_alpha")
 }
 }
 \section{Super class}{
@@ -48,11 +53,16 @@ Initialize DuckDBSaver
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{con}}{DBIConnection. Optional if db_path is provided.}
+\item{\code{con}}{DBIConnection.
+An existing DBI connection to a DuckDB instance.}
 
-\item{\code{db_path}}{String path to DuckDB file. Optional if con is provided.}
+\item{\code{db_path}}{String.
+Path to a DuckDB file. If provided, the driver will handle the
+connection internally.}
 
-\item{\code{table_name}}{Name of the table to store checkpoints in.
+\item{\code{table_name}}{String.
+The name of the table used to store checkpoints. Defaults to
+\code{"agent_checkpoints"}.
 Save state}
 }
 \if{html}{\out{</div>}}

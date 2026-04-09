@@ -4,14 +4,17 @@
 \alias{Checkpointer}
 \title{Checkpointer Interface}
 \value{
-A `Checkpointer` object.
+A \code{Checkpointer} object.
 }
 \description{
-Abstract base class for AgentDAG checkpointers.
+An abstract base class defining the contract for state persistence and
+recovery in HydraR. Checkpointers allow a DAG to be paused and resumed
+across sessions by saving the \code{AgentState} after each node execution.
 }
 \examples{
 \dontrun{
-cp <- Checkpointer$new(saver = MemorySaver$new())
+# Checkpointers are used within AgentDAG$run()
+# Use a concrete implementation like RDSSaver or DuckDBSaver.
 }
 }
 \section{Methods}{
@@ -34,15 +37,17 @@ Persist state to the checkpointer.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{thread_id}}{String. Identifier for the execution thread.}
+\item{\code{thread_id}}{String.
+A unique identifier for the execution thread or session.}
 
-\item{\code{state}}{AgentState object. The state to save.}
+\item{\code{state}}{AgentState.
+The \code{AgentState} object to be persisted.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
 NULL (called for side effect).
-Load state
+Load state from the checkpointer
 }
 }
 \if{html}{\out{<hr>}}
@@ -56,12 +61,13 @@ Load state
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{thread_id}}{String. Identifier for the execution thread.}
+\item{\code{thread_id}}{String.
+The unique identifier associated with the saved state.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-AgentState object or NULL if not found.
+AgentState object or NULL if no checkpoint is found for the thread.
 }
 }
 \if{html}{\out{<hr>}}

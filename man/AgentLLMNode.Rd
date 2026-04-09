@@ -4,14 +4,29 @@
 \alias{AgentLLMNode}
 \title{Agent LLM Node R6 Class}
 \value{
-An `AgentLLMNode` object.
+An \code{AgentLLMNode} object.
 }
 \description{
-A node that uses an LLM driver for execution.
+A specialized \code{AgentNode} that leverages a Large Language Model (LLM)
+to generate outputs from prompts. It manages prompt construction by combining
+a persistent \code{role} (system prompt) with dynamic context from the
+\code{AgentState}. It also handles tool injection and automatic context
+discovery from local files (e.g., \code{agents.md}, \code{skills.md}).
 }
 \examples{
 \dontrun{
-node <- AgentLLMNode$new("chat", role = "helpful assistant")
+# NOTE: Set ANTHROPIC_API_KEY in your .Renviron file
+driver <- AnthropicAPIDriver$new()
+
+# Create a node with a prompt builder that pulls from state
+node <- AgentLLMNode$new(
+  id = "summarizer",
+  role = "You are a concise summarizer.",
+  driver = driver,
+  prompt_builder = function(state) {
+    sprintf("Summarise this text: \%s", state$get("input_text"))
+  }
+)
 }
 }
 \section{Super class}{
@@ -73,27 +88,39 @@ Initialize AgentLLMNode
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{id}}{Unique identifier.}
+\item{\code{id}}{String.
+Unique identifier for the node.}
 
-\item{\code{role}}{System prompt.}
+\item{\code{role}}{String.
+The primary system prompt or persona the LLM should assume.}
 
-\item{\code{driver}}{AgentDriver object.}
+\item{\code{driver}}{AgentDriver.
+An instance of an \code{AgentDriver} subclass (CLI or API based).}
 
-\item{\code{model}}{String. Optional model override.}
+\item{\code{model}}{String.
+Optional. The specific model to use (overrides driver default).}
 
-\item{\code{cli_opts}}{List. Optional default CLI options.}
+\item{\code{cli_opts}}{List.
+Optional. Named list of parameters for the LLM call (e.g., temperature).}
 
-\item{\code{prompt_builder}}{Function(state) -> String.}
+\item{\code{prompt_builder}}{Function.
+Optional. A function that takes an \code{AgentState} and returns a
+string prompt. If omitted, the node serializes the entire state as JSON.}
 
-\item{\code{tools}}{List of AgentTool objects.}
+\item{\code{tools}}{List.
+A list of \code{AgentTool} objects available for the agent to use.}
 
-\item{\code{label}}{Optional human-readable name.}
+\item{\code{label}}{String.
+Human-readable name for visualization.}
 
-\item{\code{params}}{Optional list of parameters.}
+\item{\code{params}}{List.
+Additional configuration (e.g., \code{output_format="r"}).}
 
-\item{\code{agents_files}}{Optional character vector of paths to agents.md files.}
+\item{\code{agents_files}}{Character vector.
+Optional paths to markdown files containing agent interaction guidelines.}
 
-\item{\code{skills_files}}{Optional character vector of paths to skills.md files.
+\item{\code{skills_files}}{Character vector.
+Optional paths to markdown files containing specialized tool instructions.
 Run the LLM Node}
 }
 \if{html}{\out{</div>}}
@@ -103,6 +130,8 @@ Run the LLM Node}
 \if{html}{\out{<a id="method-AgentLLMNode-run"></a>}}
 \if{latex}{\out{\hypertarget{method-AgentLLMNode-run}{}}}
 \subsection{Method \code{run()}}{
+Executes the LLM call. This method handles prompt construction,
+tool injection, context file discovery, and driver invocation.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{AgentLLMNode$run(state, ...)}\if{html}{\out{</div>}}
 }
@@ -110,14 +139,17 @@ Run the LLM Node}
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{state}}{AgentState object.}
+\item{\code{state}}{AgentState.
+The centralized state object for the workflow.}
 
-\item{\code{...}}{Additional arguments.}
+\item{\code{...}}{Additional arguments.
+Passed through to the driver's \code{call()} method.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-List with status, output, and metadata.
+A list containing \code{status}, \code{output} (the LLM response),
+\code{raw} (the full driver response), and meta-information.
 Swap Driver at Runtime
 }
 }

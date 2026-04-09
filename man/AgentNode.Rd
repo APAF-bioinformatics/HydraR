@@ -4,13 +4,27 @@
 \alias{AgentNode}
 \title{Agent Node Base Class}
 \value{
-An `AgentNode` object.
+An \code{AgentNode} object.
 }
 \description{
-The base R6 class for all nodes in an AgentDAG.
+The abstract base R6 class for all nodes within an \code{AgentDAG}.
+It defines the common interface and fields required for any node to be
+orchestrated by the HydraR engine. Subclasses must implement the \code{run()}
+method.
 }
 \examples{
-node <- AgentNode$new("my_node", label = "Custom Node")
+# Defining a custom subclass of AgentNode
+CustomNode <- R6::R6Class("CustomNode",
+  inherit = AgentNode,
+  public = list(
+    run = function(state, ...) {
+      message("Executing custom node: ", self$id)
+      list(status = "success", output = "Custom output")
+    }
+  )
+)
+
+node <- CustomNode$new("node_1", label = "My First Node")
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -45,11 +59,17 @@ Initialize AgentNode
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{id}}{Unique identifier.}
+\item{\code{id}}{String.
+A unique identifier for the node. Must be unique within a single DAG.}
 
-\item{\code{label}}{Optional human-readable name.}
+\item{\code{label}}{String.
+An optional human-readable name for the node. Defaults to the \code{id}
+if not provided. This label is used in Mermaid visualizations.}
 
-\item{\code{params}}{Optional named list of parameters.
+\item{\code{params}}{List.
+An optional named list of arbitrary metadata or configuration parameters
+that are stored on the node and can be accessed during execution.
+Useful for passing static configuration to nodes created via factories.
 Run the Node}
 }
 \if{html}{\out{</div>}}
@@ -66,14 +86,18 @@ Run the Node}
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{state}}{AgentState object.}
+\item{\code{state}}{AgentState.
+An \code{AgentState} object (typically a \code{RestrictedState}) providing
+scoped access to the centralized workflow memory.}
 
-\item{\code{...}}{Additional arguments.}
+\item{\code{...}}{Additional arguments.
+Arbitrary parameters passed from \code{AgentDAG$run()}.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-List with status, output, and metadata.
+A list with at least \code{status} (String, e.g., "success", "failed", "pause")
+and \code{output} (Any R object to be integrated back into the state).
 }
 }
 \if{html}{\out{<hr>}}

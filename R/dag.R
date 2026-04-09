@@ -10,29 +10,51 @@
 #' Agent Graph R6 Class
 #'
 #' @description
-#' Defines and executes a Directed Graph of AgentNodes.
-#' Supports both pure DAG execution (parallel) and iterative loops via conditional edges.
+#' The core orchestrator in HydraR, \code{AgentDAG} defines and executes a
+#' Directed Graph of \code{AgentNode} objects. It supports:
+#' \itemize{
+#'   \item \strong{Pure DAGs}: Parallel execution using \code{furrr}.
+#'   \item \strong{Cycles & Loops}: Iterative execution via conditional edges.
+#'   \item \strong{State Isolation}: Parallel branch execution in isolated git worktrees.
+#'   \item \strong{Persistence}: Automatic state checkpointing and restoration.
+#' }
 #'
-#' @return An `AgentDAG` R6 object.
+#' @return An \code{AgentDAG} R6 object.
+#'
 #' @examples
+#' \dontrun{
+#' # Define a simple linear workflow
 #' dag <- AgentDAG$new()
-#' node <- AgentLogicNode$new("start", function(state) list(status = "success"))
-#' dag$add_node(node)
+#'
+#' # Define a logic function
+#' fetch_data <- function(state) {
+#'   list(status = "success", output = list(raw = "Some data"))
+#' }
+#'
+#' # Add nodes
+#' dag$add_node(AgentLogicNode$new("fetcher", logic_fn = fetch_data))
+#' dag_add_llm_node(
+#'   dag,
+#'   id = "analyzer",
+#'   role = "Analyze the data in the state.",
+#'   driver = GeminiCLIDriver$new()
+#' )
+#'
+#' # Connect nodes
+#' dag$add_edge("fetcher", "analyzer")
+#'
+#' # Compile and verify the graph
+#' dag$compile()
+#'
+#' # Execution requires an initial state
+#' results <- dag$run(initial_state = list(input_file = "raw.txt"))
+#' }
 #' @importFrom R6 R6Class
 #' @importFrom digest digest
 #' @importFrom jsonlite toJSON fromJSON write_json
 #' @importFrom igraph graph_from_data_frame is_dag topo_sort edge V vcount make_empty_graph degree is_connected components bfs
 #' @importFrom furrr future_map
 #' @importFrom purrr map set_names iwalk walk
-#' @examples
-#' \dontrun{
-#' dag <- AgentDAG$new()
-#' dag$add_node(AgentNode$new("A"))
-#' dag$add_node(AgentNode$new("B"))
-#' dag$add_edge("A", "B")
-#' dag$set_start_node("A")
-#' dag$compile()
-#' }
 #' @export
 AgentDAG <- R6::R6Class("AgentDAG",
   public = list(
@@ -60,6 +82,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
     worktree_manager = NULL,
 
     #' @description Initialize AgentDAG
+    #' @return A new \code{AgentDAG} instance with empty node and edge lists.
     initialize = function() {
       self$nodes <- list()
       self$edges <- list()
@@ -74,9 +97,16 @@ AgentDAG <- R6::R6Class("AgentDAG",
       self$worktree_manager <- NULL
     },
 
-    #' Set Start Node(s)
-    #' @param node_ids Character vector of node IDs.
-    #' @return The AgentDAG object (invisibly).
+    #' @description Set Start Node(s)
+    #' Explicitly defines the entry point(s) of the graph. If not called, the
+    #' engine defaults to nodes with an in-degree of 0. Required for graphs
+    #' with cycles or where execution must start at a specific node.
+    #'
+    #' @param node_ids Character vector.
+    #' A vector of one or more node IDs. These nodes must already exist in the
+    #' DAG (added via \code{add_node}).
+    #'
+    #' @return The \code{AgentDAG} object (invisibly).
     set_start_node = function(node_ids) {
       if (!is.character(node_ids) || length(node_ids) < 1) {
         stop("node_ids must be a character vector of node IDs.")
@@ -89,9 +119,14 @@ AgentDAG <- R6::R6Class("AgentDAG",
       invisible(self)
     },
 
-    #' Add a Node
-    #' @param node AgentNode object.
-    #' @return The AgentDAG object (invisibly).
+    #' @description Add a Node
+    #' Registers an \code{AgentNode} object into the graph.
+    #'
+    #' @param node AgentNode.
+    #' An instance of \code{AgentNode} or a subclass (e.g., \code{AgentLLMNode}).
+    #' The ID of the node must be unique within the DAG.
+    #'
+    #' @return The \code{AgentDAG} object (invisibly).
     add_node = function(node) {
       if (!inherits(node, "AgentNode")) {
         stop(sprintf("node must be an AgentNode object (received: %s).", class(node)[1]))
@@ -103,11 +138,23 @@ AgentDAG <- R6::R6Class("AgentDAG",
       invisible(self)
     },
 
-    #' Add an Edge
-    #' @param from String or character vector of node IDs.
-    #' @param to String node ID.
-    #' @param label Optional string label for the edge.
-    #' @return The AgentDAG object (invisibly).
+    #' @description Add an Edge
+    #' Creates a directed connection between nodes. Also supports specialized
+    #' edge types (Error, Test, Fail) via labeling.
+    #'
+    #' @param from String or Character vector.
+    #' The source node ID(s).
+    #' @param to String.
+    #' The destination node ID.
+    #' @param label String.
+    #' Optional label for the edge. In HydraR, certain labels trigger logic:
+    #' \itemize{
+    #'   \item \code{"error"} or \code{"failover"}: Creates an error edge.
+    #'   \item \code{"Test"}: Creates a conditional edge (true path).
+    #'   \item \code{"Fail"}: Creates a conditional edge (false path).
+    #' }
+    #'
+    #' @return The \code{AgentDAG} object (invisibly).
     add_edge = function(from, to, label = NULL) {
       if (!is.character(from)) stop("from must be a character vector of node IDs.")
       if (!is.character(to) || length(to) != 1) stop("to must be a single string node ID.")
@@ -157,11 +204,21 @@ AgentDAG <- R6::R6Class("AgentDAG",
       invisible(self)
     },
 
-    #' Add a Conditional Edge (Loop Support)
-    #' @param from String node ID.
-    #' @param test Function(output) -> Logical.
-    #' @param if_true String node ID (next node if test is TRUE) or NULL.
-    #' @param if_false String node ID (next node if test is FALSE) or NULL.
+    #' @description Add a Conditional Edge (Loop Support)
+    #' Adds branching logic to the graph. After the \code{from} node executes,
+    #' the \code{test} function is evaluated against the node's result.
+    #'
+    #' @param from String.
+    #' The ID of the source node.
+    #' @param test Function.
+    #' A predicate function that takes the node result list and returns
+    #' \code{TRUE} or \code{FALSE}.
+    #' @param if_true String.
+    #' Optional ID of the node to execute if the test passes.
+    #' @param if_false String.
+    #' Optional ID of the node to execute if the test fails.
+    #'
+    #' @return The \code{AgentDAG} object (invisibly).
     add_conditional_edge = function(from, test = NULL, if_true = NULL, if_false = NULL) {
       if (!is.character(from) || length(from) != 1 || !from %in% names(self$nodes)) {
         stop(sprintf("from node '%s' must be an existing node ID string.", from))
@@ -184,7 +241,7 @@ AgentDAG <- R6::R6Class("AgentDAG",
       invisible(self)
     },
 
-    #' Add an Error Edge (Failover Support)
+    #' @description Add an Error Edge (Failover Support)
     #' @param from String node ID.
     #' @param to String node ID.
     #' @return The AgentDAG object (invisibly).
@@ -200,20 +257,51 @@ AgentDAG <- R6::R6Class("AgentDAG",
       invisible(self)
     },
 
-    #' Run the Graph
-    #' @param initial_state List, AgentState object, or String. Optional if resuming.
-    #' @param max_steps Integer. Maximum iterations to prevent infinite loops. Default is 25.
-    #' @param checkpointer Checkpointer object. Optional.
-    #' @param thread_id String. Identifier for the execution thread. Required if using checkpointer.
-    #' @param resume_from String. Node ID to resume execution from.
-    #' @param use_worktrees Logical. Whether to use isolated git worktrees for parallel branches.
-    #' @param repo_root String. Path to the main git repository.
-    #' @param cleanup_policy String. "auto", "none", or "aggressive".
-    #' @param fail_if_dirty Logical. Whether to fail if repo has uncommitted changes.
-    #' @param packages Character vector. Packages to load in parallel workers.
-    #' @param ... Additional arguments passed to node run methods.
-
-    #' @return List of results for each node, and the final state.
+    #' @description Run the Graph
+    #' The primary execution engine for the \code{AgentDAG}. It manages the orchestration
+    #' lifecycle, including state initialization / recovery, worktree setup for
+    #' isolation, and routing between nodes. It automatically switches between
+    #' linear (parallel-capable) and iterative execution modes based on the
+    #' graph's complexity.
+    #'
+    #' @param initial_state List, AgentState, or String.
+    #' The starting data for the workflow. Can be a named list of R objects,
+    #' an existing \code{AgentState} instance, or a path to a checkpoint (if supported).
+    #' Required unless resuming from a checkpointer.
+    #' @param max_steps Integer.
+    #' The maximum number of node executions allowed in a single \code{run()} call.
+    #' Prevents infinite loops in cyclic graphs. Default is 25.
+    #' @param checkpointer Checkpointer.
+    #' An optional \code{Checkpointer} R6 object. If provided, the state is
+    #' automatically saved after every node execution.
+    #' @param thread_id String.
+    #' A unique identifier for this execution "thread" or session. Required if
+    #' using a \code{checkpointer} to resolve the correct state from storage.
+    #' @param resume_from String.
+    #' Optional node ID. If provided (or found in a checkpoint), execution will
+    #' skip completed nodes and start from this point.
+    #' @param use_worktrees Logical.
+    #' Enable branch isolation. If \code{TRUE}, parallel branches are executed
+    #' in separate git worktrees, preventing file-system conflicts between agents.
+    #' @param repo_root String.
+    #' Path to the master git repository. Required if \code{use_worktrees} is \code{TRUE}.
+    #' @param cleanup_policy String.
+    #' One of \code{"auto"} (default), \code{"none"}, or \code{"aggressive"}.
+    #' Determines how worktrees are removed after execution.
+    #' @param fail_if_dirty Logical.
+    #' If \code{TRUE}, execution fails if the \code{repo_root} has uncommitted
+    #' changes (recommended for reproducibility when using worktrees).
+    #' @param packages Character vector.
+    #' A list of R packages to load on parallel worker nodes (passed to \code{furrr}).
+    #' @param ... Additional arguments.
+    #' Passed down to individual \code{node$run()} calls.
+    #'
+    #' @return A list containing:
+    #' \itemize{
+    #'   \item \code{results}: A named list of each node's output.
+    #'   \item \code{state}: The final \code{AgentState} object.
+    #'   \item \code{status}: \code{"completed"} or \code{"paused"}.
+    #' }
     run = function(initial_state = NULL,
                    max_steps = 25,
                    checkpointer = NULL,
@@ -638,12 +726,37 @@ AgentDAG <- R6::R6Class("AgentDAG",
       ))
     },
 
-    #' @param type String. Type of plot ("mermaid" or "grViz").
-    #' @param status Logical. If TRUE, styling is applied to nodes/edges based on results.
-    #' @param details Logical. If TRUE, node parameters are serialized into labels.
-    #' @param include_params Character vector. Optional whitelist of parameters to show.
-    #' @param show_edge_labels Logical. Whether to show labels on edges.
-    #' @return The mermaid/dot string (invisibly).
+    #' Visualize the Graph
+    #'
+    #' @description
+    #' Generates a visual representation of the DAG using Mermaid or DOT syntax.
+    #'
+    #' @param type String.
+    #' Either \code{"mermaid"} (default) for web-native rendering or \code{"grViz"}
+    #' for DiagrammeR/Graphviz.
+    #' @param status Logical.
+    #' If \code{TRUE}, colors nodes based on the results in the current trace log
+    #' (Green: Success, Red: Failed, Yellow: Paused).
+    #' @param details Logical.
+    #' If \code{TRUE}, injects node parameters into the labels.
+    #' @param include_params Character vector.
+    #' Optional whitelist of parameter names to display when \code{details} is \code{TRUE}.
+    #' @param show_edge_labels Logical.
+    #' Whether to display labels (e.g., "Test", "Fail") on edges.
+    #'
+    #' @return The Mermaid/DOT source string (invisibly).
+    #'
+    #' @examples
+    #' \dontrun{
+    #' dag <- dag_create()
+    #' dag$add_node(AgentNode$new("A"))
+    #' dag$add_node(AgentNode$new("B"))
+    #' dag$add_edge("A", "B", label = "proceed")
+    #'
+    #' # Generate Mermaid string
+    #' m_src <- dag$plot(type = "mermaid", show_edge_labels = TRUE)
+    #' cat(m_src)
+    #' }
     plot = function(type = "mermaid", status = FALSE, details = FALSE, include_params = NULL, show_edge_labels = TRUE) {
       if (!type %in% c("mermaid", "grViz")) stop("Only 'mermaid' and 'grViz' types are supported.")
 
@@ -802,16 +915,16 @@ AgentDAG <- R6::R6Class("AgentDAG",
       return(invisible(res))
     },
 
-    #' Get Terminal Nodes
-    #' @description Identifies nodes with no outgoing edges.
+    #' @description Get Terminal Nodes
+    #' Identifies nodes with no outgoing edges.
     #' @return Character vector of node IDs.
     get_terminal_nodes = function() {
       private$.rebuild_graph()
       names(igraph::V(self$graph)[igraph::degree(self$graph, mode = "out") == 0])
     },
 
-    #' Get Start Nodes (Roots)
-    #' @description Identifies nodes with no incoming edges.
+    #' @description Get Start Nodes (Roots)
+    #' Identifies nodes with no incoming edges.
     #' @return Character vector of node IDs.
     get_start_nodes = function() {
       private$.rebuild_graph()
@@ -819,9 +932,21 @@ AgentDAG <- R6::R6Class("AgentDAG",
     },
 
     #' Compile the Graph
+    #'
     #' @description
-    #' Rebuilds the internal graph representation and performs validation checks.
-    #' @return The AgentDAG object (invisibly).
+    #' Rebuilds the internal \code{igraph} representation and performs validation
+    #' checks such as cycle detection, start node disambiguation, and
+    #' reachability analysis. This must be called before \code{run()}.
+    #'
+    #' @details
+    #' Compilation will throw errors if:
+    #' \itemize{
+    #'   \item Cycles are found in a pure DAG (no conditional edges).
+    #'   \item Multiple root nodes are found without an explicit \code{start_node}.
+    #'   \item Node IDs used in edges do not exist.
+    #' }
+    #'
+    #' @return The \code{AgentDAG} object (invisibly).
     compile = function() {
       private$.rebuild_graph()
       if (length(self$nodes) == 0) stop("No nodes in graph.")
@@ -868,7 +993,15 @@ AgentDAG <- R6::R6Class("AgentDAG",
     },
 
     #' Save the Execution Trace
-    #' @param file String. Output path for the JSON trace.
+    #'
+    #' @description
+    #' Exports the detailed telemetry from the last execution (durations,
+    #' status, outputs) to a JSON file.
+    #'
+    #' @param file String.
+    #' Path to the output JSON file. Defaults to \code{"dag_trace.json"}.
+    #'
+    #' @return The \code{AgentDAG} object (invisibly).
     save_trace = function(file = "dag_trace.json") {
       jsonlite::write_json(self$trace_log, path = file, pretty = TRUE, auto_unbox = TRUE)
       cat(sprintf("[Saved] Saved execution trace to: %s\n", file))
@@ -876,9 +1009,30 @@ AgentDAG <- R6::R6Class("AgentDAG",
     },
 
     #' Create Graph from Mermaid
-    #' @param mermaid_str String. Mermaid syntax.
-    #' @param node_factory Function(id, label, params) -> AgentNode.
-    #' @return The AgentDAG object.
+    #'
+    #' @description
+    #' A static-like method to populate a DAG from a Mermaid string using a
+    #' custom node factory.
+    #'
+    #' @param mermaid_str String.
+    #' A valid Mermaid graph definition (e.g., \code{"graph TD; A-->B"}).
+    #' @param node_factory Function.
+    #' A closure mapping Mermaid labels and parameters to \code{AgentNode}
+    #' instances. See \code{\link{auto_node_factory}} for the standard
+    #' implementation.
+    #'
+    #' @return The \code{AgentDAG} object (invisibly).
+    #'
+    #' @examples
+    #' \dontrun{
+    #' # Use a custom factory to map all nodes to Logic nodes
+    #' simple_factory <- function(id, label, params) {
+    #'   AgentLogicNode$new(id = id, logic_fn = function(s) list(status="ok"))
+    #' }
+    #'
+    #' dag <- AgentDAG$new()
+    #' dag$from_mermaid("graph LR; Start-->End", simple_factory)
+    #' }
     from_mermaid = function(mermaid_str, node_factory) {
       stopifnot(is.function(node_factory))
       parsed <- parse_mermaid(mermaid_str)

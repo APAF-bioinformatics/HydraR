@@ -4,14 +4,26 @@
 \alias{GeminiImageDriver}
 \title{Gemini Image API Driver R6 Class}
 \value{
-A `GeminiImageDriver` R6 object.
+A \code{GeminiImageDriver} R6 object.
 }
 \description{
-Driver for Google Gemini's multimodal image generation (2026 models).
+A specialized driver for Gemini's multimodal and image generation capabilities
+(supporting Imagen and native Gemini 3.x modalities).
+}
+\details{
+\strong{Setup}: Requires \code{GOOGLE_API_KEY} in your \code{.Renviron}.
 }
 \examples{
 \dontrun{
-driver <- GeminiImageDriver$new()
+# Ensure GOOGLE_API_KEY is set in .Renviron
+driver <- GeminiImageDriver$new(output_dir = "plots")
+
+# Generate an image and get the local path
+img_path <- driver$call(
+  prompt = "A futuristic bioinformatics lab with glowing DNA structures",
+  cli_opts = list(aspectRatio = "16:9")
+)
+message("Image saved to: ", img_path)
 }
 }
 \section{Super classes}{
@@ -65,20 +77,29 @@ Initialize GeminiImageDriver
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{id}}{String.}
+\item{\code{id}}{String.
+Unique identifier for the image driver.}
 
-\item{\code{model}}{String. Default "imagen-3.0-generate-001".}
+\item{\code{model}}{String.
+Google model ID (defaults to multimodal flash).}
 
-\item{\code{output_dir}}{String.}
+\item{\code{output_dir}}{String.
+The directory where generated images will be saved.}
 
-\item{\code{aspect_ratio}}{String.}
+\item{\code{aspect_ratio}}{String.
+The default aspect ratio for generated images (e.g., \code{"16:9"}, \code{"1:1"}).}
 
-\item{\code{validation_mode}}{String.}
+\item{\code{validation_mode}}{String.
+Controls schema enforcement.}
 
 \item{\code{working_dir}}{String.
-Call Gemini Image API (Multimodal Unified)}
+Optional path for isolated execution.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new \code{GeminiImageDriver} instance.
+Call Gemini Image API (Multimodal Unified)
 }
 }
 \if{html}{\out{<hr>}}

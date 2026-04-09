@@ -4,15 +4,26 @@
 \alias{OllamaDriver}
 \title{Ollama Driver R6 Class}
 \value{
-An `OllamaDriver` object.
+An \code{OllamaDriver} object.
 }
 \description{
-Driver for the 'ollama' CLI tool (local).
+A specialized \code{AgentDriver} for local execution of Open source models
+via the \code{ollama} CLI. Ideal for air-gapped or privacy-sensitive workflows.
+}
+\details{
+\strong{Setup}: Ensure the \code{ollama} server is running locally. You can
+specify the binary path via \code{options(HydraR.ollama_path = "...")}.
 }
 \examples{
 \dontrun{
-driver <- OllamaDriver$new()
-driver$call("Hello, Llama")
+# Use llama3 locally via Ollama
+driver <- OllamaDriver$new(model = "llama3")
+
+# Call with context size adjustments
+response <- driver$call(
+  prompt = "Summarize the R documentation for 'lapply'.",
+  cli_opts = list(num_ctx = 8192)
+)
 }
 }
 \section{Super class}{

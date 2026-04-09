@@ -7,19 +7,23 @@
 reducer_merge_list(current, new)
 }
 \arguments{
-\item{current}{The current state list.}
+\item{current}{The current list in the state.}
 
-\item{new}{The new list to merge.}
+\item{new}{The new list to merge in.}
 }
 \value{
-The merged list.
+A single merged list.
 }
 \description{
-Merges two named lists using functional patterns.
-Overwrites current for matching keys.
+A functional reducer that performs a deep merge of two named lists. It
+uses \code{utils::modifyList} internally, ensuring that existing keys are
+overwritten by new values while preserving other keys.
 }
 \examples{
 \dontrun{
-reducer_merge_list(list(a = 1), list(b = 2))
+current <- list(a = 1, b = 2)
+new <- list(b = 3, c = 4)
+merged <- reducer_merge_list(current, new)
+# Result: list(a = 1, b = 3, c = 4)
 }
 }

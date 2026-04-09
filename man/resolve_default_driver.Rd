@@ -8,20 +8,28 @@ Resolve a Default Driver from Shorthand ID}
 resolve_default_driver(driver_id, driver_registry = NULL)
 }
 \arguments{
-\item{driver_id}{String. Driver shorthand (e.g., `"gemini"`, `"claude"`).}
+\item{driver_id}{String.
+A shorthand identifier. Supported values include: \code{"gemini"},
+\code{"gemini_api"}, \code{"anthropic"}, \code{"anthropic_api"},
+\code{"openai"}, \code{"openai_api"}, and \code{"ollama"}.}
 
-\item{driver_registry}{Optional DriverRegistry object.}
+\item{driver_registry}{DriverRegistry.
+An optional registry object to look up custom drivers first. If omitted,
+the global \code{get_driver_registry()} is used.}
 }
 \value{
-An AgentDriver object.
+An \code{AgentDriver} object.
 }
 \description{
-Constructs an AgentDriver from a well-known shorthand string like
-`"gemini"`, `"claude"`, or `"openai"`. Tries the global DriverRegistry
-first; falls back to constructing a new CLI driver.
+Provides a mechanism to quickly obtain a pre-configured \code{AgentDriver}
+using logic-friendly keys like \code{"gemini"}, \code{"claude"}, or \code{"openai"}.
 }
 \examples{
 \dontrun{
-drv <- resolve_default_driver(NULL)
+# Retrieve the default Gemini CLI driver
+drv <- resolve_default_driver("gemini")
+
+# Retrieve a registered API driver
+drv_api <- resolve_default_driver("openai_api")
 }
 }
