@@ -14,6 +14,7 @@ nodes: 1. An **Executor** node (using the Gemini LLM). 2. A
 First, load the library and the Gemini CLI driver.
 
 ``` r
+
 library(HydraR)
 ```
 
@@ -24,6 +25,7 @@ configuration, LLM prompts, agent roles, and deterministic logic—in a
 central registry.
 
 ``` r
+
 hello_logic_registry <- list(
   # 0. Initial Configuration
   initial_state = list(),
@@ -57,6 +59,7 @@ We use a factory function to dynamically create nodes based on their
 type and parameters defined in the Mermaid graph.
 
 ``` r
+
 hello_node_factory <- function(id, label, params) {
   # Driver resolution from Mermaid params
   driver_obj <- if (!is.null(params$driver) && params$driver == "gemini") GeminiCLIDriver$new() else NULL
@@ -88,6 +91,7 @@ string serves as the single source of truth for both structure and node
 metadata.
 
 ``` r
+
 mermaid_graph <- "
 graph TD
   Guesser[LLM Guesser | driver=gemini] --> Validator
@@ -114,10 +118,12 @@ compiled_dag <- dag$compile()
 ## 5. Visualizing the Workflow
 
 ``` r
+
 cat("```mermaid\n")
 ```
 
 ``` mermaid
+
 ``` r
 cat(dag$compile()$plot(type = "mermaid"))
 #> Warning in dag$compile(): Potential infinite loop detected: graph contains
@@ -145,8 +151,10 @@ graph TD
 ```
 
 ``` r
+
 cat("\n```\n")
 ```
+
 
     ## 6. Execution
 

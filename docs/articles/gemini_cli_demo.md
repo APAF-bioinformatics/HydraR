@@ -11,6 +11,7 @@ To keep our architecture clean, we store all workflow components—initial
 configuration, LLM prompts, and agent roles—in a central registry.
 
 ``` r
+
 gemini_logic_registry <- list(
   # 0. Initial Configuration
   initial_state = list(
@@ -37,6 +38,7 @@ We use a factory function to dynamically resolve nodes and their drivers
 based on parameters defined in the Mermaid graph.
 
 ``` r
+
 gemini_node_factory <- function(id, label, params) {
   # Driver resolution from Mermaid params
   driver_obj <- if (!is.null(params$driver) && params$driver == "gemini") {
@@ -62,6 +64,7 @@ string serves as the single source of truth for both structure and node
 metadata.
 
 ``` r
+
 mermaid_graph <- "
 graph TD
   writer[Poetic Bioinformatician | driver=gemini]
@@ -77,6 +80,7 @@ compiled_dag <- dag$compile()
 We assemble the node into an `AgentDAG` and execute it.
 
 ``` r
+
 # Execute with the initial topic from the registry
 res <- compiled_dag$run(initial_state = gemini_logic_registry$initial_state)
 

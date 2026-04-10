@@ -16,6 +16,7 @@ This forms a fundamental **iterative critique-and-revise** loop.
 ## Setup
 
 ``` r
+
 library(HydraR)
 ```
 
@@ -25,6 +26,7 @@ To keep our architecture clean, we store all workflow components—initial
 configuration, LLM prompts, and agent roles—in a central registry.
 
 ``` r
+
 story_logic_registry <- list(
   # 0. Initial Story Prompt
   initial_state = list(
@@ -56,6 +58,7 @@ We use a factory function to dynamically create nodes based on
 parameters defined in the Mermaid graph.
 
 ``` r
+
 story_node_factory <- function(id, label, params) {
   # Driver resolution from Mermaid params
   driver_obj <- if (params$driver == "gemini") GeminiCLIDriver$new() else NULL
@@ -77,6 +80,7 @@ string serves as the single source of truth for both structure and node
 metadata.
 
 ``` r
+
 mermaid_graph <- "
 graph TD
   Writer[Story Author | driver=gemini] --> Reviewer
@@ -103,10 +107,12 @@ compiled_dag <- dag$compile()
 ## Visualizing the Workflow
 
 ``` r
+
 cat("```mermaid\n")
 ```
 
 ``` mermaid
+
 ``` r
 cat(dag$compile()$plot(type = "mermaid"))
 #> Warning in dag$compile(): Potential infinite loop detected: graph contains
@@ -134,8 +140,10 @@ graph TD
 ```
 
 ``` r
+
 cat("\n```\n")
 ```
+
 
     ## Running the Agent
 

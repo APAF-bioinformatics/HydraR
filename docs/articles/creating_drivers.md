@@ -25,6 +25,7 @@ A powerful mocking pattern is **Response Queuing**, where the driver
 returns a sequence of pre-defined answers across multiple calls.
 
 ``` r
+
 library(HydraR)
 library(R6)
 
@@ -72,6 +73,7 @@ CLI drivers are the primary way `HydraR` interacts with tools like
     worktree isolation.
 
 ``` r
+
 CustomCLIDriver <- R6::R6Class("CustomCLIDriver",
   inherit = AgentDriver,
   public = list(
@@ -108,6 +110,7 @@ For cloud-based providers, use `httr2` inside the
 [`call()`](https://rdrr.io/r/base/call.html) method.
 
 ``` r
+
 CustomAPIDriver <- R6::R6Class("CustomAPIDriver",
   inherit = AgentDriver,
   public = list(
@@ -150,6 +153,7 @@ context.
 > [`getwd()`](https://rdrr.io/r/base/getwd.html).
 
 ``` r
+
 # Internal logic in AgentDriver
 exec_in_dir = function(command, args, ...) {
   if (!is.null(self$working_dir)) {
@@ -170,6 +174,7 @@ The modern way to integrate your custom driver into a workflow is
 through a **Node Factory** and a **Mermaid Graph**.
 
 ``` r
+
 # 1. Define a factory that resolves your custom driver
 my_node_factory <- function(id, label, params) {
   # Use parameters from the Mermaid graph to configure the driver

@@ -121,6 +121,7 @@ multi-agent workflows.
 You can install the development version from GitHub:
 
 ``` r
+
 # install.packages("devtools")
 devtools::install_github("apaf-bioinformatics/HydraR")
 ```
@@ -254,6 +255,7 @@ graph: |
 ```
 
 ``` r
+
 library(HydraR)
 wf <- load_workflow("workflow.yml")
 dag <- spawn_dag(wf)
@@ -266,6 +268,7 @@ Perfect for developers who want full programmatic control over node
 logic.
 
 ``` r
+
 library(HydraR)
 
 # 1. Define a simple logic node
@@ -301,6 +304,7 @@ We recommend using the
 your DAGs:
 
 ``` r
+
 library(HydraR)
 library(DiagrammeR)
 

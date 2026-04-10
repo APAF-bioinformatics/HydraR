@@ -17,6 +17,7 @@ mix of linear execution and cyclic feedback using the **Gemini CLI**.
 ## Setup
 
 ``` r
+
 library(HydraR)
 ```
 
@@ -26,6 +27,7 @@ To keep our architecture clean, we store all workflow components—initial
 configuration, LLM prompts, and agent roles—in a central registry.
 
 ``` r
+
 blog_logic_registry <- list(
   # 0. Initial Blog Topic
   initial_state = list(
@@ -61,6 +63,7 @@ We use a factory function to dynamically create nodes based on
 parameters defined in the Mermaid graph.
 
 ``` r
+
 blog_node_factory <- function(id, label, params) {
   # Driver resolution from Mermaid params
   driver_obj <- if (params$driver == "gemini") GeminiCLIDriver$new() else NULL
@@ -82,6 +85,7 @@ string serves as the single source of truth for both structure and node
 metadata.
 
 ``` r
+
 mermaid_graph <- "
 graph TD
   Outliner[Content Strategist | driver=gemini] --> Drafter
@@ -109,10 +113,12 @@ compiled_dag <- dag$compile()
 ## Visualizing the Workflow
 
 ``` r
+
 cat("```mermaid\n")
 ```
 
 ``` mermaid
+
 ``` r
 cat(compiled_dag$plot(type = "mermaid"))
 ```
@@ -140,8 +146,10 @@ graph TD
 ```
 
 ``` r
+
 cat("\n```\n")
 ```
+
 
     ## Running the Scenario
 

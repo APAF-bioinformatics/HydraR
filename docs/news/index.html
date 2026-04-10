@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">HydraR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,6 +45,20 @@
       <small>Source: <a href="https://github.com/APAF-bioinformatics/HydraR/blob/HEAD/NEWS.md"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.3" id="hydrar-023-pkgstats-network-recovery">HydraR 0.2.3 (Pkgstats Network Recovery)<a class="anchor" aria-label="anchor" href="#hydrar-023-pkgstats-network-recovery"></a></h2>
+<ul><li>
+<strong>Static Analysis Resilience</strong>:
+<ul><li>Standardized <code>DESCRIPTION</code> file formatting to fix a total breakdown in the <code>pkgstats</code> function call network report.</li>
+<li>Removed the manual <code>Collate</code> field to reduce metadata complexity and allow default alphabetical loading order (compatible with <code>zzz.R</code> initialization).</li>
+<li>Replaced bitwise control characters (<code>\001</code>, <code>\002</code>) in <code>mermaid_parser.R</code> with safe string delimiters (<code>@@@</code>, <code>###</code>) to prevent signal interruptions in static analysis parsers.</li>
+</ul></li>
+<li>
+<strong>Workflow &amp; Automation</strong>:
+<ul><li>Updated the <code>pkgdown</code> GitHub workflow to ensure unit tests are executed as a prerequisite for documentation deployment.</li>
+<li>Integrated the official <code>ropensci/pkgcheck-action</code> workflow to automate rOpenSci compliance checks on every push.</li>
+</ul></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.2" id="hydrar-022-documentation-overhaul--release-polish">HydraR 0.2.2 (Documentation Overhaul &amp; Release Polish)<a class="anchor" aria-label="anchor" href="#hydrar-022-documentation-overhaul--release-polish"></a></h2>
 <ul><li>

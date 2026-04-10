@@ -22,6 +22,7 @@ graph TD
 ## Setup
 
 ``` r
+
 # install.packages("devtools") # Run if devtools is not installed
 devtools::install_github("APAF-bioinformatics/HydraR")
 
@@ -35,6 +36,7 @@ First, we load the `HydraR` package and initialize a `MemoryMessageLog`
 to audit our simulation.
 
 ``` r
+
 library(HydraR)
 
 # Initialize a persistent, parallel-safe audit log
@@ -48,6 +50,7 @@ To keep our architecture clean, we store the deterministic logic for
 both Voters and the Leader in a central registry.
 
 ``` r
+
 consensus_logic_registry <- list(
   # 1. Deterministic Logic Functions
   logic = list(
@@ -90,6 +93,7 @@ use a generic `Voter` logic for multiple independent nodes (`V1`, `V2`,
 `V3`).
 
 ``` r
+
 consensus_node_factory <- function(id, label, params) {
   # Map V1, V2, V3 to the generic Voter logic
   logic_key <- if (grepl("^V", id)) "Voter" else id
@@ -109,6 +113,7 @@ string serves as the single source of truth for both structure and node
 metadata.
 
 ``` r
+
 mermaid_graph <- "
 graph TD
   V1[Voter Alpha] --> Leader
@@ -130,6 +135,7 @@ We assemble the nodes into an `AgentDAG`. The `Leader` depends on all
 three `Voters`.
 
 ``` r
+
 # Execute the consensus run
 final_run <- compiled_dag$run(initial_state = list(topic = "simulation"))
 
@@ -144,6 +150,7 @@ Since we attached a `MemoryMessageLog`, we can inspect the raw message
 transfers that occurred during the simulation.
 
 ``` r
+
 # Retrieve all recorded messages from the audit log
 all_msgs <- message_log$get_all()
 
@@ -166,10 +173,12 @@ The [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method
 shows the final status of our consensus engine.
 
 ``` r
+
 cat(dag$plot(status = TRUE))
 ```
 
 ``` r
+
 library(DiagrammeR)
 # Get the mermaid syntax from the DAG
 mermaid_string <- dag$plot(status = TRUE)

@@ -24,6 +24,7 @@ To keep our architecture clean, we store all deterministic logic
 functions in a central registry.
 
 ``` r
+
 round_trip_logic_registry <- list(
   # 1. Deterministic Logic Functions
   logic = list(
@@ -53,6 +54,7 @@ We use a factory function to dynamically resolve nodes. If a specialized
 logic function isn’t found, we fall back to a default processing node.
 
 ``` r
+
 round_trip_node_factory <- function(id, label, params) {
   logic_fn <- round_trip_logic_registry$logic[[id]] %||% round_trip_logic_registry$logic$Default
 
@@ -70,6 +72,7 @@ Next, we create the DAG from our Mermaid string and run it with a
 `max_steps` limit.
 
 ``` r
+
 mermaid_spec <- "
 graph TD
   Start[Initial Search] --> Summarize[Summarize Findings]
@@ -119,6 +122,7 @@ After a run, you can generate a **status-colored** Mermaid string using
 the `plot(status = TRUE)` method.
 
 ``` r
+
 # Export status-colored Mermaid
 mermaid_colored <- dag$plot(status = TRUE)
 ```
@@ -151,6 +155,7 @@ mermaid_colored <- dag$plot(status = TRUE)
     #> ```
 
 ``` r
+
 
 # Show the colored Mermaid syntax
 cat(mermaid_colored)

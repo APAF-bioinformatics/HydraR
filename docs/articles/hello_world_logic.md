@@ -6,6 +6,7 @@ nodes, demonstrating simple data processing and state persistence.
 ## Setup
 
 ``` r
+
 library(HydraR)
 ```
 
@@ -15,6 +16,7 @@ To keep our architecture clean, we store all deterministic logic
 functions and the initial configuration in a central registry.
 
 ``` r
+
 hello_logic_registry <- list(
   # 0. Initial Configuration
   initial_state = list(
@@ -41,6 +43,7 @@ We use a factory function to dynamically create nodes based on their IDs
 defined in the Mermaid graph.
 
 ``` r
+
 hello_node_factory <- function(id, label, params) {
   AgentLogicNode$new(
     id = id,
@@ -57,6 +60,7 @@ string serves as the single source of truth for both structure and node
 metadata.
 
 ``` r
+
 mermaid_graph <- "
 graph TD
   collect_input[Collect Input] --> process_data[Process Data]
@@ -73,6 +77,7 @@ compiled_dag <- dag$compile()
 We use a `MemorySaver` to persist the state throughout the run.
 
 ``` r
+
 checkpointer <- MemorySaver$new()
 thread_id <- "hello_test_run"
 
@@ -96,6 +101,7 @@ print(final$results$process_data$output$processed_result)
 The `Checkpointer` allows us to verify the final state.
 
 ``` r
+
 restored <- checkpointer$get(thread_id)
 print(restored$get("processed_result"))
 #> [1] "HYDRAR says: HELLO HYDRA"

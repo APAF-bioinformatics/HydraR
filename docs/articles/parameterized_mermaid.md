@@ -22,6 +22,7 @@ To keep our architecture clean, we store the logic for our custom nodes
 in a central registry.
 
 ``` r
+
 param_logic_registry <- list(
   # 1. Custom Node Logic
   logic = list(
@@ -45,6 +46,7 @@ We use a factory function to dynamically resolve nodes and inject
 parameters parsed from the Mermaid graph.
 
 ``` r
+
 # 1. Define a Specialized Node Factory
 param_node_factory <- function(id, label, params = list()) {
   # Create a custom node class for this example
@@ -65,6 +67,7 @@ param_node_factory <- function(id, label, params = list()) {
 ## Instantiating and Running the DAG
 
 ``` r
+
 # Define the spec
 mermaid_spec <- "
 graph TD
@@ -146,6 +149,7 @@ You can also use the `plot(details = TRUE)` method to export your DAG
 back to Mermaid with the parameters preserved or filtered.
 
 ``` r
+
 # Show all parameters
 cat(dag$plot(details = TRUE))
 ```
@@ -168,6 +172,7 @@ cat(dag$plot(details = TRUE))
     #> ```
 
 ``` r
+
 
 # Filter to specific parameters
 cat(dag$plot(details = TRUE, include_params = "retries"))

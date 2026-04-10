@@ -11,6 +11,7 @@ Every driver must implement the
 prompt to the LLM and returns the text response.
 
 ``` r
+
 library(HydraR)
 library(R6)
 
@@ -31,6 +32,7 @@ When developing workflows, you often want to avoid the cost and latency
 of real LLM calls. A **Mock Driver** provides deterministic responses.
 
 ``` r
+
 MockDriver <- R6::R6Class("MockDriver",
   inherit = AgentDriver,
   public = list(
@@ -61,6 +63,7 @@ graph: |
 ### Step 2: Use a Node Factory to Resolve the Driver
 
 ``` r
+
 library(HydraR)
 
 # Define a factory that resolves your custom driver

@@ -22,6 +22,7 @@ We define a 3-step pipeline with a “Risky” node in the middle that will
 pause until a condition is met.
 
 ``` r
+
 library(HydraR)
 
 # Load the resilient workflow from YAML
@@ -46,6 +47,7 @@ We run the DAG with `fixed = FALSE`. The second node will **pause** the
 pipeline and save the state to DuckDB.
 
 ``` r
+
 # Configure DuckDB Persistence
 saver <- DuckDBSaver$new(db_path = "history.duckdb")
 tid <- "session-001"
@@ -76,6 +78,7 @@ Next, we “fix” the state by setting `fixed = TRUE` and restart from
 DuckDB, and re-executes from the paused node.
 
 ``` r
+
 # Run 2: Resume from Step2 using the SAME thread_id
 final_results <- dag$run(
   thread_id = tid,

@@ -1,5 +1,22 @@
 # Changelog
 
+## HydraR 0.2.3 (Pkgstats Network Recovery)
+
+- **Static Analysis Resilience**:
+  - Standardized `DESCRIPTION` file formatting to fix a total breakdown
+    in the `pkgstats` function call network report.
+  - Removed the manual `Collate` field to reduce metadata complexity and
+    allow default alphabetical loading order (compatible with `zzz.R`
+    initialization).
+  - Replaced bitwise control characters (`\001`, `\002`) in
+    `mermaid_parser.R` with safe string delimiters (`@@@`, `###`) to
+    prevent signal interruptions in static analysis parsers.
+- **Workflow & Automation**:
+  - Updated the `pkgdown` GitHub workflow to ensure unit tests are
+    executed as a prerequisite for documentation deployment.
+  - Integrated the official `ropensci/pkgcheck-action` workflow to
+    automate rOpenSci compliance checks on every push.
+
 ## HydraR 0.2.2 (Documentation Overhaul & Release Polish)
 
 - **Comprehensive Documentation Overhaul**:

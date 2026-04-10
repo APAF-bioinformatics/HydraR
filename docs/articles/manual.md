@@ -61,6 +61,7 @@ HydraR also supports cycles for looping).
 #### Installing HydraR
 
 ``` r
+
 # Install from GitHub
 # install.packages("devtools")
 devtools::install_github("apaf-bioinformatics/HydraR")
@@ -82,6 +83,7 @@ After creating or editing `.Renviron`, restart your R session so the
 variables take effect. You can verify they’re loaded:
 
 ``` r
+
 Sys.getenv("GOOGLE_API_KEY")
 # Should print your key, not ""
 ```
@@ -141,6 +143,7 @@ initial_state:
 And the R code to run it:
 
 ``` r
+
 library(HydraR)
 
 wf      <- load_workflow("question_answerer.yml")
@@ -172,6 +175,7 @@ Every workflow file supports these top-level keys:
 #### The Load → Spawn → Run Lifecycle
 
 ``` r
+
 library(HydraR)
 
 # 1. Load — parses YAML, registers all roles and logic automatically
@@ -194,6 +198,7 @@ You can add persistence to your YAML workflow by passing a
 `checkpointer` and a `message_log` to the `run()` method:
 
 ``` r
+
 library(HydraR)
 
 # 1. Setup persistent storage
@@ -230,6 +235,7 @@ YAML. - **R Logic Linting**: Syntax errors in your inline R functions or
 missing `state` references.
 
 ``` r
+
 library(HydraR)
 
 # Comprehensive check: schema + topology + R linting
@@ -243,6 +249,7 @@ high-resolution image for reports using
 [`render_workflow_file()`](https://github.com/APAF-bioinformatics/HydraR/reference/render_workflow_file.md).
 
 ``` r
+
 library(HydraR)
 
 # View interactive diagram in RStudio
@@ -282,6 +289,7 @@ Every logic function in HydraR follows the same contract: it receives an
 `AgentState` object and returns a list with `status` and `output`.
 
 ``` r
+
 library(HydraR)
 
 # A function that greets a user by name
@@ -297,6 +305,7 @@ greeter <- function(state) {
 Now we wrap that function in a node, add it to a DAG, and run it:
 
 ``` r
+
 # Create the DAG (the workflow container)
 dag <- AgentDAG$new()
 
@@ -327,6 +336,7 @@ A single node isn’t very exciting. The power of HydraR comes from
 data, and the next summarises it.
 
 ``` r
+
 library(HydraR)
 
 # Step 1: Fetch data
@@ -395,6 +405,7 @@ to a specific provider.
 #### Example: An LLM Summariser
 
 ``` r
+
 library(HydraR)
 
 # Create a driver (this one talks to Google's Gemini API)
@@ -446,6 +457,7 @@ this with **conditional edges**.
 #### The Pattern: Generate → Validate → Loop or Continue
 
 ``` r
+
 library(HydraR)
 
 # A mock driver for testing (no API key needed)
@@ -548,6 +560,7 @@ the response. This is the node you use whenever you need creative
 reasoning, natural language generation, or complex analysis.
 
 ``` r
+
 AgentLLMNode$new(
   id = "analyst",
   role = "You are a data scientist.",
@@ -565,6 +578,7 @@ deterministic tasks: data validation, file I/O, calculations, template
 rendering, or decision-making.
 
 ``` r
+
 AgentLogicNode$new(
   id = "validator",
   logic_fn = function(state) {
@@ -582,6 +596,7 @@ logic. Unlike conditional edges (which are binary true/false), a router
 can select from any number of downstream nodes.
 
 ``` r
+
 # In YAML:
 # Router["Triage | type=router | logic_id=triage_fn"]
 register_logic("triage_fn", function(state) {
@@ -599,6 +614,7 @@ each item. This is HydraR’s answer to
 workflow level.
 
 ``` r
+
 # Process each gene in a list
 # In YAML:
 # Processor["Gene Analyser | type=map | map_key=gene_list | logic_id=analyse_gene"]
@@ -615,6 +631,7 @@ read-only view of the state, ensuring that monitoring code never
 accidentally corrupts your pipeline.
 
 ``` r
+
 # In YAML:
 # Logger["Audit Log | type=observer | logic_id=log_fn"]
 register_logic("log_fn", function(state) {
@@ -630,6 +647,7 @@ agents work in isolated git worktrees (see Part 11), the merge node
 reconciles their file changes back into the main branch.
 
 ``` r
+
 harmonizer <- create_merge_harmonizer(id = "merge_point")
 ```
 
@@ -655,6 +673,7 @@ how it works will save you from confusion later.
 You can enforce types on state keys to catch errors early:
 
 ``` r
+
 state <- AgentState$new(
   initial_data = list(count = 0, labels = list()),
   schema = list(count = "numeric", labels = "list")
@@ -671,6 +690,7 @@ sometimes you want to *accumulate* values—for example, building a log of
 all messages. **Reducers** let you define custom merge behaviour:
 
 ``` r
+
 state <- AgentState$new(
   initial_data = list(log = list()),
   reducers = list(log = reducer_append)
@@ -699,6 +719,7 @@ saving the state after every node execution.
 #### Using a DuckDB Checkpointer
 
 ``` r
+
 library(HydraR)
 
 # Create a persistent checkpointer
@@ -754,6 +775,7 @@ each parallel branch gets its own isolated copy of the repository.
 #### Example
 
 ``` r
+
 dag$run(
   initial_state = list(),
   use_worktrees = TRUE,
@@ -808,6 +830,7 @@ database. This ensures that the state is preserved even if you close
 your R session while waiting for human review.
 
 ``` r
+
 library(HydraR)
 
 # 1. Setup persistent storage
@@ -845,6 +868,7 @@ reusable components.
 #### Registering Logic
 
 ``` r
+
 # Register a reusable validation function
 register_logic("check_quality", function(state) {
   score <- state$get("quality_score")
@@ -861,6 +885,7 @@ fn <- get_logic("check_quality")
 #### Registering Roles
 
 ``` r
+
 # Register a reusable system prompt
 register_role("statistician", 
   "You are an expert biostatistician. Always cite p-values and confidence intervals."
@@ -890,6 +915,7 @@ in Markdown files, Jupyter notebooks, GitHub READMEs, or the
 #### Rendering a DAG
 
 ``` r
+
 library(HydraR)
 library(DiagrammeR)
 
@@ -904,6 +930,7 @@ After a run completes, you can generate a coloured diagram showing which
 nodes succeeded, failed, or were skipped:
 
 ``` r
+
 # Green = success, Red = failed, Grey = skipped
 DiagrammeR::mermaid(dag$plot(status = TRUE))
 ```
@@ -926,6 +953,7 @@ agents whose underlying CLI tools (like `claude` or `gemini`) natively
 support MCP. You configure MCP through the `cli_opts` parameter:
 
 ``` r
+
 # Claude with MCP SQL server
 node <- AgentLLMNode$new(
   id = "db_analyst",
@@ -957,6 +985,7 @@ learned. This workflow analyses gene expression data using an iterative
 refinement loop with checkpointing.
 
 ``` r
+
 library(HydraR)
 
 # ── 1. Register reusable logic ──
