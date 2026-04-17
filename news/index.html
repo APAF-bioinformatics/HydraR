@@ -53,12 +53,6 @@
 <li>Standardized state mutation within R6 methods to use direct field assignment (<code>self$x &lt;- val</code>).</li>
 </ul></li>
 <li>
-<strong>Driver &amp; Execution Enhancements</strong>:
-<ul><li>Refactored <code>AgentLLMNode</code> to use <code><a href="https://purrr.tidyverse.org/reference/reduce.html" class="external-link">purrr::reduce</a></code> for robust system prompt construction.</li>
-<li>Improved environment isolation for Python and Bash nodes.</li>
-<li>Enhanced error handling for <code>reticulate</code>-based Python execution.</li>
-</ul></li>
-<li>
 <strong>Unit Testing Overhaul</strong>:
 <ul><li>Updated the entire test suite to be <code>&lt;&lt;-</code> clean.</li>
 <li>Improved mock driver implementations for better <code>httr2</code> and CLI simulation.</li>

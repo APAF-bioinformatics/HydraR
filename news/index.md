@@ -9,12 +9,6 @@
     ([`purrr::reduce`](https://purrr.tidyverse.org/reference/reduce.html)).
   - Standardized state mutation within R6 methods to use direct field
     assignment (`self$x <- val`).
-- **Driver & Execution Enhancements**:
-  - Refactored `AgentLLMNode` to use
-    [`purrr::reduce`](https://purrr.tidyverse.org/reference/reduce.html)
-    for robust system prompt construction.
-  - Improved environment isolation for Python and Bash nodes.
-  - Enhanced error handling for `reticulate`-based Python execution.
 - **Unit Testing Overhaul**:
   - Updated the entire test suite to be `<<-` clean.
   - Improved mock driver implementations for better `httr2` and CLI
