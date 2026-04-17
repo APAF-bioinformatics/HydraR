@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">HydraR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,6 +45,36 @@
       <small>Source: <a href="https://github.com/APAF-bioinformatics/HydraR/blob/main/NEWS.md"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.4" id="hydrar-024-apaf-compliance--idempotency">HydraR 0.2.4 (APAF Compliance &amp; Idempotency)<a class="anchor" aria-label="anchor" href="#hydrar-024-apaf-compliance--idempotency"></a></h2>
+<ul><li>
+<strong>APAF Compliance Refactor</strong>:
+<ul><li>Absolute removal of all global assignment operators (<code>&lt;&lt;-</code>) across the package (R scripts, tests, and vignettes) in favor of local environments and functional programming patterns (<code><a href="https://purrr.tidyverse.org/reference/reduce.html" class="external-link">purrr::reduce</a></code>).</li>
+<li>Standardized state mutation within R6 methods to use direct field assignment (<code>self$x &lt;- val</code>).</li>
+</ul></li>
+<li>
+<strong>Native Idempotency Engine</strong>:
+<ul><li>Introduced <code>AgentHasher</code> (R/hasher.R), a DuckDB-backed engine for node-level execution hashing.</li>
+<li>Enables “targets-like” behavior where nodes can skip execution if input state and logic remain unchanged.</li>
+</ul></li>
+<li>
+<strong>Automated Skill Discovery</strong>:
+<ul><li>Implemented <code>discover_package_skills()</code> (R/skill_discovery.R) for automatic discovery and registration of external package skills via <code>hydrar/manifest.yaml</code>.</li>
+</ul></li>
+<li>
+<strong>Driver &amp; Execution Enhancements</strong>:
+<ul><li>Refactored <code>AgentLLMNode</code> to use <code><a href="https://purrr.tidyverse.org/reference/reduce.html" class="external-link">purrr::reduce</a></code> for robust system prompt construction.</li>
+<li>Improved environment isolation for Python and Bash nodes.</li>
+<li>Enhanced error handling for <code>reticulate</code>-based Python execution.</li>
+</ul></li>
+<li>
+<strong>Unit Testing Overhaul</strong>:
+<ul><li>Updated the entire test suite to be <code>&lt;&lt;-</code> clean.</li>
+<li>Improved mock driver implementations for better <code>httr2</code> and CLI simulation.</li>
+</ul></li>
+<li>
+<strong>Watermark &amp; Versioning</strong>: Updated APAF watermarks and incremented version to 0.2.4.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.3" id="hydrar-023-pkgstats-network-recovery">HydraR 0.2.3 (Pkgstats Network Recovery)<a class="anchor" aria-label="anchor" href="#hydrar-023-pkgstats-network-recovery"></a></h2>
 <ul><li>
@@ -138,7 +168,7 @@
 <strong>Mermaid Round-Trip</strong>: Visual design engine for converting between R objects and Mermaid.js syntax, enabling human-in-the-loop auditability.</li>
 <li>
 <strong>AI Transparency</strong>: Disclosure of LLM usage in development through <code>agents.md</code> and <code>DESIGN.md</code>.</li>
-</ul><hr><!-- APAF Bioinformatics | HydraR | Approved | 2026-03-31 --></div>
+</ul><hr><!-- APAF Bioinformatics | HydraR | Approved | 2026-04-17 --></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

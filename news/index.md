@@ -1,5 +1,36 @@
 # Changelog
 
+## HydraR 0.2.4 (APAF Compliance & Idempotency)
+
+- **APAF Compliance Refactor**:
+  - Absolute removal of all global assignment operators (`<<-`) across
+    the package (R scripts, tests, and vignettes) in favor of local
+    environments and functional programming patterns
+    ([`purrr::reduce`](https://purrr.tidyverse.org/reference/reduce.html)).
+  - Standardized state mutation within R6 methods to use direct field
+    assignment (`self$x <- val`).
+- **Native Idempotency Engine**:
+  - Introduced `AgentHasher` (R/hasher.R), a DuckDB-backed engine for
+    node-level execution hashing.
+  - Enables “targets-like” behavior where nodes can skip execution if
+    input state and logic remain unchanged.
+- **Automated Skill Discovery**:
+  - Implemented `discover_package_skills()` (R/skill_discovery.R) for
+    automatic discovery and registration of external package skills via
+    `hydrar/manifest.yaml`.
+- **Driver & Execution Enhancements**:
+  - Refactored `AgentLLMNode` to use
+    [`purrr::reduce`](https://purrr.tidyverse.org/reference/reduce.html)
+    for robust system prompt construction.
+  - Improved environment isolation for Python and Bash nodes.
+  - Enhanced error handling for `reticulate`-based Python execution.
+- **Unit Testing Overhaul**:
+  - Updated the entire test suite to be `<<-` clean.
+  - Improved mock driver implementations for better `httr2` and CLI
+    simulation.
+- **Watermark & Versioning**: Updated APAF watermarks and incremented
+  version to 0.2.4.
+
 ## HydraR 0.2.3 (Pkgstats Network Recovery)
 
 - **Static Analysis Resilience**:
