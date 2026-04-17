@@ -52,15 +52,16 @@ test_that("Story Teller collaboration works", {
   dag$add_edge("Writer", "Reviewer")
 
   # Inject loop success on second iteration
-  loop_count <- 0
+  env <- new.env(parent = emptyenv())
+  env$loop_count <- 0
   dag$add_conditional_edge(
     from = "Reviewer",
     test = function(out) {
-      loop_count <<- loop_count + 1
-      if (loop_count == 1) {
+      env$loop_count <- env$loop_count + 1
+      if (env$loop_count == 1) {
         driver$response <- "Approved"
       }
-      if (loop_count >= 2) {
+      if (env$loop_count >= 2) {
         return(TRUE)
       }
       return(FALSE)
@@ -77,7 +78,7 @@ test_that("Story Teller collaboration works", {
     max_steps = 10
   ))
   # Assertions
-  expect_equal(loop_count, 2)
+  expect_equal(env$loop_count, 2)
   expect_equal(result$state$get("Reviewer"), "Approved")
 })
 

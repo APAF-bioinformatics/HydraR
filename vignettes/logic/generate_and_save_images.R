@@ -54,12 +54,13 @@ function(state) {
     }
 
     # Harmonize prompts for state
-    prompts <- list()
+    env <- new.env(parent = emptyenv())
+    env$prompts <- list()
     purrr::walk(results, function(res) {
-      prompts[[res$filename]] <<- res$prompt
+      env$prompts[[res$filename]] <- res$prompt
     })
 
-    list(status = "SUCCESS", output = list(image_prompts = prompts))
+    list(status = "SUCCESS", output = list(image_prompts = env$prompts))
   }, error = function(e) {
     msg <- if (inherits(e, "error")) e$message else as.character(e)
     message("ERROR in generate_and_save_images: ", msg)

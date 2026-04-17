@@ -53,8 +53,9 @@ create_merge_harmonizer <- function(id = "merge_harmonizer",
     cat(sprintf("[%s] Starting merge of %d branches into %s...\n", id, length(node_ids), base_branch))
 
     # 3. Perform Merges
-    merge_results <- list()
-    conflicts <- list()
+    env <- new.env(parent = emptyenv())
+    env$merge_results <- list()
+    env$conflicts <- list()
 
     # Ensure we are on the base branch in the main repo and it is physically up to date
     system2("git", c("-C", shQuote(repo_root), "checkout", "-f", shQuote(base_branch)), stdout = FALSE, stderr = FALSE)
@@ -86,10 +87,10 @@ create_merge_harmonizer <- function(id = "merge_harmonizer",
           if (res_logic$status == "RESOLVED") {
             resolved <- TRUE
           } else {
-            conflicts[[node_id]] <<- list(branch = branch, detail = res_logic)
+            env$conflicts[[node_id]] <- list(branch = branch, detail = res_logic)
           }
         } else {
-          conflicts[[node_id]] <<- list(branch = branch, detail = "Manual merge required")
+          env$conflicts[[node_id]] <- list(branch = branch, detail = "Manual merge required")
         }
 
         if (!resolved) {
@@ -98,7 +99,7 @@ create_merge_harmonizer <- function(id = "merge_harmonizer",
         }
       } else {
         # Success
-        merge_results[[node_id]] <<- "merged"
+        env$merge_results[[node_id]] <- "merged"
         # Cleanup the branch now that it is merged
         wt_manager$delete_branch(node_id)
         # Re-checkout base_branch in main repo to physically populate the new files
@@ -109,19 +110,19 @@ create_merge_harmonizer <- function(id = "merge_harmonizer",
     })
 
     # 4. Final Status
-    if (length(conflicts) > 0) {
+    if (length(env$conflicts) > 0) {
       return(list(
         status = "pause",
         output = list(
-          merge_results = merge_results,
-          conflicts = conflicts
+          merge_results = env$merge_results,
+          conflicts = env$conflicts
         )
       ))
     }
 
     return(list(
       status = "success",
-      output = list(merge_results = merge_results)
+      output = list(merge_results = env$merge_results)
     ))
   }
 

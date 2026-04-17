@@ -214,21 +214,22 @@ AgentPythonNode <- R6::R6Class("AgentPythonNode",
           full_script <- paste0(preamble, script_content)
 
           # Initialize err
-          err <- NULL
+          env <- new.env(parent = emptyenv())
+          env$err <- NULL
           output <- capture.output({
             tryCatch(
               {
                 reticulate::py_run_string(full_script)
               },
               error = function(e) {
-                err <<- e$message
+                env$err <- e$message
               }
             )
           })
 
           result_val <- NULL
           py_obj <- reticulate::py
-          if ("result" %in% names(py_obj) && is.null(err)) {
+          if ("result" %in% names(py_obj) && is.null(env$err)) {
             tryCatch(
               {
                 result_val <- py_obj$result
@@ -240,8 +241,8 @@ AgentPythonNode <- R6::R6Class("AgentPythonNode",
           list(
             output = paste(output, collapse = "\n"),
             result = result_val,
-            error = err,
-            success = is.null(err)
+            error = env$err,
+            success = is.null(env$err)
           )
         })
       }

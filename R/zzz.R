@@ -17,6 +17,11 @@
   register_role("apaf_coder", "You are a HydraR Engineering Agent. Implement efficient, vectorized R code (no for-loops) according to APAF Global standards.")
   register_role("apaf_auditor", "You are a Compliance Auditor. Review the preceding R code for APAF style, efficiency, and security leaks.")
 
+  # Automated Skill Discovery (Expansion 2026)
+  if (identical(Sys.getenv("HYDRAR_AUTO_DISCOVER"), "TRUE")) {
+    discover_package_skills(quiet = TRUE)
+  }
+
   invisible(NULL)
 }
 

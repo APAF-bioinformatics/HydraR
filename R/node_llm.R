@@ -142,21 +142,25 @@ AgentLLMNode <- R6::R6Class("AgentLLMNode",
 
       # 2. Explicit Static Paths (via agents_files / skills_files)
       if (length(self$agents_files) > 0) {
-        purrr::walk(self$agents_files, function(f) {
+        system_prompt <- purrr::reduce(self$agents_files, function(prompt, f) {
           if (file.exists(f)) {
             content <- paste(readLines(f, warn = FALSE), collapse = "\n")
-            system_prompt <<- paste0(system_prompt, "\n\n### Additional Agent Context (", basename(f), ")\n", content)
+            paste0(prompt, "\n\n### Additional Agent Context (", basename(f), ")\n", content)
+          } else {
+            prompt
           }
-        })
+        }, .init = system_prompt)
       }
 
       if (length(self$skills_files) > 0) {
-        purrr::walk(self$skills_files, function(f) {
+        system_prompt <- purrr::reduce(self$skills_files, function(prompt, f) {
           if (file.exists(f)) {
             content <- paste(readLines(f, warn = FALSE), collapse = "\n")
-            system_prompt <<- paste0(system_prompt, "\n\n### Additional Skills Context (", basename(f), ")\n", content)
+            paste0(prompt, "\n\n### Additional Skills Context (", basename(f), ")\n", content)
+          } else {
+            prompt
           }
-        })
+        }, .init = system_prompt)
       }
 
       # Use Driver

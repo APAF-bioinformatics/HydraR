@@ -66,7 +66,8 @@ extract_edge_and_node_strings <- function(line) {
 #' @return A list with `label` (clean label) and `params` (list of parsed parameters).
 #' @noRd
 extract_params <- function(label_text) {
-  params <- list()
+  env <- new.env(parent = emptyenv())
+  env$params <- list()
   label <- label_text
 
   if (grepl("\\|", label_text)) {
@@ -101,12 +102,12 @@ extract_params <- function(label_text) {
             val
           }
         }
-        params[[key]] <<- coerced_val
+        env$params[[key]] <- coerced_val
       }
     })
   }
 
-  list(label = label, params = params)
+  list(label = label, params = env$params)
 }
 
 #' Parse Node String
@@ -147,27 +148,28 @@ parse_node_string <- function(p) {
 #' @return A data.frame containing deduplicated nodes with a list-column for parameters.
 #' @noRd
 build_nodes_df <- function(all_nodes_raw) {
-  node_map <- list()
+  env <- new.env(parent = emptyenv())
+  env$node_map <- list()
   purrr::walk(all_nodes_raw, function(node) {
     id <- node$id
-    if (is.null(node_map[[id]])) {
-      node_map[[id]] <<- list(label = node$label, params = node$params)
+    if (is.null(env$node_map[[id]])) {
+      env$node_map[[id]] <- list(label = node$label, params = node$params)
     } else {
       # Merge params and update label if more descriptive
-      current <- node_map[[id]]
+      current <- env$node_map[[id]]
       new_label <- if (current$label == id && node$label != id) node$label else current$label
       new_params <- utils::modifyList(current$params, node$params)
-      node_map[[id]] <<- list(label = new_label, params = new_params)
+      env$node_map[[id]] <- list(label = new_label, params = new_params)
     }
   })
 
-  if (length(node_map) > 0) {
+  if (length(env$node_map) > 0) {
     df <- data.frame(
-      id = names(node_map),
-      label = purrr::map_chr(node_map, "label"),
+      id = names(env$node_map),
+      label = purrr::map_chr(env$node_map, "label"),
       stringsAsFactors = FALSE
     )
-    df$params <- lapply(node_map, function(x) x$params)
+    df$params <- lapply(env$node_map, function(x) x$params)
     df
   } else {
     df <- data.frame(id = character(), label = character(), stringsAsFactors = FALSE)
