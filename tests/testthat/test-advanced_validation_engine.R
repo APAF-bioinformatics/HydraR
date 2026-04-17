@@ -77,8 +77,8 @@ test_that("Advanced Validation: Edge synchronization mismatch", {
 
   # Register logic and test function via global environment to test Tier 2
   # or rely on registry logic. Since we pass strings in 'logic' list, it relies on Tier 2
-  dummy <<- function(state) list(status = "ok")
-  dummy_test <<- function(res) TRUE
+  assign("dummy", function(state) list(status = "ok"), envir = .GlobalEnv)
+  assign("dummy_test", function(res) TRUE, envir = .GlobalEnv)
 
   # Add to registry to make it accessible to logic_id
   register_logic("dummy", dummy)
@@ -102,8 +102,8 @@ test_that("Advanced Validation: Extra unmanaged Mermaid edges", {
   clear_registries()
   register_role("persona", "You are a probe.")
 
-  dummy <<- function(state) list(status = "ok")
-  dummy_test <<- function(res) TRUE
+  assign("dummy", function(state) list(status = "ok"), envir = .GlobalEnv)
+  assign("dummy_test", function(res) TRUE, envir = .GlobalEnv)
   register_logic("dummy", dummy)
   register_logic("dummy_test", dummy_test)
 

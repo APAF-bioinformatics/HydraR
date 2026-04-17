@@ -42,7 +42,7 @@ test_that("AnthropicCLIDriver includes system_prompt in cli_opts", {
     public = list(
       captured_args = NULL,
       exec_in_dir = function(cmd, args, ...) {
-        self$captured_args <<- args
+        self$captured_args <- args
         return("Success")
       }
     )

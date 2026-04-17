@@ -65,7 +65,8 @@ validate_workflow_full <- function(dag, wf) {
 #' @return List(errors, warnings).
 #' @keywords internal
 check_resource_linking <- function(dag) {
-  errors <- list()
+  env <- new.env(parent = emptyenv())
+  env$errors <- list()
 
   purrr::walk(dag$nodes, function(node) {
     # Role Check (LLM Nodes)
@@ -73,7 +74,7 @@ check_resource_linking <- function(dag) {
       role_id <- node$params$role_id
       if (!is.null(role_id)) {
         if (is.null(get_role(role_id))) {
-          errors <<- c(errors, sprintf("Node '%s': Role ID '%s' not found in registry. Check your 'roles:' section.", node$id, role_id))
+          env$errors <- c(env$errors, sprintf("Node '%s': Role ID '%s' not found in registry. Check your 'roles:' section.", node$id, role_id))
         }
       }
     }
@@ -89,13 +90,13 @@ check_resource_linking <- function(dag) {
         }
 
         if (is.null(get_logic(logic_id))) {
-          errors <<- c(errors, sprintf("Node '%s': Logic ID '%s' not found in registry. Check your 'logic:' section.", node$id, logic_id))
+          env$errors <- c(env$errors, sprintf("Node '%s': Logic ID '%s' not found in registry. Check your 'logic:' section.", node$id, logic_id))
         }
       }
     }
   })
 
-  list(errors = errors)
+  list(errors = env$errors)
 }
 
 #' Check Edge Synchronization
@@ -103,7 +104,8 @@ check_resource_linking <- function(dag) {
 #' @return List(errors).
 #' @keywords internal
 check_edge_synchronization <- function(dag) {
-  errors <- list()
+  env <- new.env(parent = emptyenv())
+  env$errors <- list()
 
   # Get all static edges defined in Mermaid (stored in dag$edges)
   # Format: list(from, to, label)
@@ -123,14 +125,14 @@ check_edge_synchronization <- function(dag) {
     # Check if_true
     if (!is.null(cfg$if_true)) {
       if (!has_static_edge(node_id, cfg$if_true)) {
-        errors <<- c(errors, sprintf("Node '%s': YAML defines 'if_true: %s', but no matching arrow (-->) exists in the Mermaid graph.", node_id, cfg$if_true))
+        env$errors <- c(env$errors, sprintf("Node '%s': YAML defines 'if_true: %s', but no matching arrow (-->) exists in the Mermaid graph.", node_id, cfg$if_true))
       }
     }
 
     # Check if_false
     if (!is.null(cfg$if_false)) {
       if (!has_static_edge(node_id, cfg$if_false)) {
-        errors <<- c(errors, sprintf("Node '%s': YAML defines 'if_false: %s', but no matching arrow (-->) exists in the Mermaid graph.", node_id, cfg$if_false))
+        env$errors <- c(env$errors, sprintf("Node '%s': YAML defines 'if_false: %s', but no matching arrow (-->) exists in the Mermaid graph.", node_id, cfg$if_false))
       }
     }
 
@@ -145,11 +147,11 @@ check_edge_synchronization <- function(dag) {
     }
 
     if (length(unmanaged_edges) > 0) {
-      errors <<- c(errors, sprintf("Node '%s': Mermaid graph has extra edges to [%s] that are not handled by 'conditional_edges' in YAML.", node_id, paste(unmanaged_edges, collapse = ", ")))
+      env$errors <- c(env$errors, sprintf("Node '%s': Mermaid graph has extra edges to [%s] that are not handled by 'conditional_edges' in YAML.", node_id, paste(unmanaged_edges, collapse = ", ")))
     }
   })
 
-  list(errors = errors)
+  list(errors = env$errors)
 }
 
 #' Internal helper: Lint a single logic block
@@ -196,9 +198,12 @@ check_edge_synchronization <- function(dag) {
   if (requireNamespace("lintr", quietly = TRUE)) {
     l_res <- lintr::lint(text = code)
     if (length(l_res) > 0) {
+      env <- new.env(parent = emptyenv())
+      env$warnings <- warnings
       purrr::walk(utils::head(l_res, 3), function(l) {
-        warnings <<- c(warnings, sprintf("Logic '%s' [Lint]: %s (line %d)", name, l$message, l$line_number))
+        env$warnings <- c(env$warnings, sprintf("Logic '%s' [Lint]: %s (line %d)", name, l$message, l$line_number))
       })
+      warnings <- env$warnings
     }
   }
 

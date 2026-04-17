@@ -46,13 +46,14 @@ test_that("Data Science AutoML loop works", {
   ))
 
   # 3. Evaluator
-  eval_count <- 0
+  env <- new.env(parent = emptyenv())
+  env$eval_count <- 0
   dag$add_node(AgentLogicNode$new(
     id = "Evaluator",
     logic_fn = function(state) {
-      eval_count <<- eval_count + 1
+      env$eval_count <- env$eval_count + 1
       # Accuracy improves per call
-      accuracy <- min(0.60 + (eval_count * 0.10), 0.95)
+      accuracy <- min(0.60 + (env$eval_count * 0.10), 0.95)
 
       if (accuracy >= state$get("target_accuracy")) {
         list(status = "success", output = list(optimization_complete = TRUE))
@@ -83,7 +84,7 @@ test_that("Data Science AutoML loop works", {
   ))
   # Assertions
   # 0.60 -> 0.70 -> 0.80 -> 0.90 (Success)
-  expect_equal(eval_count, 3)
+  expect_equal(env$eval_count, 3)
   expect_equal(result$state$get("ModelTrainer"), "Model Config")
 })
 

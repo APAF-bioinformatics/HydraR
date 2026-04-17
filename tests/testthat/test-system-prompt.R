@@ -22,14 +22,15 @@ test_that("OpenAIAPIDriver includes system_prompt in request", {
       ), auto_unbox = TRUE))
     )
 
-    checked <- FALSE
+    env <- new.env(parent = emptyenv())
+    env$checked <- FALSE
     mock_handler <- function(req) {
       body <- if (is.list(req$body$data)) req$body$data else jsonlite::fromJSON(rawToChar(req$body$data))
       expect_equal(body$messages[[1]]$role, "system")
       expect_equal(body$messages[[1]]$content, "You are a helpful assistant")
       expect_equal(body$messages[[2]]$role, "user")
       expect_equal(body$messages[[2]]$content, "Hello")
-      checked <<- TRUE
+      env$checked <- TRUE
       return(mock_resp)
     }
 
@@ -39,7 +40,7 @@ test_that("OpenAIAPIDriver includes system_prompt in request", {
         drv$call("Hello", system_prompt = "You are a helpful assistant")
       }
     )
-    expect_true(checked)
+    expect_true(env$checked)
   })
 })
 
@@ -55,13 +56,14 @@ test_that("AnthropicAPIDriver includes system_prompt in request", {
       ), auto_unbox = TRUE))
     )
 
-    checked <- FALSE
+    env <- new.env(parent = emptyenv())
+    env$checked <- FALSE
     mock_handler <- function(req) {
       body <- if (is.list(req$body$data)) req$body$data else jsonlite::fromJSON(rawToChar(req$body$data))
       expect_equal(body$system, "You are a helpful assistant")
       expect_equal(body$messages[[1]]$role, "user")
       expect_equal(body$messages[[1]]$content, "Hello")
-      checked <<- TRUE
+      env$checked <- TRUE
       return(mock_resp)
     }
 
@@ -71,7 +73,7 @@ test_that("AnthropicAPIDriver includes system_prompt in request", {
         drv$call("Hello", system_prompt = "You are a helpful assistant")
       }
     )
-    expect_true(checked)
+    expect_true(env$checked)
   })
 })
 
@@ -87,12 +89,13 @@ test_that("GeminiAPIDriver includes system_prompt in request", {
       ), auto_unbox = TRUE))
     )
 
-    checked <- FALSE
+    env <- new.env(parent = emptyenv())
+    env$checked <- FALSE
     mock_handler <- function(req) {
       body <- if (is.list(req$body$data)) req$body$data else jsonlite::fromJSON(rawToChar(req$body$data), simplifyVector = FALSE)
       expect_equal(body$systemInstruction$parts[[1]]$text, "You are a helpful assistant")
       expect_equal(body$contents[[1]]$parts[[1]]$text, "Hello")
-      checked <<- TRUE
+      env$checked <- TRUE
       return(mock_resp)
     }
 
@@ -102,7 +105,7 @@ test_that("GeminiAPIDriver includes system_prompt in request", {
         drv$call("Hello", system_prompt = "You are a helpful assistant")
       }
     )
-    expect_true(checked)
+    expect_true(env$checked)
   })
 })
 
@@ -120,7 +123,7 @@ test_that("AgentLLMNode injects agents.md and skills.md from worktree", {
     public = list(
       last_system_prompt = NULL,
       call = function(prompt, model = NULL, system_prompt = NULL, ...) {
-        self$last_system_prompt <<- system_prompt
+        self$last_system_prompt <- system_prompt
         return("Success")
       }
     )
@@ -157,7 +160,7 @@ test_that("AgentLLMNode handles multiple agents_files and skills_files", {
     public = list(
       last_system_prompt = NULL,
       call = function(prompt, model = NULL, system_prompt = NULL, ...) {
-        self$last_system_prompt <<- system_prompt
+        self$last_system_prompt <- system_prompt
         return("Success")
       }
     )

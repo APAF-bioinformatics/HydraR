@@ -1,3 +1,17 @@
+# HydraR 0.2.4 (APAF Compliance Refactor)
+
+- **APAF Compliance Refactor**:
+    - Absolute removal of all global assignment operators (`<<-`) across the package (R scripts, tests, and vignettes) in favor of local environments and functional programming patterns (`purrr::reduce`).
+    - Standardized state mutation within R6 methods to use direct field assignment (`self$x <- val`).
+- **Driver & Execution Enhancements**:
+    - Refactored `AgentLLMNode` to use `purrr::reduce` for robust system prompt construction.
+    - Improved environment isolation for Python and Bash nodes.
+    - Enhanced error handling for `reticulate`-based Python execution.
+- **Unit Testing Overhaul**:
+    - Updated the entire test suite to be `<<-` clean.
+    - Improved mock driver implementations for better `httr2` and CLI simulation.
+- **Watermark & Versioning**: Updated APAF watermarks and incremented version to 0.2.4.
+
 # HydraR 0.2.3 (Pkgstats Network Recovery)
 
 - **Static Analysis Resilience**:
@@ -58,4 +72,4 @@
 - **AI Transparency**: Disclosure of LLM usage in development through `agents.md` and `DESIGN.md`.
 
 ---
-<!-- APAF Bioinformatics | HydraR | Approved | 2026-03-31 -->
+<!-- APAF Bioinformatics | HydraR | Approved | 2026-04-17 -->
