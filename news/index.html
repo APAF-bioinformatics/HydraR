@@ -46,20 +46,11 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.2.4" id="hydrar-024-apaf-compliance--idempotency">HydraR 0.2.4 (APAF Compliance &amp; Idempotency)<a class="anchor" aria-label="anchor" href="#hydrar-024-apaf-compliance--idempotency"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.2.4" id="hydrar-024-apaf-compliance-refactor">HydraR 0.2.4 (APAF Compliance Refactor)<a class="anchor" aria-label="anchor" href="#hydrar-024-apaf-compliance-refactor"></a></h2>
 <ul><li>
 <strong>APAF Compliance Refactor</strong>:
 <ul><li>Absolute removal of all global assignment operators (<code>&lt;&lt;-</code>) across the package (R scripts, tests, and vignettes) in favor of local environments and functional programming patterns (<code><a href="https://purrr.tidyverse.org/reference/reduce.html" class="external-link">purrr::reduce</a></code>).</li>
 <li>Standardized state mutation within R6 methods to use direct field assignment (<code>self$x &lt;- val</code>).</li>
-</ul></li>
-<li>
-<strong>Native Idempotency Engine</strong>:
-<ul><li>Introduced <code>AgentHasher</code> (R/hasher.R), a DuckDB-backed engine for node-level execution hashing.</li>
-<li>Enables “targets-like” behavior where nodes can skip execution if input state and logic remain unchanged.</li>
-</ul></li>
-<li>
-<strong>Automated Skill Discovery</strong>:
-<ul><li>Implemented <code>discover_package_skills()</code> (R/skill_discovery.R) for automatic discovery and registration of external package skills via <code>hydrar/manifest.yaml</code>.</li>
 </ul></li>
 <li>
 <strong>Driver &amp; Execution Enhancements</strong>:
