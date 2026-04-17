@@ -10,7 +10,7 @@ test_that("discover_package_skills parses and registers manifests correctly", {
   # 1. Setup mock data
   mock_manifest <- list(
     skills = list(
-      list(id = "mock_skill", function = "mock_func")
+      list(id = "mock_skill", "function" = "mock_func")
     )
   )
   
@@ -36,10 +36,11 @@ test_that("discover_package_skills parses and registers manifests correctly", {
 test_that(".parse_and_register_manifest registers functions from namespaces", {
   # Create a temporary manifest file
   tmp_file <- tempfile(fileext = ".yaml")
-  yaml::write_yaml(list(skills = list(list(id = "test_skill", function = "identity"))), tmp_file)
+  yaml::write_yaml(list(skills = list(list(id = "test_skill", "function" = "identity"))), tmp_file)
   
   # Stub getFromNamespace to return a known function (identity from base)
-  mockery::stub(.parse_and_register_manifest, "utils::getFromNamespace", identity)
+  # Needs to accept two args: (fn_name, pkg)
+  mockery::stub(.parse_and_register_manifest, "utils::getFromNamespace", function(x, y) identity)
   
   # Execute
   res <- .parse_and_register_manifest(tmp_file, "base")

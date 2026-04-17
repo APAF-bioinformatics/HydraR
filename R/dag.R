@@ -309,7 +309,16 @@ AgentDAG <- R6::R6Class("AgentDAG",
     #'   \item \code{state}: The final \code{AgentState} object.
     #'   \item \code{status}: \code{"completed"} or \code{"paused"}.
     #' }
-                    packages = c("withr"),
+    run = function(initial_state = NULL,
+                   max_steps = 25,
+                   checkpointer = NULL,
+                   thread_id = NULL,
+                   resume_from = NULL,
+                   use_worktrees = FALSE,
+                   repo_root = getwd(),
+                   cleanup_policy = "auto",
+                   fail_if_dirty = TRUE,
+                   packages = c("withr"),
                    use_hashing = FALSE,
                    hash_db = "research_cache.duckdb",
                    ...) {
