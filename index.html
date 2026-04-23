@@ -53,7 +53,7 @@
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
-<li class="nav-item"><a class="nav-link" href="https://github.com/APAF-bioinformatics/HydraR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/APAF-bioinformatics/HydraR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -245,7 +245,7 @@ HydraR: Stateful Agentic Orchestration for R
 <span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>    A --&gt; B</span>
 <span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>    B -- "fail" --&gt; A</span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://APAF-bioinformatics.github.io/HydraR/">HydraR</a></span><span class="op">)</span></span>
 <span><span class="va">wf</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/load_workflow.html">load_workflow</a></span><span class="op">(</span><span class="st">"workflow.yml"</span><span class="op">)</span></span>
 <span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/spawn_dag.html">spawn_dag</a></span><span class="op">(</span><span class="va">wf</span><span class="op">)</span></span>
 <span><span class="va">results</span> <span class="op">&lt;-</span> <span class="va">dag</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -256,7 +256,7 @@ HydraR: Stateful Agentic Orchestration for R
 </h3>
 <p>Perfect for developers who want full programmatic control over node logic.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://APAF-bioinformatics.github.io/HydraR/">HydraR</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 1. Define a simple logic node</span></span>
 <span><span class="va">node_hello</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/AgentLogicNode.html">AgentLogicNode</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -287,7 +287,7 @@ HydraR: Stateful Agentic Orchestration for R
 </h3>
 <p>We recommend using the <a href="https://dgritree.github.io/DiagrammeR/" class="external-link"><code>DiagrammeR</code></a> package to render your DAGs:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://APAF-bioinformatics.github.io/HydraR/">HydraR</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rich-iannone.github.io/DiagrammeR/" class="external-link">DiagrammeR</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Green = Success, Red = Failure, Blue = Active path</span></span>
@@ -342,8 +342,8 @@ HydraR: Stateful Agentic Orchestration for R
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/APAF-bioinformatics/HydraR/">Browse source code</a></li>
-<li><a href="https://github.com/APAF-bioinformatics/HydraR/issues">Report a bug</a></li>
+<li><a href="https://github.com/APAF-bioinformatics/HydraR/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/APAF-bioinformatics/HydraR/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
 

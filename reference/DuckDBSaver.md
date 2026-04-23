@@ -10,7 +10,7 @@ A `DuckDBSaver` R6 object.
 
 ## Super class
 
-[`HydraR::Checkpointer`](https://github.com/APAF-bioinformatics/HydraR/reference/Checkpointer.md)
+[`HydraR::Checkpointer`](https://APAF-bioinformatics.github.io/HydraR/reference/Checkpointer.md)
 -\> `DuckDBSaver`
 
 ## Public fields

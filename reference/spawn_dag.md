@@ -2,7 +2,7 @@
 
 A high-level helper that orchestrates the "Low Code" lifecycle: it takes
 a workflow definition (from
-[`load_workflow`](https://github.com/APAF-bioinformatics/HydraR/reference/load_workflow.md)),
+[`load_workflow`](https://APAF-bioinformatics.github.io/HydraR/reference/load_workflow.md)),
 parses the internal graph structure, instantiates all nodes via the
 provided factory, applies conditional/error edges, and performs a final
 compilation check.
@@ -18,13 +18,13 @@ spawn_dag(wf, node_factory = auto_node_factory())
 - wf:
 
   List. A workflow object previously returned by
-  [`load_workflow()`](https://github.com/APAF-bioinformatics/HydraR/reference/load_workflow.md).
+  [`load_workflow()`](https://APAF-bioinformatics.github.io/HydraR/reference/load_workflow.md).
 
 - node_factory:
 
   Function. An optional factory function to map Mermaid labels to nodes.
   Defaults to
-  [`auto_node_factory`](https://github.com/APAF-bioinformatics/HydraR/reference/auto_node_factory.md).
+  [`auto_node_factory`](https://APAF-bioinformatics.github.io/HydraR/reference/auto_node_factory.md).
 
 ## Value
 

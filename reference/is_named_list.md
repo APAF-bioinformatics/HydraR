@@ -27,9 +27,9 @@ if (FALSE) { # \dontrun{
 is_named_list(list(a = 1, b = 2)) # TRUE
 
 # Invalid: contains unnamed elements
-is_named_list(list(a = 1, 2))      # FALSE
+is_named_list(list(a = 1, 2)) # FALSE
 
 # Invalid: data.frame (technically a list, but we want a record/dict)
-is_named_list(data.frame(a = 1))  # FALSE
+is_named_list(data.frame(a = 1)) # FALSE
 } # }
 ```

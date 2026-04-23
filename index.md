@@ -158,28 +158,28 @@ OPENAI_API_KEY="your_openai_api_key"
 
 > \[!TIP\] **New to HydraR?** The primary resource for learning is the
 > **[Complete Instruction
-> Manual](https://github.com/APAF-bioinformatics/HydraR/vignettes/manual.md)**.
+> Manual](https://APAF-bioinformatics.github.io/HydraR/vignettes/manual.md)**.
 
 ### Case Studies & Examples
 
 - 📍 [Sydney to Hong Kong Travel
-  Planner](https://github.com/APAF-bioinformatics/HydraR/vignettes/hong_kong_travel.md):
+  Planner](https://APAF-bioinformatics.github.io/HydraR/vignettes/hong_kong_travel.md):
   Demonstrates the **Zero-R-Code** orchestration pattern using YAML and
   Mermaid.
 - 🚀 [Parallel Sorting
-  Benchmark](https://github.com/APAF-bioinformatics/HydraR/vignettes/sorting_benchmark.md):
+  Benchmark](https://APAF-bioinformatics.github.io/HydraR/vignettes/sorting_benchmark.md):
   Shows how to use **Git Worktrees** for isolated, parallel agent
   execution.
 - 💾 [State Persistence &
-  Restart](https://github.com/APAF-bioinformatics/HydraR/vignettes/state_persistence.md):
+  Restart](https://APAF-bioinformatics.github.io/HydraR/vignettes/state_persistence.md):
   Explains how to use the **DuckDB checkpointer** for resilient,
   resumable workflows.
 - 🛠️ [Creating Custom
-  Drivers](https://github.com/APAF-bioinformatics/HydraR/vignettes/extending_hydrar.md):
+  Drivers](https://APAF-bioinformatics.github.io/HydraR/vignettes/extending_hydrar.md):
   Developer guide on subclassing `AgentDriver` for local LLMs or
   proprietary APIs.
 - 🎯 [Targets
-  Integration](https://github.com/APAF-bioinformatics/HydraR/vignettes/targets_integration.md):
+  Integration](https://APAF-bioinformatics.github.io/HydraR/vignettes/targets_integration.md):
   Explains how to build reproducible, cached pipelines using the
   `targets` package.
 
@@ -226,11 +226,11 @@ authors.
 orchestration of autonomous AI agents.
 
 For a detailed disclosure of AI usage, please refer to the
-**[agents.md](https://github.com/APAF-bioinformatics/HydraR/agents.md)**
+**[agents.md](https://APAF-bioinformatics.github.io/HydraR/agents.md)**
 file.
 
 For architectural rationale and design tradeoffs, please refer to the
-**[DESIGN.md](https://github.com/APAF-bioinformatics/HydraR/DESIGN.md)**
+**[DESIGN.md](https://APAF-bioinformatics.github.io/HydraR/DESIGN.md)**
 file.
 
 ## 🚀 Quick Start: Two Ways to Build
@@ -322,11 +322,11 @@ authors.
 orchestration of autonomous AI agents.
 
 For a detailed disclosure of AI usage, please refer to the
-**[agents.md](https://github.com/APAF-bioinformatics/HydraR/agents.md)**
+**[agents.md](https://APAF-bioinformatics.github.io/HydraR/agents.md)**
 file.
 
 For architectural rationale and design tradeoffs, please refer to the
-**[DESIGN.md](https://github.com/APAF-bioinformatics/HydraR/DESIGN.md)**
+**[DESIGN.md](https://APAF-bioinformatics.github.io/HydraR/DESIGN.md)**
 file.
 
 ## 🛠️ Custom Drivers
@@ -339,7 +339,7 @@ endpoints via `httr2`. - **Mock Backends**: Deterministic drivers for
 unit testing complex DAG logic.
 
 Refer to the [Creating Custom
-Drivers](https://github.com/APAF-bioinformatics/HydraR/vignettes/extending_hydrar.md)
+Drivers](https://APAF-bioinformatics.github.io/HydraR/vignettes/extending_hydrar.md)
 guide for implementation details.
 
 ## 🤝 Acknowledgements

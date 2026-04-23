@@ -607,7 +607,7 @@ custom node factory.
 
   Function. A closure mapping Mermaid labels and parameters to
   `AgentNode` instances. See
-  [`auto_node_factory`](https://github.com/APAF-bioinformatics/HydraR/reference/auto_node_factory.md)
+  [`auto_node_factory`](https://APAF-bioinformatics.github.io/HydraR/reference/auto_node_factory.md)
   for the standard implementation.
 
 #### Returns
@@ -651,9 +651,9 @@ if (FALSE) { # \dontrun{
 dag <- AgentDAG$new()
 
 # Define logic for data retrieval and quality control
-register_logic("fetcher", function(state) list(status="success", output="raw data"))
+register_logic("fetcher", function(state) list(status = "success", output = "raw data"))
 register_logic("gate", function(state) {
-  if (nchar(state$get("fetcher")) > 5) list(status="true") else list(status="false")
+  if (nchar(state$get("fetcher")) > 5) list(status = "true") else list(status = "false")
 })
 
 # 2. Programmatic Node Construction
@@ -663,8 +663,10 @@ dag$add_node(AgentLogicNode$new("check", logic_fn = get_logic("gate")))
 # 3. Connecting nodes with status-based edges
 # Errors in 'start' go to a terminal cleanup node
 dag$add_edge("start", "check")
-dag$add_conditional_edge("check", test = function(res) res$status == "true",
-                         if_true = "process", if_false = "retry")
+dag$add_conditional_edge("check",
+  test = function(res) res$status == "true",
+  if_true = "process", if_false = "retry"
+)
 
 # 4. Multi-agent execution context
 # Compiling and running with initial state

@@ -32,7 +32,7 @@ if (FALSE) { # \dontrun{
 # Define a specific identity for a bioinformatics analyst
 register_role(
   name = "bio_analyst",
-  prompt_text = "You are a senior bioinformatician specializing in NGS data. 
+  prompt_text = "You are a senior bioinformatician specializing in NGS data.
   Always provide R code for visualization using ggplot2."
 )
 

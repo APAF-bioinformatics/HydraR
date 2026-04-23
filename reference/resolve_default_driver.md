@@ -21,7 +21,7 @@ resolve_default_driver(driver_id, driver_registry = NULL)
 
   DriverRegistry. An optional registry object to look up custom drivers
   first. If omitted, the global
-  [`get_driver_registry()`](https://github.com/APAF-bioinformatics/HydraR/reference/get_driver_registry.md)
+  [`get_driver_registry()`](https://APAF-bioinformatics.github.io/HydraR/reference/get_driver_registry.md)
   is used.
 
 ## Value
@@ -33,8 +33,8 @@ An `AgentDriver` object.
 ``` r
 if (FALSE) { # \dontrun{
 # 1. Simple shorthand resolution
-drv1 <- resolve_default_driver("gemini")      # GeminiCLIDriver
-drv2 <- resolve_default_driver("openai_api")  # OpenAIAPIDriver
+drv1 <- resolve_default_driver("gemini") # GeminiCLIDriver
+drv2 <- resolve_default_driver("openai_api") # OpenAIAPIDriver
 
 # 2. Resolution with a custom registry context
 reg <- DriverRegistry$new()

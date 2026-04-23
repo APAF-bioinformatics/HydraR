@@ -10,7 +10,7 @@ A `JSONLMessageLog` object.
 
 ## Super class
 
-[`HydraR::MessageLog`](https://github.com/APAF-bioinformatics/HydraR/reference/MessageLog.md)
+[`HydraR::MessageLog`](https://APAF-bioinformatics.github.io/HydraR/reference/MessageLog.md)
 -\> `JSONLMessageLog`
 
 ## Public fields

@@ -222,7 +222,7 @@ visualize the graph to ensure it matches your expectations.
 ##### 1. Validating your Workflow
 
 The
-[`validate_workflow_file()`](https://github.com/APAF-bioinformatics/HydraR/reference/validate_workflow_file.md)
+[`validate_workflow_file()`](https://APAF-bioinformatics.github.io/HydraR/reference/validate_workflow_file.md)
 function performs a deep audit of your YAML. It checks for: - **Schema
 Errors**: Missing required keys like `graph` or `logic`. - **Topological
 Inconsistency**: Arrows in Mermaid that don’t have matching logic in
@@ -240,7 +240,7 @@ validate_workflow_file("question_answerer.yml")
 
 You can render your workflow as an interactive diagram or export it to a
 high-resolution image for reports using
-[`render_workflow_file()`](https://github.com/APAF-bioinformatics/HydraR/reference/render_workflow_file.md).
+[`render_workflow_file()`](https://APAF-bioinformatics.github.io/HydraR/reference/render_workflow_file.md).
 
 ``` r
 library(HydraR)
@@ -1059,20 +1059,20 @@ Now that you understand the fundamentals, explore these resources to go
 deeper:
 
 - **[Sydney to Hong Kong Travel
-  Planner](https://github.com/APAF-bioinformatics/HydraR/articles/hong_kong_travel.md)**:
+  Planner](https://APAF-bioinformatics.github.io/HydraR/articles/hong_kong_travel.md)**:
   A full case study demonstrating the Zero-R-Code pattern with visual
   asset generation.
 - **[Parallel Sorting
-  Benchmark](https://github.com/APAF-bioinformatics/HydraR/articles/sorting_benchmark.md)**:
+  Benchmark](https://APAF-bioinformatics.github.io/HydraR/articles/sorting_benchmark.md)**:
   How to use Git worktrees for isolated, parallel agent execution.
 - **[State Persistence &
-  Recovery](https://github.com/APAF-bioinformatics/HydraR/articles/state_persistence.md)**:
+  Recovery](https://APAF-bioinformatics.github.io/HydraR/articles/state_persistence.md)**:
   Deep dive into DuckDB checkpointing for fault-tolerant pipelines.
 - **[Creating Custom
-  Drivers](https://github.com/APAF-bioinformatics/HydraR/articles/extending_hydrar.md)**:
+  Drivers](https://APAF-bioinformatics.github.io/HydraR/articles/extending_hydrar.md)**:
   Build your own driver for a local LLM or enterprise API.
 - **[Targets
-  Integration](https://github.com/APAF-bioinformatics/HydraR/articles/targets_integration.md)**:
+  Integration](https://APAF-bioinformatics.github.io/HydraR/articles/targets_integration.md)**:
   Combine HydraR with the `targets` package for cached, reproducible
   pipelines.
 
