@@ -21,7 +21,7 @@ Description: A high-performance framework for orchestrating complex
         visualization using Mermaid.js. Ideal for creating auditable,
         resumable research assistants and complex bioinformatics
         pipelines.
-URL: https://APAF-bioinformatics.github.io/HydraR/, https://github.com/APAF-bioinformatics/HydraR
+URL: https://github.com/APAF-bioinformatics/HydraR, https://APAF-bioinformatics.github.io/HydraR/
 BugReports: https://github.com/APAF-bioinformatics/HydraR/issues
 License: LGPL (>= 3)
 Encoding: UTF-8
