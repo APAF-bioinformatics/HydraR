@@ -43,7 +43,7 @@ graph TD
 # 1. Register the required logic in the registry
 register_logic("validate_data", function(state) {
   raw <- state$get("A")
-  if (nchar(raw) > 100) list(status="success") else list(status="failed")
+  if (nchar(raw) > 100) list(status = "success") else list(status = "failed")
 })
 
 # 2. Create the DAG using the automatic factory

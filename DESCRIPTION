@@ -21,7 +21,7 @@ Description: A high-performance framework for orchestrating complex
         visualization using Mermaid.js. Ideal for creating auditable,
         resumable research assistants and complex bioinformatics
         pipelines.
-URL: https://github.com/APAF-bioinformatics/HydraR
+URL: https://APAF-bioinformatics.github.io/HydraR/, https://github.com/APAF-bioinformatics/HydraR
 BugReports: https://github.com/APAF-bioinformatics/HydraR/issues
 License: LGPL (>= 3)
 Encoding: UTF-8
@@ -34,3 +34,31 @@ Suggests: testthat (>= 3.0.0), duckdb, knitr, rmarkdown, future,
         DiagrammeRsvg, lintr, rsvg, mockery, RSQLite, htmltools
 VignetteBuilder: knitr
 Config/testthat/edition: 3
+Collate: 
+    'checkpointer.R'
+    'dag.R'
+    'driver.R'
+    'driver_registry.R'
+    'drivers_api.R'
+    'drivers_cli.R'
+    'factory.R'
+    'git_cleanup.R'
+    'init_duckdb.R'
+    'logic_node.R'
+    'map_node.R'
+    'merge_harmonizer.R'
+    'mermaid_parser.R'
+    'message_log.R'
+    'node.R'
+    'node_languages.R'
+    'node_llm.R'
+    'observer_node.R'
+    'registry.R'
+    'router_node.R'
+    'state.R'
+    'state_restricted.R'
+    'tools.R'
+    'utils.R'
+    'validation.R'
+    'worktree.R'
+    'zzz.R'

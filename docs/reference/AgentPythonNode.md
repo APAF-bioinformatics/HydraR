@@ -8,7 +8,7 @@ An \`AgentPythonNode\` object.
 
 ## Super class
 
-[`HydraR::AgentNode`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentNode.md)
+[`HydraR::AgentNode`](https://APAF-bioinformatics.github.io/HydraR/reference/AgentNode.md)
 -\> `AgentPythonNode`
 
 ## Public fields

@@ -3,20 +3,20 @@
 ### Getting Started
 
 - [HydraR: The Complete
-  Guide](https://github.com/APAF-bioinformatics/HydraR/articles/manual.md):
+  Guide](https://APAF-bioinformatics.github.io/HydraR/articles/manual.md):
 
 ### Case Studies
 
 - [Agentic Travel Planning: Sydney to Hong
-  Kong](https://github.com/APAF-bioinformatics/HydraR/articles/hong_kong_travel.md):
+  Kong](https://APAF-bioinformatics.github.io/HydraR/articles/hong_kong_travel.md):
 - [Parallel Benchmarking with Git
-  Worktrees](https://github.com/APAF-bioinformatics/HydraR/articles/sorting_benchmark.md):
+  Worktrees](https://APAF-bioinformatics.github.io/HydraR/articles/sorting_benchmark.md):
 
 ### Developer Guides
 
 - [Reproducible Agentic Pipelines with
-  targets](https://github.com/APAF-bioinformatics/HydraR/articles/targets_integration.md):
+  targets](https://APAF-bioinformatics.github.io/HydraR/articles/targets_integration.md):
 - [Creating Custom Agent
-  Drivers](https://github.com/APAF-bioinformatics/HydraR/articles/extending_hydrar.md):
+  Drivers](https://APAF-bioinformatics.github.io/HydraR/articles/extending_hydrar.md):
 - [State Persistence & Restart: Resilient
-  Workflows](https://github.com/APAF-bioinformatics/HydraR/articles/state_persistence.md):
+  Workflows](https://APAF-bioinformatics.github.io/HydraR/articles/state_persistence.md):

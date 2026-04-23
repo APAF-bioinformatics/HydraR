@@ -55,7 +55,7 @@ on your changes to ensure consistency with the rest of the package.
 
 Please note that the `HydraR` project is released with a [Contributor
 Code of
-Conduct](https://github.com/APAF-bioinformatics/HydraR/CONDUCT.md). By
+Conduct](https://APAF-bioinformatics.github.io/HydraR/CONDUCT.md). By
 contributing to this project, you agree to abide by its terms.
 
 ------------------------------------------------------------------------

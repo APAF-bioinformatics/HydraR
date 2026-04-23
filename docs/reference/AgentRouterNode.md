@@ -9,7 +9,7 @@ An \`AgentRouterNode\` object.
 
 ## Super class
 
-[`HydraR::AgentNode`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentNode.md)
+[`HydraR::AgentNode`](https://APAF-bioinformatics.github.io/HydraR/reference/AgentNode.md)
 -\> `AgentRouterNode`
 
 ## Public fields

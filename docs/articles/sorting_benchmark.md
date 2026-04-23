@@ -114,7 +114,7 @@ compiled_dag$save_trace("sorting_trace.json")
 ## 🧘 Summary
 
 By using **Declarative Mermaid Nodes** with
-[`auto_node_factory()`](https://github.com/APAF-bioinformatics/HydraR/reference/auto_node_factory.md),
+[`auto_node_factory()`](https://APAF-bioinformatics.github.io/HydraR/reference/auto_node_factory.md),
 we: 1. **Eliminated Boilerplate**: No hand-written node factory — the
 Mermaid graph IS the specification. 2. **Eliminated State Corruption**:
 Three agents modified the codebase simultaneously via isolated Git

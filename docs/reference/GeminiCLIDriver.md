@@ -17,7 +17,7 @@ You can override the binary path using:
 
 ## Super class
 
-[`HydraR::AgentDriver`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.md)
+[`HydraR::AgentDriver`](https://APAF-bioinformatics.github.io/HydraR/reference/AgentDriver.md)
 -\> `GeminiCLIDriver`
 
 ## Public fields
@@ -38,12 +38,12 @@ You can override the binary path using:
 
 Inherited methods
 
-- [`HydraR::AgentDriver$exec_in_dir()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-exec_in_dir)
-- [`HydraR::AgentDriver$filter_llm_noise()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-filter_llm_noise)
-- [`HydraR::AgentDriver$format_cli_opts()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-format_cli_opts)
-- [`HydraR::AgentDriver$get_capabilities()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-get_capabilities)
-- [`HydraR::AgentDriver$validate_cli_opts()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-validate_cli_opts)
-- [`HydraR::AgentDriver$validate_no_injection()`](https://github.com/APAF-bioinformatics/HydraR/reference/AgentDriver.html#method-validate_no_injection)
+- [`HydraR::AgentDriver$exec_in_dir()`](https://APAF-bioinformatics.github.io/HydraR/reference/AgentDriver.html#method-exec_in_dir)
+- [`HydraR::AgentDriver$filter_llm_noise()`](https://APAF-bioinformatics.github.io/HydraR/reference/AgentDriver.html#method-filter_llm_noise)
+- [`HydraR::AgentDriver$format_cli_opts()`](https://APAF-bioinformatics.github.io/HydraR/reference/AgentDriver.html#method-format_cli_opts)
+- [`HydraR::AgentDriver$get_capabilities()`](https://APAF-bioinformatics.github.io/HydraR/reference/AgentDriver.html#method-get_capabilities)
+- [`HydraR::AgentDriver$validate_cli_opts()`](https://APAF-bioinformatics.github.io/HydraR/reference/AgentDriver.html#method-validate_cli_opts)
+- [`HydraR::AgentDriver$validate_no_injection()`](https://APAF-bioinformatics.github.io/HydraR/reference/AgentDriver.html#method-validate_no_injection)
 
 ------------------------------------------------------------------------
 

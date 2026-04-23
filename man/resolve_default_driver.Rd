@@ -27,8 +27,8 @@ using logic-friendly keys like \code{"gemini"}, \code{"claude"}, or \code{"opena
 \examples{
 \dontrun{
 # 1. Simple shorthand resolution
-drv1 <- resolve_default_driver("gemini")      # GeminiCLIDriver
-drv2 <- resolve_default_driver("openai_api")  # OpenAIAPIDriver
+drv1 <- resolve_default_driver("gemini") # GeminiCLIDriver
+drv2 <- resolve_default_driver("openai_api") # OpenAIAPIDriver
 
 # 2. Resolution with a custom registry context
 reg <- DriverRegistry$new()

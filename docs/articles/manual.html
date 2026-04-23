@@ -21,7 +21,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">HydraR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,7 +51,7 @@
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
-<li class="nav-item"><a class="nav-link" href="https://github.com/APAF-bioinformatics/HydraR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/APAF-bioinformatics/HydraR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -68,7 +68,7 @@
       <h1>HydraR: The Complete Guide</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/APAF-bioinformatics/HydraR/blob/HEAD/vignettes/manual.Rmd"><code>vignettes/manual.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/APAF-bioinformatics/HydraR/blob/HEAD/vignettes/manual.Rmd" class="external-link"><code>vignettes/manual.Rmd</code></a></small>
       <div class="d-none name"><code>manual.Rmd</code></div>
     </div>
 
@@ -217,7 +217,7 @@ entire workflow in one YAML file:</p>
 <span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a><span class="at">  </span><span class="fu">question</span><span class="kw">:</span><span class="at"> </span><span class="st">"What is the meaning of life?"</span></span></code></pre></div>
 <p>And the R code to run it:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://APAF-bioinformatics.github.io/HydraR/">HydraR</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">wf</span>      <span class="op">&lt;-</span> <span class="fu"><a href="../reference/load_workflow.html">load_workflow</a></span><span class="op">(</span><span class="st">"question_answerer.yml"</span><span class="op">)</span></span>
 <span><span class="va">dag</span>     <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spawn_dag.html">spawn_dag</a></span><span class="op">(</span><span class="va">wf</span><span class="op">)</span></span>
@@ -286,7 +286,7 @@ before execution.</td>
 <h4 id="the-load-spawn-run-lifecycle">The Load → Spawn → Run Lifecycle<a class="anchor" aria-label="anchor" href="#the-load-spawn-run-lifecycle"></a>
 </h4>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://APAF-bioinformatics.github.io/HydraR/">HydraR</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 1. Load — parses YAML, registers all roles and logic automatically</span></span>
 <span><span class="va">wf</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/load_workflow.html">load_workflow</a></span><span class="op">(</span><span class="st">"question_answerer.yml"</span><span class="op">)</span></span>
@@ -307,7 +307,7 @@ crashes. You can add persistence to your YAML workflow by passing a
 <code>checkpointer</code> and a <code>message_log</code> to the
 <code>run()</code> method:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://APAF-bioinformatics.github.io/HydraR/">HydraR</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 1. Setup persistent storage</span></span>
 <span><span class="va">saver</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/DuckDBSaver.html">DuckDBSaver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>db_path <span class="op">=</span> <span class="st">"workflows.duckdb"</span><span class="op">)</span></span>
@@ -341,7 +341,7 @@ have matching logic in YAML. - <strong>R Logic Linting</strong>: Syntax
 errors in your inline R functions or missing <code>state</code>
 references.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://APAF-bioinformatics.github.io/HydraR/">HydraR</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Comprehensive check: schema + topology + R linting</span></span>
 <span><span class="fu"><a href="../reference/validate_workflow_file.html">validate_workflow_file</a></span><span class="op">(</span><span class="st">"question_answerer.yml"</span><span class="op">)</span></span></code></pre></div>
@@ -353,7 +353,7 @@ references.</p>
 to a high-resolution image for reports using
 <code><a href="../reference/render_workflow_file.html">render_workflow_file()</a></code>.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://APAF-bioinformatics.github.io/HydraR/">HydraR</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># View interactive diagram in RStudio</span></span>
 <span><span class="fu"><a href="../reference/render_workflow_file.html">render_workflow_file</a></span><span class="op">(</span><span class="st">"question_answerer.yml"</span><span class="op">)</span></span>
@@ -394,7 +394,7 @@ node that transforms some input.</p>
 an <code>AgentState</code> object and returns a list with
 <code>status</code> and <code>output</code>.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://APAF-bioinformatics.github.io/HydraR/">HydraR</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># A function that greets a user by name</span></span>
 <span><span class="va">greeter</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
@@ -436,7 +436,7 @@ primitives.</p>
 <strong>connecting</strong> nodes. Let’s build a two-step pipeline: one
 node fetches data, and the next summarises it.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://APAF-bioinformatics.github.io/HydraR/">HydraR</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Step 1: Fetch data</span></span>
 <span><span class="va">fetch_data</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>
@@ -550,7 +550,7 @@ driver knows how to talk to a specific provider.</p>
 <h4 id="example-an-llm-summariser">Example: An LLM Summariser<a class="anchor" aria-label="anchor" href="#example-an-llm-summariser"></a>
 </h4>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://APAF-bioinformatics.github.io/HydraR/">HydraR</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Create a driver (this one talks to Google's Gemini API)</span></span>
 <span><span class="co"># Use Sys.getenv to securely load your API key from .Renviron</span></span>
@@ -600,7 +600,7 @@ this with <strong>conditional edges</strong>.</p>
 <h4 id="the-pattern-generate-validate-loop-or-continue">The Pattern: Generate → Validate → Loop or Continue<a class="anchor" aria-label="anchor" href="#the-pattern-generate-validate-loop-or-continue"></a>
 </h4>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://APAF-bioinformatics.github.io/HydraR/">HydraR</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># A mock driver for testing (no API key needed)</span></span>
 <span><span class="va">MockDriver</span> <span class="op">&lt;-</span> <span class="fu">R6</span><span class="fu">::</span><span class="kw"><a href="https://r6.r-lib.org/reference/R6Class.html" class="external-link">R6Class</a></span><span class="op">(</span><span class="st">"MockDriver"</span>,</span>
@@ -899,7 +899,7 @@ automatically saving the state after every node execution.</p>
 <h4 id="using-a-duckdb-checkpointer">Using a DuckDB Checkpointer<a class="anchor" aria-label="anchor" href="#using-a-duckdb-checkpointer"></a>
 </h4>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://APAF-bioinformatics.github.io/HydraR/">HydraR</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Create a persistent checkpointer</span></span>
 <span><span class="va">saver</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/DuckDBSaver.html">DuckDBSaver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>db_path <span class="op">=</span> <span class="st">"my_workflow_state.duckdb"</span><span class="op">)</span></span>
@@ -1032,7 +1032,7 @@ human to inspect the state, make corrections, and resume:</p>
 database. This ensures that the state is preserved even if you close
 your R session while waiting for human review.</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://APAF-bioinformatics.github.io/HydraR/">HydraR</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 1. Setup persistent storage</span></span>
 <span><span class="va">saver</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/DuckDBSaver.html">DuckDBSaver</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>db_path <span class="op">=</span> <span class="st">"production_states.duckdb"</span><span class="op">)</span></span>
@@ -1120,7 +1120,7 @@ rendered in Markdown files, Jupyter notebooks, GitHub READMEs, or the
 <h4 id="rendering-a-dag">Rendering a DAG<a class="anchor" aria-label="anchor" href="#rendering-a-dag"></a>
 </h4>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://APAF-bioinformatics.github.io/HydraR/">HydraR</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rich-iannone.github.io/DiagrammeR/" class="external-link">DiagrammeR</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># After building your DAG:</span></span>
@@ -1181,7 +1181,7 @@ agents whose underlying CLI tools (like <code>claude</code> or
 learned. This workflow analyses gene expression data using an iterative
 refinement loop with checkpointing.</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/APAF-bioinformatics/HydraR">HydraR</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://APAF-bioinformatics.github.io/HydraR/">HydraR</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># ── 1. Register reusable logic ──</span></span>
 <span><span class="fu"><a href="../reference/register_logic.html">register_logic</a></span><span class="op">(</span><span class="st">"parse_results"</span>, <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span>

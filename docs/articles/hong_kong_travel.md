@@ -33,7 +33,7 @@ library(HydraR)
 ## Loading the Workflow (Declarative YAML)
 
 We use
-[`load_workflow()`](https://github.com/APAF-bioinformatics/HydraR/reference/load_workflow.md)
+[`load_workflow()`](https://APAF-bioinformatics.github.io/HydraR/reference/load_workflow.md)
 to ingest the entire definition from `hong_kong_travel.yml`. This file
 contains the: 1. **Mermaid Graph** (Source of truth for DAG
 architecture) 2. **LLM Roles** (System prompts for travel concierges) 3.
@@ -50,9 +50,9 @@ wf <- load_workflow("hong_kong_travel.yml")
 
 With the registries populated by the loader, we simply pass the graph
 and the universal
-[`auto_node_factory()`](https://github.com/APAF-bioinformatics/HydraR/reference/auto_node_factory.md)
+[`auto_node_factory()`](https://APAF-bioinformatics.github.io/HydraR/reference/auto_node_factory.md)
 to
-[`mermaid_to_dag()`](https://github.com/APAF-bioinformatics/HydraR/reference/mermaid_to_dag.md).
+[`mermaid_to_dag()`](https://APAF-bioinformatics.github.io/HydraR/reference/mermaid_to_dag.md).
 
 ``` r
 
@@ -310,7 +310,7 @@ cat("\n```\n")
 This workflow demonstrates how `HydraR` enables **Truly Zero-R-Code**
 definitions: 1. **Language-Independent**: The workflow is defined in
 YAML and Mermaid, making it portable. 2. **Reduced Boilerplate**:
-[`load_workflow()`](https://github.com/APAF-bioinformatics/HydraR/reference/load_workflow.md)
+[`load_workflow()`](https://APAF-bioinformatics.github.io/HydraR/reference/load_workflow.md)
 handles all registration and state parsing. 3. **Maintainable**: Logic
 and roles are separated from the R execution engine.
 

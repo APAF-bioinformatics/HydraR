@@ -1,5 +1,21 @@
 # Changelog
 
+## HydraR 0.2.4 (APAF Compliance Refactor)
+
+- **APAF Compliance Refactor**:
+  - Absolute removal of all global assignment operators (`<<-`) across
+    the package (R scripts, tests, and vignettes) in favor of local
+    environments and functional programming patterns
+    ([`purrr::reduce`](https://purrr.tidyverse.org/reference/reduce.html)).
+  - Standardized state mutation within R6 methods to use direct field
+    assignment (`self$x <- val`).
+- **Unit Testing Overhaul**:
+  - Updated the entire test suite to be `<<-` clean.
+  - Improved mock driver implementations for better `httr2` and CLI
+    simulation.
+- **Watermark & Versioning**: Updated APAF watermarks and incremented
+  version to 0.2.4.
+
 ## HydraR 0.2.3 (Pkgstats Network Recovery)
 
 - **Static Analysis Resilience**:

@@ -11,7 +11,7 @@ definitions without needing to pass the function object across environments."></
 
     <a class="navbar-brand me-2" href="../index.html">HydraR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,7 +36,7 @@ definitions without needing to pass the function object across environments."></
     <li><a class="dropdown-item" href="../articles/state_persistence.html">State Persistence &amp; Restart: Resilient Workflows</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><a class="nav-link" href="https://github.com/APAF-bioinformatics/HydraR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/APAF-bioinformatics/HydraR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
 
@@ -46,7 +46,7 @@ definitions without needing to pass the function object across environments."></
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Register Logic Function</h1>
-      <small class="dont-index">Source: <a href="https://github.com/APAF-bioinformatics/HydraR/blob/HEAD/R/registry.R"><code>R/registry.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/APAF-bioinformatics/HydraR/blob/HEAD/R/registry.R" class="external-link"><code>R/registry.R</code></a></small>
       <div class="d-none name"><code>register_logic.Rd</code></div>
     </div>
 
@@ -85,13 +85,15 @@ The R function to be registered. It should typically accept an
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="co"># 1. Register a simple math function</span></span></span>
-<span class="r-in"><span><span class="fu">register_logic</span><span class="op">(</span><span class="st">"add_one"</span>, <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status<span class="op">=</span><span class="st">"ok"</span>, output<span class="op">=</span><span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"x"</span><span class="op">)</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">register_logic</span><span class="op">(</span><span class="st">"add_one"</span>, <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"ok"</span>, output <span class="op">=</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"x"</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># 2. Register a complex validation function that uses the Logic Registry</span></span></span>
 <span class="r-in"><span><span class="co"># This function can now be referenced by name 'validate_results' in any YAML workflow.</span></span></span>
 <span class="r-in"><span><span class="va">validate_results</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>  <span class="va">results</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"researcher_node"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">results</span><span class="op">)</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"failed"</span>, message <span class="op">=</span> <span class="st">"No results found"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">results</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"failed"</span>, message <span class="op">=</span> <span class="st">"No results found"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">}</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"success"</span>, output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>valid <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span><span class="fu">register_logic</span><span class="op">(</span><span class="st">"validate_results"</span>, <span class="va">validate_results</span><span class="op">)</span></span></span>
